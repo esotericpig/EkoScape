@@ -37,7 +37,7 @@ Dantares::Dantares(float SquareSize, float FloorHeight, float CeilingHeight)
 	CameraFacing=0;
 	Walking=-1;
 	Turning=0;
-	WalkSpeed=SquareSize/15.0;
+	WalkSpeed=SquareSize/15.0f;
 	TurnSpeed=5.0;
 	WalkOffset=0.0;
 	TurnOffset=0.0;
@@ -127,9 +127,6 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 {
 	int **TempMap;
 	int NewMapID=NextMapID;
-	int x=0;
-	int y=0;
-	int z=0;
 
 	if (NextMapID>=MAXMAPS)											//All map slots are taken.
 	{
@@ -138,12 +135,12 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 
 	TempMap=new int*[SizeX];
 
-	for (z=0; z<SizeX; z++)
+	for (int z=0; z<SizeX; z++)
 	{
 		TempMap[z]=new int[SizeY];
 	}
 
-	for (z=0; z<SizeX*SizeY; z++)
+	for (int x=0, y=0, z=0; z<SizeX*SizeY; z++)
 	{
 		TempMap[x][y]=*(static_cast<const int*>(Map)+z);
 
@@ -163,7 +160,7 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 
 	NextMapID=MAXMAPS;
 
-	for (x=0; x<MAXMAPS; x++)									//Find the next map ID.
+	for (int x=0; x<MAXMAPS; x++)									//Find the next map ID.
 	{
 		if (Maps[x]==NULL)
 		{
@@ -171,9 +168,9 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 		}
 	}
 
-	for (x=0; x<SizeX; x++)										//Insert map info.
+	for (int x=0; x<SizeX; x++)										//Insert map info.
 	{
-		for (y=0; y<SizeY; y++)
+		for (int y=0; y<SizeY; y++)
 		{
 			if (!Maps[NewMapID]->SpaceDefined(TempMap[x][y]))
 			{
@@ -185,7 +182,7 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 		}
 	}
 
-	for (x=0; x<SizeX; x++)
+	for (int x=0; x<SizeX; x++)
 	{
 		delete [] TempMap[x];
 	}
@@ -198,8 +195,6 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 int Dantares::AddMap(const int **Map, int SizeX, int SizeY)
 {
 	int NewMapID=NextMapID;
-	int x=0;
-	int y=0;
 
 	if (NextMapID>=MAXMAPS)										//All map slots are taken.
 	{
@@ -215,7 +210,7 @@ int Dantares::AddMap(const int **Map, int SizeX, int SizeY)
 
 	NextMapID=MAXMAPS;
 
-	for (x=0; x<MAXMAPS; x++)									//Find the next map ID.
+	for (int x=0; x<MAXMAPS; x++)									//Find the next map ID.
 	{
 		if (Maps[x]==NULL)
 		{
@@ -223,9 +218,9 @@ int Dantares::AddMap(const int **Map, int SizeX, int SizeY)
 		}
 	}
 
-	for (x=0; x<SizeX; x++)										//Insert map info.
+	for (int x=0; x<SizeX; x++)										//Insert map info.
 	{
-		for (y=0; y<SizeY; y++)
+		for (int y=0; y<SizeY; y++)
 		{
 			if (!Maps[NewMapID]->SpaceDefined(Map[x][y]))
 			{
@@ -373,6 +368,11 @@ bool Dantares::SetMasterCeilingTexture(int TextureID, bool Delete)
 	if (!Maps[CurrentMap]->SpaceDefined(0))
 	{
 		Maps[CurrentMap]->AddSpace(0);
+	}
+
+	if (Delete)
+	{
+		TextureID=-1;
 	}
 
 	Maps[CurrentMap]->FindSpace(0)->CeilingTexture=TextureID;
@@ -632,17 +632,17 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 		return false;
 	}
 
-	int x;
-	int y;
-	int XBound=Maps[CurrentMap]->XSize;
-	int YBound=Maps[CurrentMap]->YSize;
-	int HalfDistance=Distance/2;
+	const int XBound=Maps[CurrentMap]->XSize;
+	const int YBound=Maps[CurrentMap]->YSize;
+	const int HalfDistance=Distance/2;
+	const float CameraXf = static_cast<float>(CameraX);
+	const float CameraYf = static_cast<float>(CameraY);
 
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_TEXTURE_2D);
 
-	glTranslatef(0.0, 0.0, -(SqSize/2.0));
-	glRotatef(CameraFacing*90+TurnOffset, 0.0, 1.0, 0.0);
+	glTranslatef(0.0, 0.0, -(SqSize/2.0f));
+	glRotatef(static_cast<float>(CameraFacing)*90.0f+TurnOffset, 0.0, 1.0, 0.0);
 
 	switch (CameraFacing)
 	{
@@ -650,11 +650,11 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 		case 2:
 			if (Walking==1 || Walking==3)
 			{
-				glTranslatef(-(CameraX*SqSize+WalkOffset), 0.0, CameraY*SqSize);
+				glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0, CameraYf*SqSize);
 			}
 			else
 			{
-				glTranslatef(-(CameraX*SqSize), 0.0, CameraY*SqSize+WalkOffset);
+				glTranslatef(-(CameraXf*SqSize), 0.0, CameraYf*SqSize+WalkOffset);
 			}
 
 			break;
@@ -662,11 +662,11 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 		case 3:
 			if (Walking==0 || Walking==2)
 			{
-				glTranslatef(-(CameraX*SqSize), 0.0, CameraY*SqSize+WalkOffset);
+				glTranslatef(-(CameraXf*SqSize), 0.0, CameraYf*SqSize+WalkOffset);
 			}
 			else
 			{
-				glTranslatef(-(CameraX*SqSize+WalkOffset), 0.0, CameraY*SqSize);
+				glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0, CameraYf*SqSize);
 			}
 
 			break;
@@ -675,16 +675,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 	switch (CameraFacing)
 	{
 		case 0:
-			for (x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
+			for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x*SqSize), 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0, SqSize);
 
-				for (y=CameraY>HalfDistance?CameraY-HalfDistance:0; y<YBound && y<CameraY+Distance; y++)
+				for (int y=CameraY>HalfDistance?CameraY-HalfDistance:0; y<YBound && y<CameraY+Distance; y++)
 				{
 					if (y==CameraY-HalfDistance)
 					{
-						glTranslatef(0.0, 0.0, -(float(SqSize*y)));
+						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
 					}
 
 					glTranslatef(0.0, 0.0, -SqSize);
@@ -724,16 +724,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
 			break;
 		case 1:
-			for (x=CameraX>HalfDistance?CameraX-HalfDistance:0; x<XBound && x<CameraX+Distance; x++)
+			for (int x=CameraX>HalfDistance?CameraX-HalfDistance:0; x<XBound && x<CameraX+Distance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x*SqSize), 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0, SqSize);
 
-				for (y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
+				for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
 				{
 					if (y==CameraY-Distance)
 					{
-						glTranslatef(0.0, 0.0, -(float(SqSize*y)));
+						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
 					}
 
 					glTranslatef(0.0, 0.0, -SqSize);
@@ -773,16 +773,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
 			break;
 		case 2:
-			for (x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
+			for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x*SqSize), 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0, SqSize);
 
-				for (y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+HalfDistance; y++)
+				for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+HalfDistance; y++)
 				{
 					if (y==CameraY-Distance)
 					{
-						glTranslatef(0.0, 0.0, -(float(SqSize*y)));
+						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
 					}
 
 					glTranslatef(0.0, 0.0, -SqSize);
@@ -822,16 +822,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
 			break;
 		case 3:
-			for (x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+HalfDistance; x++)
+			for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+HalfDistance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x*SqSize), 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0, SqSize);
 
-				for (y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
+				for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
 				{
 					if (y==CameraY-Distance)
 					{
-						glTranslatef(0.0, 0.0, -(float(SqSize*y)));
+						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
 					}
 
 					glTranslatef(0.0, 0.0, -SqSize);
@@ -934,14 +934,14 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 			DegreesTurned=DegreesTurned+TurnSpeed;
 		}
 
-		if (TurnOffset>45.0 && Turning==1)
+		if (TurnOffset>45.0f && Turning==1)
 		{
 			Turning=2;
 			CameraFacing=(CameraFacing+1)%4;
-			TurnOffset=-90.0+TurnOffset;
+			TurnOffset=-90.0f+TurnOffset;
 		}
 
-		if (TurnOffset<-45.0 && Turning==-1)
+		if (TurnOffset<-45.0f && Turning==-1)
 		{
 			Turning=-2;
 
@@ -950,7 +950,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 				CameraFacing=3;
 			}
 
-			TurnOffset=90.0+TurnOffset;
+			TurnOffset=90.0f+TurnOffset;
 		}
 
 		if (DegreesTurned>=90.0)
@@ -1292,7 +1292,7 @@ bool Dantares::SetWalkingSpeed(float WSpeed)
 {
 	if (WSpeed==0.0)
 	{
-		WalkSpeed=SqSize/15.0;
+		WalkSpeed=SqSize/15.0f;
 
 		return true;
 	}
