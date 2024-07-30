@@ -20,25 +20,28 @@
 	All code written by Ryan Witmer in Apple Xcode
 	ryan@averagesoftware.com
 	www.averagesoftware.com
+	www.averagesoftware.com/dantares.html
 */
 
 #ifndef DANTARES_H
 #define DANTARES_H
 
-//Mac OS X OpenGL headers.
-#include<OpenGL/OpenGL.h>
-#include<OpenGL/gl.h>
-#include<OpenGL/glu.h>
-
-//Windows OpenGL headers.
-/*#include<windows.h>
-#include<gl/gl.h>
-#include<gl/glu.h>*/
-
-//X11 OpenGL headers.
-/*#include<GL/glx.h>
-#include<GL/gl.h>
-#include<GL/glu.h>*/
+#if defined(DANTARES_MACOS)
+	//Mac OS X OpenGL headers.
+	#include<OpenGL/OpenGL.h>
+	#include<OpenGL/gl.h>
+	//#include<OpenGL/glu.h>
+#elsif defined(DANTARES_WINDOWS)
+	//Windows OpenGL headers.
+	#include<windows.h>
+	#include<gl/gl.h>
+	//#include<gl/glu.h>
+#else
+	//X11 OpenGL headers.
+	#include<GL/glx.h>
+	#include<GL/gl.h>
+	//#include<GL/glu.h>
+#endif
 
 const int MAXMAPS = 10;
 //The maximum number of maps the engine will store.

@@ -20,6 +20,7 @@
 	All code written by Ryan Witmer in Apple Xcode
 	ryan@averagesoftware.com
 	www.averagesoftware.com
+	www.averagesoftware.com/dantares.html
 */
 
 #include "Dantares.h"
