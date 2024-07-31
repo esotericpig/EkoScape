@@ -27,105 +27,67 @@
 
 Dantares::Dantares(float SquareSize, float FloorHeight, float CeilingHeight)
 {
-	SqSize=SquareSize;
-	Floor=FloorHeight;
-	Ceiling=CeilingHeight;
-	NextMapID=0;
-	CurrentMap=-1;
-	CameraX=0;
-	CameraY=0;
-	CameraFacing=0;
-	Walking=-1;
-	Turning=0;
-	WalkSpeed=SquareSize/15.0f;
-	TurnSpeed=5.0;
-	WalkOffset=0.0;
-	TurnOffset=0.0;
-	DegreesTurned=0.0;
-
-	for (int x=0; x<MAXMAPS; x++)
-	{
-		Maps[x]=NULL;
-	}
-}
-
-Dantares::Dantares(const Dantares &Copy)
-{
-	CurrentMap = Copy.CurrentMap;
-	NextMapID = Copy.NextMapID;
-	SqSize = Copy.SqSize;
-	Floor = Copy.Floor;
-	Ceiling = Copy.Ceiling;
-	CameraX = Copy.CameraX;
-	CameraY = Copy.CameraY;
-	CameraFacing = Copy.CameraFacing;
-	Walking = Copy.Walking;
-	Turning = Copy.Turning;
-	WalkSpeed = Copy.WalkSpeed;
-	TurnSpeed = Copy.TurnSpeed;
-	WalkOffset = Copy.WalkOffset;
-	TurnOffset = Copy.TurnOffset;
-	DegreesTurned = Copy.DegreesTurned;
+	CurrentMap = -1;
+	NextMapID = 0;
+	SqSize = SquareSize;
+	Floor = FloorHeight;
+	Ceiling = CeilingHeight;
+	CameraX = 0;
+	CameraY = 0;
+	CameraFacing = 0;
+	Walking = -1;
+	Turning = 0;
+	WalkSpeed = SquareSize/15.0f;
+	TurnSpeed = 5.0f;
+	WalkOffset = 0.0f;
+	TurnOffset = 0.0f;
+	DegreesTurned = 0.0f;
 
 	for (int x = 0; x < MAXMAPS; x++)
 	{
-		if (Copy.Maps[x] != NULL)
-		{
-			Maps[x] = new MapClass(*Copy.Maps[x]);
-		}
-		else
-		{
-			Maps[x] = NULL;
-		}
+		Maps[x] = nullptr;
 	}
 }
 
-Dantares Dantares::operator = (const Dantares &r)
+Dantares::Dantares(Dantares &&Other)
 {
-	CurrentMap = r.CurrentMap;
-	NextMapID = r.NextMapID;
-	SqSize = r.SqSize;
-	Floor = r.Floor;
-	Ceiling = r.Ceiling;
-	CameraX = r.CameraX;
-	CameraY = r.CameraY;
-	CameraFacing = r.CameraFacing;
-	Walking = r.Walking;
-	Turning = r.Turning;
-	WalkSpeed = r.WalkSpeed;
-	TurnSpeed = r.TurnSpeed;
-	WalkOffset = r.WalkOffset;
-	TurnOffset = r.TurnOffset;
-	DegreesTurned = r.DegreesTurned;
+	MoveFrom(std::move(Other));
+}
+
+Dantares &Dantares::operator = (Dantares &&r)
+{
+	if (this == &r) { return *this; }
+	return MoveFrom(std::move(r));
+}
+
+Dantares &Dantares::MoveFrom(Dantares &&Other)
+{
+	CurrentMap = std::exchange(Other.CurrentMap, -1);
+	NextMapID = std::exchange(Other.NextMapID, 0);
+	SqSize = Other.SqSize;
+	Floor = Other.Floor;
+	Ceiling = Other.Ceiling;
+	CameraX = std::exchange(Other.CameraX, 0);
+	CameraY = std::exchange(Other.CameraY, 0);
+	CameraFacing = std::exchange(Other.CameraFacing, 0);
+	Walking = std::exchange(Other.Walking, -1);
+	Turning = std::exchange(Other.Turning, 0);
+	WalkSpeed = Other.WalkSpeed;
+	TurnSpeed = Other.TurnSpeed;
+	WalkOffset = std::exchange(Other.WalkOffset, 0.0f);
+	TurnOffset = std::exchange(Other.TurnOffset, 0.0f);
+	DegreesTurned = std::exchange(Other.DegreesTurned, 0.0f);
 
 	for (int x = 0; x < MAXMAPS; x++)
 	{
-		delete Maps[x];
-
-		if (r.Maps[x] != NULL)
-		{
-			Maps[x] = new MapClass(*r.Maps[x]);
-		}
-		else
-		{
-			Maps[x] = NULL;
-		}
+		Maps[x] = std::move(Other.Maps[x]);
 	}
 
 	return *this;
 }
 
-Dantares::~Dantares()
-{
-	for (int x=0; x<MAXMAPS; x++)
-	{
-		delete Maps[x];
-	}
-}
-
 int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 {
-	int **TempMap;
 	int NewMapID=NextMapID;
 
 	if (NextMapID>=MAXMAPS)											//All map slots are taken.
@@ -133,88 +95,58 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 		return -1;
 	}
 
-	TempMap=new int*[SizeX];
+	Maps[NewMapID]=std::make_unique<MapClass>(SizeX, SizeY);		//Generate new map.
+	NextMapID=MAXMAPS;
 
-	for (int z=0; z<SizeX; z++)
+	for (int x=0; x<MAXMAPS; x++)									//Find the next map ID.
 	{
-		TempMap[z]=new int[SizeY];
+		if (!Maps[x])
+		{
+			NextMapID=x;
+			break;
+		}
 	}
 
-	for (int x=0, y=0, z=0; z<SizeX*SizeY; z++)
+	for (int x=0, y=0, z=0; z<SizeX*SizeY; z++)						//Insert map info.
 	{
-		TempMap[x][y]=*(static_cast<const int*>(Map)+z);
+		int Space = *(static_cast<const int*>(Map)+z);
 
-		if (++y==SizeY)
+		if (!Maps[NewMapID]->SpaceDefined(Space))
+		{
+			Maps[NewMapID]->AddSpace(Space);
+		}
+
+		Maps[NewMapID]->MapArray[x][y]=Space;
+		Maps[NewMapID]->WalkArray[x][y]=Space==0?true:false;
+
+		if (++y>=SizeY)
 		{
 			y=0;
 			x++;
 		}
 	}
 
-	Maps[NewMapID]=new MapClass(SizeX, SizeY);					//Generate new map.
-
-	if (Maps[NewMapID]==NULL)									//Out of memory.
-	{
-		return -1;
-	}
-
-	NextMapID=MAXMAPS;
-
-	for (int x=0; x<MAXMAPS; x++)									//Find the next map ID.
-	{
-		if (Maps[x]==NULL)
-		{
-			NextMapID=x;
-		}
-	}
-
-	for (int x=0; x<SizeX; x++)										//Insert map info.
-	{
-		for (int y=0; y<SizeY; y++)
-		{
-			if (!Maps[NewMapID]->SpaceDefined(TempMap[x][y]))
-			{
-				Maps[NewMapID]->AddSpace(TempMap[x][y]);
-			}
-
-			Maps[NewMapID]->MapArray[x][y]=TempMap[x][y];
-			Maps[NewMapID]->WalkArray[x][y]=TempMap[x][y]==0?true:false;
-		}
-	}
-
-	for (int x=0; x<SizeX; x++)
-	{
-		delete [] TempMap[x];
-	}
-
-	delete [] TempMap;
-
-	return NewMapID;											//Return the new map ID.
+	return NewMapID;												//Return the new map ID.
 }
 
-int Dantares::AddMap(const int **Map, int SizeX, int SizeY)
+int Dantares::AddMap(const int* const *Map, int SizeX, int SizeY)
 {
 	int NewMapID=NextMapID;
 
-	if (NextMapID>=MAXMAPS)										//All map slots are taken.
+	if (NextMapID>=MAXMAPS)											//All map slots are taken.
 	{
 		return -1;
 	}
 
-	Maps[NewMapID]=new MapClass(SizeX, SizeY);					//Generate new map.
-
-	if (Maps[NewMapID]==NULL)									//Out of memory.
-	{
-		return -1;
-	}
-
+	Maps[NewMapID]=std::make_unique<MapClass>(SizeX, SizeY);		//Generate new map.
 	NextMapID=MAXMAPS;
 
 	for (int x=0; x<MAXMAPS; x++)									//Find the next map ID.
 	{
-		if (Maps[x]==NULL)
+		if (!Maps[x])
 		{
 			NextMapID=x;
+			break;
 		}
 	}
 
@@ -232,15 +164,14 @@ int Dantares::AddMap(const int **Map, int SizeX, int SizeY)
 		}
 	}
 
-	return NewMapID;											//Return the new map ID.
+	return NewMapID;												//Return the new map ID.
 }
 
 bool Dantares::DeleteMap(int MapID)
 {
-	if (Maps[MapID]!=NULL)
+	if (Maps[MapID])
 	{
-		delete Maps[MapID];										//Delete the map.
-		Maps[MapID]=NULL;
+		Maps[MapID].reset();									//Delete the map.
 	}
 	else
 	{
@@ -267,7 +198,7 @@ bool Dantares::IsMap(int MapID) const
 		return false;
 	}
 
-	return !(Maps[MapID]==NULL);
+	return Maps[MapID]?true:false;
 }
 
 bool Dantares::SetWallTexture(int SpaceID, int TextureID, bool Delete)
@@ -382,7 +313,7 @@ bool Dantares::SetMasterCeilingTexture(int TextureID, bool Delete)
 
 bool Dantares::SetCurrentMap(int MapID)
 {
-	if (MapID>=MAXMAPS || MapID<0 || Maps[MapID]==NULL)			//MapID is out of range, or
+	if (MapID>=MAXMAPS || MapID<0 || !Maps[MapID])				//MapID is out of range, or
 	{															//map doesn't exist.
 		return false;
 	}
@@ -479,9 +410,9 @@ bool Dantares::SetPlayerPosition(int XCoord, int YCoord, int Facing)
 	CameraY=YCoord;
 	CameraFacing=Facing;
 	Walking=-1;
-	WalkOffset=0.0;
+	WalkOffset=0.0f;
 	Turning=0;
-	TurnOffset=0.0;
+	TurnOffset=0.0f;
 
 	return true;
 }
@@ -495,131 +426,126 @@ bool Dantares::GenerateMap()
 
 	float Offset=SqSize/2.0f;
 
-	SpaceClass *Seeker=Maps[CurrentMap]->SpaceInfo;
-
-	while (Seeker!=NULL)
+	for (auto &Seeker: Maps[CurrentMap]->SpaceInfo)
 	{
-		glDeleteLists(Seeker->DisplayList, 6);
-		Seeker->DisplayList=glGenLists(6);
+		Seeker.ResetDisplayList();
 
-		if (Seeker->CeilingTexture!=-1)
+		if (Seeker.CeilingTexture!=-1)
 		{
-			glNewList(Seeker->DisplayList+5, GL_COMPILE);
+			glNewList(Seeker.DisplayList+5, GL_COMPILE);
 				glEnable(GL_TEXTURE_2D);
 
-				glBindTexture(GL_TEXTURE_2D, Seeker->CeilingTexture);
+				glBindTexture(GL_TEXTURE_2D, Seeker.CeilingTexture);
 
 				glBegin(GL_QUADS);
-					glNormal3f(0.0, -1.0, 0.0);
-					glTexCoord2f(0.0, 0.0);
+					glNormal3f(0.0f, -1.0f, 0.0f);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex3f(-Offset, Ceiling, -Offset);
-					glTexCoord2f(1.0, 0.0);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex3f(Offset, Ceiling, -Offset);
-					glTexCoord2f(1.0, 1.0);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex3f(Offset, Ceiling, Offset);
-					glTexCoord2f(0.0, 1.0);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex3f(-Offset, Ceiling, Offset);
 				glEnd();
 			glEndList();
 		}
 
-		if (Seeker->FloorTexture!=-1)
+		if (Seeker.FloorTexture!=-1)
 		{
-			glNewList(Seeker->DisplayList+4, GL_COMPILE);
+			glNewList(Seeker.DisplayList+4, GL_COMPILE);
 				glEnable(GL_TEXTURE_2D);
 
-				glBindTexture(GL_TEXTURE_2D, Seeker->FloorTexture);
+				glBindTexture(GL_TEXTURE_2D, Seeker.FloorTexture);
 
 				glBegin(GL_QUADS);
-					glNormal3f(0.0, 1.0, 0.0);
-					glTexCoord2f(0.0, 0.0);
+					glNormal3f(0.0f, 1.0f, 0.0f);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex3f(-Offset, Floor, -Offset);
-					glTexCoord2f(1.0, 0.0);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex3f(Offset, Floor, -Offset);
-					glTexCoord2f(1.0, 1.0);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex3f(Offset, Floor, Offset);
-					glTexCoord2f(0.0, 1.0);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex3f(-Offset, Floor, Offset);
 				glEnd();
 			glEndList();
 		}
 
-		if (Seeker->WallTexture!=-1)
+		if (Seeker.WallTexture!=-1)
 		{
-			glNewList(Seeker->DisplayList+2, GL_COMPILE);
+			glNewList(Seeker.DisplayList+2, GL_COMPILE);
 				glEnable(GL_TEXTURE_2D);
 
-				glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
+				glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
 
 				glBegin(GL_QUADS);
-					glNormal3f(0.0, 0.0, 1.0);
-					glTexCoord2f(0.0, 0.0);
+					glNormal3f(0.0f, 0.0f, 1.0f);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex3f(-Offset, Floor, Offset);
-					glTexCoord2f(1.0, 0.0);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex3f(Offset, Floor, Offset);
-					glTexCoord2f(1.0, 1.0);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex3f(Offset, Ceiling, Offset);
-					glTexCoord2f(0.0, 1.0);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex3f(-Offset, Ceiling, Offset);
 				glEnd();
 			glEndList();
 
-			glNewList(Seeker->DisplayList+1, GL_COMPILE);
+			glNewList(Seeker.DisplayList+1, GL_COMPILE);
 				glEnable(GL_TEXTURE_2D);
 
-				glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
+				glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
 
 				glBegin(GL_QUADS);
-					glNormal3f(1.0, 0.0, 0.0);
-					glTexCoord2f(0.0, 0.0);
+					glNormal3f(1.0f, 0.0f, 0.0f);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex3f(Offset, Floor, Offset);
-					glTexCoord2f(1.0, 0.0);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex3f(Offset, Floor, -Offset);
-					glTexCoord2f(1.0, 1.0);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex3f(Offset, Ceiling, -Offset);
-					glTexCoord2f(0.0, 1.0);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex3f(Offset, Ceiling, Offset);
 				glEnd();
 			glEndList();
 
-			glNewList(Seeker->DisplayList, GL_COMPILE);
+			glNewList(Seeker.DisplayList, GL_COMPILE);
 				glEnable(GL_TEXTURE_2D);
 
-				glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
+				glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
 
 				glBegin(GL_QUADS);
-					glNormal3f(0.0, 0.0, -1.0);
-					glTexCoord2f(0.0, 0.0);
+					glNormal3f(0.0f, 0.0f, -1.0f);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex3f(Offset, Floor, -Offset);
-					glTexCoord2f(1.0, 0.0);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex3f(-Offset, Floor, -Offset);
-					glTexCoord2f(1.0, 1.0);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex3f(-Offset, Ceiling, -Offset);
-					glTexCoord2f(0.0, 1.0);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex3f(Offset, Ceiling, -Offset);
 				glEnd();
 			glEndList();
 
-			glNewList(Seeker->DisplayList+3, GL_COMPILE);
+			glNewList(Seeker.DisplayList+3, GL_COMPILE);
 				glEnable(GL_TEXTURE_2D);
 
-				glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
+				glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
 
 				glBegin(GL_QUADS);
-					glNormal3f(-1.0, 0.0, 0.0);
-					glTexCoord2f(0.0, 0.0);
+					glNormal3f(-1.0f, 0.0f, 0.0f);
+					glTexCoord2f(0.0f, 0.0f);
 					glVertex3f(-Offset, Floor, -Offset);
-					glTexCoord2f(1.0, 0.0);
+					glTexCoord2f(1.0f, 0.0f);
 					glVertex3f(-Offset, Floor, Offset);
-					glTexCoord2f(1.0, 1.0);
+					glTexCoord2f(1.0f, 1.0f);
 					glVertex3f(-Offset, Ceiling, Offset);
-					glTexCoord2f(0.0, 1.0);
+					glTexCoord2f(0.0f, 1.0f);
 					glVertex3f(-Offset, Ceiling, -Offset);
 				glEnd();
 			glEndList();
 		}
-
-		Seeker=Seeker->Next;
 	}
 
 	return true;
@@ -641,8 +567,8 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_TEXTURE_2D);
 
-	glTranslatef(0.0, 0.0, -(SqSize/2.0f));
-	glRotatef(static_cast<float>(CameraFacing)*90.0f+TurnOffset, 0.0, 1.0, 0.0);
+	glTranslatef(0.0f, 0.0f, -(SqSize/2.0f));
+	glRotatef(static_cast<float>(CameraFacing)*90.0f+TurnOffset, 0.0f, 1.0f, 0.0f);
 
 	switch (CameraFacing)
 	{
@@ -650,11 +576,11 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 		case 2:
 			if (Walking==1 || Walking==3)
 			{
-				glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0, CameraYf*SqSize);
+				glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0f, CameraYf*SqSize);
 			}
 			else
 			{
-				glTranslatef(-(CameraXf*SqSize), 0.0, CameraYf*SqSize+WalkOffset);
+				glTranslatef(-(CameraXf*SqSize), 0.0f, CameraYf*SqSize+WalkOffset);
 			}
 
 			break;
@@ -662,11 +588,11 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 		case 3:
 			if (Walking==0 || Walking==2)
 			{
-				glTranslatef(-(CameraXf*SqSize), 0.0, CameraYf*SqSize+WalkOffset);
+				glTranslatef(-(CameraXf*SqSize), 0.0f, CameraYf*SqSize+WalkOffset);
 			}
 			else
 			{
-				glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0, CameraYf*SqSize);
+				glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0f, CameraYf*SqSize);
 			}
 
 			break;
@@ -678,16 +604,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 			for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x)*SqSize, 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0f, SqSize);
 
 				for (int y=CameraY>HalfDistance?CameraY-HalfDistance:0; y<YBound && y<CameraY+Distance; y++)
 				{
 					if (y==CameraY-HalfDistance)
 					{
-						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
+						glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
 					}
 
-					glTranslatef(0.0, 0.0, -SqSize);
+					glTranslatef(0.0f, 0.0f, -SqSize);
 
 					SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
@@ -727,16 +653,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 			for (int x=CameraX>HalfDistance?CameraX-HalfDistance:0; x<XBound && x<CameraX+Distance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x)*SqSize, 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0f, SqSize);
 
 				for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
 				{
 					if (y==CameraY-Distance)
 					{
-						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
+						glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
 					}
 
-					glTranslatef(0.0, 0.0, -SqSize);
+					glTranslatef(0.0f, 0.0f, -SqSize);
 
 					SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
@@ -776,16 +702,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 			for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x)*SqSize, 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0f, SqSize);
 
 				for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+HalfDistance; y++)
 				{
 					if (y==CameraY-Distance)
 					{
-						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
+						glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
 					}
 
-					glTranslatef(0.0, 0.0, -SqSize);
+					glTranslatef(0.0f, 0.0f, -SqSize);
 
 					SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
@@ -825,16 +751,16 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 			for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+HalfDistance; x++)
 			{
 				glPushMatrix();
-				glTranslatef(float(x)*SqSize, 0.0, SqSize);
+				glTranslatef(float(x)*SqSize, 0.0f, SqSize);
 
 				for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
 				{
 					if (y==CameraY-Distance)
 					{
-						glTranslatef(0.0, 0.0, -(SqSize*float(y)));
+						glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
 					}
 
-					glTranslatef(0.0, 0.0, -SqSize);
+					glTranslatef(0.0f, 0.0f, -SqSize);
 
 					SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
@@ -904,7 +830,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
 			Walking=-1;
 		}
-		else if (WalkOffset>0.0)
+		else if (WalkOffset>0.0f)
 		{
 			WalkOffset=WalkOffset+WalkSpeed;
 
@@ -913,7 +839,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 				WalkOffset=SqSize;
 			}
 		}
-		else if (WalkOffset<0.0)
+		else if (WalkOffset<0.0f)
 		{
 			WalkOffset=WalkOffset-WalkSpeed;
 
@@ -953,11 +879,11 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 			TurnOffset=90.0f+TurnOffset;
 		}
 
-		if (DegreesTurned>=90.0)
+		if (DegreesTurned>=90.0f)
 		{
 			Turning=0;
-			TurnOffset=0.0;
-			DegreesTurned=0.0;
+			TurnOffset=0.0f;
+			DegreesTurned=0.0f;
 		}
 	}
 
@@ -1290,7 +1216,7 @@ bool Dantares::TurnRight()
 
 bool Dantares::SetWalkingSpeed(float WSpeed)
 {
-	if (WSpeed==0.0)
+	if (WSpeed==0.0f)
 	{
 		WalkSpeed=SqSize/15.0f;
 
@@ -1304,14 +1230,14 @@ bool Dantares::SetWalkingSpeed(float WSpeed)
 
 bool Dantares::SetTurningSpeed(float TSpeed)
 {
-	if (TSpeed==0.0)
+	if (TSpeed==0.0f)
 	{
-		TurnSpeed=5.0;
+		TurnSpeed=5.0f;
 
 		return true;
 	}
 
-	if (TSpeed<0.0 || TSpeed>90.0)
+	if (TSpeed<0.0f || TSpeed>90.0f)
 	{
 		return false;
 	}
@@ -1415,108 +1341,153 @@ bool Dantares::SpaceIsWalkable(int XCoord, int YCoord) const
 	return Maps[CurrentMap]->WalkArray[XCoord][YCoord];
 }
 
+void Dantares::PrintDebugInfo(std::ostream &Out) const
+{
+	Out
+			<< "{Dantares}"
+			<< "\nCurrentMap:       " << CurrentMap
+			<< "\nNextMapID:        " << NextMapID
+			<< "\nSqSize:           " << SqSize
+			<< "\nFloor:            " << Floor
+			<< "\nCeiling:          " << Ceiling
+			<< "\nCameraX:          " << CameraX
+			<< "\nCameraY:          " << CameraY
+			<< "\nCameraFacing:     " << CameraFacing
+			<< "\nWalking:          " << Walking
+			<< "\nTurning:          " << Turning
+			<< "\nWalkSpeed:        " << WalkSpeed
+			<< "\nTurnSpeed:        " << TurnSpeed
+			<< "\nWalkOffset:       " << WalkOffset
+			<< "\nTurnOffset:       " << TurnOffset
+			<< "\nDegreesTurned:    " << DegreesTurned
+			;
+
+	for (int i = 0; i < MAXMAPS; i++)
+	{
+		Out << "\n  {Map[" << i << "]} = ";
+
+		if(Maps[i])
+		{
+			Out << Maps[i].get() << '\n';
+			Maps[i]->PrintDebugInfo(Out, 2);
+		}
+		else
+		{
+			Out << "nullptr";
+		}
+	}
+
+	Out.flush();
+}
+
 Dantares::SpaceClass::SpaceClass(int Type)
 {
-	SpaceType=Type;
-	FloorTexture=-1;
-	CeilingTexture=-1;
-	WallTexture=-1;
-	DisplayList=glGenLists(6);
-	Next=NULL;
+	SpaceType = Type;
+	FloorTexture = -1;
+	CeilingTexture = -1;
+	WallTexture = -1;
+	DisplayList = glGenLists(DISPLAY_LIST_RANGE);
 }
 
-Dantares::SpaceClass::SpaceClass(const SpaceClass &Copy)
+Dantares::SpaceClass::SpaceClass(SpaceClass &&Other)
 {
-	SpaceType = Copy.SpaceType;
-	FloorTexture = Copy.FloorTexture;
-	CeilingTexture = Copy.CeilingTexture;
-	WallTexture = Copy.WallTexture;
-	DisplayList = Copy.DisplayList;
-
-	if (Copy.Next != NULL)
-	{
-		Next = new SpaceClass(*Copy.Next);
-	}
-	else
-	{
-		Next = NULL;
-	}
+	MoveFrom(std::move(Other));
 }
 
-Dantares::SpaceClass::~SpaceClass()
+Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r)
 {
-	delete Next;
+	if (this == &r) { return *this; }
+	return MoveFrom(std::move(r));
 }
 
-Dantares::MapClass::MapClass(int MaxX, int MaxY)
+Dantares::SpaceClass &Dantares::SpaceClass::MoveFrom(SpaceClass &&Other)
+{
+	DeleteDisplayList();
+
+	SpaceType = std::exchange(Other.SpaceType, 0);
+	FloorTexture = std::exchange(Other.FloorTexture, -1);
+	CeilingTexture = std::exchange(Other.CeilingTexture, -1);
+	WallTexture = std::exchange(Other.WallTexture, -1);
+	DisplayList = std::exchange(Other.DisplayList, -1);
+
+	return *this;
+}
+
+Dantares::SpaceClass::~SpaceClass() noexcept
+{
+	DeleteDisplayList();
+}
+
+void Dantares::SpaceClass::DeleteDisplayList() noexcept
+{
+	if (DisplayList != -1)
+	{
+		glDeleteLists(DisplayList, DISPLAY_LIST_RANGE);
+		DisplayList = -1;
+	}
+}
+
+void Dantares::SpaceClass::ResetDisplayList()
+{
+	DeleteDisplayList();
+	DisplayList = glGenLists(DISPLAY_LIST_RANGE);
+}
+
+void Dantares::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
+{
+	std::string Indl = '\n' + std::string(Indent, ' ');
+
+	Out << std::string(Indent, ' ')
+			        << "SpaceType:         " << SpaceType
+			<< Indl << "FloorTexture:      " << FloorTexture
+			<< Indl << "CeilingTexture:    " << CeilingTexture
+			<< Indl << "WallTexture:       " << WallTexture
+			<< Indl << "DisplayList:       " << DisplayList
+			;
+	Out.flush();
+}
+
+Dantares::MapClass::MapClass(int MaxX, int MaxY) :
+		MapArray(MaxX, std::vector<int>(MaxY)),
+		WalkArray(MaxX, std::vector<bool>(MaxY)),
+		SpaceInfo()
 {
 	XSize=MaxX;
 	YSize=MaxY;
 
-	SpaceInfo=new SpaceClass(0);
-
-	MapArray=new int*[MaxX];
-	WalkArray=new bool*[MaxX];
-
-	for (int x=0; x<MaxX; x++)
-	{
-		MapArray[x]=new int[MaxY];
-		WalkArray[x]=new bool[MaxY];
-	}
+	SpaceInfo.emplace_back(0);
 }
 
-Dantares::MapClass::MapClass(const MapClass &Copy)
+Dantares::MapClass::MapClass(MapClass &&Other)
 {
-	XSize = Copy.XSize;
-	YSize = Copy.YSize;
-
-	MapArray = new int*[XSize];
-	WalkArray = new bool*[XSize];
-
-	for (int x = 0; x < XSize; x++)
-	{
-		MapArray[x] = new int[YSize];
-		WalkArray[x] = new bool[YSize];
-	}
-
-	for (int x = 0; x < XSize; x++)
-	{
-		for (int y = 0; y < YSize; y++)
-		{
-			MapArray[x][y] = Copy.MapArray[x][y];
-			WalkArray[x][y] = Copy.WalkArray[x][y];
-		}
-	}
-
-	SpaceInfo = new SpaceClass(*Copy.SpaceInfo);
+	MoveFrom(std::move(Other));
 }
 
-Dantares::MapClass::~MapClass()
+Dantares::MapClass &Dantares::MapClass::operator = (MapClass &&r)
 {
-	for (int x=0; x<XSize; x++)
-	{
-		delete [] MapArray[x];
-		delete [] WalkArray[x];
-	}
+	if (this == &r) { return *this; }
+	return MoveFrom(std::move(r));
+}
 
-	delete [] MapArray;
-	delete [] WalkArray;
+Dantares::MapClass &Dantares::MapClass::MoveFrom(MapClass &&Other)
+{
+	MapArray = std::move(Other.MapArray);
+	WalkArray = std::move(Other.WalkArray);
+	SpaceInfo = std::move(Other.SpaceInfo);
+	XSize = std::exchange(Other.XSize, 0);
+	YSize = std::exchange(Other.YSize, 0);
 
-	delete SpaceInfo;
+	return *this;
 }
 
 bool Dantares::MapClass::SpaceDefined(int Space)
 {
-	SpaceClass *Seeker=SpaceInfo;
-
-	while (Seeker!=NULL)
+	for (auto &Seeker: SpaceInfo)
 	{
-		if (Seeker->SpaceType==Space)
+		if (Seeker.SpaceType==Space)
 		{
 			return true;
 		}
-
-		Seeker=Seeker->Next;
 	}
 
 	return false;
@@ -1524,29 +1495,60 @@ bool Dantares::MapClass::SpaceDefined(int Space)
 
 void Dantares::MapClass::AddSpace(int Space)
 {
-	SpaceClass *Seeker=SpaceInfo;
-
-	while (Seeker->Next!=NULL)
-	{
-		Seeker=Seeker->Next;
-	}
-
-	Seeker->Next=new SpaceClass(Space);
+	SpaceInfo.emplace_back(Space);
 }
 
 Dantares::SpaceClass *Dantares::MapClass::FindSpace(int Space)
 {
-	SpaceClass *Seeker=SpaceInfo;
-
-	while (Seeker!=NULL)
+	for (auto &Seeker: SpaceInfo)
 	{
-		if (Seeker->SpaceType==Space)
+		if (Seeker.SpaceType==Space)
 		{
-			break;
+			return &Seeker;
 		}
-
-		Seeker=Seeker->Next;
 	}
 
-	return Seeker;
+	return nullptr;
+}
+
+void Dantares::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
+{
+	std::string Indl = '\n' + std::string(Indent, ' ');
+
+	Out << std::string(Indent, ' ')
+			        << "XSize:    " << XSize
+			<< Indl << "YSize:    " << YSize
+			;
+
+	Indent *= 2;
+	Indl = '\n' + std::string(Indent, ' ');
+
+	Out << Indl << "{MapArray} = " << MapArray.data();
+	for (int y = 0; y < YSize; y++)
+	{
+		Out << Indl;
+		for (int x = 0; x < XSize; x++)
+		{
+			Out << std::setw(4) << MapArray[x][y] << ' ';
+		}
+	}
+
+	Out << Indl << "{WalkArray} = " << WalkArray.data();
+	for (int y = 0; y < YSize; y++)
+	{
+		Out << Indl;
+		for (int x = 0; x < XSize; x++)
+		{
+			Out << (WalkArray[x][y]?' ':'1') << ' ';
+		}
+	}
+
+	Out << Indl << "{SpaceInfo} = " << SpaceInfo.data() << ", " << SpaceInfo.size() << " spaces";
+	if (!SpaceInfo.empty())
+	{
+		Out << '\n';
+		SpaceInfo[0].PrintDebugInfo(Out, Indent); //Just print the first one.
+	}
+
+	Out.flush();
 }

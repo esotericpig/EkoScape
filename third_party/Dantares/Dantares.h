@@ -16,7 +16,7 @@
  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/*  The Dantares Engine v1.0
+/*  The Dantares Engine v1.1
 	All code written by Ryan Witmer in Apple Xcode
 	ryan@averagesoftware.com
 	www.averagesoftware.com
@@ -43,13 +43,25 @@
 	//#include<GL/glu.h>
 #endif
 
-const int MAXMAPS = 10;
-//The maximum number of maps the engine will store.
-//Adjust this to fit your preferences.
+#include<iomanip>
+#include<iostream>
+#include<memory>
+#include<utility>
+#include<vector>
 
+/**
+ * Copy constructors/assignments are not allowed because OpenGL Display Lists cannot be copied,
+ * so SpaceClass cannot copy its Display Lists.
+ *
+ * Move constructors/assignments are allowed though.
+ */
 class Dantares
 {
 public:
+	static const int MAXMAPS = 10;
+	//The maximum number of maps the engine will store.
+	//Adjust this to fit your preferences.
+
 	Dantares(float SquareSize, float FloorHeight, float CeilingHeight);
 	/*  Constructor takes three parameters to initialize the engine.
 
@@ -59,20 +71,29 @@ public:
 		float CeilingHeight - The position of the ceiling on the Y axis.
 	*/
 
-	Dantares(const Dantares &Copy);
+	Dantares(const Dantares &Copy) = delete;
 	/*  Copy constructor.
 	*/
 
-	Dantares operator = (const Dantares &r);
-	/*  = operator to handle pointer transfers.
+	Dantares(Dantares &&Other);
+	/*  Move constructor.
 	*/
 
-	~Dantares();
+	Dantares &operator = (const Dantares &r) = delete;
+	/*  = operator to handle transfers.
+	*/
+
+	Dantares &operator = (Dantares &&r);
+	/*  = operator to handle move transfers.
+	*/
+
+	virtual ~Dantares() noexcept = default;
 	/*  Destructor cleans up all map and texture information.
 	*/
 
 	int AddMap(const void *Map, int SizeX, int SizeY);
-	int AddMap(const int **Map, int SizeX, int SizeY);
+	//See: https://isocpp.org/wiki/faq/const-correctness#constptrptr-conversion
+	int AddMap(const int* const *Map, int SizeX, int SizeY);
 	/*  Adds a map and returns the map number.  The map must be a two-dimensional integer array.
 		0s in the map are treated as empty spaces, all other numbers are solid squares.
 
@@ -479,40 +500,63 @@ public:
 				  if the space is non-walkable, or if the coordinates are invalid.
 	*/
 
+	void PrintDebugInfo(std::ostream &Out = std::cout) const;
+	/*	For testing purposes.
+	*/
+
 private:
 	//Class for describing spaces.
 	class SpaceClass
 	{
 	public:
+		static const GLsizei DISPLAY_LIST_RANGE = 6;
+
 		SpaceClass(int Type);
-		SpaceClass(const SpaceClass &Copy);
-		~SpaceClass();
+		SpaceClass(const SpaceClass &Copy) = delete;
+		SpaceClass(SpaceClass &&Other);
+		SpaceClass &operator = (const SpaceClass &r) = delete;
+		SpaceClass &operator = (SpaceClass &&r);
+		virtual ~SpaceClass() noexcept;
+		void ResetDisplayList();
+		void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
 		int SpaceType;					//The type of the space.
 		int FloorTexture;				//Floor texture ID.
 		int CeilingTexture;				//Ceiling texture ID.
 		int WallTexture;				//Wall texture ID.
-		int DisplayList;				//Display list for the space.
-		SpaceClass *Next;				//Pointer to the next SpaceType.
+		int DisplayList = -1;			//Display list for the space.
+
+	private:
+		SpaceClass &MoveFrom(SpaceClass &&Other);
+		void DeleteDisplayList() noexcept;
 	};
 
 	//Class for storing maps.
 	class MapClass
 	{
 	public:
-		MapClass(int MaxX, int MaxY);			//Constructor sets map size.
-		MapClass(const MapClass &Copy);
-		~MapClass();							//Destructor for cleanup.
+		MapClass(int MaxX, int MaxY);				//Constructor sets map size.
+		MapClass(const MapClass &Copy) = delete;
+		MapClass(MapClass &&Other);
+		MapClass &operator = (const MapClass &r) = delete;
+		MapClass &operator = (MapClass &&r);
+		virtual ~MapClass() noexcept = default;		//Destructor for cleanup.
 		bool SpaceDefined(int Space);
 		void AddSpace(int Space);
 		SpaceClass *FindSpace(int Space);
+		void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
-		int **MapArray;							//Array for the map.
-		bool **WalkArray;						//Array for walkability.
-		SpaceClass *SpaceInfo;					//List of space information.
-		int XSize;								//Map width.
-		int YSize;								//Map height.
+		std::vector<std::vector<int>> MapArray;		//Array for the map.
+		std::vector<std::vector<bool>> WalkArray;	//Array for walkability.
+		std::vector<SpaceClass> SpaceInfo;			//List of space information.
+		int XSize;									//Map width.
+		int YSize;									//Map height.
+
+	private:
+		MapClass &MoveFrom(MapClass &&Other);
 	};
+
+	Dantares &MoveFrom(Dantares &&Other);
 
 	int CurrentMap;
 	//The ID number of the currently active map.
@@ -544,7 +588,7 @@ private:
 	//Degrees between directions when turning.
 	float DegreesTurned;
 	//Tracking variable for surface hiding while turning.
-	MapClass *Maps[MAXMAPS];
+	std::unique_ptr<MapClass> Maps[MAXMAPS];
 	//Pointers to the stored maps.
 };
 
