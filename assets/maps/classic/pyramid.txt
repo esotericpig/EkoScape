@@ -1,0 +1,56 @@
+[EkoScape/v1]
+Pyramid
+Bradley
+
+10 5
+
+' ' '*' 'W'
+1000
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xwwwwwwwww###############wwwwwwwwwx
+xwwwwwwwww#******^******#wwwwwwwwwx
+xwwwwwwwww#|***********|#wwwwwwwwwx
+xwwwwwwwww#*************#wwwwwwwwwx
+xwwwwwwww|#*************#|wwwwwwwwx
+xwwwwwwwww#*************#wwwwwwwwwx
+xwwwwww|ww#*************#ww|wwwwwwx
+xwwwwwwwww#*************#wwwwwwwwwx
+xwwww|wwww#*************#wwww|wwwwx
+xwwwwwwwww#*************#wwwwwwwwwx
+xww|wwwwww#*************#wwwwww|wwx
+xwwwwwwwww#####wwwww#####wwwwwwwwwx
+xwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwx
+xwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwx
+xwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwx
+xwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwx
+xwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwx
+xwwwwwwwwwwwww#wwwww#wwwwwwwwwwwwwx
+xwwwwwwwwwwww#       #wwwwwwwwwwwwx
+xwwwwwwwwwww#         #wwwwwwwwwwwx
+xwwwwwwwwww#           #wwwwwwwwwwx
+xwwwwwwwww#             #wwwwwwwwwx
+xwwwwwwww#     #   #     #wwwwwwwwx
+xwwwwwww#     #     #     #wwwwwwwx
+xwwwwww#     #       #     #wwwwwwx
+xwwwww#     #         #     #wwwwwx
+xwwww#     #           #     #wwwwx
+xwww#     #@#         # #     #wwwx
+xww#     #   #       #   #     #wwx
+x@#     #     #     #     #      wx
+x#     #       ##@##       #     #x
+x#     #       #####       #     #x
+x#     #                   #     #x
+x#     #         ###       #     #x
+x#     #       ##   #      #     #x
+x#     #     ##     $#     #     #x
+x#     #   ##       #      #     #x
+x#     #           #       #     #x
+x#     ############        #     #x
+x#                         #     #x
+x#                         #     #x
+x#                         #     #x
+x#                         #     #x
+x#                         #     #x
+x###@#########################@###x
+xxx###xxxxxxxxxxxxxxxxxxxxxxx###xxx
