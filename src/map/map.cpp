@@ -163,6 +163,9 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
   width_ = width;
   height_ = height;
 
+  bool has_player = false;
+  bool has_end = false;
+
   // Dantares expects a map where the origin (0,0) is from the bottom left,
   //    instead of the top left, so we match this internally.
   // Therefore, we use `dan_y` to flip it vertically,
@@ -189,16 +192,33 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
           player_init_x_ = dan_x;
           player_init_y_ = dan_y;
           player_init_facing_ = SpaceTypes::to_player_facing(type);
+          has_player = true;
         } else if(SpaceTypes::is_robot(type)) {
           empty_type = empty_robot_;
           thing_type = type;
         } else {
+          if(type == SpaceType::kEnd) { has_end = true; }
+
           empty_type = type;
         }
       }
 
       set_space_imp(dan_x,dan_y,Space{empty_type,thing_type});
     }
+  }
+
+  if(!has_player) {
+    throw EkoScapeError{Util::build_string("Missing a Player space {"
+        ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
+        ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
+        ,',',SpaceTypes::value_of(SpaceType::kPlayerEast)
+        ,',',SpaceTypes::value_of(SpaceType::kPlayerWest)
+        ,"} in the grid of map [",title_,"].")};
+  }
+  if(!has_end) {
+    throw EkoScapeError{Util::build_string("Missing an End space ["
+        ,SpaceTypes::value_of(SpaceType::kEnd)
+        ,"] in the grid of map [",title_,"].")};
   }
 
   return *this;

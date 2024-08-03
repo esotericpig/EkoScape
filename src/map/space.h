@@ -26,7 +26,7 @@ public:
   SpaceType place_thing(SpaceType type);
 
   /**
-   * Returns previous thing, if there was one.
+   * Returns thing, if there was one.
    */
   SpaceType remove_thing();
 
