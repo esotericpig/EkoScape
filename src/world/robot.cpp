@@ -91,9 +91,7 @@ bool Robot::try_move(int to_x,int to_y,int likes,MoveData& data) {
 
   if(likes & kSnakeLike) {
     if(data.map.place_thing(SpaceType::kRobotStatue,from_x,from_y,data.dantares)) {
-      data.new_robots.push_back(std::make_unique<RobotStatue>(
-        SpaceType::kRobotStatue,from_x,from_y,Rando::it().rand_uint(3,11)
-      ));
+      data.new_robots.push_back(std::make_unique<RobotStatue>(from_x,from_y,kSnakeTailLifespan));
     }
   }
 
@@ -117,6 +115,9 @@ void RobotNormal::move(MoveData& data) { move_like(0,data); }
 void RobotGhost::move(MoveData& data) { move_like(kGhostLike,data); }
 
 void RobotSnake::move(MoveData& data) { move_like(kSnakeLike,data); }
+
+RobotStatue::RobotStatue(int x,int y,double lifespan)
+    : Robot(SpaceType::kRobotStatue,x,y,lifespan) {}
 
 void RobotStatue::move(MoveData& /*data*/) {}
 

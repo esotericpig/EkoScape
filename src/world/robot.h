@@ -34,7 +34,9 @@ public:
   };
 
   static const int kGhostLike = 1 << 0; // Can go through walls.
-  static const int kSnakeLike = 1 << 1; // Leaves behind a "shadow"/trail of RobotStatue.
+  static const int kSnakeLike = 1 << 1; // Leaves behind a "shadow"/tail of statues.
+
+  static constexpr double kSnakeTailLifespan = 9;
 
   using Thing::Thing;
   Robot(SpaceType type,int x,int y,double lifespan = 0.0);
@@ -77,6 +79,8 @@ public:
 class RobotStatue : public Robot {
 public:
   using Robot::Robot;
+
+  RobotStatue(int x,int y,double lifespan = 0.0);
 
   void move(MoveData& data) override;
 };
