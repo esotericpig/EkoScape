@@ -266,7 +266,7 @@ void GameEngine::run() {
     end_time();
   }
 
-  std::cerr << "[INFO] Exiting gracefully." << std::endl;
+  std::cerr << "[INFO] Stopping gracefully." << std::endl;
 }
 
 void GameEngine::request_stop() { is_running_ = false; }

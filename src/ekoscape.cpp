@@ -86,7 +86,8 @@ int EkoScape::update_scene_logic(const Duration& last_dpf,double delta_time) {
         next_scene_ = nullptr;
         current_scene_->init_scene();
       } else {
-        std::cerr << "[WARN] No next scene to go to." << std::endl;
+        show_error_globally("No next scene to go to. Quitting instead.");
+        game_engine_->request_stop();
       }
       break;
   }
