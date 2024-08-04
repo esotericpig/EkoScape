@@ -31,11 +31,11 @@
     #include<OpenGL/OpenGL.h>
     #include<OpenGL/gl.h>
     //#include<OpenGL/glu.h>
-#elsif defined(DANTARES_WINDOWS)
+#elif defined(DANTARES_WINDOWS)
     //Windows OpenGL headers.
     #include<windows.h>
-    #include<gl/gl.h>
-    //#include<gl/glu.h>
+    #include<GL/gl.h>
+    //#include<GL/glu.h>
 #else
     //X11 OpenGL headers.
     #include<GL/glx.h>

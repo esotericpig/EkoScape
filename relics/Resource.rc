@@ -1,0 +1,32 @@
+/*********************************************
+*RESOURCE.RC,                                *
+*  Copyright © 2004, Jonathan Bradley Whited.*
+*********************************************/
+/*Content.                                  */
+/*  Inclusions:  1.                         */
+/*  Bitmaps:     1.                         */
+/*  Icons:       1.                         */
+/*  Sounds:      1.                         */
+/*                                          */
+/*Purpose.                                  */
+/*  EkoScape Version 1.0.                   */
+
+/***********
+*Inclusions*
+***********/
+#include "Resource.h"
+
+/********
+*Bitmaps*
+********/
+IDB_INTRODUCTION BITMAP DISCARDABLE "Resource/Bitmaps/Introduction.bmp"
+
+/******
+*Icons*
+******/
+IDI_EYE ICON DISCARDABLE "Resource/Icons/Eye.ico"
+
+/*******
+*Sounds*
+*******/
+IDS_MATRIX SOUND DISCARDABLE "Resource/Sounds/Matrix.mid"
