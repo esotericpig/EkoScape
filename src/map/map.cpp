@@ -68,23 +68,9 @@ Map& Map::load_file(const std::string& file) {
   if(!reader.seek_and_destroy('\'')
       || !reader.read(data_c)
       || !reader.seek_and_destroy('\'')) {
-    throw EkoScapeError{Util::build_string("Missing empty cell space in map [",file,"].")};
+    throw EkoScapeError{Util::build_string("Missing default empty space in map [",file,"].")};
   }
-  set_empty_cell(SpaceTypes::to_space_type(data_c));
-
-  if(!reader.seek_and_destroy('\'')
-      || !reader.read(data_c)
-      || !reader.seek_and_destroy('\'')) {
-    throw EkoScapeError{Util::build_string("Missing empty player space in map [",file,"].")};
-  }
-  set_empty_player(SpaceTypes::to_space_type(data_c));
-
-  if(!reader.seek_and_destroy('\'')
-      || !reader.read(data_c)
-      || !reader.seek_and_destroy('\'')) {
-    throw EkoScapeError{Util::build_string("Missing empty robot space in map [",file,"].")};
-  }
-  set_empty_robot(SpaceTypes::to_space_type(data_c));
+  set_default_empty(SpaceTypes::to_space_type(data_c));
 
   if(!reader.read(data_i)) {
     throw EkoScapeError{Util::build_string("Missing robot delay in map [",file,"].")};
@@ -184,17 +170,17 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
         SpaceType type = SpaceTypes::to_space_type(line->at(x));
 
         if(type == SpaceType::kCell) {
-          empty_type = empty_cell_;
+          empty_type = default_empty_;
           thing_type = type;
           ++total_cells_;
         } else if(SpaceTypes::is_player(type)) {
-          empty_type = empty_player_;
+          empty_type = default_empty_;
           player_init_x_ = dan_x;
           player_init_y_ = dan_y;
           player_init_facing_ = SpaceTypes::to_player_facing(type);
           has_player = true;
         } else if(SpaceTypes::is_robot(type)) {
-          empty_type = empty_robot_;
+          empty_type = default_empty_;
           thing_type = type;
         } else {
           if(type == SpaceType::kEnd) { has_end = true; }
@@ -309,20 +295,8 @@ Map& Map::set_walking_speed(float speed) {
   return *this;
 }
 
-Map& Map::set_empty_cell(SpaceType type) {
-  empty_cell_ = (type != SpaceType::kNil) ? type : SpaceType::kEmpty;
-
-  return *this;
-}
-
-Map& Map::set_empty_player(SpaceType type) {
-  empty_player_ = (type != SpaceType::kNil) ? type : SpaceType::kEmpty;
-
-  return *this;
-}
-
-Map& Map::set_empty_robot(SpaceType type) {
-  empty_robot_ = (type != SpaceType::kNil) ? type : SpaceType::kEmpty;
+Map& Map::set_default_empty(SpaceType type) {
+  default_empty_ = (type != SpaceType::kNil) ? type : SpaceType::kEmpty;
 
   return *this;
 }
@@ -374,11 +348,7 @@ float Map::turning_speed() const { return turning_speed_; }
 
 float Map::walking_speed() const { return walking_speed_; }
 
-SpaceType Map::empty_cell() const { return empty_cell_; }
-
-SpaceType Map::empty_player() const { return empty_player_; }
-
-SpaceType Map::empty_robot() const { return empty_robot_; }
+SpaceType Map::default_empty() const { return default_empty_; }
 
 const Duration& Map::robot_delay() const { return robot_delay_; }
 
@@ -423,10 +393,7 @@ std::ostream& operator<<(std::ostream& out,const Map& map) {
       << '\n'
       << map.turning_speed_ << ' ' << map.walking_speed_ << '\n'
       << '\n'
-      <<  "'" << SpaceTypes::value_of(map.empty_cell_)   << "'"
-      << " '" << SpaceTypes::value_of(map.empty_player_) << "'"
-      << " '" << SpaceTypes::value_of(map.empty_robot_)  << "'"
-      << '\n'
+      <<  "'" << SpaceTypes::value_of(map.default_empty_) << "'\n"
       << map.robot_delay_.round_millis() << '\n';
 
   // Flip vertically, since internally, we match Dantares where

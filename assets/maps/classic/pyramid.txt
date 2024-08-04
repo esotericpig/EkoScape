@@ -4,7 +4,7 @@ Bradley
 
 10 5
 
-' ' '*' 'W'
+'W'
 1000
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

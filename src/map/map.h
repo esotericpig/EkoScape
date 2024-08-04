@@ -45,11 +45,9 @@ namespace ekoscape {
  *       .set_author("Bradz")
  *       .set_turning_speed(5.0f)
  *       .set_walking_speed(15.0f)
- *       .set_empty_cell(SpaceType::kWhiteFloor)
- *       .set_empty_player(SpaceType::kWhiteFloor)
- *       .set_empty_robot(SpaceType::kEmpty)
+ *       .set_default_empty(SpaceType::kWhiteFloor)
  *       .set_robot_delay(Duration::from_millis(2000))
- *       // Do this last! Else, the empty*s will be wrong.
+ *       // Do this last! Else, the default empty will be wrong.
  *       .parse_grid(lines);
  *
  *    std::cout << map << std::endl;
@@ -77,9 +75,7 @@ public:
   Map& set_turning_speed(float speed);
   Map& set_walking_speed(float speed);
 
-  Map& set_empty_cell(SpaceType type);
-  Map& set_empty_player(SpaceType type);
-  Map& set_empty_robot(SpaceType type);
+  Map& set_default_empty(SpaceType type);
   Map& set_robot_delay(Duration duration);
 
   virtual bool set_space(int x,int y,SpaceType empty_type,SpaceType thing_type);
@@ -94,9 +90,7 @@ public:
   float turning_speed() const;
   float walking_speed() const;
 
-  SpaceType empty_cell() const;
-  SpaceType empty_player() const;
-  SpaceType empty_robot() const;
+  SpaceType default_empty() const;
   const Duration& robot_delay() const;
 
   int width() const;
@@ -120,9 +114,7 @@ protected:
   float turning_speed_ = 10.0f;
   float walking_speed_ = 5.0f;
 
-  SpaceType empty_cell_ = SpaceType::kEmpty;
-  SpaceType empty_player_ = SpaceType::kEmpty;
-  SpaceType empty_robot_ = SpaceType::kEmpty;
+  SpaceType default_empty_ = SpaceType::kEmpty;
   Duration robot_delay_ = Duration::from_millis(900);
 
   int width_ = 0;
