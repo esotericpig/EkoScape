@@ -86,10 +86,10 @@ void GameScene::init_scene() {
 }
 
 void GameScene::handle_key_states(const Uint8* keys) {
-  bool is_up = (keys[SDL_SCANCODE_UP] == 1);
-  bool is_down = (keys[SDL_SCANCODE_DOWN] == 1);
-  bool is_left = (keys[SDL_SCANCODE_LEFT] == 1);
-  bool is_right = (keys[SDL_SCANCODE_RIGHT] == 1);
+  bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
+  bool is_down = (keys[SDL_SCANCODE_DOWN] == 1 || keys[SDL_SCANCODE_S] == 1);
+  bool is_left = (keys[SDL_SCANCODE_LEFT] == 1 || keys[SDL_SCANCODE_A] == 1);
+  bool is_right = (keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
 
   // Must check Left/Right first, so that the player can turn while holding down Up/Down,
   //     which is an important mechanic for the game.
