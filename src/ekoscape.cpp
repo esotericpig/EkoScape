@@ -9,11 +9,11 @@
 
 namespace ekoscape {
 
-const std::string EkoScape::kTitle = "EkoScape v0.90";
+const std::string EkoScape::kTitle = "EkoScape v2.0";
 
 EkoScape::EkoScape(Config config) {
   config.ge.title = kTitle;
-  dan_dist_ = (config.dan_dist >= 2) ? config.dan_dist : 2;
+  dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
 
   game_engine_ = std::make_unique<GameEngine>(*this,config.ge);
   assets_ = std::make_unique<Assets>(Assets::TexturesType::kRealistic,game_engine_->has_music_player());
@@ -24,7 +24,7 @@ EkoScape::EkoScape(Config config) {
 
 std::unique_ptr<GameScene> EkoScape::build_game_scene() {
   // TODO: Callback in Menu Scene so can create this in this class after player picks a map.
-  return std::make_unique<GameScene>(*assets_,"assets/maps/classic/tron.txt",dan_dist_);
+  return std::make_unique<GameScene>(*assets_,"assets/maps/classic/tron.txt",dantares_dist_);
 }
 
 void EkoScape::run() {

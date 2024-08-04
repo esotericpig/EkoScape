@@ -28,7 +28,7 @@ private:
 public:
   struct Config {
     GameEngine::Config ge;
-    int dan_dist = 24;
+    int dantares_dist = 24;
   };
 
   static const std::string kTitle;
@@ -47,7 +47,7 @@ public:
   static void show_error_globally(const std::string& error);
 
 private:
-  int dan_dist_ = 0;
+  int dantares_dist_ = 0;
 
   std::unique_ptr<Assets> assets_{};
   std::unique_ptr<Scene> current_scene_{};

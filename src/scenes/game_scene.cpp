@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(Assets& assets,const std::string& map_file,int dan_dist)
-    : assets_(assets),dan_dist_(dan_dist) {
+GameScene::GameScene(Assets& assets,const std::string& map_file,int dantares_dist)
+    : assets_(assets),dantares_dist_(dantares_dist) {
   load_map(map_file);
   generate_map();
 }
@@ -175,7 +175,7 @@ int GameScene::update_scene_logic(const Duration& last_dpf,double delta_time) {
 }
 
 void GameScene::draw_scene() {
-  dantares_.Draw(dan_dist_);
+  dantares_.Draw(dantares_dist_);
 }
 
 void GameScene::set_space_textures(SpaceType type,const Texture* texture) {

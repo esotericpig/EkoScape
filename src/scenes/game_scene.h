@@ -29,7 +29,7 @@ namespace ekoscape {
 
 class GameScene : public Scene {
 public:
-  GameScene(Assets& assets,const std::string& map_file,int dan_dist);
+  GameScene(Assets& assets,const std::string& map_file,int dantares_dist);
 
   void init_scene() override;
   void handle_key_states(const Uint8* keys) override;
@@ -44,7 +44,7 @@ private:
   // The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
   // See set_space_textures(), which relies on this logic.
   Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
-  int dan_dist_ = 0;
+  int dantares_dist_ = 0;
 
   DantaresMap map_{dantares_};
   Robot::MoveData robot_move_data_{map_};
