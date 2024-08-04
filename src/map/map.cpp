@@ -203,7 +203,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
         }
       }
 
-      set_space_imp(dan_x,dan_y,Space{empty_type,thing_type});
+      set_raw_space(dan_x,dan_y,Space{empty_type,thing_type});
     }
   }
 
@@ -232,135 +232,52 @@ Map& Map::clear_spaces() {
   total_rescues_ = 0;
   player_init_x_ = 0;
   player_init_y_ = 0;
-  id_ = -1;
 
   return *this;
 }
 
-Map& Map::add_to(Dantares& dantares,const std::function<void(int,int,Space&,SpaceType)>& handle_space) {
-  std::vector<int> int_spaces(width_ * height_,0);
-
-  // Explicitly casting to ensure that `const void*` overload is used.
-  id_ = dantares.AddMap(static_cast<const void*>(int_spaces.data()),width_,height_);
-
-  if(id_ == -1 || !dantares.IsMap(id_)) {
-    throw EkoScapeError{Util::build_string("Failed to add map [",id_,':',title_,"].")};
-  }
-
-  // Temporarily set this map as the current map.
-  int curr_map_id = dantares.GetCurrentMap();
-
-  if(!dantares.SetCurrentMap(id_)) {
-    if(curr_map_id != -1 && dantares.IsMap(curr_map_id)) {
-      dantares.SetCurrentMap(curr_map_id);
-    }
-
-    throw EkoScapeError{Util::build_string("Failed to make map [",id_,':',title_,"] current.")};
-  }
-
-  for(int y = 0; y < height_; ++y) {
-    for(int x = 0; x < width_; ++x) {
-      Space& space = space_imp(x,y);
-      SpaceType type = space.type();
-
-      update_square(x,y,type,dantares);
-
-      if(handle_space) { handle_space(x,y,space,type); }
-    }
-  }
-
-  // Reset back to actual current map.
-  if(curr_map_id != -1 && dantares.IsMap(curr_map_id)) {
-    dantares.SetCurrentMap(curr_map_id); // Ignore any errors.
-  }
-
-  return *this;
-}
-
-Map& Map::make_current_in(Dantares& dantares) {
-  if(id_ == -1 || !dantares.IsMap(id_)) {
-    throw EkoScapeError{Util::build_string("Invalid map ID [",id_,':',title_,"]. Call add_to() first.")};
-  }
-  if(!dantares.SetCurrentMap(id_)) {
-    throw EkoScapeError{Util::build_string("Failed to make map [",id_,':',title_,"] current.")};
-  }
-
-  int dan_facing = Facings::value_of(player_init_facing_);
-
-  if(!dantares.SetPlayerPosition(player_init_x_,player_init_y_,dan_facing)) {
-    throw EkoScapeError{Util::build_string("Failed to set player pos [",dan_facing,":("
-        ,player_init_x_,',',player_init_y_,")] for map [",id_,':',title_,"].")};
-  }
-  if(!dantares.SetTurningSpeed(turning_speed_)) {
-    std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map["
-        << id_ << ':' << title_ << "]." << std::endl;
-    // Don't fail; game is still playable.
-  }
-  if(!dantares.SetWalkingSpeed(walking_speed_)) {
-    std::cerr << "[WARN] Failed to set walking speed [" << walking_speed_ << "] for map["
-        << id_ << ':' << title_ << "]." << std::endl;
-    // Don't fail; game is still playable.
-  }
-
-  return *this;
-}
-
-Map& Map::generate_in(Dantares& dantares) {
-  if(!dantares.GenerateMap()) {
-    throw EkoScapeError{Util::build_string("Failed to generate map [",id_,':',title_,"].")};
-  }
-
-  return *this;
-}
-
-bool Map::move_thing(int from_x,int from_y,int to_x,int to_y,Dantares& dantares) {
-  Space* from_space = this->space(from_x,from_y);
+bool Map::move_thing(int from_x,int from_y,int to_x,int to_y) {
+  Space* from_space = mutable_space(from_x,from_y);
 
   if(from_space == nullptr || !from_space->has_thing()) { return false; }
 
-  Space* to_space = this->space(to_x,to_y);
+  Space* to_space = mutable_space(to_x,to_y);
 
   if(to_space == nullptr || to_space->has_thing()) { return false; }
 
   SpaceType thing_type = from_space->remove_thing();
-  update_square(from_x,from_y,from_space->empty_type(),dantares);
-
-  to_space->place_thing(thing_type);
-  update_square(to_x,to_y,thing_type,dantares);
+  to_space->set_thing(thing_type);
 
   return true;
 }
 
-bool Map::remove_thing(int x,int y,Dantares& dantares) {
-  Space* space = this->space(x,y);
+bool Map::remove_thing(int x,int y) {
+  Space* space = mutable_space(x,y);
 
   if(space == nullptr) { return false; }
   if(!space->has_thing()) { return true; } // This is why move_thing() can't use this method.
 
   space->remove_thing();
-  update_square(x,y,space->empty_type(),dantares);
 
   return true;
 }
 
-bool Map::place_thing(SpaceType type,int x,int y,Dantares& dantares) {
-  Space* space = this->space(x,y);
+bool Map::place_thing(SpaceType type,int x,int y) {
+  Space* space = mutable_space(x,y);
 
   if(space == nullptr || space->has_thing()) { return false; }
 
-  space->place_thing(type);
-  update_square(x,y,type,dantares);
+  space->set_thing(type);
 
   return true;
 }
 
-bool Map::unlock_cell(int x,int y,Dantares& dantares) {
-  Space* space = this->space(x,y);
+bool Map::unlock_cell(int x,int y) {
+  Space* space = mutable_space(x,y);
 
   if(space == nullptr || space->thing_type() != SpaceType::kCell) { return false; }
 
   space->remove_thing();
-  update_square(x,y,space->empty_type(),dantares);
   ++total_rescues_;
 
   return true;
@@ -416,6 +333,37 @@ Map& Map::set_robot_delay(Duration duration) {
   return *this;
 }
 
+bool Map::set_space(int x,int y,SpaceType empty_type,SpaceType thing_type) {
+  Space* space = mutable_space(x,y);
+
+  if(space == nullptr) { return false; }
+
+  space->set_empty(empty_type);
+  space->set_thing(thing_type);
+
+  return true;
+}
+
+bool Map::set_empty(int x,int y,SpaceType type) {
+  Space* space = mutable_space(x,y);
+
+  if(space == nullptr) { return false; }
+
+  space->set_empty(type);
+
+  return true;
+}
+
+bool Map::set_thing(int x,int y,SpaceType type) {
+  Space* space = mutable_space(x,y);
+
+  if(space == nullptr) { return false; }
+
+  space->set_thing(type);
+
+  return true;
+}
+
 int Map::version() const { return version_; }
 
 const std::string& Map::title() const { return title_; }
@@ -438,16 +386,10 @@ int Map::width() const { return width_; }
 
 int Map::height() const { return height_; }
 
-Space* Map::space(int x,int y) {
-  if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
-
-  return &space_imp(x,y);
-}
-
 const Space* Map::space(int x,int y) const {
   if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
 
-  return &space_imp(x,y);
+  return &raw_space(x,y);
 }
 
 int Map::total_cells() const { return total_cells_; }
@@ -460,26 +402,19 @@ int Map::player_init_y() const { return player_init_y_; }
 
 Facing Map::player_init_facing() const { return player_init_facing_; }
 
-int Map::id() const { return id_; }
-
-void Map::update_square(int x,int y,SpaceType type,Dantares& dantares) {
-  dantares.ChangeSquare(x,y,SpaceTypes::value_of(type));
-
-  // Walkability must always be updated after changing the square.
-  if(SpaceTypes::is_walkable(type)) {
-    dantares.MakeSpaceWalkable(x,y);
-  } else {
-    dantares.MakeSpaceNonWalkable(x,y);
-  }
-}
-
-void Map::set_space_imp(int x,int y,Space&& space) {
+void Map::set_raw_space(int x,int y,Space&& space) {
   spaces_.at(x + (y * width_)) = std::move(space);
 }
 
-Space& Map::space_imp(int x,int y) { return spaces_.at(x + (y * width_)); }
+Space* Map::mutable_space(int x,int y) {
+  if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
 
-const Space& Map::space_imp(int x,int y) const { return spaces_.at(x + (y * width_)); }
+  return &raw_space(x,y);
+}
+
+Space& Map::raw_space(int x,int y) { return spaces_.at(x + (y * width_)); }
+
+const Space& Map::raw_space(int x,int y) const { return spaces_.at(x + (y * width_)); }
 
 std::ostream& operator<<(std::ostream& out,const Map& map) {
   out << map.build_header() << '\n'
@@ -505,7 +440,7 @@ std::ostream& operator<<(std::ostream& out,const Map& map) {
       if(x == map.player_init_x_ && y == map.player_init_y_) {
         type = SpaceTypes::to_player(map.player_init_facing_);
       } else {
-        type = map.space_imp(x,y).type();
+        type = map.raw_space(x,y).type();
       }
 
       out << SpaceTypes::value_of(type);

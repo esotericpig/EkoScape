@@ -21,9 +21,14 @@ public:
   Space(SpaceType empty_type,SpaceType thing_type);
 
   /**
+   * Returns previous empty, if there was one.
+   */
+  SpaceType set_empty(SpaceType type);
+
+  /**
    * Returns previous thing, if there was one.
    */
-  SpaceType place_thing(SpaceType type);
+  SpaceType set_thing(SpaceType type);
 
   /**
    * Returns thing, if there was one.

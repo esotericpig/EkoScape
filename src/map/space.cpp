@@ -17,7 +17,14 @@ Space::Space(SpaceType empty_type)
 Space::Space(SpaceType empty_type,SpaceType thing_type)
     : empty_type_(empty_type),thing_type_(thing_type) {}
 
-SpaceType Space::place_thing(SpaceType type) {
+SpaceType Space::set_empty(SpaceType type) {
+  SpaceType old_empty = empty_type_;
+  empty_type_ = type;
+
+  return old_empty;
+}
+
+SpaceType Space::set_thing(SpaceType type) {
   SpaceType old_thing = thing_type_;
   thing_type_ = type;
 

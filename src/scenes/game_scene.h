@@ -14,7 +14,7 @@
 #include "core/texture.h"
 #include "core/timer.h"
 
-#include "map/map.h"
+#include "map/dantares_map.h"
 #include "map/space.h"
 #include "map/space_type.h"
 
@@ -46,8 +46,8 @@ private:
   Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
   int dan_dist_ = 0;
 
-  Map map_{};
-  Robot::MoveData robot_move_data_{dantares_,map_};
+  DantaresMap map_{dantares_};
+  Robot::MoveData robot_move_data_{map_};
   std::vector<std::unique_ptr<Robot>> robots_{};
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};

@@ -9,14 +9,14 @@
 
 namespace ekoscape {
 
-Robot::MoveData::MoveData(Dantares& dantares,Map& map)
-    : dantares(dantares),map(map) {
+Robot::MoveData::MoveData(DantaresMap& map)
+    : map(map) {
   refresh();
 }
 
 void Robot::MoveData::refresh() {
-  player_x = dantares.GetPlayerX();
-  player_y = dantares.GetPlayerY();
+  player_x = map.player_x();
+  player_y = map.player_y();
 }
 
 Robot::Robot(SpaceType type,int x,int y,double lifespan)
@@ -77,7 +77,7 @@ void Robot::move_like(int likes,MoveData& data) {
 }
 
 bool Robot::try_move(int to_x,int to_y,int likes,MoveData& data) {
-  Space* to_space = data.map.space(to_x,to_y);
+  const Space* to_space = data.map.space(to_x,to_y);
 
   if(to_space == nullptr || to_space->has_thing()) { return false; }
   if(!(likes & kGhostLike) && to_space->is_non_walkable()) { return false; }
@@ -85,12 +85,12 @@ bool Robot::try_move(int to_x,int to_y,int likes,MoveData& data) {
   int from_x = x_;
   int from_y = y_;
 
-  if(!data.map.move_thing(from_x,from_y,to_x,to_y,data.dantares)) { return false; }
+  if(!data.map.move_thing(from_x,from_y,to_x,to_y)) { return false; }
 
   set_pos(to_x,to_y);
 
   if(likes & kSnakeLike) {
-    if(data.map.place_thing(SpaceType::kRobotStatue,from_x,from_y,data.dantares)) {
+    if(data.map.place_thing(SpaceType::kRobotStatue,from_x,from_y)) {
       data.new_robots.push_back(std::make_unique<RobotStatue>(from_x,from_y,kSnakeTailLifespan));
     }
   }

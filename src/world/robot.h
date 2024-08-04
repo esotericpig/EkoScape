@@ -12,7 +12,7 @@
 
 #include "core/util.h"
 
-#include "map/map.h"
+#include "map/dantares_map.h"
 
 #include "thing.h"
 
@@ -22,13 +22,12 @@ class Robot : public Thing {
 public:
   class MoveData {
   public:
-    Dantares& dantares;
-    Map& map;
+    DantaresMap& map;
     int player_x = 0;
     int player_y = 0;
     std::vector<std::unique_ptr<Robot>> new_robots{};
 
-    MoveData(Dantares& dantares,Map& map);
+    MoveData(DantaresMap& map);
 
     void refresh();
   };

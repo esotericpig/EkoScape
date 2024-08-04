@@ -21,10 +21,10 @@ void GameScene::load_map(const std::string& file) {
   std::cout << "[INFO] Map file: '" << file << "'\n";
   std::cout << map_ << std::endl;
 
-  map_.add_to(dantares_,[&](int x,int y,Space& space,SpaceType type) {
+  map_.add_to_dantares([&](int x,int y,Space& space,SpaceType type) {
     init_map_space(x,y,space,type);
   });
-  map_.make_current_in(dantares_);
+  map_.make_current_in_dantares();
 }
 
 void GameScene::init_map_space(int x,int y,Space&,SpaceType type) {
@@ -76,7 +76,7 @@ void GameScene::generate_map() {
   set_space_textures(SpaceType::kWhiteFloor,&assets_.white_texture(),nullptr,&assets_.white_texture());
   set_space_textures(SpaceType::kWhiteGhost,&assets_.white_texture());
 
-  map_.generate_in(dantares_); // Must be called after setting the textures.
+  map_.generate_in_dantares(); // Must be called after setting the textures.
 }
 
 void GameScene::init_scene() {
@@ -109,11 +109,11 @@ void GameScene::handle_key_states(const Uint8* keys) {
 }
 
 int GameScene::update_scene_logic(const Duration& last_dpf,double delta_time) {
-  SpaceType player_space_type = SpaceTypes::to_space_type(dantares_.GetCurrentSpace());
+  SpaceType player_space_type = map_.player_space_type();
 
   switch(player_space_type) {
     case SpaceType::kCell:
-      map_.unlock_cell(dantares_.GetPlayerX(),dantares_.GetPlayerY(),dantares_);
+      map_.unlock_cell(map_.player_x(),map_.player_y());
       break;
 
     case SpaceType::kEnd:
@@ -144,7 +144,7 @@ int GameScene::update_scene_logic(const Duration& last_dpf,double delta_time) {
     auto& robot = *it;
 
     if(robot->is_dead()) {
-      map_.remove_thing(robot->x(),robot->y(),dantares_);
+      map_.remove_thing(robot->x(),robot->y());
       it = robots_.erase(it);
     } else {
       robot->age(delta_time);

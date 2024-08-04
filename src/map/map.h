@@ -19,7 +19,6 @@
 #include "space.h"
 #include "space_type.h"
 
-#include <functional>
 #include <regex>
 #include <vector>
 
@@ -65,16 +64,12 @@ public:
 
   Map& load_file(const std::string& file);
   Map& parse_grid(const std::vector<std::string>& lines,int width = 0,int height = 0);
-  Map& clear_spaces();
+  virtual Map& clear_spaces();
 
-  Map& add_to(Dantares& dantares,const std::function<void(int,int,Space&,SpaceType)>& handle_space = nullptr);
-  Map& make_current_in(Dantares& dantares);
-  Map& generate_in(Dantares& dantares);
-
-  bool move_thing(int from_x,int from_y,int to_x,int to_y,Dantares& dantares);
-  bool remove_thing(int x,int y,Dantares& dantares);
-  bool place_thing(SpaceType type,int x,int y,Dantares& dantares);
-  bool unlock_cell(int x,int y,Dantares& dantares);
+  virtual bool move_thing(int from_x,int from_y,int to_x,int to_y);
+  virtual bool remove_thing(int x,int y);
+  virtual bool place_thing(SpaceType type,int x,int y);
+  virtual bool unlock_cell(int x,int y);
 
   Map& set_title(const std::string& title);
   Map& set_author(const std::string& author);
@@ -86,6 +81,10 @@ public:
   Map& set_empty_player(SpaceType type);
   Map& set_empty_robot(SpaceType type);
   Map& set_robot_delay(Duration duration);
+
+  virtual bool set_space(int x,int y,SpaceType empty_type,SpaceType thing_type);
+  virtual bool set_empty(int x,int y,SpaceType type);
+  virtual bool set_thing(int x,int y,SpaceType type);
 
   std::string build_header() const;
   int version() const;
@@ -102,7 +101,6 @@ public:
 
   int width() const;
   int height() const;
-  Space* space(int x,int y);
   const Space* space(int x,int y) const;
 
   int total_cells() const;
@@ -111,11 +109,10 @@ public:
   int player_init_x() const;
   int player_init_y() const;
   Facing player_init_facing() const;
-  int id() const;
 
   friend std::ostream& operator<<(std::ostream& out,const Map& map);
 
-private:
+protected:
   int version_ = kMaxSupportedVersion;
   std::string title_{};
   std::string author_{};
@@ -138,16 +135,14 @@ private:
   int player_init_x_ = 0;
   int player_init_y_ = 0;
   Facing player_init_facing_ = Facing::kSouth;
-  int id_ = -1;
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 
-  void update_square(int x,int y,SpaceType type,Dantares& dantares);
+  void set_raw_space(int x,int y,Space&& space);
 
-  void set_space_imp(int x,int y,Space&& space);
-
-  Space& space_imp(int x,int y);
-  const Space& space_imp(int x,int y) const;
+  Space* mutable_space(int x,int y);
+  Space& raw_space(int x,int y);
+  const Space& raw_space(int x,int y) const;
 };
 
 } // Namespace.
