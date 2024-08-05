@@ -20,6 +20,7 @@ EkoScape::EkoScape(Config config) {
 
   // TODO: Menu Scene.
   current_scene_ = build_game_scene();
+  //current_scene_ = std::make_unique<MenuScene>(*game_engine_,*assets_);
 }
 
 std::unique_ptr<GameScene> EkoScape::build_game_scene() {
@@ -58,9 +59,9 @@ void EkoScape::handle_key_down_event(SDL_Keycode key) {
 
 void EkoScape::handle_key_states(const Uint8* keys) { current_scene_->handle_key_states(keys); }
 
-int EkoScape::update_scene_logic(const Duration& dpf,double delta_time) {
+int EkoScape::update_scene_logic(FrameStep step) {
   SceneResult result = SceneResults::to_scene_result(
-    current_scene_->update_scene_logic(dpf,delta_time)
+    current_scene_->update_scene_logic(step)
   );
 
   switch(result) {
@@ -95,7 +96,7 @@ int EkoScape::update_scene_logic(const Duration& dpf,double delta_time) {
   return 0;
 }
 
-void EkoScape::draw_scene() { current_scene_->draw_scene(); }
+void EkoScape::draw_scene(Dimens dimens) { current_scene_->draw_scene(dimens); }
 
 void EkoScape::show_error_globally(const std::string& error) {
   GameEngine::show_error_globally(kTitle,error);

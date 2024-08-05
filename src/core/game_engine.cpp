@@ -89,8 +89,6 @@ void GameEngine::init_config(const Config& config) {
   title_ = config.title;
   target_width_ = (width > 0) ? width : kFallbackWidth;
   target_height_ = (height > 0) ? height : kFallbackHeight;
-  width_ = target_width_;
-  height_ = target_height_;
   // Allow 0 if the user wants to use delta time only (no delay).
   // - See: end_time()
   target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
@@ -192,17 +190,21 @@ void GameEngine::resize() {
 }
 
 void GameEngine::resize(int width,int height) {
+  // Avoid potential divide by 0s [like in begin_3d_scene()].
   if(width < 1) { width = 1; }
-  if(height < 1) { height = 1; } // Avoid divide by 0.
+  if(height < 1) { height = 1; }
 
   // Allow resize even if the width & height haven't changed.
   // - If decide to change this logic, need to allow force resize in GameEngine() ctor.
 
   width_ = width;
   height_ = height;
+  view_scale_ = std::min(
+    static_cast<double>(width_) / target_width_,static_cast<double>(height_) / target_height_
+  );
 
   glViewport(0,0,width_,height_);
-  main_scene_.resize(width_,height_,target_width_,target_height_);
+  main_scene_.resize({width_,height_,target_width_,target_height_,view_scale_});
 }
 
 void GameEngine::begin_2d_scene() {
@@ -269,13 +271,13 @@ void GameEngine::run() {
 
     handle_events();
     main_scene_.handle_key_states(get_key_states());
-    main_scene_.update_scene_logic(dpf_,delta_time_);
+    main_scene_.update_scene_logic({dpf_,delta_time_});
 
     // Check if event/scene requested to stop.
     if(!is_running_) { break; }
 
     clear_screen();
-    main_scene_.draw_scene();
+    main_scene_.draw_scene({width_,height_,target_width_,target_height_,view_scale_});
     SDL_GL_SwapWindow(res_.window);
 
     end_time();
@@ -401,6 +403,8 @@ int GameEngine::target_height() const { return target_height_; }
 int GameEngine::width() const { return width_; }
 
 int GameEngine::height() const { return height_; }
+
+double GameEngine::view_scale() const { return view_scale_; }
 
 int GameEngine::target_fps() const { return target_fps_; }
 

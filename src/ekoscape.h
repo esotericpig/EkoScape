@@ -14,6 +14,7 @@
 #include "core/scene.h"
 
 #include "scenes/game_scene.h"
+//#include "scenes/menu_scene.h"
 #include "scenes/scene_result.h"
 
 #include "assets.h"
@@ -41,8 +42,8 @@ public:
   void init_scene() override;
   void handle_key_down_event(SDL_Keycode key) override;
   void handle_key_states(const Uint8* keys) override;
-  int update_scene_logic(const Duration& dpf,double delta_time) override;
-  void draw_scene() override;
+  int update_scene_logic(FrameStep step) override;
+  void draw_scene(Dimens dimens) override;
 
   static void show_error_globally(const std::string& error);
 

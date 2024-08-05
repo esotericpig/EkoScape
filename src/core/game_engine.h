@@ -108,6 +108,7 @@ public:
   int target_height() const;
   int width() const;
   int height() const;
+  double view_scale() const;
   int target_fps() const;
   const Duration& target_dpf() const;
   const Duration& dpf() const;
@@ -116,10 +117,11 @@ public:
 private:
   Scene& main_scene_;
   std::string title_{};
-  int target_width_ = 0;
-  int target_height_ = 0;
-  int width_ = 0;
-  int height_ = 0;
+  int target_width_ = 1;
+  int target_height_ = 1;
+  int width_ = 1;
+  int height_ = 1;
+  double view_scale_ = 1.0;
   int target_fps_ = 0;
   Duration target_dpf_{};
   Duration dpf_{};

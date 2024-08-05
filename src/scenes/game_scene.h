@@ -34,8 +34,8 @@ public:
 
   void init_scene() override;
   void handle_key_states(const Uint8* keys) override;
-  int update_scene_logic(const Duration& dpf,double delta_time) override;
-  void draw_scene() override;
+  int update_scene_logic(FrameStep step) override;
+  void draw_scene(Dimens dimens) override;
 
 private:
   GameEngine& game_engine_;
