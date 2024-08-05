@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-TextReader::TextReader(const std::string& file)
-    : buf_(file),in_(&buf_) {}
+TextReader::TextReader(const std::string& file,std::size_t buffer_size)
+    : buf_(file,buffer_size),in_(&buf_) {}
 
 bool TextReader::read_line(std::string& line) {
   line.clear(); // Match user expectations.

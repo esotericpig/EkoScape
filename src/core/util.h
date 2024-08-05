@@ -10,6 +10,7 @@
 
 #include "common.h"
 
+#include <cctype>
 #include <functional>
 #include <random>
 #include <sstream>
@@ -64,6 +65,8 @@ private:
 namespace Util {
   template <typename... Args>
   std::string build_string(const Args&... args);
+
+  std::string strip(const std::string& str);
 
   template <typename... Args>
   std::size_t build_hash(const Args&... args);

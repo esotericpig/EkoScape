@@ -13,7 +13,7 @@ const Duration Map::kMinRobotDelay = Duration::from_millis(110);
 
 bool Map::is_map_file(const std::string& file) {
   try {
-    TextReader reader{file};
+    TextReader reader{file,24}; // Buffer size based on: "[EkoScape/v1999]\r\n"
     std::string line{};
     int version = -1;
 
@@ -41,7 +41,7 @@ Map& Map::load_file(const std::string& file) {
     throw EkoScapeError{Util::build_string("Invalid header [",line,"] in map [",file,"].")};
   }
   if(data_i < kMinSupportedVersion || data_i > kMaxSupportedVersion) {
-    throw EkoScapeError{Util::build_string("Invalid version [",data_i,"] in map [",file,"].")};
+    throw EkoScapeError{Util::build_string("Unsupported version [",data_i,"] in map [",file,"].")};
   }
   version_ = data_i;
 
@@ -270,13 +270,13 @@ bool Map::unlock_cell(int x,int y) {
 }
 
 Map& Map::set_title(const std::string& title) {
-  title_ = title;
+  title_ = Util::strip(title);
 
   return *this;
 }
 
 Map& Map::set_author(const std::string& author) {
-  author_ = author;
+  author_ = Util::strip(author);
 
   return *this;
 }

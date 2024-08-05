@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-TextReaderBuf::TextReaderBuf(const std::string& file) {
-  init();
+TextReaderBuf::TextReaderBuf(const std::string& file,std::size_t buffer_size) {
+  init(buffer_size);
 
   context_ = SDL_RWFromFile(file.c_str(),"r");
 
@@ -24,16 +24,14 @@ TextReaderBuf::TextReaderBuf(const std::string& file) {
 }
 
 TextReaderBuf::TextReaderBuf(TextReaderBuf&& other) noexcept
-    : Base(std::move(other)) {
+    : Base(std::move(other)),buffer_(std::move(other.buffer_)) {
   // Can't use std::exchange(), because have to use NULL instead of nullptr.
   context_ = other.context_;
   other.context_ = NULL;
-
-  init();
 }
 
-void TextReaderBuf::init() noexcept {
-  buffer_.resize(kInitBufferSize,0);
+void TextReaderBuf::init(std::size_t buffer_size) noexcept {
+  buffer_.resize(buffer_size,0);
 }
 
 TextReaderBuf::~TextReaderBuf() noexcept {

@@ -32,7 +32,12 @@ namespace ekoscape {
  */
 class TextReaderBuf : public std::streambuf {
 public:
-  TextReaderBuf(const std::string& file);
+  /**
+   * Default initial buffer size; only used on init.
+   */
+  static const std::size_t kDefaultInitBufferSize = 1024;
+
+  TextReaderBuf(const std::string& file,std::size_t buffer_size = kDefaultInitBufferSize);
   TextReaderBuf(const TextReaderBuf& other) = delete;
   TextReaderBuf(TextReaderBuf&& other) noexcept;
   virtual ~TextReaderBuf() noexcept;
@@ -69,13 +74,10 @@ protected:
 private:
   using Base = std::streambuf;
 
-  // Initial buffer size; only used on init.
-  static const std::size_t kInitBufferSize = 1024;
-
   SDL_RWops* context_ = NULL;
   std::vector<char_type> buffer_;
 
-  void init() noexcept;
+  void init(std::size_t buffer_size) noexcept;
   void close() noexcept;
 };
 

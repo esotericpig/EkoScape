@@ -47,6 +47,26 @@ std::uint32_t Rando::rand_uint(std::uint32_t min,std::uint32_t max) {
   return (uint_distr_(generator_) % (max + 1)) + min;
 }
 
+std::string Util::strip(const std::string& str) {
+  if(str.empty()) { return str; }
+
+  std::size_t begin = 0;
+
+  for(; begin < str.size(); ++begin) {
+    if(!std::isspace(static_cast<unsigned char>(str[begin]))) { break; }
+  }
+
+  if(begin >= str.size()) { return ""; }
+
+  std::size_t end = str.size() - 1;
+
+  for(; end >= 0; --end) {
+    if(!std::isspace(static_cast<unsigned char>(str[end]))) { break; }
+  }
+
+  return str.substr(begin,end - begin + 1);
+}
+
 std::string Util::get_sdl_error() {
   // This should technically never return null, but Justin Case.
   const char* str = SDL_GetError();
