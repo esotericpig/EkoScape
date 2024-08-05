@@ -19,9 +19,17 @@ public:
   virtual ~Scene() = default;
 
   virtual void init_scene() {}
+
+  /**
+   * If you know that all of your scenes will only either be in 2D or 3D,
+   * then you can use this method to call `begin_2d_scene()` or `begin_3d_scene()`,
+   * instead of calling it inside of the loop.
+   */
+  virtual void resize(int /*width*/,int /*height*/,int /*target_width*/,int /*target_height*/) {}
+
   virtual void handle_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}
-  virtual int update_scene_logic(const Duration& /*last_dpf*/,double /*delta_time*/) { return 0; }
+  virtual int update_scene_logic(const Duration& /*dpf*/,double /*delta_time*/) { return 0; }
   virtual void draw_scene() {}
 };
 

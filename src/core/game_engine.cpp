@@ -52,7 +52,6 @@ GameEngine::GameEngine(Scene& main_scene,const Config& config)
   if(config.vsync) { set_vsync(true); }
 
   init_gl();
-  resize(width_,height_);
   init_music_player(config.music_types);
 }
 
@@ -88,11 +87,13 @@ void GameEngine::init_config(const Config& config) {
   }
 
   title_ = config.title;
-  width_ = (width > 0) ? width : kFallbackWidth;
-  height_ = (height > 0) ? height : kFallbackHeight;
+  target_width_ = (width > 0) ? width : kFallbackWidth;
+  target_height_ = (height > 0) ? height : kFallbackHeight;
+  width_ = target_width_;
+  height_ = target_height_;
   // Allow 0 if the user wants to use delta time only (no delay).
   // - See: end_time()
-  target_fps_ = (config.target_fps >= 0) ? config.target_fps : kFallbackFps;
+  target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
   clear_color_ = config.clear_color;
 
   if(target_fps_ > 0) { // Avoid divide by 0.
@@ -109,7 +110,7 @@ void GameEngine::init_gui(const std::string& title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
 
   res_.window = SDL_CreateWindow(
-    title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width_,height_
+    title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,target_width_,target_height_
     ,SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
   );
 
@@ -201,7 +202,20 @@ void GameEngine::resize(int width,int height) {
   height_ = height;
 
   glViewport(0,0,width_,height_);
+  main_scene_.resize(width_,height_,target_width_,target_height_);
+}
 
+void GameEngine::begin_2d_scene() {
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  glOrtho(0.0,width_,height_,0.0,-1.0,1.0);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+}
+
+void GameEngine::begin_3d_scene() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
@@ -248,13 +262,14 @@ void GameEngine::run() {
   is_running_ = true;
 
   main_scene_.init_scene();
+  resize(width_,height_); // Call after init_scene() because it calls `main_scene_`'s resize().
 
   while(is_running_) {
     start_time();
 
     handle_events();
     main_scene_.handle_key_states(get_key_states());
-    main_scene_.update_scene_logic(last_dpf_,delta_time_);
+    main_scene_.update_scene_logic(dpf_,delta_time_);
 
     // Check if event/scene requested to stop.
     if(!is_running_) { break; }
@@ -299,15 +314,15 @@ void GameEngine::start_time() {
 
 void GameEngine::end_time() {
   frame_timer_.end();
-  last_dpf_ = frame_timer_.duration();
+  dpf_ = frame_timer_.duration();
 
   // If target FPS/DPF is 0, then will use delta time only (no delay).
-  if(last_dpf_ < target_dpf_) {
-    SDL_Delay((target_dpf_ - last_dpf_).round_millis());
-    last_dpf_ = target_dpf_;
+  if(dpf_ < target_dpf_) {
+    SDL_Delay((target_dpf_ - dpf_).round_millis());
+    dpf_ = target_dpf_;
   }
 
-  delta_time_ = last_dpf_.secs(); // Delta time should be in fractional seconds.
+  delta_time_ = dpf_.secs(); // Delta time should be in fractional seconds.
 }
 
 void GameEngine::handle_events() {
@@ -379,6 +394,10 @@ void GameEngine::show_error_globally(const std::string& title,const std::string&
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
 }
 
+int GameEngine::target_width() const { return target_width_; }
+
+int GameEngine::target_height() const { return target_height_; }
+
 int GameEngine::width() const { return width_; }
 
 int GameEngine::height() const { return height_; }
@@ -387,7 +406,7 @@ int GameEngine::target_fps() const { return target_fps_; }
 
 const Duration& GameEngine::target_dpf() const { return target_dpf_; }
 
-const Duration& GameEngine::last_dpf() const { return last_dpf_; }
+const Duration& GameEngine::dpf() const { return dpf_; }
 
 double GameEngine::delta_time() const { return delta_time_; }
 

@@ -46,7 +46,7 @@ public:
     int width = kFallbackWidth;
     int height = kFallbackHeight;
     float scale_factor = 0.0f;
-    int target_fps = kFallbackFps;
+    int fps = kFallbackFps;
     bool vsync = false;
     Color4f clear_color{};
 
@@ -86,6 +86,8 @@ public:
   void set_vsync(bool enable);
   void resize();
   void resize(int width,int height);
+  void begin_2d_scene();
+  void begin_3d_scene();
 
   void run();
   void request_stop();
@@ -102,26 +104,30 @@ public:
   void show_error(const std::string& title,const std::string& error);
   static void show_error_globally(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
+  int target_width() const;
+  int target_height() const;
   int width() const;
   int height() const;
   int target_fps() const;
   const Duration& target_dpf() const;
-  const Duration& last_dpf() const;
+  const Duration& dpf() const;
   double delta_time() const;
 
 private:
   Scene& main_scene_;
   std::string title_{};
+  int target_width_ = 0;
+  int target_height_ = 0;
   int width_ = 0;
   int height_ = 0;
   int target_fps_ = 0;
   Duration target_dpf_{};
+  Duration dpf_{};
+  double delta_time_ = 0.0;
   Color4f clear_color_{};
 
   bool is_running_ = false;
   Timer frame_timer_{};
-  Duration last_dpf_{};
-  double delta_time_ = 0.0;
 
   void init_hints(const Config& config);
   void init_config(const Config& config);

@@ -24,7 +24,7 @@ EkoScape::EkoScape(Config config) {
 
 std::unique_ptr<GameScene> EkoScape::build_game_scene() {
   // TODO: Callback in Menu Scene so can create this in this class after player picks a map.
-  return std::make_unique<GameScene>(*assets_,"assets/maps/classic/tron.txt",dantares_dist_);
+  return std::make_unique<GameScene>(*game_engine_,*assets_,"assets/maps/classic/tron.txt",dantares_dist_);
 }
 
 void EkoScape::run() {
@@ -58,9 +58,9 @@ void EkoScape::handle_key_down_event(SDL_Keycode key) {
 
 void EkoScape::handle_key_states(const Uint8* keys) { current_scene_->handle_key_states(keys); }
 
-int EkoScape::update_scene_logic(const Duration& last_dpf,double delta_time) {
+int EkoScape::update_scene_logic(const Duration& dpf,double delta_time) {
   SceneResult result = SceneResults::to_scene_result(
-    current_scene_->update_scene_logic(last_dpf,delta_time)
+    current_scene_->update_scene_logic(dpf,delta_time)
   );
 
   switch(result) {

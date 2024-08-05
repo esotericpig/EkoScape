@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(Assets& assets,const std::string& map_file,int dantares_dist)
-    : assets_(assets),dantares_dist_(dantares_dist) {
+GameScene::GameScene(GameEngine& game_engine,Assets& assets,const std::string& map_file,int dantares_dist)
+    : game_engine_(game_engine),assets_(assets),dantares_dist_(dantares_dist) {
   load_map(map_file);
   generate_map();
 }
@@ -108,7 +108,7 @@ void GameScene::handle_key_states(const Uint8* keys) {
   }
 }
 
-int GameScene::update_scene_logic(const Duration& last_dpf,double delta_time) {
+int GameScene::update_scene_logic(const Duration& dpf,double delta_time) {
   SpaceType player_space_type = map_.player_space_type();
 
   switch(player_space_type) {
@@ -167,7 +167,7 @@ int GameScene::update_scene_logic(const Duration& last_dpf,double delta_time) {
     robot_move_data_.new_robots.clear();
 
     // Reset timer.
-    robot_move_duration_ = map_.robot_delay() + last_dpf;
+    robot_move_duration_ = map_.robot_delay() + dpf;
     robot_move_timer_.start();
   }
 
@@ -175,6 +175,7 @@ int GameScene::update_scene_logic(const Duration& last_dpf,double delta_time) {
 }
 
 void GameScene::draw_scene() {
+  game_engine_.begin_3d_scene();
   dantares_.Draw(dantares_dist_);
 }
 

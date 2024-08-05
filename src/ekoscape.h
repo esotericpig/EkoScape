@@ -41,7 +41,7 @@ public:
   void init_scene() override;
   void handle_key_down_event(SDL_Keycode key) override;
   void handle_key_states(const Uint8* keys) override;
-  int update_scene_logic(const Duration& last_dpf,double delta_time) override;
+  int update_scene_logic(const Duration& dpf,double delta_time) override;
   void draw_scene() override;
 
   static void show_error_globally(const std::string& error);

@@ -24,14 +24,22 @@ TextReaderBuf::TextReaderBuf(const std::string& file,std::size_t buffer_size) {
 }
 
 TextReaderBuf::TextReaderBuf(TextReaderBuf&& other) noexcept
-    : Base(std::move(other)),buffer_(std::move(other.buffer_)) {
-  // Can't use std::exchange(), because have to use NULL instead of nullptr.
-  context_ = other.context_;
-  other.context_ = NULL;
+    : Base(std::move(other)) {
+  move_from(std::move(other));
 }
 
 void TextReaderBuf::init(std::size_t buffer_size) noexcept {
   buffer_.resize(buffer_size,0);
+}
+
+void TextReaderBuf::move_from(TextReaderBuf&& other) noexcept {
+  close();
+
+  // Can't use std::exchange(), because have to use NULL instead of nullptr.
+  context_ = other.context_;
+  other.context_ = NULL;
+
+  buffer_ = std::move(other.buffer_);
 }
 
 TextReaderBuf::~TextReaderBuf() noexcept {
@@ -48,10 +56,7 @@ void TextReaderBuf::close() noexcept {
 TextReaderBuf& TextReaderBuf::operator=(TextReaderBuf&& other) noexcept {
   if(this != &other) {
     Base::operator=(std::move(other));
-    close();
-
-    context_ = other.context_;
-    other.context_ = NULL;
+    move_from(std::move(other));
   }
 
   return *this;

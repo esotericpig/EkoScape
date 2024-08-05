@@ -12,19 +12,21 @@
 
 #include "ekoscape.h"
 
-// TODO: Go ahead and commit map files to have original. Then change speeds later.
-// TODO: Make desktop entry with assets icon.
-
 // TODO: Implement MenuScene.
 //       - Have `default` and `realistic` graphics and can choose in menu.
 //       - gluOrtho2D(0.0,width_,0.0,height_);
 // TODO: Implement GameOver (GameOverScene?) in GameScene to show message and to press Enter.
 //       After enter, go to MenuScene.
 // TODO: Implement mini map (MiniMapScene?) in GameScene and include number of Ekos rescued out of total.
+
 // TODO: Use own Ogg music from iPad.
 // TODO: If special flag, make weird colors and also flip cell & robot (flips capture).
 // TODO: Cruise control button? So continuously presses up. Can turn on or off.
 //       Maybe always on?
+// TODO: Stuff from forums:
+//       - Make pacman style. So can eat something and then it allows you to eat robots.
+//       - Lean into pacman theme?
+// TODO: Can use `r` key to refresh assets/maps.
 
 // TODO: Experiment with different tex for dead/living spaces.
 //       probably have living space look slightly different in some way.
@@ -35,7 +37,9 @@
 // TODO: Add to README that you can make a pull request to submit a new game,
 //       or can create an issue, or comment in discussion tab.
 // TODO: Update all READMEs.
+// TODO: Make desktop entry with assets icon.
 // TODO: Make flatpack/snap/appimage.
+// TODO: Try using emscripten to make web version.
 // TODO: Publish on itch.io?
 
 // TODO: Use CMake. Probably Premake actually. Maybe use CLion first and see what it uses.
@@ -52,7 +56,7 @@
 using namespace ekoscape;
 
 
-// I believe SDL requires `int main(int,char*[])`, so can't use `int main()`, etc.
+// I believe SDL requires `int main(int,char*[])`.
 // - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_...
 int main(int /*argc*/,char** /*argv*/) {
   using namespace ekoscape;
@@ -63,7 +67,9 @@ int main(int /*argc*/,char** /*argv*/) {
     EkoScape::Config config{};
 
     config.ge.scale_factor = 0.8333f; // Arrival?
-    config.ge.target_fps = 60;
+    //config.ge.width = 740;
+    //config.ge.height = 500;
+    config.ge.fps = 60;
     //config.ge.clear_color.set_i(106,48,137,255); // Cosmic purple.
 
     eko = std::make_unique<EkoScape>(config);
@@ -75,7 +81,10 @@ int main(int /*argc*/,char** /*argv*/) {
     return -1;
   }
 
-  if(eko) { eko->run(); }
+  // TODO: Everything inside of EkoScape code should have individual try-catch
+  //       to show error globally.
+  //       So like when reload textures, create scene, etc.
+  eko->run();
 
   return 0;
 }
