@@ -350,7 +350,7 @@ void GameEngine::handle_events() {
           return;
         }
 
-        main_scene_.handle_key_down_event(event.key.keysym.sym);
+        main_scene_.on_key_down_event(event.key.keysym.sym);
         break;
 
       case SDL_KEYUP:

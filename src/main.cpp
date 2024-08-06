@@ -14,7 +14,6 @@
 
 // TODO: Implement MenuScene.
 //       - Have `default` and `realistic` graphics and can choose in menu.
-//       - gluOrtho2D(0.0,width_,0.0,height_);
 // TODO: Implement GameOver (GameOverScene?) in GameScene to show message and to press Enter.
 //       After enter, go to MenuScene.
 // TODO: Implement mini map (MiniMapScene?) in GameScene and include number of Ekos rescued out of total.
@@ -66,17 +65,17 @@ int main(int /*argc*/,char** /*argv*/) {
   try {
     EkoScape::Config config{};
 
-    config.ge.scale_factor = 0.8333f; // Arrival?
-    //config.ge.width = 740;
-    //config.ge.height = 500;
-    config.ge.fps = 60;
-    config.ge.vsync = true;
-    //config.ge.clear_color.set_i(106,48,137,255); // Cosmic purple.
+    config.scale_factor = 0.8333f; // Arrival?
+    //config.width = 740;
+    //config.height = 500;
+    config.fps = 60;
+    config.vsync = true;
+    //config.clear_color.set_i(106,48,137,255); // Cosmic purple.
 
     // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
     // These are fixed values and should not be changed.
-    config.ge.target_width = 1600;
-    config.ge.target_height = 900;
+    config.target_width = 1600;
+    config.target_height = 900;
 
     eko = std::make_unique<EkoScape>(config);
   } catch(const EkoScapeError& e) {

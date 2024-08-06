@@ -60,6 +60,8 @@ public:
 
   static bool is_map_file(const std::string& file);
 
+  virtual ~Map() noexcept = default;
+
   Map& load_file(const std::string& file);
   Map& parse_grid(const std::vector<std::string>& lines,int width = 0,int height = 0);
   virtual Map& clear_spaces();

@@ -12,16 +12,13 @@
 
 namespace ekoscape {
 
-enum class SceneResult : int {
-  kNil = 0,
-  kQuit,
-  kMenuScene,
-  kNextScene,
-};
-
-namespace SceneResults {
-  SceneResult to_scene_result(int value);
-  int value_of(SceneResult result);
+namespace SceneResult {
+  enum {
+    kNil = 0,
+    kQuit,
+    kMenuScene,
+    kNextScene,
+  };
 }
 
 } // Namespace.

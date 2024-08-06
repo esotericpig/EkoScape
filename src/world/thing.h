@@ -18,7 +18,7 @@ class Thing {
 public:
   Thing();
   Thing(SpaceType type,int x,int y);
-  virtual ~Thing() = default;
+  virtual ~Thing() noexcept = default;
 
   /**
    * So can be used in `std::set`.

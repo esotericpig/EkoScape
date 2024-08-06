@@ -31,18 +31,17 @@ public:
     double delta_time;
   };
 
-  virtual ~Scene() = default;
-
-  virtual void init_scene() {}
+  virtual ~Scene() noexcept = default;
 
   /**
-   * If you know that all of your scenes will only either be in 2D or 3D, then you can use
-   * this method to call `begin_2d_scene()` or `begin_3d_scene()`, instead of calling it
-   * inside of the loop.
+   * If you know that all of your scenes will only either be in 2D or 3D, then you can call
+   * begin_2d_scene()/begin_3d_scene() in init_scene() & resize_scene(), instead of in the
+   * main loop with draw_scene().
    */
+  virtual void init_scene() {}
   virtual void resize_scene(Dimens /*dimens*/) {}
 
-  virtual void handle_key_down_event(SDL_Keycode /*key*/) {}
+  virtual void on_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}
   virtual int update_scene_logic(FrameStep /*step*/) { return 0; }
   virtual void draw_scene(Dimens /*dimens*/) {}

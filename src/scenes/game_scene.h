@@ -33,6 +33,7 @@ public:
   GameScene(GameEngine& game_engine,Assets& assets,const std::string& map_file,int dantares_dist);
 
   void init_scene() override;
+  void on_key_down_event(SDL_Keycode key) override;
   void handle_key_states(const Uint8* keys) override;
   int update_scene_logic(FrameStep step) override;
   void draw_scene(Dimens dimens) override;

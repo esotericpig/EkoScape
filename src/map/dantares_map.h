@@ -42,13 +42,13 @@ namespace ekoscape {
  */
 class DantaresMap : public Map {
 public:
-  using SpaceHandler = std::function<void(int x,int y,Space&,SpaceType)>;
+  using SpaceCallback = std::function<void(int x,int y,Space&,SpaceType)>;
 
   DantaresMap(Dantares& dantares);
 
   Map& clear_spaces() override;
 
-  DantaresMap& add_to_dantares(const SpaceHandler& handle_space = nullptr);
+  DantaresMap& add_to_dantares(const SpaceCallback& on_space = nullptr);
   DantaresMap& delete_from_dantares();
 
   DantaresMap& make_current_in_dantares();

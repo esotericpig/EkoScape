@@ -12,20 +12,23 @@ namespace ekoscape {
 const std::string EkoScape::kTitle = "EkoScape v2.0";
 
 EkoScape::EkoScape(Config config) {
-  config.ge.title = kTitle;
+  config.title = kTitle;
   dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
 
-  game_engine_ = std::make_unique<GameEngine>(*this,config.ge);
+  game_engine_ = std::make_unique<GameEngine>(*this,config);
   assets_ = std::make_unique<Assets>(Assets::TexturesType::kRealistic,game_engine_->has_music_player());
 
-  // TODO: Menu Scene.
-  current_scene_ = build_game_scene();
-  //current_scene_ = std::make_unique<MenuScene>(*game_engine_,*assets_);
+  current_scene_ = build_menu_scene();
 }
 
-std::unique_ptr<GameScene> EkoScape::build_game_scene() {
-  // TODO: Callback in Menu Scene so can create this in this class after player picks a map.
-  return std::make_unique<GameScene>(*game_engine_,*assets_,"assets/maps/classic/tron.txt",dantares_dist_);
+std::unique_ptr<MenuScene> EkoScape::build_menu_scene() {
+  return std::make_unique<MenuScene>(*game_engine_,*assets_,[&](const std::string& map_file) {
+    next_scene_ = build_game_scene(map_file);
+  });
+}
+
+std::unique_ptr<GameScene> EkoScape::build_game_scene(const std::string& map_file) {
+  return std::make_unique<GameScene>(*game_engine_,*assets_,map_file,dantares_dist_);
 }
 
 void EkoScape::run() {
@@ -41,7 +44,9 @@ void EkoScape::play_music() {
 
 void EkoScape::init_scene() { current_scene_->init_scene(); }
 
-void EkoScape::handle_key_down_event(SDL_Keycode key) {
+void EkoScape::resize_scene(Dimens dimens) { current_scene_->resize_scene(dimens); }
+
+void EkoScape::on_key_down_event(SDL_Keycode key) {
   switch(key) {
     case SDLK_HOME:
     case SDLK_AUDIOPLAY:
@@ -54,43 +59,43 @@ void EkoScape::handle_key_down_event(SDL_Keycode key) {
       break;
   }
 
-  current_scene_->handle_key_down_event(key);
+  current_scene_->on_key_down_event(key);
 }
 
 void EkoScape::handle_key_states(const Uint8* keys) { current_scene_->handle_key_states(keys); }
 
 int EkoScape::update_scene_logic(FrameStep step) {
-  SceneResult result = SceneResults::to_scene_result(
-    current_scene_->update_scene_logic(step)
-  );
+  int result = current_scene_->update_scene_logic(step);
+  bool has_new_scene = false;
 
   switch(result) {
-    case SceneResult::kNil:
-      break;
-
     case SceneResult::kQuit:
       game_engine_->request_stop();
       break;
 
     case SceneResult::kMenuScene:
-      // TODO: Implement build_menu_scene().
-      //next_scene_ = nullptr;
-      //current_scene_ = build_menu_scene();
-      //current_scene_->init_scene();
-      game_engine_->request_stop();
+      next_scene_ = nullptr;
+      current_scene_ = build_menu_scene();
+      has_new_scene = true;
       break;
 
     case SceneResult::kNextScene:
-      // TODO: Need to test next scene code.
       if(next_scene_) {
         current_scene_ = std::move(next_scene_);
         next_scene_ = nullptr;
-        current_scene_->init_scene();
+        has_new_scene = true;
       } else {
         show_error_globally("No next scene to go to. Quitting instead.");
         game_engine_->request_stop();
       }
       break;
+
+    default: break;
+  }
+
+  if(has_new_scene) {
+    current_scene_->init_scene();
+    current_scene_->resize_scene(game_engine_->build_dimens());
   }
 
   return 0;

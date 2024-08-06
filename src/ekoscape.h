@@ -14,7 +14,7 @@
 #include "core/scene.h"
 
 #include "scenes/game_scene.h"
-//#include "scenes/menu_scene.h"
+#include "scenes/menu_scene.h"
 #include "scenes/scene_result.h"
 
 #include "assets.h"
@@ -27,8 +27,7 @@ private:
   std::unique_ptr<GameEngine> game_engine_{};
 
 public:
-  struct Config {
-    GameEngine::Config ge;
+  struct Config : public GameEngine::Config {
     int dantares_dist = 24;
   };
 
@@ -40,7 +39,8 @@ public:
   void run();
 
   void init_scene() override;
-  void handle_key_down_event(SDL_Keycode key) override;
+  void resize_scene(Dimens dimens) override;
+  void on_key_down_event(SDL_Keycode key) override;
   void handle_key_states(const Uint8* keys) override;
   int update_scene_logic(FrameStep step) override;
   void draw_scene(Dimens dimens) override;
@@ -54,7 +54,8 @@ private:
   std::unique_ptr<Scene> current_scene_{};
   std::unique_ptr<Scene> next_scene_{};
 
-  std::unique_ptr<GameScene> build_game_scene();
+  std::unique_ptr<MenuScene> build_menu_scene();
+  std::unique_ptr<GameScene> build_game_scene(const std::string& map_file);
 };
 
 } // Namespace.

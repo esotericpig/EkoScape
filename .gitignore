@@ -6,7 +6,10 @@
 *.dylib
 *.exe
 *.gch
+*.gif
 *.ico
+*.jpeg
+*.jpg
 *.la
 *.lai
 *.lib

@@ -85,6 +85,14 @@ void GameScene::init_scene() {
   robot_move_timer_.start();
 }
 
+void GameScene::on_key_down_event(SDL_Keycode key) {
+  switch(key) {
+    case SDLK_BACKSPACE:
+      // TODO: Go back to main menu.
+      break;
+  }
+}
+
 void GameScene::handle_key_states(const Uint8* keys) {
   bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
   bool is_down = (keys[SDL_SCANCODE_DOWN] == 1 || keys[SDL_SCANCODE_S] == 1);
@@ -126,7 +134,7 @@ int GameScene::update_scene_logic(FrameStep step) {
         std::cout << "You've unlocked a secret!\n";
       }
 
-      return SceneResults::value_of(SceneResult::kMenuScene);
+      return SceneResult::kMenuScene;
 
     default:
       if(SpaceTypes::is_robot(player_space_type)) {
@@ -134,7 +142,7 @@ int GameScene::update_scene_logic(FrameStep step) {
         printf("You're dead!\nYou freed %d Eko(s) out of a total of %d Eko(s).\n\n"
             ,map_.total_rescues(),map_.total_cells());
 
-        return SceneResults::value_of(SceneResult::kMenuScene);
+        return SceneResult::kMenuScene;
       }
       break;
   }
@@ -171,7 +179,7 @@ int GameScene::update_scene_logic(FrameStep step) {
     robot_move_timer_.start();
   }
 
-  return SceneResults::value_of(SceneResult::kNil);
+  return SceneResult::kNil;
 }
 
 void GameScene::draw_scene(Dimens /*dimens*/) {
