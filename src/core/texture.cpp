@@ -73,6 +73,9 @@ Texture::Texture(Image& image,bool make_weird) {
   height_ = image.height();
 }
 
+Texture::Texture(Image&& image,bool make_weird)
+    : Texture(image,make_weird) {}
+
 Texture::Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird) {
   if(make_weird) {
     r = 255 - r;

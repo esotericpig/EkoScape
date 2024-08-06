@@ -35,19 +35,12 @@ void Assets::reload_textures(TexturesType type) {
   }
   dir += '/';
 
-  Image ceiling_img = Image{dir + "ceiling.png"};
-  Image cell_img = Image{dir + "cell.png"};
-  Image end_img = Image{dir + "end.png"};
-  Image floor_img = Image{dir + "floor.png"};
-  Image robot_img = Image{dir + "robot.png"};
-  Image wall_img = Image{dir + "wall.png"};
-
-  ceiling_texture_ = std::make_unique<Texture>(ceiling_img);
-  cell_texture_ = std::make_unique<Texture>(cell_img);
-  end_texture_ = std::make_unique<Texture>(end_img);
-  floor_texture_ = std::make_unique<Texture>(floor_img);
-  robot_texture_ = std::make_unique<Texture>(robot_img);
-  wall_texture_ = std::make_unique<Texture>(wall_img);
+  ceiling_texture_ = std::make_unique<Texture>(Image{dir + "ceiling.png"});
+  cell_texture_ = std::make_unique<Texture>(Image{dir + "cell.png"});
+  end_texture_ = std::make_unique<Texture>(Image{dir + "end.png"});
+  floor_texture_ = std::make_unique<Texture>(Image{dir + "floor.png"});
+  robot_texture_ = std::make_unique<Texture>(Image{dir + "robot.png"});
+  wall_texture_ = std::make_unique<Texture>(Image{dir + "wall.png"});
   white_texture_ = std::make_unique<Texture>(255,255,255,255);
 }
 

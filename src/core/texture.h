@@ -22,6 +22,7 @@ namespace ekoscape {
 class Texture {
 public:
   Texture(Image& image,bool make_weird = false);
+  Texture(Image&& image,bool make_weird = false);
   Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird = false);
   Texture(const Texture& other) = delete;
   Texture(Texture&& other) noexcept;
