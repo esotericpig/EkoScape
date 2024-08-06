@@ -200,7 +200,8 @@ void GameEngine::resize(int width,int height) {
   width_ = width;
   height_ = height;
   view_scale_ = std::min(
-    static_cast<double>(width_) / target_width_,static_cast<double>(height_) / target_height_
+    static_cast<float>(width_) / static_cast<float>(target_width_)
+    ,static_cast<float>(height_) / static_cast<float>(target_height_)
   );
 
   glViewport(0,0,width_,height_);
@@ -404,7 +405,7 @@ int GameEngine::width() const { return width_; }
 
 int GameEngine::height() const { return height_; }
 
-double GameEngine::view_scale() const { return view_scale_; }
+float GameEngine::view_scale() const { return view_scale_; }
 
 int GameEngine::target_fps() const { return target_fps_; }
 

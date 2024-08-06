@@ -21,7 +21,7 @@ public:
     int height;
     int target_width;
     int target_height;
-    double view_scale;
+    float view_scale;
   };
 
   struct FrameStep {
