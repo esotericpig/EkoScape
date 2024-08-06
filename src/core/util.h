@@ -44,11 +44,11 @@ class Rando {
 public:
   static Rando& it();
 
-  Rando(const Rando&) = delete;
-  Rando(Rando&&) noexcept = delete;
+  Rando(const Rando& other) = delete;
+  Rando(Rando&& other) noexcept = delete;
 
-  Rando& operator=(const Rando&) = delete;
-  Rando& operator=(Rando&&) noexcept = delete;
+  Rando& operator=(const Rando& other) = delete;
+  Rando& operator=(Rando&& other) noexcept = delete;
 
   bool rand_bool();
   std::uint32_t rand_uint(std::uint32_t min,std::uint32_t max);

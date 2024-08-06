@@ -32,12 +32,12 @@ private:
     bool has_music_player = false;
 
     Resources() noexcept;
-    Resources(const Resources&) = delete;
-    Resources(Resources&&) noexcept = delete;
+    Resources(const Resources& other) = delete;
+    Resources(Resources&& other) noexcept = delete;
     virtual ~Resources() noexcept;
 
-    Resources& operator=(const Resources&) = delete;
-    Resources& operator=(Resources&&) noexcept = delete;
+    Resources& operator=(const Resources& other) = delete;
+    Resources& operator=(Resources&& other) noexcept = delete;
   } res_{};
 
 public:
@@ -77,11 +77,11 @@ public:
   static const int kFallbackFps = 60;
 
   GameEngine(Scene& main_scene,const Config& config);
-  GameEngine(const GameEngine&) = delete;
-  GameEngine(GameEngine&&) noexcept = delete;
+  GameEngine(const GameEngine& other) = delete;
+  GameEngine(GameEngine&& other) noexcept = delete;
 
-  GameEngine& operator=(const GameEngine&) = delete;
-  GameEngine& operator=(GameEngine&&) noexcept = delete;
+  GameEngine& operator=(const GameEngine& other) = delete;
+  GameEngine& operator=(GameEngine&& other) noexcept = delete;
 
   void set_vsync(bool enable);
   void resize();

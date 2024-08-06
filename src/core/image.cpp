@@ -19,12 +19,38 @@ Image::Image(const std::string& file)
   }
 }
 
+Image::Image(Image&& other) noexcept {
+  move_from(std::move(other));
+}
+
+void Image::move_from(Image&& other) noexcept {
+  destroy();
+
+  surface_ = other.surface_;
+  other.surface_ = NULL;
+
+  id_ = std::exchange(other.id_,"");
+  is_locked_ = std::exchange(other.is_locked_,false);
+}
+
 Image::~Image() noexcept {
+  destroy();
+}
+
+void Image::destroy() noexcept {
   if(surface_ != NULL) {
     unlock();
     SDL_FreeSurface(surface_);
     surface_ = NULL;
   }
+}
+
+Image& Image::operator=(Image&& other) noexcept {
+  if (this != &other) {
+    move_from(std::move(other));
+  }
+
+  return *this;
 }
 
 Image& Image::lock() {

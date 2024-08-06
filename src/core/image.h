@@ -18,12 +18,12 @@ namespace ekoscape {
 class Image {
 public:
   Image(const std::string& file);
-  Image(const Image&) = delete;
-  Image(Image&&) noexcept = delete;
+  Image(const Image& other) = delete;
+  Image(Image&& other) noexcept;
   virtual ~Image() noexcept;
 
-  Image& operator=(const Image&) = delete;
-  Image& operator=(Image&&) noexcept = delete;
+  Image& operator=(const Image& other) = delete;
+  Image& operator=(Image&& other) noexcept;
 
   Image& lock();
   Image& unlock() noexcept;
@@ -37,9 +37,12 @@ public:
   GLenum gl_type() const;
 
 private:
-  const std::string id_;
+  std::string id_;
   SDL_Surface* surface_ = NULL;
   bool is_locked_ = false;
+
+  void move_from(Image&& other) noexcept;
+  void destroy() noexcept;
 };
 
 } // Namespace.

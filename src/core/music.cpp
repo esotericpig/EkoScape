@@ -18,11 +18,34 @@ Music::Music(const std::string& file) {
   }
 }
 
+Music::Music(Music&& other) noexcept {
+  move_from(std::move(other));
+}
+
+void Music::move_from(Music&& other) noexcept {
+  destroy();
+
+  music_ = other.music_;
+  other.music_ = NULL;
+}
+
 Music::~Music() noexcept {
+  destroy();
+}
+
+void Music::destroy() noexcept {
   if(music_ != NULL) {
     Mix_FreeMusic(music_);
     music_ = NULL;
   }
+}
+
+Music& Music::operator=(Music&& other) noexcept {
+  if (this != &other) {
+    move_from(std::move(other));
+  }
+
+  return *this;
 }
 
 } // Namespace.

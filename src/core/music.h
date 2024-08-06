@@ -20,17 +20,20 @@ class GameEngine;
 class Music {
 public:
   Music(const std::string& file);
-  Music(const Music&) = delete;
-  Music(Music&&) noexcept = delete;
+  Music(const Music& other) = delete;
+  Music(Music&& other) noexcept;
   virtual ~Music() noexcept;
 
-  Music& operator=(const Music&) = delete;
-  Music& operator=(Music&&) noexcept = delete;
+  Music& operator=(const Music& other) = delete;
+  Music& operator=(Music&& other) noexcept;
 
   friend class GameEngine;
 
 private:
   Mix_Music* music_ = NULL;
+
+  void move_from(Music&& other) noexcept;
+  void destroy() noexcept;
 };
 
 } // Namespace.

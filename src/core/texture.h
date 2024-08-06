@@ -23,11 +23,11 @@ class Texture {
 public:
   Texture(Image& image,bool make_weird = false);
   Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird = false);
-  Texture(const Texture&) = delete;
+  Texture(const Texture& other) = delete;
   Texture(Texture&& other) noexcept;
   virtual ~Texture() noexcept;
 
-  Texture& operator=(const Texture&) = delete;
+  Texture& operator=(const Texture& other) = delete;
   Texture& operator=(Texture&& other) noexcept;
 
   GLuint id() const;
