@@ -43,9 +43,11 @@ private:
 public:
   struct Config {
     std::string title{};
+    float scale_factor = 0.0f;
     int width = kFallbackWidth;
     int height = kFallbackHeight;
-    float scale_factor = 0.0f;
+    int target_width = 0;
+    int target_height = 0;
     int fps = kFallbackFps;
     bool vsync = false;
     Color4f clear_color{};
@@ -104,6 +106,9 @@ public:
   void show_error(const std::string& title,const std::string& error);
   static void show_error_globally(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
+  Scene::Dimens build_dimens() const;
+  int init_width() const;
+  int init_height() const;
   int target_width() const;
   int target_height() const;
   int width() const;
@@ -117,6 +122,8 @@ public:
 private:
   Scene& main_scene_;
   std::string title_{};
+  int init_width_ = 1;
+  int init_height_ = 1;
   int target_width_ = 1;
   int target_height_ = 1;
   int width_ = 1;

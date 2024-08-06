@@ -21,6 +21,8 @@ public:
     int height;
     int target_width;
     int target_height;
+    int init_width;
+    int init_height;
     float view_scale;
   };
 
@@ -38,7 +40,7 @@ public:
    * this method to call `begin_2d_scene()` or `begin_3d_scene()`, instead of calling it
    * inside of the loop.
    */
-  virtual void resize(Dimens /*dimens*/) {}
+  virtual void resize_scene(Dimens /*dimens*/) {}
 
   virtual void handle_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}

@@ -70,7 +70,13 @@ int main(int /*argc*/,char** /*argv*/) {
     //config.ge.width = 740;
     //config.ge.height = 500;
     config.ge.fps = 60;
+    config.ge.vsync = true;
     //config.ge.clear_color.set_i(106,48,137,255); // Cosmic purple.
+
+    // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
+    // These are fixed values and should not be changed.
+    config.ge.target_width = 1600;
+    config.ge.target_height = 900;
 
     eko = std::make_unique<EkoScape>(config);
   } catch(const EkoScapeError& e) {

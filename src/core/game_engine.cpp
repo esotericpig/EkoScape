@@ -87,8 +87,10 @@ void GameEngine::init_config(const Config& config) {
   }
 
   title_ = config.title;
-  target_width_ = (width > 0) ? width : kFallbackWidth;
-  target_height_ = (height > 0) ? height : kFallbackHeight;
+  init_width_ = (width > 0) ? width : kFallbackWidth;
+  init_height_ = (height > 0) ? height : kFallbackHeight;
+  target_width_ = (config.target_width > 0) ? config.target_width : init_width_;
+  target_height_ = (config.target_height > 0) ? config.target_height : init_height_;
   // Allow 0 if the user wants to use delta time only (no delay).
   // - See: end_time()
   target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
@@ -108,7 +110,7 @@ void GameEngine::init_gui(const std::string& title) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
 
   res_.window = SDL_CreateWindow(
-    title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,target_width_,target_height_
+    title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,init_width_,init_height_
     ,SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
   );
 
@@ -205,7 +207,7 @@ void GameEngine::resize(int width,int height) {
   );
 
   glViewport(0,0,width_,height_);
-  main_scene_.resize({width_,height_,target_width_,target_height_,view_scale_});
+  main_scene_.resize_scene(build_dimens());
 }
 
 void GameEngine::begin_2d_scene() {
@@ -278,7 +280,7 @@ void GameEngine::run() {
     if(!is_running_) { break; }
 
     clear_screen();
-    main_scene_.draw_scene({width_,height_,target_width_,target_height_,view_scale_});
+    main_scene_.draw_scene(build_dimens());
     SDL_GL_SwapWindow(res_.window);
 
     end_time();
@@ -396,6 +398,14 @@ void GameEngine::show_error_globally(const std::string& title,const std::string&
   // This can be called before/after SDL_Init()/SDL_Quit().
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
 }
+
+Scene::Dimens GameEngine::build_dimens() const {
+  return {width_,height_,target_width_,target_height_,init_width_,init_height_,view_scale_};
+}
+
+int GameEngine::init_width() const { return init_width_; }
+
+int GameEngine::init_height() const { return init_height_; }
 
 int GameEngine::target_width() const { return target_width_; }
 
