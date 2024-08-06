@@ -152,6 +152,65 @@ void GameEngine::set_vsync(bool enable) {
   }
 }
 
+void GameEngine::fetch_size_and_resize() {
+  int width = 0;
+  int height = 0;
+
+  SDL_GL_GetDrawableSize(res_.window,&width,&height);
+  resize(width,height);
+}
+
+void GameEngine::resize() {
+  resize(width_,height_);
+}
+
+void GameEngine::resize(int width,int height) {
+  // Avoid potential divide by 0s [like in begin_3d_scene()].
+  if(width < 1) { width = 1; }
+  if(height < 1) { height = 1; }
+
+  // Allow resize even if the width & height haven't changed.
+  // - If decide to change this logic, need to allow force resize so can resize on init.
+
+  width_ = width;
+  height_ = height;
+  view_scale_ = std::min(
+    static_cast<float>(width_) / static_cast<float>(target_width_)
+    ,static_cast<float>(height_) / static_cast<float>(target_height_)
+  );
+
+  glViewport(0,0,width_,height_);
+  main_scene_.resize_scene(build_dimens());
+}
+
+void GameEngine::run() {
+  is_running_ = true;
+
+  main_scene_.init_scene();
+  resize(); // Call after init_scene() because it calls main_scene_'s resize().
+
+  while(is_running_) {
+    start_frame_timer();
+
+    handle_events();
+    main_scene_.handle_key_states(get_key_states());
+    main_scene_.update_scene_logic({dpf_,delta_time_});
+
+    // Check if event/scene requested to stop.
+    if(!is_running_) { break; }
+
+    clear_screen();
+    main_scene_.draw_scene(build_dimens());
+    SDL_GL_SwapWindow(res_.window);
+
+    end_frame_timer();
+  }
+
+  std::cerr << "[INFO] Stopping gracefully." << std::endl;
+}
+
+void GameEngine::request_stop() { is_running_ = false; }
+
 void GameEngine::init_gl() {
   glClearColor(clear_color_.r,clear_color_.g,clear_color_.b,clear_color_.a);
   glClearDepth(1.0);
@@ -178,36 +237,9 @@ void GameEngine::init_gl() {
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    throw EkoScapeError{Util::build_string("Failed to init GL [",error,"]: "
+    throw EkoScapeError{Util::build_string("Failed to init OpenGL [",error,"]: "
         ,Util::get_gl_error(error),'.')};
   }
-}
-
-void GameEngine::resize() {
-  int width = 0;
-  int height = 0;
-
-  SDL_GL_GetDrawableSize(res_.window,&width,&height);
-  resize(width,height);
-}
-
-void GameEngine::resize(int width,int height) {
-  // Avoid potential divide by 0s [like in begin_3d_scene()].
-  if(width < 1) { width = 1; }
-  if(height < 1) { height = 1; }
-
-  // Allow resize even if the width & height haven't changed.
-  // - If decide to change this logic, need to allow force resize in GameEngine() ctor.
-
-  width_ = width;
-  height_ = height;
-  view_scale_ = std::min(
-    static_cast<float>(width_) / static_cast<float>(target_width_)
-    ,static_cast<float>(height_) / static_cast<float>(target_height_)
-  );
-
-  glViewport(0,0,width_,height_);
-  main_scene_.resize_scene(build_dimens());
 }
 
 void GameEngine::begin_2d_scene() {
@@ -224,9 +256,15 @@ void GameEngine::begin_3d_scene() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  // With 0.1 & 100.0, it had some weird clipping on the edges for 1600x900 for some reason.
-  //gluPerspective(45.0,static_cast<GLdouble>(width_) / height_,0.1,100.0);
+  // With (...,0.1,100.0), it had some weird clipping on the edges for 1600x900 for some reason.
   gluPerspective(45.0,static_cast<GLdouble>(width_) / height_,0.01,5.0);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+}
+
+void GameEngine::clear_screen() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -263,34 +301,6 @@ void GameEngine::init_music_player(int music_types) {
   res_.has_music_player = true;
 }
 
-void GameEngine::run() {
-  is_running_ = true;
-
-  main_scene_.init_scene();
-  resize(width_,height_); // Call after init_scene() because it calls `main_scene_`'s resize().
-
-  while(is_running_) {
-    start_time();
-
-    handle_events();
-    main_scene_.handle_key_states(get_key_states());
-    main_scene_.update_scene_logic({dpf_,delta_time_});
-
-    // Check if event/scene requested to stop.
-    if(!is_running_) { break; }
-
-    clear_screen();
-    main_scene_.draw_scene(build_dimens());
-    SDL_GL_SwapWindow(res_.window);
-
-    end_time();
-  }
-
-  std::cerr << "[INFO] Stopping gracefully." << std::endl;
-}
-
-void GameEngine::request_stop() { is_running_ = false; }
-
 bool GameEngine::has_music_player() const { return res_.has_music_player; }
 
 void GameEngine::play_music(const Music& music) {
@@ -313,11 +323,11 @@ bool GameEngine::is_music_playing() const {
   return res_.has_music_player && Mix_PlayingMusic() == 1;
 }
 
-void GameEngine::start_time() {
+void GameEngine::start_frame_timer() {
   frame_timer_.start();
 }
 
-void GameEngine::end_time() {
+void GameEngine::end_frame_timer() {
   frame_timer_.end();
   dpf_ = frame_timer_.duration();
 
@@ -372,17 +382,10 @@ void GameEngine::handle_events() {
     }
   }
 
-  if(should_resize) { resize(); }
+  if(should_resize) { fetch_size_and_resize(); }
 }
 
 const Uint8* GameEngine::get_key_states() const { return SDL_GetKeyboardState(NULL); }
-
-void GameEngine::clear_screen() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-}
 
 void GameEngine::show_error(const std::string& error) {
   show_error_globally(title_,error,res_.window);
@@ -424,5 +427,7 @@ const Duration& GameEngine::target_dpf() const { return target_dpf_; }
 const Duration& GameEngine::dpf() const { return dpf_; }
 
 double GameEngine::delta_time() const { return delta_time_; }
+
+Color4f GameEngine::clear_color() { return clear_color_; }
 
 } // Namespace.

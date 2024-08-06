@@ -86,13 +86,16 @@ public:
   GameEngine& operator=(GameEngine&& other) noexcept = delete;
 
   void set_vsync(bool enable);
+  void fetch_size_and_resize();
   void resize();
   void resize(int width,int height);
-  void begin_2d_scene();
-  void begin_3d_scene();
 
   void run();
   void request_stop();
+
+  void begin_2d_scene();
+  void begin_3d_scene();
+  void clear_screen();
 
   bool has_music_player() const;
   void play_music(const Music& music);
@@ -100,7 +103,6 @@ public:
   bool is_music_playing() const;
 
   const Uint8* get_key_states() const;
-  void clear_screen();
 
   void show_error(const std::string& error);
   void show_error(const std::string& title,const std::string& error);
@@ -118,6 +120,7 @@ public:
   const Duration& target_dpf() const;
   const Duration& dpf() const;
   double delta_time() const;
+  Color4f clear_color();
 
 private:
   Scene& main_scene_;
@@ -141,12 +144,13 @@ private:
   void init_hints(const Config& config);
   void init_config(const Config& config);
   void init_gui(const std::string& title);
+
   void init_gl();
   void init_music_player(int music_types);
 
+  void start_frame_timer();
+  void end_frame_timer();
   void handle_events();
-  void start_time();
-  void end_time();
 };
 
 } // Namespace.
