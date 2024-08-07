@@ -27,7 +27,8 @@ private:
   std::unique_ptr<GameEngine> game_engine_{};
 
 public:
-  struct Config : public GameEngine::Config {
+  class Config : public GameEngine::Config {
+  public:
     int dantares_dist = 24;
   };
 

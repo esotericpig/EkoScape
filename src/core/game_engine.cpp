@@ -126,7 +126,7 @@ void GameEngine::init_gui(const std::string& title) {
 
   res_.context = SDL_GL_CreateContext(res_.window);
 
-  if (res_.context == NULL) {
+  if(res_.context == NULL) {
     throw EkoScapeError{Util::build_string("Failed to create GL context: ",Util::get_sdl_error(),'.')};
   }
 

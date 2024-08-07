@@ -56,11 +56,14 @@ Dantares::Dantares(Dantares &&Other)
 
 Dantares &Dantares::operator = (Dantares &&r)
 {
-    if (this == &r) { return *this; }
-    return MoveFrom(std::move(r));
+    if (this != &r) {
+        MoveFrom(std::move(r));
+    }
+
+    return *this;
 }
 
-Dantares &Dantares::MoveFrom(Dantares &&Other)
+void Dantares::MoveFrom(Dantares &&Other)
 {
     CurrentMap = std::exchange(Other.CurrentMap, -1);
     NextMapID = std::exchange(Other.NextMapID, 0);
@@ -82,8 +85,6 @@ Dantares &Dantares::MoveFrom(Dantares &&Other)
     {
         Maps[x] = std::move(Other.Maps[x]);
     }
-
-    return *this;
 }
 
 int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
@@ -1396,11 +1397,14 @@ Dantares::SpaceClass::SpaceClass(SpaceClass &&Other)
 
 Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r)
 {
-    if (this == &r) { return *this; }
-    return MoveFrom(std::move(r));
+    if (this != &r) {
+        MoveFrom(std::move(r));
+    }
+
+    return *this;
 }
 
-Dantares::SpaceClass &Dantares::SpaceClass::MoveFrom(SpaceClass &&Other)
+void Dantares::SpaceClass::MoveFrom(SpaceClass &&Other)
 {
     DeleteDisplayList();
 
@@ -1409,8 +1413,6 @@ Dantares::SpaceClass &Dantares::SpaceClass::MoveFrom(SpaceClass &&Other)
     CeilingTexture = std::exchange(Other.CeilingTexture, -1);
     WallTexture = std::exchange(Other.WallTexture, -1);
     DisplayList = std::exchange(Other.DisplayList, -1);
-
-    return *this;
 }
 
 Dantares::SpaceClass::~SpaceClass() noexcept
@@ -1465,19 +1467,20 @@ Dantares::MapClass::MapClass(MapClass &&Other)
 
 Dantares::MapClass &Dantares::MapClass::operator = (MapClass &&r)
 {
-    if (this == &r) { return *this; }
-    return MoveFrom(std::move(r));
+    if (this != &r) {
+        MoveFrom(std::move(r));
+    }
+
+    return *this;
 }
 
-Dantares::MapClass &Dantares::MapClass::MoveFrom(MapClass &&Other)
+void Dantares::MapClass::MoveFrom(MapClass &&Other)
 {
     MapArray = std::move(Other.MapArray);
     WalkArray = std::move(Other.WalkArray);
     SpaceInfo = std::move(Other.SpaceInfo);
     XSize = std::exchange(Other.XSize, 0);
     YSize = std::exchange(Other.YSize, 0);
-
-    return *this;
 }
 
 bool Dantares::MapClass::SpaceDefined(int Space)

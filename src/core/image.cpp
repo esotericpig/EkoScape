@@ -46,9 +46,7 @@ void Image::destroy() noexcept {
 }
 
 Image& Image::operator=(Image&& other) noexcept {
-  if (this != &other) {
-    move_from(std::move(other));
-  }
+  if(this != &other) { move_from(std::move(other)); }
 
   return *this;
 }

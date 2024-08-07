@@ -20,26 +20,22 @@ bool Thing::operator<(const Thing& other) const { return id_ < other.id_; }
 
 Thing& Thing::set_type(SpaceType type) {
   type_ = type;
-
   return *this;
 }
 
 Thing& Thing::set_pos(int x,int y) {
   x_ = x;
   y_ = y;
-
   return *this;
 }
 
 Thing& Thing::set_x(int x) {
   x_ = x;
-
   return *this;
 }
 
 Thing& Thing::set_y(int y) {
   y_ = y;
-
   return *this;
 }
 

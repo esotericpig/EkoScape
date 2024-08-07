@@ -41,9 +41,7 @@ void Music::destroy() noexcept {
 }
 
 Music& Music::operator=(Music&& other) noexcept {
-  if (this != &other) {
-    move_from(std::move(other));
-  }
+  if(this != &other) { move_from(std::move(other)); }
 
   return *this;
 }

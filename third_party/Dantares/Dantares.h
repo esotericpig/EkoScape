@@ -527,7 +527,7 @@ private:
         int DisplayList = -1;            //Display list for the space.
 
     private:
-        SpaceClass &MoveFrom(SpaceClass &&Other);
+        void MoveFrom(SpaceClass &&Other);
         void DeleteDisplayList() noexcept;
     };
 
@@ -553,10 +553,10 @@ private:
         int YSize;                                   //Map height.
 
     private:
-        MapClass &MoveFrom(MapClass &&Other);
+        void MoveFrom(MapClass &&Other);
     };
 
-    Dantares &MoveFrom(Dantares &&Other);
+    void MoveFrom(Dantares &&Other);
 
     int CurrentMap;
     //The ID number of the currently active map.

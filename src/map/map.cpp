@@ -271,39 +271,33 @@ bool Map::unlock_cell(int x,int y) {
 
 Map& Map::set_title(const std::string& title) {
   title_ = Util::strip(title);
-
   return *this;
 }
 
 Map& Map::set_author(const std::string& author) {
   author_ = Util::strip(author);
-
   return *this;
 }
 
 Map& Map::set_turning_speed(float speed) {
   // 0 uses Dantares' default.
   turning_speed_ = (speed >= 0.0f) ? speed : 0.0f;
-
   return *this;
 }
 
 Map& Map::set_walking_speed(float speed) {
   // 0 uses Dantares' default.
   walking_speed_ = (speed >= 0.0f) ? speed : 0.0f;
-
   return *this;
 }
 
 Map& Map::set_default_empty(SpaceType type) {
   default_empty_ = (type != SpaceType::kNil) ? type : SpaceType::kEmpty;
-
   return *this;
 }
 
 Map& Map::set_robot_delay(Duration duration) {
   robot_delay_ = (duration >= kMinRobotDelay) ? duration : kMinRobotDelay;
-
   return *this;
 }
 
