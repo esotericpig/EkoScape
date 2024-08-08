@@ -35,7 +35,7 @@ public:
   static const int kGhostLike = 1 << 0; // Can go through walls.
   static const int kSnakeLike = 1 << 1; // Leaves behind a "shadow"/tail of statues.
 
-  static constexpr double kSnakeTailLifespan = 9;
+  static constexpr double kSnakeTailLifespan = 9; // In seconds.
 
   using Thing::Thing;
   Robot(SpaceType type,int x,int y,double lifespan = 0.0);

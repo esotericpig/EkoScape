@@ -140,9 +140,9 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
     }
   }
 
-  const int lines_len = static_cast<int>(lines.size());
+  const int row_count = static_cast<int>(lines.size());
 
-  if(height <= 0) { height = lines_len; }
+  if(height <= 0) { height = row_count; }
   if(width <= 0 || height <= 0) { return *this; }
 
   spaces_.resize(width * height);
@@ -158,15 +158,15 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
   //    and `dan_x` is to just match it visually.
   for(int y = 0; y < height_; ++y) {
     int dan_y = height_ - 1 - y;
-    const std::string* line = (y < lines_len) ? &lines.at(y) : nullptr;
-    const int line_len = static_cast<int>(line->length());
+    const std::string* line = (y < row_count) ? &lines.at(y) : nullptr;
+    const int column_count = static_cast<int>(line->length());
 
     for(int x = 0; x < width_; ++x) {
       int dan_x = x;
       SpaceType empty_type = SpaceType::kDeadSpace;
       SpaceType thing_type = SpaceType::kNil;
 
-      if(line != nullptr && x < line_len) {
+      if(line != nullptr && x < column_count) {
         SpaceType type = SpaceTypes::to_space_type(line->at(x));
 
         if(type == SpaceType::kCell) {

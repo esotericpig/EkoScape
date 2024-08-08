@@ -83,6 +83,7 @@ public:
   GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene);
   GameEngine(const GameEngine& other) = delete;
   GameEngine(GameEngine&& other) noexcept = delete;
+  virtual ~GameEngine() noexcept = default;
 
   GameEngine& operator=(const GameEngine& other) = delete;
   GameEngine& operator=(GameEngine&& other) noexcept = delete;

@@ -86,12 +86,12 @@ DantaresMap& DantaresMap::make_current_in_dantares() {
         ,player_init_x_,',',player_init_y_,")] for map [",id_,':',title_,"].")};
   }
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
-    std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map["
+    std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map ["
         << id_ << ':' << title_ << "]." << std::endl;
     // Don't fail; game is still playable.
   }
   if(!dantares_.SetWalkingSpeed(walking_speed_)) {
-    std::cerr << "[WARN] Failed to set walking speed [" << walking_speed_ << "] for map["
+    std::cerr << "[WARN] Failed to set walking speed [" << walking_speed_ << "] for map ["
         << id_ << ':' << title_ << "]." << std::endl;
     // Don't fail; game is still playable.
   }

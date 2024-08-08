@@ -55,6 +55,10 @@ private:
   void init_map_space(int x,int y,Space&,SpaceType type);
   void generate_map();
 
+  int update_player();
+  void update_robots(const FrameStep& step);
+  void move_robots(const FrameStep& step);
+
   void set_space_textures(SpaceType type,const Texture* texture);
   void set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);
 };

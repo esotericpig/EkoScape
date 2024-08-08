@@ -94,6 +94,8 @@ void GameScene::handle_key_states(const Uint8* keys) {
   bool is_left = (keys[SDL_SCANCODE_LEFT] == 1 || keys[SDL_SCANCODE_A] == 1);
   bool is_right = (keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
 
+  // TODO: Wild idea. If pressing Left&Right at same time, step left & right? Need a bool flag?
+
   // Must check Left/Right first, so that the player can turn while holding down Up/Down,
   //     which is an important mechanic for the game.
   if(is_left) {
@@ -112,6 +114,17 @@ void GameScene::handle_key_states(const Uint8* keys) {
 }
 
 int GameScene::update_scene_logic(const FrameStep& step) {
+  int action = update_player();
+
+  if(action != SceneAction::kNil) { return action; }
+
+  update_robots(step);
+  move_robots(step);
+
+  return SceneAction::kNil;
+}
+
+int GameScene::update_player() {
   SpaceType player_space_type = map_.player_space_type();
 
   switch(player_space_type) {
@@ -128,7 +141,6 @@ int GameScene::update_scene_logic(const FrameStep& step) {
         // TODO: Implement Secret. Press some key combination to see weird colors, etc.
         std::cout << "You've unlocked a secret!\n";
       }
-
       return SceneAction::kGoBack;
 
     default:
@@ -142,6 +154,10 @@ int GameScene::update_scene_logic(const FrameStep& step) {
       break;
   }
 
+  return SceneAction::kNil;
+}
+
+void GameScene::update_robots(const FrameStep& step) {
   // Remove dead robots and age living robots (only if lifespan was set).
   for(auto it = robots_.begin(); it != robots_.end();) {
     auto& robot = *it;
@@ -154,27 +170,28 @@ int GameScene::update_scene_logic(const FrameStep& step) {
       ++it;
     }
   }
+}
 
-  // Move robots?
-  if(robot_move_timer_.end().duration() >= robot_move_duration_) {
-    robot_move_data_.refresh();
+void GameScene::move_robots(const FrameStep& step) {
+  // Time to move robots?
+  if(robot_move_timer_.end().duration() < robot_move_duration_) { return; }
 
-    for(auto& robot: robots_) {
-      robot->move(robot_move_data_);
-    }
+  // Move robots.
+  robot_move_data_.refresh();
 
-    // Add new robots after the move loop, because we can't add new ones inside of its loop.
-    for(auto& new_robot: robot_move_data_.new_robots) {
-      robots_.push_back(std::move(new_robot));
-    }
-    robot_move_data_.new_robots.clear();
-
-    // Reset timer.
-    robot_move_duration_ = map_.robot_delay() + step.dpf;
-    robot_move_timer_.start();
+  for(auto& robot: robots_) {
+    robot->move(robot_move_data_);
   }
 
-  return SceneAction::kNil;
+  // Add new robots after the move loop, because we can't add new ones inside of its loop.
+  for(auto& new_robot: robot_move_data_.new_robots) {
+    robots_.push_back(std::move(new_robot));
+  }
+  robot_move_data_.new_robots.clear();
+
+  // Reset the move timer.
+  robot_move_duration_ = map_.robot_delay() + step.dpf;
+  robot_move_timer_.start();
 }
 
 void GameScene::draw_scene(Renderer& ren) {
@@ -191,9 +208,9 @@ void GameScene::set_space_textures(SpaceType type,const Texture* ceiling,const T
   int space_id = SpaceTypes::value_of(type);
 
   // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
-  if(ceiling != nullptr) { dantares_.SetCeilingTexture(space_id,floor->id()); }
+  if(ceiling != nullptr) { dantares_.SetFloorTexture(space_id,ceiling->id()); }
   if(wall != nullptr) { dantares_.SetWallTexture(space_id,wall->id()); }
-  if(floor != nullptr) { dantares_.SetFloorTexture(space_id,ceiling->id()); }
+  if(floor != nullptr) { dantares_.SetCeilingTexture(space_id,floor->id()); }
 }
 
 } // Namespace.
