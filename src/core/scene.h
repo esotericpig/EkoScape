@@ -10,27 +10,13 @@
 
 #include "common.h"
 
-#include "duration.h"
+#include "renderer.h"
+#include "scene_data.h"
 
 namespace ekoscape {
 
 class Scene {
 public:
-  struct Dimens {
-    int width;
-    int height;
-    int target_width;
-    int target_height;
-    int init_width;
-    int init_height;
-    float view_scale;
-  };
-
-  struct FrameStep {
-    const Duration& dpf;
-    double delta_time;
-  };
-
   virtual ~Scene() noexcept = default;
 
   /**
@@ -38,13 +24,13 @@ public:
    * begin_2d_scene()/begin_3d_scene() in init_scene() & resize_scene(), instead of in the
    * main loop with draw_scene().
    */
-  virtual void init_scene() {}
-  virtual void resize_scene(Dimens /*dimens*/) {}
+  virtual void init_scene(Renderer& /*ren*/) {}
+  virtual void resize_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 
   virtual void on_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}
-  virtual int update_scene_logic(FrameStep /*step*/) { return 0; }
-  virtual void draw_scene(Dimens /*dimens*/) {}
+  virtual int update_scene_logic(const FrameStep& /*step*/) { return 0; }
+  virtual void draw_scene(Renderer& /*ren*/) {}
 };
 
 } // Namespace.

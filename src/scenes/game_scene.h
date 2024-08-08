@@ -10,14 +10,11 @@
 
 #include "core/common.h"
 
-#include "core/game_engine.h"
 #include "core/scene.h"
 #include "core/texture.h"
 #include "core/timer.h"
 
 #include "map/dantares_map.h"
-#include "map/space.h"
-#include "map/space_type.h"
 
 #include "world/robot.h"
 
@@ -30,17 +27,16 @@ namespace ekoscape {
 
 class GameScene : public Scene {
 public:
-  GameScene(GameEngine& game_engine,Assets& assets,const std::string& map_file,int dantares_dist);
+  GameScene(const Assets& assets,const std::string& map_file,int dantares_dist);
 
-  void init_scene() override;
+  void init_scene(Renderer& ren) override;
   void on_key_down_event(SDL_Keycode key) override;
   void handle_key_states(const Uint8* keys) override;
-  int update_scene_logic(FrameStep step) override;
-  void draw_scene(Dimens dimens) override;
+  int update_scene_logic(const FrameStep& step) override;
+  void draw_scene(Renderer& ren) override;
 
 private:
-  GameEngine& game_engine_;
-  Assets& assets_;
+  const Assets& assets_;
 
   // Classic values: {0.125f,-0.04f,0.04f}.
   //

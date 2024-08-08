@@ -12,8 +12,7 @@ namespace ekoscape {
 MenuScene::MenuScene(GameEngine& game_engine,Assets& assets,TryPlayMapHandler try_play_map)
     : game_engine_(game_engine),assets_(assets),try_play_map_(try_play_map) {}
 
-void MenuScene::init_scene() {
-}
+void MenuScene::init_scene(Renderer& /*ren*/) {}
 
 void MenuScene::on_key_down_event(SDL_Keycode key) {
   if(key == SDLK_RETURN) {
@@ -26,15 +25,15 @@ void MenuScene::on_key_down_event(SDL_Keycode key) {
   }
 }
 
-int MenuScene::update_scene_logic(FrameStep /*step*/) {
+int MenuScene::update_scene_logic(const FrameStep& /*step*/) {
   int result = scene_result_;
   scene_result_ = SceneResult::kNil; // Avoid possible infinite loop.
 
   return result;
 }
 
-void MenuScene::draw_scene(Dimens /*dimens*/) {
-  game_engine_.begin_2d_scene();
+void MenuScene::draw_scene(Renderer& ren) {
+  ren.begin_2d_scene();
 }
 
 } // Namespace.

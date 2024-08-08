@@ -28,7 +28,7 @@ std::unique_ptr<MenuScene> EkoScape::build_menu_scene() {
 }
 
 std::unique_ptr<GameScene> EkoScape::build_game_scene(const std::string& map_file) {
-  return std::make_unique<GameScene>(*game_engine_,*assets_,map_file,dantares_dist_);
+  return std::make_unique<GameScene>(*assets_,map_file,dantares_dist_);
 }
 
 void EkoScape::run() {
@@ -42,9 +42,11 @@ void EkoScape::play_music() {
   }
 }
 
-void EkoScape::init_scene() { current_scene_->init_scene(); }
+void EkoScape::init_scene(Renderer& ren) { current_scene_->init_scene(ren); }
 
-void EkoScape::resize_scene(Dimens dimens) { current_scene_->resize_scene(dimens); }
+void EkoScape::resize_scene(Renderer& ren,const ViewDimens& dimens) {
+  current_scene_->resize_scene(ren,dimens);
+}
 
 void EkoScape::on_key_down_event(SDL_Keycode key) {
   switch(key) {
@@ -64,7 +66,7 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
 
 void EkoScape::handle_key_states(const Uint8* keys) { current_scene_->handle_key_states(keys); }
 
-int EkoScape::update_scene_logic(FrameStep step) {
+int EkoScape::update_scene_logic(const FrameStep& step) {
   int result = current_scene_->update_scene_logic(step);
   bool has_new_scene = false;
 
@@ -94,14 +96,14 @@ int EkoScape::update_scene_logic(FrameStep step) {
   }
 
   if(has_new_scene) {
-    current_scene_->init_scene();
-    current_scene_->resize_scene(game_engine_->build_dimens());
+    current_scene_->init_scene(game_engine_->renderer());
+    current_scene_->resize_scene(game_engine_->renderer(),game_engine_->dimens());
   }
 
   return 0;
 }
 
-void EkoScape::draw_scene(Dimens dimens) { current_scene_->draw_scene(dimens); }
+void EkoScape::draw_scene(Renderer& ren) { current_scene_->draw_scene(ren); }
 
 void EkoScape::show_error_globally(const std::string& error) {
   GameEngine::show_error_globally(kTitle,error);

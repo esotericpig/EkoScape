@@ -35,7 +35,7 @@ GameEngine::Resources::~Resources() noexcept {
   SDL_Quit();
 }
 
-GameEngine::GameEngine(Scene& main_scene,const Config& config)
+GameEngine::GameEngine(Scene& main_scene,Config config)
     : main_scene_(main_scene) {
   init_hints(config);
 
@@ -47,16 +47,13 @@ GameEngine::GameEngine(Scene& main_scene,const Config& config)
   }
 
   init_config(config);
-  init_gui(config.title);
-
-  if(config.vsync) { set_vsync(true); }
-
-  init_gl();
-  init_music_player(config.music_types);
+  init_gui(config);
+  init_renderer(config);
+  init_music_player(config);
 }
 
 void GameEngine::init_hints(const Config& config) {
-  // Not available in SDL v2.0.+.
+  // Not available in SDL v2.0.
   //SDL_SetHint(SDL_HINT_APP_NAME,config.title.c_str());
   SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,config.title.c_str());
   // One of: nearest, linear, best.
@@ -64,9 +61,9 @@ void GameEngine::init_hints(const Config& config) {
   //SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
 }
 
-void GameEngine::init_config(const Config& config) {
-  int width = config.width;
-  int height = config.height;
+void GameEngine::init_config(Config& config) {
+  int width = config.size.w;
+  int height = config.size.h;
 
   if(config.scale_factor > 0.0f) {
     SDL_DisplayMode display_mode;
@@ -87,14 +84,14 @@ void GameEngine::init_config(const Config& config) {
   }
 
   title_ = config.title;
-  init_width_ = (width > 0) ? width : kFallbackWidth;
-  init_height_ = (height > 0) ? height : kFallbackHeight;
-  target_width_ = (config.target_width > 0) ? config.target_width : init_width_;
-  target_height_ = (config.target_height > 0) ? config.target_height : init_height_;
+  config.size.w = (width > 0) ? width : kFallbackWidth;
+  config.size.h = (height > 0) ? height : kFallbackHeight;
+  config.target_size.w = (config.target_size.w > 0) ? config.target_size.w : config.size.w;
+  config.target_size.h = (config.target_size.h > 0) ? config.target_size.h : config.size.h;
+
   // Allow 0 if the user wants to use delta time only (no delay).
   // - See: end_time()
   target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
-  clear_color_ = config.clear_color;
 
   if(target_fps_ > 0) { // Avoid divide by 0.
     // Convert from FPS to Duration (milliseconds) Per Frame.
@@ -102,15 +99,17 @@ void GameEngine::init_config(const Config& config) {
   }
 }
 
-void GameEngine::init_gui(const std::string& title) {
+void GameEngine::init_gui(const Config& config) {
   // Use a 2004-2008 version.
   // - Must be set before SDL_CreateWindow().
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
 
+  // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
+  //     we call fetch_size_and_resize() later, which we do in run().
   res_.window = SDL_CreateWindow(
-    title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,init_width_,init_height_
+    config.title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h
     ,SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
   );
 
@@ -118,167 +117,39 @@ void GameEngine::init_gui(const std::string& title) {
     throw EkoScapeError{Util::build_string("Failed to create window: ",Util::get_sdl_error(),'.')};
   }
 
-  // SDL_WINDOW_RESIZABLE flag in SDL_CreateWindow() increases the size for some reason
+  // The SDL_WINDOW_RESIZABLE flag in SDL_CreateWindow() increases the size for some reason
   //     (even w/o SDL_WINDOW_ALLOW_HIGHDPI), but this explicit call doesn't.
   SDL_SetWindowResizable(res_.window,SDL_TRUE);
-  // With SDL_WINDOW_ALLOW_HIGHDPI flag, the size might have changed.
-  SDL_GL_GetDrawableSize(res_.window,&width_,&height_);
 
   res_.context = SDL_GL_CreateContext(res_.window);
 
   if(res_.context == NULL) {
-    throw EkoScapeError{Util::build_string("Failed to create GL context: ",Util::get_sdl_error(),'.')};
+    throw EkoScapeError{Util::build_string("Failed to create OpenGL context: ",Util::get_sdl_error(),'.')};
   }
+}
 
+void GameEngine::init_renderer(const Config& config) {
   GLenum error = glewInit();
 
   if(error != GLEW_OK) {
-    throw EkoScapeError{Util::build_string("Failed to init GLEW [",error,"]: "
+    throw EkoScapeError{Util::build_string("Failed to init OpenGL GLEW [",error,"]: "
         ,Util::get_glew_error(error),'.')};
   }
+
+  if(config.vsync) { set_vsync(true); }
+
+  renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
 }
 
-void GameEngine::set_vsync(bool enable) {
-  if(enable) {
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
-
-    // First, try with adaptive vsync.
-    if(SDL_GL_SetSwapInterval(-1) != 0) {
-      SDL_GL_SetSwapInterval(1);
-    }
-  } else {
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"0");
-    SDL_GL_SetSwapInterval(0);
-  }
-}
-
-void GameEngine::fetch_size_and_resize() {
-  int width = 0;
-  int height = 0;
-
-  SDL_GL_GetDrawableSize(res_.window,&width,&height);
-  resize(width,height);
-}
-
-void GameEngine::resize() {
-  resize(width_,height_);
-}
-
-void GameEngine::resize(int width,int height) {
-  // Avoid potential divide by 0s [like in begin_3d_scene()].
-  if(width < 1) { width = 1; }
-  if(height < 1) { height = 1; }
-
-  // Allow resize even if the width & height haven't changed.
-  // - If decide to change this logic, need to allow force resize so can resize on init.
-
-  width_ = width;
-  height_ = height;
-  view_scale_ = std::min(
-    static_cast<float>(width_) / static_cast<float>(target_width_)
-    ,static_cast<float>(height_) / static_cast<float>(target_height_)
-  );
-
-  glViewport(0,0,width_,height_);
-  main_scene_.resize_scene(build_dimens());
-}
-
-void GameEngine::run() {
-  is_running_ = true;
-
-  main_scene_.init_scene();
-  resize(); // Call after init_scene() because it calls main_scene_'s resize().
-
-  while(is_running_) {
-    start_frame_timer();
-
-    handle_events();
-    main_scene_.handle_key_states(get_key_states());
-    main_scene_.update_scene_logic({dpf_,delta_time_});
-
-    // Check if event/scene requested to stop.
-    if(!is_running_) { break; }
-
-    clear_screen();
-    main_scene_.draw_scene(build_dimens());
-    SDL_GL_SwapWindow(res_.window);
-
-    end_frame_timer();
-  }
-
-  std::cerr << "[INFO] Stopping gracefully." << std::endl;
-}
-
-void GameEngine::request_stop() { is_running_ = false; }
-
-void GameEngine::init_gl() {
-  glClearColor(clear_color_.r,clear_color_.g,clear_color_.b,clear_color_.a);
-  glClearDepth(1.0);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  glEnable(GL_TEXTURE_2D);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
-
-  glShadeModel(GL_SMOOTH);
-  //glShadeModel(GL_FLAT);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  GLenum error = glGetError();
-
-  if(error != GL_NO_ERROR) {
-    throw EkoScapeError{Util::build_string("Failed to init OpenGL [",error,"]: "
-        ,Util::get_gl_error(error),'.')};
-  }
-}
-
-void GameEngine::begin_2d_scene() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  glOrtho(0.0,width_,height_,0.0,-1.0,1.0);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-}
-
-void GameEngine::begin_3d_scene() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  // With (...,0.1,100.0), it had some weird clipping on the edges for 1600x900 for some reason.
-  gluPerspective(45.0,static_cast<GLdouble>(width_) / height_,0.01,5.0);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-}
-
-void GameEngine::clear_screen() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-}
-
-void GameEngine::init_music_player(int music_types) {
-  if(Mix_Init(music_types) == 0) {
+void GameEngine::init_music_player(const Config& config) {
+  if(Mix_Init(config.music_types) == 0) {
     std::cerr << "[WARN] Failed to init SDL_mixer: " << Util::get_sdl_mix_error() << '.' << std::endl;
     return; // Don't fail, since music is optional.
   }
 
   int result = -1;
 
-  if(music_types & MIX_INIT_MID) {
+  if(config.music_types & MIX_INIT_MID) {
     // Since we're playing a MIDI file, I use these settings according to the doc:
     // - https://wiki.libsdl.org/SDL2_mixer/FrontPage
     // - For SDL3, use SDL_AUDIO_S8, probably? Not defined in SDL2.
@@ -301,27 +172,66 @@ void GameEngine::init_music_player(int music_types) {
   res_.has_music_player = true;
 }
 
-bool GameEngine::has_music_player() const { return res_.has_music_player; }
+void GameEngine::set_vsync(bool enable) {
+  if(enable) {
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
 
-void GameEngine::play_music(const Music& music) {
-  if(!res_.has_music_player) { return; }
-
-  // -1 to play indefinitely.
-  if(Mix_PlayMusic(music.music_,-1) != 0) {
-    std::cerr << "[WARN] Failed to play music: " << Util::get_sdl_mix_error() << '.' << std::endl;
-    // Don't fail, since music is optional.
+    // First, try with adaptive vsync.
+    if(SDL_GL_SetSwapInterval(-1) != 0) {
+      SDL_GL_SetSwapInterval(1);
+    }
+  } else {
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"0");
+    SDL_GL_SetSwapInterval(0);
   }
 }
 
-void GameEngine::stop_music() {
-  if(!res_.has_music_player) { return; }
+void GameEngine::fetch_size_and_resize() {
+  Size2i size{};
 
-  Mix_HaltMusic();
+  SDL_GL_GetDrawableSize(res_.window,&size.w,&size.h);
+  resize(size);
 }
 
-bool GameEngine::is_music_playing() const {
-  return res_.has_music_player && Mix_PlayingMusic() == 1;
+void GameEngine::resize() {
+  resize(renderer_->dimens().size);
 }
+
+void GameEngine::resize(const Size2i& size) {
+  // Allow resize even if the width & height haven't changed.
+  // - If decide to change this logic, need to allow force resize so can resize on init.
+
+  renderer_->resize(size);
+  main_scene_.resize_scene(*renderer_,renderer_->dimens());
+}
+
+void GameEngine::run() {
+  is_running_ = true;
+
+  main_scene_.init_scene(*renderer_);
+  fetch_size_and_resize(); // Call after init_scene() because it calls main_scene_'s resize().
+
+  while(is_running_) {
+    start_frame_timer();
+
+    handle_events();
+    main_scene_.handle_key_states(get_key_states());
+    main_scene_.update_scene_logic({dpf_,delta_time_});
+
+    // Check if event/scene requested to stop.
+    if(!is_running_) { break; }
+
+    renderer_->clear_view();
+    main_scene_.draw_scene(*renderer_);
+    SDL_GL_SwapWindow(res_.window);
+
+    end_frame_timer();
+  }
+
+  std::cerr << "[INFO] Stopping gracefully." << std::endl;
+}
+
+void GameEngine::request_stop() { is_running_ = false; }
 
 void GameEngine::start_frame_timer() {
   frame_timer_.start();
@@ -385,6 +295,28 @@ void GameEngine::handle_events() {
   if(should_resize) { fetch_size_and_resize(); }
 }
 
+bool GameEngine::has_music_player() const { return res_.has_music_player; }
+
+void GameEngine::play_music(const Music& music) {
+  if(!res_.has_music_player) { return; }
+
+  // -1 to play indefinitely.
+  if(Mix_PlayMusic(music.music_,-1) != 0) {
+    std::cerr << "[WARN] Failed to play music: " << Util::get_sdl_mix_error() << '.' << std::endl;
+    // Don't fail, since music is optional.
+  }
+}
+
+void GameEngine::stop_music() {
+  if(!res_.has_music_player) { return; }
+
+  Mix_HaltMusic();
+}
+
+bool GameEngine::is_music_playing() const {
+  return res_.has_music_player && Mix_PlayingMusic() == 1;
+}
+
 const Uint8* GameEngine::get_key_states() const { return SDL_GetKeyboardState(NULL); }
 
 void GameEngine::show_error(const std::string& error) {
@@ -402,23 +334,13 @@ void GameEngine::show_error_globally(const std::string& title,const std::string&
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
 }
 
-Scene::Dimens GameEngine::build_dimens() const {
-  return {width_,height_,target_width_,target_height_,init_width_,init_height_,view_scale_};
-}
+Scene& GameEngine::main_scene() { return main_scene_; }
 
-int GameEngine::init_width() const { return init_width_; }
+const std::string& GameEngine::title() const { return title_; }
 
-int GameEngine::init_height() const { return init_height_; }
+Renderer& GameEngine::renderer() const { return *renderer_; }
 
-int GameEngine::target_width() const { return target_width_; }
-
-int GameEngine::target_height() const { return target_height_; }
-
-int GameEngine::width() const { return width_; }
-
-int GameEngine::height() const { return height_; }
-
-float GameEngine::view_scale() const { return view_scale_; }
+const ViewDimens& GameEngine::dimens() const { return renderer_->dimens(); }
 
 int GameEngine::target_fps() const { return target_fps_; }
 
@@ -427,7 +349,5 @@ const Duration& GameEngine::target_dpf() const { return target_dpf_; }
 const Duration& GameEngine::dpf() const { return dpf_; }
 
 double GameEngine::delta_time() const { return delta_time_; }
-
-Color4f GameEngine::clear_color() { return clear_color_; }
 
 } // Namespace.

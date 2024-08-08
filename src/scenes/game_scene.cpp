@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(GameEngine& game_engine,Assets& assets,const std::string& map_file,int dantares_dist)
-    : game_engine_(game_engine),assets_(assets),dantares_dist_(dantares_dist) {
+GameScene::GameScene(const Assets& assets,const std::string& map_file,int dantares_dist)
+    : assets_(assets),dantares_dist_(dantares_dist) {
   load_map(map_file);
   generate_map();
 }
@@ -79,7 +79,7 @@ void GameScene::generate_map() {
   map_.generate_in_dantares(); // Must be called after setting the textures.
 }
 
-void GameScene::init_scene() {
+void GameScene::init_scene(Renderer& /*ren*/) {
   // Delay by an additional second to give some time for the player to orient/adjust.
   robot_move_duration_.set_from_millis(map_.robot_delay().round_millis() + 1000);
   robot_move_timer_.start();
@@ -116,7 +116,7 @@ void GameScene::handle_key_states(const Uint8* keys) {
   }
 }
 
-int GameScene::update_scene_logic(FrameStep step) {
+int GameScene::update_scene_logic(const FrameStep& step) {
   SpaceType player_space_type = map_.player_space_type();
 
   switch(player_space_type) {
@@ -182,8 +182,8 @@ int GameScene::update_scene_logic(FrameStep step) {
   return SceneResult::kNil;
 }
 
-void GameScene::draw_scene(Dimens /*dimens*/) {
-  game_engine_.begin_3d_scene();
+void GameScene::draw_scene(Renderer& ren) {
+  ren.begin_3d_scene();
   dantares_.Draw(dantares_dist_);
 }
 

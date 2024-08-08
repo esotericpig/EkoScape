@@ -27,8 +27,7 @@ private:
   std::unique_ptr<GameEngine> game_engine_{};
 
 public:
-  class Config : public GameEngine::Config {
-  public:
+  struct Config : public GameEngine::Config {
     int dantares_dist = 24;
   };
 
@@ -39,12 +38,12 @@ public:
   void play_music();
   void run();
 
-  void init_scene() override;
-  void resize_scene(Dimens dimens) override;
+  void init_scene(Renderer& ren) override;
+  void resize_scene(Renderer& ren,const ViewDimens& dimens) override;
   void on_key_down_event(SDL_Keycode key) override;
   void handle_key_states(const Uint8* keys) override;
-  int update_scene_logic(FrameStep step) override;
-  void draw_scene(Dimens dimens) override;
+  int update_scene_logic(const FrameStep& step) override;
+  void draw_scene(Renderer& ren) override;
 
   static void show_error_globally(const std::string& error);
 

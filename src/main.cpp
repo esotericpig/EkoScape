@@ -5,11 +5,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "core/common.h"
-
-#include "core/ekoscape_error.h"
-#include "core/util.h"
-
 #include "ekoscape.h"
 
 // TODO: Implement MenuScene.
@@ -17,6 +12,10 @@
 // TODO: Implement GameOver (GameOverScene?) in GameScene to show message and to press Enter.
 //       After enter, go to MenuScene.
 // TODO: Implement mini map (MiniMapScene?) in GameScene and include number of Ekos rescued out of total.
+//       Just do colors. If walkable, then nothing. If non-walkable or Entity/Thing, then color.
+//       - Special color for non-walkable, Robot, Cell, and "fruit".
+//       Moore neighborhood of 4 spaces out or whatever (param). Can implement in Map.
+// TODO: credits in ReadMe and in game: Ryan, Monogram
 
 // TODO: Use own Ogg music from iPad.
 // TODO: If special flag, make weird colors and also flip cell & robot (flips capture).
@@ -49,6 +48,7 @@
 //       - and just have ruby script to update source files
 //       - https://mesonbuild.com/FAQ.html#should-i-check-for-buildtype-or-individual-options-like-debug-in-my-build-files
 //       - mylib = library('mylib', 'mysource.c', c_args: ['-DFOO'])
+// TODO: Test pulling down project in clean Linux VM and building.
 
 
 // TODO: Remove after testing.
@@ -66,16 +66,14 @@ int main(int /*argc*/,char** /*argv*/) {
     EkoScape::Config config{};
 
     config.scale_factor = 0.8333f; // Arrival?
-    //config.width = 740;
-    //config.height = 500;
+    //config.size = {740,500};
     config.fps = 60;
     config.vsync = true;
     //config.clear_color.set_i(106,48,137,255); // Cosmic purple.
 
     // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
     // These are fixed values and should not be changed.
-    config.target_width = 1600;
-    config.target_height = 900;
+    config.target_size = {1600,900};
 
     eko = std::make_unique<EkoScape>(config);
   } catch(const EkoScapeError& e) {

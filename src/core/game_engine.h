@@ -13,6 +13,7 @@
 #include "duration.h"
 #include "ekoscape_error.h"
 #include "music.h"
+#include "renderer.h"
 #include "scene.h"
 #include "timer.h"
 #include "util.h"
@@ -44,18 +45,16 @@ public:
   struct Config {
     std::string title{};
     float scale_factor = 0.0f;
-    int width = kFallbackWidth;
-    int height = kFallbackHeight;
-    int target_width = 0;
-    int target_height = 0;
+    Size2i size = {kFallbackWidth,kFallbackHeight};
+    Size2i target_size = {0,0};
     int fps = kFallbackFps;
     bool vsync = false;
     Color4f clear_color{};
 
     /**
      * All:
-     *   IMG_INIT_AVIF | IMG_INIT_JPG | IMG_INIT_JXL | IMG_INIT_PNG |
-     *   IMG_INIT_TIF | IMG_INIT_WEBP
+     *   IMG_INIT_AVIF | IMG_INIT_JPG  | IMG_INIT_JXL | IMG_INIT_PNG |
+     *   IMG_INIT_TIF  | IMG_INIT_WEBP
      *
      * See: https://wiki.libsdl.org/SDL2_image/IMG_Init
      */
@@ -63,8 +62,8 @@ public:
 
     /**
      * All:
-     *   MIX_INIT_FLAC | MIX_INIT_MID | MIX_INIT_MOD | MIX_INIT_MP3 |
-     *   MIX_INIT_OGG | MIX_INIT_OPUS | MIX_INIT_WAVPACK
+     *   MIX_INIT_FLAC | MIX_INIT_MID  | MIX_INIT_MOD     | MIX_INIT_MP3 |
+     *   MIX_INIT_OGG  | MIX_INIT_OPUS | MIX_INIT_WAVPACK
      *
      * For MIDI on Linux, need to install:
      *   timidity++ libtimidity-devel
@@ -78,7 +77,7 @@ public:
   static const int kFallbackHeight = 900;
   static const int kFallbackFps = 60;
 
-  GameEngine(Scene& main_scene,const Config& config);
+  GameEngine(Scene& main_scene,Config config);
   GameEngine(const GameEngine& other) = delete;
   GameEngine(GameEngine&& other) noexcept = delete;
 
@@ -88,14 +87,10 @@ public:
   void set_vsync(bool enable);
   void fetch_size_and_resize();
   void resize();
-  void resize(int width,int height);
+  void resize(const Size2i& size);
 
   void run();
   void request_stop();
-
-  void begin_2d_scene();
-  void begin_3d_scene();
-  void clear_screen();
 
   bool has_music_player() const;
   void play_music(const Music& music);
@@ -108,45 +103,32 @@ public:
   void show_error(const std::string& title,const std::string& error);
   static void show_error_globally(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
-  Scene::Dimens build_dimens() const;
-  int init_width() const;
-  int init_height() const;
-  int target_width() const;
-  int target_height() const;
-  int width() const;
-  int height() const;
-  float view_scale() const;
+  Scene& main_scene();
+  const std::string& title() const;
+  Renderer& renderer() const;
+  const ViewDimens& dimens() const;
   int target_fps() const;
   const Duration& target_dpf() const;
   const Duration& dpf() const;
   double delta_time() const;
-  Color4f clear_color();
 
 private:
   Scene& main_scene_;
   std::string title_{};
-  int init_width_ = 1;
-  int init_height_ = 1;
-  int target_width_ = 1;
-  int target_height_ = 1;
-  int width_ = 1;
-  int height_ = 1;
-  float view_scale_ = 1.0f;
+  std::unique_ptr<Renderer> renderer_{};
   int target_fps_ = 0;
   Duration target_dpf_{};
   Duration dpf_{};
   double delta_time_ = 0.0;
-  Color4f clear_color_{};
 
   bool is_running_ = false;
   Timer frame_timer_{};
 
   void init_hints(const Config& config);
-  void init_config(const Config& config);
-  void init_gui(const std::string& title);
-
-  void init_gl();
-  void init_music_player(int music_types);
+  void init_config(Config& config);
+  void init_gui(const Config& config);
+  void init_renderer(const Config& config);
+  void init_music_player(const Config& config);
 
   void start_frame_timer();
   void end_frame_timer();

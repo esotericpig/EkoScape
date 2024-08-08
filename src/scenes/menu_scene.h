@@ -26,10 +26,10 @@ public:
 
   MenuScene(GameEngine& game_engine,Assets& assets,TryPlayMapHandler try_play_map);
 
-  void init_scene() override;
+  void init_scene(Renderer& ren) override;
   void on_key_down_event(SDL_Keycode key) override;
-  int update_scene_logic(FrameStep step) override;
-  void draw_scene(Dimens dimens) override;
+  int update_scene_logic(const FrameStep& step) override;
+  void draw_scene(Renderer& ren) override;
 
 private:
   GameEngine& game_engine_;

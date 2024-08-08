@@ -10,7 +10,7 @@
 
 #include "core/common.h"
 
-#include "core/util.h"
+#include "core/rando.h"
 
 #include "map/dantares_map.h"
 
