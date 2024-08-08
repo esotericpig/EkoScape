@@ -19,6 +19,7 @@
 #include "util.h"
 
 #include <cmath>
+#include <functional>
 
 namespace ekoscape {
 
@@ -73,11 +74,13 @@ public:
     int music_types = MIX_INIT_OGG;
   };
 
+  using SceneBuilder = std::function<std::shared_ptr<Scene>(int type)>;
+
   static const int kFallbackWidth = 1600;
   static const int kFallbackHeight = 900;
   static const int kFallbackFps = 60;
 
-  GameEngine(Scene& main_scene,Config config);
+  GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene);
   GameEngine(const GameEngine& other) = delete;
   GameEngine(GameEngine&& other) noexcept = delete;
 
@@ -88,6 +91,10 @@ public:
   void fetch_size_and_resize();
   void resize();
   void resize(const Size2i& size);
+
+  bool push_scene(int type);
+  bool pop_scene();
+  void pop_all_scenes();
 
   void run();
   void request_stop();
@@ -114,6 +121,11 @@ public:
 
 private:
   Scene& main_scene_;
+  std::shared_ptr<Scene> curr_scene_{std::make_shared<Scene>()}; // Never null.
+  int curr_scene_type_ = 0;
+  std::vector<int> prev_scene_types_{};
+  SceneBuilder build_scene_;
+
   std::string title_{};
   std::unique_ptr<Renderer> renderer_{};
   int target_fps_ = 0;
@@ -130,6 +142,7 @@ private:
   void init_renderer(const Config& config);
   void init_music_player(const Config& config);
 
+  bool set_scene(int type);
   void start_frame_timer();
   void end_frame_timer();
   void handle_events();

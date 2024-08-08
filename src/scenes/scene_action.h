@@ -5,19 +5,20 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_SCENES_SCENE_RESULT_H_
-#define EKOSCAPE_SCENES_SCENE_RESULT_H_
+#ifndef EKOSCAPE_SCENES_SCENE_ACTION_H_
+#define EKOSCAPE_SCENES_SCENE_ACTION_H_
 
 #include "core/common.h"
 
 namespace ekoscape {
 
-namespace SceneResult {
+namespace SceneAction {
   enum {
     kNil = 0,
     kQuit,
-    kMenuScene,
-    kNextScene,
+    kGoBack,
+    kGoToMenu,
+    kGoToGame,
   };
 }
 

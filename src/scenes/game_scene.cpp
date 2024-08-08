@@ -49,8 +49,7 @@ void GameScene::init_map_space(int x,int y,Space&,SpaceType type) {
       robots_.push_back(std::make_unique<RobotWorm>(type,x,y));
       break;
 
-    default:
-      break; // Ignore.
+    default: break; // Ignore.
   }
 }
 
@@ -85,12 +84,8 @@ void GameScene::init_scene(Renderer& /*ren*/) {
   robot_move_timer_.start();
 }
 
-void GameScene::on_key_down_event(SDL_Keycode key) {
-  switch(key) {
-    case SDLK_BACKSPACE:
-      // TODO: Go back to main menu.
-      break;
-  }
+void GameScene::on_key_down_event(SDL_Keycode /*key*/) {
+  // TODO: Use this to press enter for Game Over.
 }
 
 void GameScene::handle_key_states(const Uint8* keys) {
@@ -134,7 +129,7 @@ int GameScene::update_scene_logic(const FrameStep& step) {
         std::cout << "You've unlocked a secret!\n";
       }
 
-      return SceneResult::kMenuScene;
+      return SceneAction::kGoBack;
 
     default:
       if(SpaceTypes::is_robot(player_space_type)) {
@@ -142,7 +137,7 @@ int GameScene::update_scene_logic(const FrameStep& step) {
         printf("You're dead!\nYou freed %d Eko(s) out of a total of %d Eko(s).\n\n"
             ,map_.total_rescues(),map_.total_cells());
 
-        return SceneResult::kMenuScene;
+        return SceneAction::kGoBack;
       }
       break;
   }
@@ -179,7 +174,7 @@ int GameScene::update_scene_logic(const FrameStep& step) {
     robot_move_timer_.start();
   }
 
-  return SceneResult::kNil;
+  return SceneAction::kNil;
 }
 
 void GameScene::draw_scene(Renderer& ren) {

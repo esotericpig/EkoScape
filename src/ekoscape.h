@@ -10,12 +10,13 @@
 
 #include "core/common.h"
 
+#include "core/ekoscape_error.h"
 #include "core/game_engine.h"
 #include "core/scene.h"
 
 #include "scenes/game_scene.h"
 #include "scenes/menu_scene.h"
-#include "scenes/scene_result.h"
+#include "scenes/scene_action.h"
 
 #include "assets.h"
 
@@ -35,15 +36,12 @@ public:
 
   EkoScape(Config config);
 
-  void play_music();
-  void run();
+  std::shared_ptr<Scene> build_scene(int type);
 
-  void init_scene(Renderer& ren) override;
-  void resize_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void run();
+  void play_music();
+
   void on_key_down_event(SDL_Keycode key) override;
-  void handle_key_states(const Uint8* keys) override;
-  int update_scene_logic(const FrameStep& step) override;
-  void draw_scene(Renderer& ren) override;
 
   static void show_error_global(const std::string& error);
 
@@ -51,11 +49,7 @@ private:
   int dantares_dist_ = 0;
 
   std::unique_ptr<Assets> assets_{};
-  std::unique_ptr<Scene> current_scene_{};
-  std::unique_ptr<Scene> next_scene_{};
-
-  std::unique_ptr<MenuScene> build_menu_scene();
-  std::unique_ptr<GameScene> build_game_scene(const std::string& map_file);
+  std::string map_file_{};
 };
 
 } // Namespace.

@@ -35,8 +35,8 @@ GameEngine::Resources::~Resources() noexcept {
   SDL_Quit();
 }
 
-GameEngine::GameEngine(Scene& main_scene,Config config)
-    : main_scene_(main_scene) {
+GameEngine::GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene)
+    : main_scene_(main_scene),build_scene_(build_scene) {
   init_hints(config);
 
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
@@ -203,28 +203,81 @@ void GameEngine::resize(const Size2i& size) {
 
   renderer_->resize(size);
   main_scene_.resize_scene(*renderer_,renderer_->dimens());
+  curr_scene_->resize_scene(*renderer_,renderer_->dimens());
+}
+
+bool GameEngine::push_scene(int type) {
+  int old_type = curr_scene_type_;
+
+  if(!set_scene(type)) { return false; }
+
+  prev_scene_types_.push_back(old_type);
+
+  return true;
+}
+
+bool GameEngine::pop_scene() {
+  while(!prev_scene_types_.empty()) {
+    int prev_type = prev_scene_types_.back();
+    prev_scene_types_.pop_back();
+
+    if(set_scene(prev_type)) { return true; }
+  }
+
+  return false;
+}
+
+void GameEngine::pop_all_scenes() {
+  prev_scene_types_.clear();
+  curr_scene_ = std::make_shared<Scene>();
+  curr_scene_type_ = 0;
+}
+
+bool GameEngine::set_scene(int type) {
+  std::shared_ptr<Scene> scene = build_scene_(type);
+
+  if(!scene) { return false; }
+
+  curr_scene_ = scene;
+  curr_scene_type_ = type;
+
+  curr_scene_->init_scene(*renderer_);
+  curr_scene_->resize_scene(*renderer_,renderer_->dimens());
+
+  return true;
 }
 
 void GameEngine::run() {
   is_running_ = true;
 
   main_scene_.init_scene(*renderer_);
-  fetch_size_and_resize(); // Call after init_scene() because it calls main_scene_'s resize().
+  curr_scene_->init_scene(*renderer_);
+
+  // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
+  //     and also need to call the scenes' resize() after init_scene().
+  fetch_size_and_resize();
 
   while(is_running_) {
     start_frame_timer();
-
     handle_events();
-    main_scene_.handle_key_states(get_key_states());
-    main_scene_.update_scene_logic({dpf_,delta_time_});
+
+    const Uint8* keys = get_key_states();
+    main_scene_.handle_key_states(keys);
+    curr_scene_->handle_key_states(keys);
+
+    const FrameStep& step = {dpf_,delta_time_};
+    main_scene_.update_scene_logic(step);
+    push_scene(curr_scene_->update_scene_logic(step));
 
     // Check if event/scene requested to stop.
     if(!is_running_) { break; }
 
     renderer_->clear_view();
-    main_scene_.draw_scene(*renderer_);
-    SDL_GL_SwapWindow(res_.window);
 
+    main_scene_.draw_scene(*renderer_);
+    curr_scene_->draw_scene(*renderer_);
+
+    SDL_GL_SwapWindow(res_.window);
     end_frame_timer();
   }
 
@@ -263,23 +316,28 @@ void GameEngine::handle_events() {
         request_stop();
         return;
 
-      case SDL_KEYDOWN:
-        if(event.key.keysym.sym == SDLK_ESCAPE) {
+      case SDL_KEYDOWN: {
+        SDL_Keycode key = event.key.keysym.sym;
+
+        if(key == SDLK_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
           request_stop();
           return;
         }
 
-        main_scene_.on_key_down_event(event.key.keysym.sym);
-        break;
+        main_scene_.on_key_down_event(key);
+        curr_scene_->on_key_down_event(key);
+      } break;
 
-      case SDL_KEYUP:
-        if(event.key.keysym.sym == SDLK_ESCAPE) {
+      case SDL_KEYUP: {
+        SDL_Keycode key = event.key.keysym.sym;
+
+        if(key == SDLK_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
           request_stop();
           return;
         }
-        break;
+      } break;
 
       case SDL_WINDOWEVENT:
         switch(event.window.event) {

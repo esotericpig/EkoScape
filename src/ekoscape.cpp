@@ -15,20 +15,48 @@ EkoScape::EkoScape(Config config) {
   config.title = kTitle;
   dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
 
-  game_engine_ = std::make_unique<GameEngine>(*this,config);
+  game_engine_ = std::make_unique<GameEngine>(*this,config
+      ,[&](int action) { return build_scene(action); });
   assets_ = std::make_unique<Assets>(Assets::TexturesType::kRealistic,game_engine_->has_music_player());
+  map_file_ = "assets/maps/classic/tron.txt"; // TODO: Set by callback passed to MenuPlayScene.
 
-  current_scene_ = build_menu_scene();
+  if(!game_engine_->push_scene(SceneAction::kGoToMenu)) {
+    throw EkoScapeError{"Failed to push the Menu Scene onto the stack."};
+  }
 }
 
-std::unique_ptr<MenuScene> EkoScape::build_menu_scene() {
-  return std::make_unique<MenuScene>(*game_engine_,*assets_,[&](const std::string& map_file) {
-    next_scene_ = build_game_scene(map_file);
-  });
-}
+std::shared_ptr<Scene> EkoScape::build_scene(int action) {
+  std::shared_ptr<Scene> scene = nullptr;
 
-std::unique_ptr<GameScene> EkoScape::build_game_scene(const std::string& map_file) {
-  return std::make_unique<GameScene>(*assets_,map_file,dantares_dist_);
+  switch(action) {
+    case SceneAction::kQuit:
+      game_engine_->request_stop();
+      break;
+
+    case SceneAction::kGoBack:
+      if(!game_engine_->pop_scene()) {
+        std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
+        game_engine_->request_stop();
+      }
+      break;
+
+    case SceneAction::kGoToMenu:
+      scene = std::make_shared<MenuScene>(*assets_);
+      break;
+
+    case SceneAction::kGoToGame:
+      try {
+        scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
+      } catch(const EkoScapeError& e) {
+        game_engine_->show_error(e.what());
+        scene = nullptr;
+      }
+      break;
+
+    default: break;
+  }
+
+  return scene;
 }
 
 void EkoScape::run() {
@@ -42,12 +70,6 @@ void EkoScape::play_music() {
   }
 }
 
-void EkoScape::init_scene(Renderer& ren) { current_scene_->init_scene(ren); }
-
-void EkoScape::resize_scene(Renderer& ren,const ViewDimens& dimens) {
-  current_scene_->resize_scene(ren,dimens);
-}
-
 void EkoScape::on_key_down_event(SDL_Keycode key) {
   switch(key) {
     case SDLK_HOME:
@@ -59,51 +81,15 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
     case SDLK_AUDIOSTOP:
       game_engine_->stop_music();
       break;
-  }
 
-  current_scene_->on_key_down_event(key);
-}
-
-void EkoScape::handle_key_states(const Uint8* keys) { current_scene_->handle_key_states(keys); }
-
-int EkoScape::update_scene_logic(const FrameStep& step) {
-  int result = current_scene_->update_scene_logic(step);
-  bool has_new_scene = false;
-
-  switch(result) {
-    case SceneResult::kQuit:
-      game_engine_->request_stop();
-      break;
-
-    case SceneResult::kMenuScene:
-      next_scene_ = nullptr;
-      current_scene_ = build_menu_scene();
-      has_new_scene = true;
-      break;
-
-    case SceneResult::kNextScene:
-      if(next_scene_) {
-        current_scene_ = std::move(next_scene_);
-        next_scene_ = nullptr;
-        has_new_scene = true;
-      } else {
-        game_engine_->show_error("No next scene to go to. Quitting instead.");
+    case SDLK_BACKSPACE:
+      if(!game_engine_->pop_scene()) {
+        std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
         game_engine_->request_stop();
       }
       break;
-
-    default: break;
   }
-
-  if(has_new_scene) {
-    current_scene_->init_scene(game_engine_->renderer());
-    current_scene_->resize_scene(game_engine_->renderer(),game_engine_->dimens());
-  }
-
-  return 0;
 }
-
-void EkoScape::draw_scene(Renderer& ren) { current_scene_->draw_scene(ren); }
 
 void EkoScape::show_error_global(const std::string& error) {
   GameEngine::show_error_global(kTitle,error);

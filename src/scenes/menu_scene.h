@@ -10,21 +10,16 @@
 
 #include "core/common.h"
 
-#include "core/game_engine.h"
 #include "core/scene.h"
 
 #include "assets.h"
-#include "scene_result.h"
-
-#include <functional>
+#include "scene_action.h"
 
 namespace ekoscape {
 
 class MenuScene : public Scene {
 public:
-  using TryPlayMapHandler = std::function<void(const std::string& map_file)>;
-
-  MenuScene(GameEngine& game_engine,Assets& assets,TryPlayMapHandler try_play_map);
+  MenuScene(Assets& assets);
 
   void init_scene(Renderer& ren) override;
   void on_key_down_event(SDL_Keycode key) override;
@@ -32,10 +27,8 @@ public:
   void draw_scene(Renderer& ren) override;
 
 private:
-  GameEngine& game_engine_;
   Assets& assets_;
-  TryPlayMapHandler try_play_map_;
-  int scene_result_ = SceneResult::kNil;
+  int scene_action_ = SceneAction::kNil;
 };
 
 } // Namespace.
