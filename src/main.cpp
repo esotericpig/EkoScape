@@ -77,10 +77,10 @@ int main(int /*argc*/,char** /*argv*/) {
 
     eko = std::make_unique<EkoScape>(config);
   } catch(const EkoScapeError& e) {
-    EkoScape::show_error_globally(e.what());
+    EkoScape::show_error_global(e.what());
     return -1;
   } catch(const std::invalid_argument& e) {
-    EkoScape::show_error_globally(Util::build_string("Invalid argument: ",e.what()));
+    EkoScape::show_error_global(Util::build_string("Invalid argument: ",e.what()));
     return -1;
   }
 

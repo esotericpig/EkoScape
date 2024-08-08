@@ -87,7 +87,7 @@ int EkoScape::update_scene_logic(const FrameStep& step) {
         next_scene_ = nullptr;
         has_new_scene = true;
       } else {
-        show_error_globally("No next scene to go to. Quitting instead.");
+        game_engine_->show_error("No next scene to go to. Quitting instead.");
         game_engine_->request_stop();
       }
       break;
@@ -105,8 +105,8 @@ int EkoScape::update_scene_logic(const FrameStep& step) {
 
 void EkoScape::draw_scene(Renderer& ren) { current_scene_->draw_scene(ren); }
 
-void EkoScape::show_error_globally(const std::string& error) {
-  GameEngine::show_error_globally(kTitle,error);
+void EkoScape::show_error_global(const std::string& error) {
+  GameEngine::show_error_global(kTitle,error);
 }
 
 } // Namespace.

@@ -320,14 +320,14 @@ bool GameEngine::is_music_playing() const {
 const Uint8* GameEngine::get_key_states() const { return SDL_GetKeyboardState(NULL); }
 
 void GameEngine::show_error(const std::string& error) {
-  show_error_globally(title_,error,res_.window);
+  show_error_global(title_,error,res_.window);
 }
 
 void GameEngine::show_error(const std::string& title,const std::string& error) {
-  show_error_globally(title,error,res_.window);
+  show_error_global(title,error,res_.window);
 }
 
-void GameEngine::show_error_globally(const std::string& title,const std::string& error,SDL_Window* window) {
+void GameEngine::show_error_global(const std::string& title,const std::string& error,SDL_Window* window) {
   std::cerr << "[ERROR] " << error << std::endl;
 
   // This can be called before/after SDL_Init()/SDL_Quit().

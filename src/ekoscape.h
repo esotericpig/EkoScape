@@ -45,7 +45,7 @@ public:
   int update_scene_logic(const FrameStep& step) override;
   void draw_scene(Renderer& ren) override;
 
-  static void show_error_globally(const std::string& error);
+  static void show_error_global(const std::string& error);
 
 private:
   int dantares_dist_ = 0;

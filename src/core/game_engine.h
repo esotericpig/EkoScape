@@ -101,7 +101,7 @@ public:
 
   void show_error(const std::string& error);
   void show_error(const std::string& title,const std::string& error);
-  static void show_error_globally(const std::string& title,const std::string& error,SDL_Window* window = NULL);
+  static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
   Scene& main_scene();
   const std::string& title() const;
