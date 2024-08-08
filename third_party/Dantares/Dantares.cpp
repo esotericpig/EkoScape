@@ -21,6 +21,7 @@
     ryan@averagesoftware.com
     www.averagesoftware.com
     www.averagesoftware.com/dantares.html
+    https://phasercat.com
 */
 
 #include "Dantares.h"
@@ -56,7 +57,8 @@ Dantares::Dantares(Dantares &&Other)
 
 Dantares &Dantares::operator = (Dantares &&r)
 {
-    if (this != &r) {
+    if (this != &r)
+    {
         MoveFrom(std::move(r));
     }
 
@@ -1397,7 +1399,8 @@ Dantares::SpaceClass::SpaceClass(SpaceClass &&Other)
 
 Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r)
 {
-    if (this != &r) {
+    if (this != &r)
+    {
         MoveFrom(std::move(r));
     }
 
@@ -1467,7 +1470,8 @@ Dantares::MapClass::MapClass(MapClass &&Other)
 
 Dantares::MapClass &Dantares::MapClass::operator = (MapClass &&r)
 {
-    if (this != &r) {
+    if (this != &r)
+    {
         MoveFrom(std::move(r));
     }
 
