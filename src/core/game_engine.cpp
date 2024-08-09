@@ -229,7 +229,7 @@ bool GameEngine::pop_scene() {
 
 void GameEngine::pop_all_scenes() {
   prev_scene_types_.clear();
-  curr_scene_ = std::make_shared<Scene>();
+  curr_scene_ = std::make_shared<Scene>(); // Never null.
   curr_scene_type_ = 0;
 }
 

@@ -11,7 +11,7 @@ namespace ekoscape {
 
 Color4f::Color4f() {}
 
-Color4f::Color4f(float r,float g,float b,float a) { set_f(r,g,b,a); }
+Color4f::Color4f(GLfloat r,GLfloat g,GLfloat b,GLfloat a) { set_f(r,g,b,a); }
 
 Color4f::Color4f(int r,int g,int b,int a) {
   set_i(
@@ -22,7 +22,7 @@ Color4f::Color4f(int r,int g,int b,int a) {
   );
 }
 
-Color4f& Color4f::set_f(float r,float g,float b,float a) {
+Color4f& Color4f::set_f(GLfloat r,GLfloat g,GLfloat b,GLfloat a) {
   this->r = r;
   this->g = g;
   this->b = b;

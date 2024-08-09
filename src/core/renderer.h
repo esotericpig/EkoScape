@@ -11,7 +11,11 @@
 #include "common.h"
 
 #include "ekoscape_error.h"
+#include "font_atlas.h"
 #include "render_data.h"
+#include "sprite.h"
+#include "sprite_atlas.h"
+#include "texture.h"
 #include "util.h"
 
 namespace ekoscape {
@@ -25,6 +29,31 @@ public:
   void begin_2d_scene();
   void begin_3d_scene();
   void clear_view();
+
+  void begin_texture(const Texture& texture);
+  void end_texture();
+
+  void begin_color(const Color4f& color);
+  void end_color();
+
+  void draw_quad(int x,int y,int width,int height);
+  void draw_quad(const Pos4f& src,int x,int y,int width,int height);
+
+  void draw_quad(const Sprite& sprite,int x,int y);
+  void draw_quad(const Sprite& sprite,int x,int y,int width,int height);
+
+  void draw_quad(const SpriteAtlas& atlas,int index,int x,int y);
+  void draw_quad(const SpriteAtlas& atlas,int index,int x,int y,int width,int height);
+  void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y);
+  void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y,int width,int height);
+
+  // `str` is at end in case have a multi-line string.
+  void draw_str(const FontAtlas& font,int x,int y,const std::string& str);
+  // Using Size2i for `spacing` to prevent ambiguous overloads.
+  void draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing,const std::string& str);
+  void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const std::string& str);
+  void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing
+      ,const std::string& str);
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();
