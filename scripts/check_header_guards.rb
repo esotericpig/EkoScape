@@ -38,9 +38,7 @@ def check_header_guards(src_dir,proj_name=nil)
     end
 
     if !guards_to_find.empty?
-      error = (guards_to_find.length == guards.length) ? 'missing guards?' : 'bad guards'
-
-      puts "'#{file}' -- #{error}"
+      puts "'#{file}'"
       guards.each { |g| puts g }
       puts
     end
