@@ -158,8 +158,16 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
   //    and `dan_x` is to just match it visually.
   for(int y = 0; y < height_; ++y) {
     int dan_y = height_ - 1 - y;
-    const std::string* line = (y < row_count) ? &lines.at(y) : nullptr;
-    const int column_count = static_cast<int>(line->length());
+    const std::string* line;
+    int column_count;
+
+    if(y < row_count) {
+      line = &lines.at(y);
+      column_count = static_cast<int>(line->length());
+    } else {
+      line = nullptr;
+      column_count = 0;
+    }
 
     for(int x = 0; x < width_; ++x) {
       int dan_x = x;
