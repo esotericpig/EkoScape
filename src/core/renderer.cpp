@@ -211,6 +211,38 @@ void Renderer::draw_str(const FontAtlas& font,int x,int y,int char_width,int cha
   }
 }
 
+void Renderer::draw_strs(const FontAtlas& font,int x,int y,const std::vector<tiny_utf8::string>& lines) {
+  draw_strs(font,x,y,font.spacing(),lines);
+}
+
+void Renderer::draw_strs(const FontAtlas& font,int x,int y,const Size2i& spacing
+    ,const std::vector<tiny_utf8::string>& lines) {
+  draw_strs(font,x,y,font.cell_size().w,font.cell_size().h,spacing,lines);
+}
+
+void Renderer::draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height
+    ,const std::vector<tiny_utf8::string>& lines) {
+  draw_strs(font,x,y,char_width,char_height,font.spacing(),lines);
+}
+
+void Renderer::draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height
+    ,const Size2i& spacing,const std::vector<tiny_utf8::string>& lines) {
+  const int x_spacing = char_width + spacing.w;
+  const int y_spacing = char_height + spacing.h;
+  int char_x = x;
+  int char_y = y;
+
+  for(auto line: lines) {
+    for(auto c: line) {
+      draw_quad(font,font.char_index(c),char_x,char_y,char_width,char_height);
+      char_x += x_spacing;
+    }
+
+    char_x = x;
+    char_y += y_spacing;
+  }
+}
+
 const ViewDimens& Renderer::dimens() const { return dimens_; }
 
 Color4f& Renderer::clear_color() { return clear_color_; }

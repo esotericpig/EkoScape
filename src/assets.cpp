@@ -9,6 +9,8 @@
 
 namespace ekoscape {
 
+const std::string Assets::kAssetsDir = "assets";
+
 Assets::Assets(TexturesType textures_type,bool has_music_player)
     : has_music_player_(has_music_player) {
   reload_textures(textures_type);
@@ -22,52 +24,83 @@ void Assets::reload_textures() {
 void Assets::reload_textures(TexturesType type) {
   textures_type_ = type;
 
-  std::string dir = "assets/textures/";
+  const std::string img_dir = kAssetsDir + "/images";
+  const std::string tex_dir = build_textures_dir();
 
-  switch(textures_type_) {
-    case TexturesType::kRealistic:
-      dir += "realistic";
-      break;
-
-    default:
-      dir += "classic";
-      break;
-  }
-  dir += '/';
-
-  ceiling_texture_ = std::make_unique<Texture>(Image{dir + "ceiling.png"});
-  cell_texture_ = std::make_unique<Texture>(Image{dir + "cell.png"});
-  end_texture_ = std::make_unique<Texture>(Image{dir + "end.png"});
-  floor_texture_ = std::make_unique<Texture>(Image{dir + "floor.png"});
-  robot_texture_ = std::make_unique<Texture>(Image{dir + "robot.png"});
-  wall_texture_ = std::make_unique<Texture>(Image{dir + "wall.png"});
+  ceiling_texture_ = std::make_unique<Texture>(Image{tex_dir + "/ceiling.png"});
+  cell_texture_ = std::make_unique<Texture>(Image{tex_dir + "/cell.png"});
+  end_texture_ = std::make_unique<Texture>(Image{tex_dir + "/end.png"});
+  floor_texture_ = std::make_unique<Texture>(Image{tex_dir + "/floor.png"});
+  robot_texture_ = std::make_unique<Texture>(Image{tex_dir + "/robot.png"});
+  wall_texture_ = std::make_unique<Texture>(Image{tex_dir + "/wall.png"});
   white_texture_ = std::make_unique<Texture>(255,255,255,255);
+
+  font_texture_ = std::make_unique<Texture>(Image{img_dir + "/font_monogram.png"});
+  font_atlas_ = std::make_unique<FontAtlas>(
+    FontAtlas::Builder{*font_texture_}
+      .offset(0,0)
+      .cell_size(9,14)
+      .cell_padding(2)
+      .spacing(5,5)
+      .default_index(0)
+      .index_to_char({
+        R"( !"#$%&'()*+,-./)",
+        R"(0123456789:;<=>?)",
+        R"(@ABCDEFGHIJKLMNO)",
+        R"(PQRSTUVWXYZ[\]^_)",
+        R"(`abcdefghijklmno)",
+        R"(pqrstuvwxyz{|}~…)",
+        R"(¿¡←↑→↓©®×÷±«¤»¬¯)",
+        R"(₀₁₂₃₄₅₆₇₈₉°ªº£¥¢)",
+      })
+      .build()
+  );
 }
 
 void Assets::reload_music() {
   if(!has_music_player_) { return; }
 
   try {
-    //music_ = std::make_unique<Music>("assets/music/matrix.mid");
+    //music_ = std::make_unique<Music>(kAssetsDir + "/music/matrix.mid");
   } catch(const EkoScapeError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     // Don't fail, since music is optional.
   }
 }
 
-const Texture& Assets::ceiling_texture() const { return *ceiling_texture_.get(); }
+std::string Assets::build_textures_dir() const {
+  std::string dir = kAssetsDir + "/textures";
 
-const Texture& Assets::cell_texture() const { return *cell_texture_.get(); }
+  switch(textures_type_) {
+    case TexturesType::kRealistic:
+      dir += "/realistic";
+      break;
 
-const Texture& Assets::end_texture() const { return *end_texture_.get(); }
+    default:
+      dir += "/classic";
+      break;
+  }
 
-const Texture& Assets::floor_texture() const { return *floor_texture_.get(); }
+  return dir;
+}
 
-const Texture& Assets::robot_texture() const { return *robot_texture_.get(); }
+const Texture& Assets::ceiling_texture() const { return *ceiling_texture_; }
 
-const Texture& Assets::wall_texture() const { return *wall_texture_.get(); }
+const Texture& Assets::cell_texture() const { return *cell_texture_; }
 
-const Texture& Assets::white_texture() const { return *white_texture_.get(); }
+const Texture& Assets::end_texture() const { return *end_texture_; }
+
+const Texture& Assets::floor_texture() const { return *floor_texture_; }
+
+const Texture& Assets::robot_texture() const { return *robot_texture_; }
+
+const Texture& Assets::wall_texture() const { return *wall_texture_; }
+
+const Texture& Assets::white_texture() const { return *white_texture_; }
+
+const Texture& Assets::font_texture() const { return *font_texture_; }
+
+const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
 
 const Music* Assets::music() const { return music_.get(); }
 

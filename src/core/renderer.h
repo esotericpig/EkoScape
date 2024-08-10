@@ -18,6 +18,8 @@
 #include "texture.h"
 #include "util.h"
 
+#include <vector>
+
 #include <tinyutf8/tinyutf8.h>
 
 namespace ekoscape {
@@ -57,6 +59,14 @@ public:
       ,const tiny_utf8::string& str);
   void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing
       ,const tiny_utf8::string& str);
+
+  void draw_strs(const FontAtlas& font,int x,int y,const std::vector<tiny_utf8::string>& lines);
+  void draw_strs(const FontAtlas& font,int x,int y,const Size2i& spacing
+      ,const std::vector<tiny_utf8::string>& lines);
+  void draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height
+      ,const std::vector<tiny_utf8::string>& lines);
+  void draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing
+      ,const std::vector<tiny_utf8::string>& lines);
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();

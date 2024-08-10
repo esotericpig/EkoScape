@@ -66,12 +66,19 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const tiny_utf8::string& s
 
 FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf8::string>& lines) {
   int index = 0;
+  int column_count = 0;
 
   for(auto& line: lines) {
+    int len = static_cast<int>(line.length());
+    if(len > column_count) { column_count = len; }
+
     for(auto c: line) {
       char_to_index_[c] = index++;
     }
   }
+
+  if(grid_size_.w == 0) { grid_size_.w = column_count; }
+  if(grid_size_.h == 0) { grid_size_.h = static_cast<int>(lines.size()); }
 
   return *this;
 }
