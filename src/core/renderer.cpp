@@ -178,21 +178,22 @@ void Renderer::draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y
   draw_quad(*src,x,y,width,height);
 }
 
-void Renderer::draw_str(const FontAtlas& font,int x,int y,const std::string& str) {
+void Renderer::draw_str(const FontAtlas& font,int x,int y,const tiny_utf8::string& str) {
   draw_str(font,x,y,font.spacing(),str);
 }
 
-void Renderer::draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing,const std::string& str) {
+void Renderer::draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing
+    ,const tiny_utf8::string& str) {
   draw_str(font,x,y,font.cell_size().w,font.cell_size().h,spacing,str);
 }
 
 void Renderer::draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
-    ,const std::string& str) {
+    ,const tiny_utf8::string& str) {
   draw_str(font,x,y,char_width,char_height,font.spacing(),str);
 }
 
 void Renderer::draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
-    ,const Size2i& spacing,const std::string& str) {
+    ,const Size2i& spacing,const tiny_utf8::string& str) {
   const int x_spacing = char_width + spacing.w;
   const int y_spacing = char_height + spacing.h;
   int char_x = x;

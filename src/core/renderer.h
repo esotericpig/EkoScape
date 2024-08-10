@@ -18,6 +18,8 @@
 #include "texture.h"
 #include "util.h"
 
+#include <tinyutf8/tinyutf8.h>
+
 namespace ekoscape {
 
 class Renderer {
@@ -48,12 +50,13 @@ public:
   void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y,int width,int height);
 
   // `str` is at end in case have a multi-line string.
-  void draw_str(const FontAtlas& font,int x,int y,const std::string& str);
+  void draw_str(const FontAtlas& font,int x,int y,const tiny_utf8::string& str);
   // Using Size2i for `spacing` to prevent ambiguous overloads.
-  void draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing,const std::string& str);
-  void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const std::string& str);
+  void draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing,const tiny_utf8::string& str);
+  void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
+      ,const tiny_utf8::string& str);
   void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing
-      ,const std::string& str);
+      ,const tiny_utf8::string& str);
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();

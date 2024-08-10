@@ -54,7 +54,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int column,int row) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::string& str) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_char(const tiny_utf8::string& str) {
   int index = 0;
 
   for(auto c: str) {
@@ -64,7 +64,7 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::string& str) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<std::string>& lines) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf8::string>& lines) {
   int index = 0;
 
   for(auto& line: lines) {
@@ -90,7 +90,7 @@ FontAtlas::FontAtlas(const Builder& builder)
 
 const Size2i& FontAtlas::spacing() const { return spacing_; }
 
-int FontAtlas::char_index(char c) const {
+int FontAtlas::char_index(char32_t c) const {
   auto it = char_to_index_.find(c);
 
   if(it == char_to_index_.end()) { return default_index_; }
