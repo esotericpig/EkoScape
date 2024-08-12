@@ -13,11 +13,15 @@
 //#define DANTARES_MACOS
 //#define DANTARES_WINDOWS
 
+#include <array>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
+
+#include <tinyutf8/tinyutf8.h>
 
 #include <GL/glew.h>
 #include <GL/glu.h>

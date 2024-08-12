@@ -13,13 +13,15 @@
 #include "ekoscape_error.h"
 #include "util.h"
 
+#include <filesystem>
+
 namespace ekoscape {
 
 class GameEngine;
 
 class Music {
 public:
-  Music(const std::string& file);
+  Music(const std::filesystem::path& file);
   Music(const Music& other) = delete;
   Music(Music&& other) noexcept;
   virtual ~Music() noexcept;

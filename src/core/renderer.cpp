@@ -99,6 +99,10 @@ void Renderer::begin_texture(const Texture& texture) {
   glBindTexture(GL_TEXTURE_2D,texture.id());
 }
 
+void Renderer::begin_texture(const TextureBag& bag) {
+  begin_texture(bag.texture());
+}
+
 void Renderer::end_texture() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);

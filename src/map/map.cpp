@@ -11,7 +11,7 @@ namespace ekoscape {
 
 const Duration Map::kMinRobotDelay = Duration::from_millis(110);
 
-bool Map::is_map_file(const std::string& file) {
+bool Map::is_map_file(const std::filesystem::path& file) {
   try {
     TextReader reader{file,24}; // Buffer size based on: "[EkoScape/v1999]\r\n"
     std::string line{};
@@ -27,7 +27,7 @@ bool Map::is_map_file(const std::string& file) {
   }
 }
 
-Map& Map::load_file(const std::string& file) {
+Map& Map::load_file(const std::filesystem::path& file) {
   TextReader reader{file};
   std::string line{};
   char data_c = 0;

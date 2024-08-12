@@ -38,16 +38,25 @@ Pos4f Sprite::build_src(const Texture& texture,const Pos2i& offset,const Size2i&
   return src;
 }
 
-Sprite::Sprite(const Texture& texture,int padding)
+Sprite::Sprite(Texture&& texture,int padding)
+    : Sprite(std::make_shared<Texture>(std::move(texture)),padding) {}
+
+Sprite::Sprite(Texture&& texture,const Pos2i& offset,const Size2i& size,int padding)
+    : Sprite(std::make_shared<Texture>(std::move(texture)),offset,size,padding) {}
+
+Sprite::Sprite(std::shared_ptr<Texture> texture,int padding)
     : Sprite(texture,{0,0},{0,0},padding) {}
 
-Sprite::Sprite(const Texture& texture,const Pos2i& offset,const Size2i& size,int padding) {
+Sprite::Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i& size,int padding)
+    : texture_(texture) {
   const int p2 = padding * 2;
 
-  size_.w = (size.w > 0) ? size.w : (texture.width() - p2 - offset.x);
-  size_.h = (size.h > 0) ? size.h : (texture.height() - p2 - offset.y);
-  src_ = build_src(texture,offset,size_,padding);
+  size_.w = (size.w > 0) ? size.w : (texture_->width() - p2 - offset.x);
+  size_.h = (size.h > 0) ? size.h : (texture_->height() - p2 - offset.y);
+  src_ = build_src(*texture_,offset,size_,padding);
 }
+
+const Texture& Sprite::texture() const { return *texture_; }
 
 const Pos4f& Sprite::src() const { return src_; }
 

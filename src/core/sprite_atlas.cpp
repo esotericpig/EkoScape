@@ -9,7 +9,10 @@
 
 namespace ekoscape {
 
-SpriteAtlas::Builder::Builder(const Texture& texture)
+SpriteAtlas::Builder::Builder(Texture&& texture)
+    : Builder(std::make_shared<Texture>(std::move(texture))) {}
+
+SpriteAtlas::Builder::Builder(std::shared_ptr<Texture> texture)
     : texture_(texture) {}
 
 SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas(*this); }
@@ -38,7 +41,8 @@ SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int columns,int rows) {
 }
 
 SpriteAtlas::SpriteAtlas(const Builder& builder)
-    : grid_size_(builder.grid_size_)
+    : texture_(builder.texture_)
+      ,grid_size_(builder.grid_size_)
       ,cell_count_(grid_size_.w * grid_size_.h)
       ,index_to_src_(cell_count_) {
   const int p2 = builder.cell_padding_ * 2;
@@ -52,15 +56,16 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
   for(int i = 0; i < cell_count_; ++i) {
     const int column = i % grid_size_.w;
     const int row = i / grid_size_.w;
-
     const Pos2i offset{
       x_offset + (builder.cell_size_.w * column),
-      y_offset + (builder.cell_size_.h * row)
+      y_offset + (builder.cell_size_.h * row),
     };
 
-    index_to_src_.at(i) = Sprite::build_src(builder.texture_,offset,cell_size_);
+    index_to_src_.at(i) = Sprite::build_src(*texture_,offset,cell_size_);
   }
 }
+
+const Texture& SpriteAtlas::texture() const { return *texture_; }
 
 const Pos4f* SpriteAtlas::src(int index) const {
   if(index < 0 || index >= cell_count_) { return nullptr; }

@@ -14,26 +14,29 @@
 #include "core/font_atlas.h"
 #include "core/image.h"
 #include "core/music.h"
+#include "core/sprite.h"
 #include "core/texture.h"
+
+#include "styled_graphics.h"
+
+#include <filesystem>
 
 namespace ekoscape {
 
 class Assets {
 public:
-  enum class TexturesType {
-    kClassic,
-    kRealistic,
-  };
+  static const std::filesystem::path kAssetsDir;
 
-  static const std::string kAssetsDir;
+  Assets(StyledGraphics::Style graphics_style,bool has_music_player);
 
-  Assets(TexturesType textures_type,bool has_music_player);
-
-  void reload_textures();
-  void reload_textures(TexturesType type);
+  void reload_graphics();
   void reload_music();
 
-  std::string build_textures_dir() const;
+  const std::string& prev_graphics_style();
+  const std::string& next_graphics_style();
+
+  StyledGraphics::Style graphics_style() const;
+  const std::string& graphics_style_name() const;
 
   const Texture& ceiling_texture() const;
   const Texture& cell_texture() const;
@@ -43,26 +46,21 @@ public:
   const Texture& wall_texture() const;
   const Texture& white_texture() const;
 
-  const Texture& font_texture() const;
+  const Sprite& logo_sprite() const;
   const FontAtlas& font_atlas() const;
 
   const Music* music() const;
 
 private:
-  TexturesType textures_type_ = TexturesType::kClassic;
-  std::unique_ptr<Texture> ceiling_texture_{};
-  std::unique_ptr<Texture> cell_texture_{};
-  std::unique_ptr<Texture> end_texture_{};
-  std::unique_ptr<Texture> floor_texture_{};
-  std::unique_ptr<Texture> robot_texture_{};
-  std::unique_ptr<Texture> wall_texture_{};
-  std::unique_ptr<Texture> white_texture_{};
+  StyledGraphics styled_graphics_;
+  const bool has_music_player_;
 
-  std::unique_ptr<Texture> font_texture_{};
+  std::unique_ptr<Sprite> logo_sprite_{};
   std::unique_ptr<FontAtlas> font_atlas_{};
 
-  const bool has_music_player_;
   std::unique_ptr<Music> music_{};
+
+  void reload_images();
 };
 
 } // Namespace.

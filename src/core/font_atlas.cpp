@@ -9,7 +9,10 @@
 
 namespace ekoscape {
 
-FontAtlas::Builder::Builder(const Texture& texture)
+FontAtlas::Builder::Builder(Texture&& texture)
+    : Base(std::move(texture)) {}
+
+FontAtlas::Builder::Builder(std::shared_ptr<Texture> texture)
     : Base(texture) {}
 
 FontAtlas FontAtlas::Builder::build() { return FontAtlas{*this}; }
@@ -58,7 +61,8 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const tiny_utf8::string& s
   int index = 0;
 
   for(auto c: str) {
-    char_to_index_[c] = index++;
+    char_to_index_[c] = index;
+    ++index;
   }
 
   return *this;
@@ -73,7 +77,8 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf
     if(len > column_count) { column_count = len; }
 
     for(auto c: line) {
-      char_to_index_[c] = index++;
+      char_to_index_[c] = index;
+      ++index;
     }
   }
 

@@ -15,15 +15,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include <tinyutf8/tinyutf8.h>
-
 namespace ekoscape {
 
 class FontAtlas : public SpriteAtlas {
 public:
   class Builder : public SpriteAtlas::Builder {
   public:
-    Builder(const Texture& texture);
+    Builder(Texture&& texture);
+    Builder(std::shared_ptr<Texture> texture);
 
     FontAtlas build();
 

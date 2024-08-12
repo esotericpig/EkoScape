@@ -11,24 +11,28 @@
 #include "common.h"
 
 #include "render_data.h"
-#include "texture.h"
+#include "texture_bag.h"
 
 namespace ekoscape {
 
 class Renderer;
 
-class Sprite {
+class Sprite : public TextureBag {
 public:
   static Pos4f build_src(const Texture& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
 
-  Sprite(const Texture& texture,int padding = 0);
-  Sprite(const Texture& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
+  Sprite(Texture&& texture,int padding = 0);
+  Sprite(Texture&& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
+  Sprite(std::shared_ptr<Texture> texture,int padding = 0);
+  Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i& size,int padding = 0);
   virtual ~Sprite() noexcept = default;
 
+  const Texture& texture() const override;
   const Pos4f& src() const;
   const Size2i& size() const;
 
 protected:
+  std::shared_ptr<Texture> texture_;
   Pos4f src_{};
   Size2i size_{};
 };

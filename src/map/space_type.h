@@ -48,7 +48,7 @@ enum class SpaceType : char {
 };
 
 namespace SpaceTypes {
-  const SpaceType kDefault = SpaceType::kDeadSpace;
+  inline const SpaceType kDefault = SpaceType::kDeadSpace;
 
   bool is_player(SpaceType type);
   bool is_robot(SpaceType type);

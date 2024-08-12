@@ -21,13 +21,14 @@
 #include "assets.h"
 #include "scene_action.h"
 
+#include <filesystem>
 #include <vector>
 
 namespace ekoscape {
 
 class GameScene : public Scene {
 public:
-  GameScene(const Assets& assets,const std::string& map_file,int dantares_dist);
+  GameScene(const Assets& assets,const std::filesystem::path& map_file,int dantares_dist);
 
   void init_scene(Renderer& ren) override;
   void on_key_down_event(SDL_Keycode key) override;
@@ -51,7 +52,7 @@ private:
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
 
-  void load_map(const std::string& file);
+  void load_map(const std::filesystem::path& file);
   void init_map_space(int x,int y,Space&,SpaceType type);
   void generate_map();
 

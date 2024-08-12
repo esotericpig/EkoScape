@@ -9,13 +9,13 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(const Assets& assets,const std::string& map_file,int dantares_dist)
+GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,int dantares_dist)
     : assets_(assets),dantares_dist_(dantares_dist) {
   load_map(map_file);
   generate_map();
 }
 
-void GameScene::load_map(const std::string& file) {
+void GameScene::load_map(const std::filesystem::path& file) {
   map_.load_file(file);
 
   std::cout << "[INFO] Map file: '" << file << "'\n";

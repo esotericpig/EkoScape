@@ -9,13 +9,16 @@
 
 namespace ekoscape {
 
-TextReaderBuf::TextReaderBuf(const std::string& file,std::size_t buffer_size) {
+TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size) {
+  const std::u8string file_str = file.u8string();
+  const char* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
+
   init(buffer_size);
 
-  context_ = SDL_RWFromFile(file.c_str(),"r");
+  context_ = SDL_RWFromFile(file_cstr,"r");
 
   if(context_ == NULL) {
-    throw EkoScapeError{Util::build_string("Failed to open file [",file,"] for reading: "
+    throw EkoScapeError{Util::build_string("Failed to open file [",file_cstr,"] for reading: "
         ,Util::get_sdl_error(),'.')};
   }
 

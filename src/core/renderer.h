@@ -16,11 +16,10 @@
 #include "sprite.h"
 #include "sprite_atlas.h"
 #include "texture.h"
+#include "texture_bag.h"
 #include "util.h"
 
 #include <vector>
-
-#include <tinyutf8/tinyutf8.h>
 
 namespace ekoscape {
 
@@ -35,6 +34,7 @@ public:
   void clear_view();
 
   void begin_texture(const Texture& texture);
+  void begin_texture(const TextureBag& bag);
   void end_texture();
 
   void begin_color(const Color4f& color);
@@ -51,10 +51,16 @@ public:
   void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y);
   void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y,int width,int height);
 
-  // `str` is at end in case have a multi-line string.
+  /**
+   * `str` is at end in case have a multi-line string.
+   */
   void draw_str(const FontAtlas& font,int x,int y,const tiny_utf8::string& str);
-  // Using Size2i for `spacing` to prevent ambiguous overloads.
+
+  /**
+   * Using Size2i for `spacing` to prevent ambiguous overloads.
+   */
   void draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing,const tiny_utf8::string& str);
+
   void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
       ,const tiny_utf8::string& str);
   void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing

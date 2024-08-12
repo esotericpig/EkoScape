@@ -19,6 +19,7 @@
 #include "space.h"
 #include "space_type.h"
 
+#include <filesystem>
 #include <regex>
 #include <vector>
 
@@ -58,11 +59,11 @@ public:
   static const int kMaxSupportedVersion = 1;
   static const Duration kMinRobotDelay;
 
-  static bool is_map_file(const std::string& file);
+  static bool is_map_file(const std::filesystem::path& file);
 
   virtual ~Map() noexcept = default;
 
-  Map& load_file(const std::string& file);
+  Map& load_file(const std::filesystem::path& file);
   Map& parse_grid(const std::vector<std::string>& lines,int width = 0,int height = 0);
   virtual Map& clear_spaces();
 

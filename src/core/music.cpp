@@ -9,11 +9,14 @@
 
 namespace ekoscape {
 
-Music::Music(const std::string& file) {
-  music_ = Mix_LoadMUS(file.c_str());
+Music::Music(const std::filesystem::path& file) {
+  const std::u8string file_str = file.u8string();
+  const char* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
+
+  music_ = Mix_LoadMUS(file_cstr);
 
   if(music_ == NULL) {
-    throw EkoScapeError{Util::build_string("Failed to load music [",file,"]: "
+    throw EkoScapeError{Util::build_string("Failed to load music [",file_cstr,"]: "
         ,Util::get_sdl_mix_error(),'.')};
   }
 }

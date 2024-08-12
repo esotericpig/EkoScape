@@ -12,6 +12,7 @@
 
 #include "text_reader_buf.h"
 
+#include <filesystem>
 #include <istream>
 
 namespace ekoscape {
@@ -24,7 +25,7 @@ namespace ekoscape {
  */
 class TextReader {
 public:
-  TextReader(const std::string& file,std::size_t buffer_size = TextReaderBuf::kDefaultInitBufferSize);
+  TextReader(const std::filesystem::path& file,std::size_t buffer_size = TextReaderBuf::kDefaultInitBufferSize);
 
   bool read_line(std::string& line);
 

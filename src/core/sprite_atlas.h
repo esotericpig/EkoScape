@@ -12,17 +12,18 @@
 
 #include "render_data.h"
 #include "sprite.h"
-#include "texture.h"
+#include "texture_bag.h"
 
 #include <vector>
 
 namespace ekoscape {
 
-class SpriteAtlas {
+class SpriteAtlas : public TextureBag {
 public:
   class Builder {
   public:
-    Builder(const Texture& texture);
+    Builder(Texture&& texture);
+    Builder(std::shared_ptr<Texture> texture);
     virtual ~Builder() noexcept = default;
 
     SpriteAtlas build();
@@ -35,7 +36,7 @@ public:
     friend class SpriteAtlas;
 
   protected:
-    const Texture& texture_;
+    std::shared_ptr<Texture> texture_;
     Pos2i offset_{};
     Size2i cell_size_{};
     int cell_padding_ = 0;
@@ -44,6 +45,7 @@ public:
 
   virtual ~SpriteAtlas() noexcept = default;
 
+  const Texture& texture() const override;
   const Pos4f* src(int index) const;
   const Pos4f* src(int column,int row) const;
   const Size2i& cell_size() const;
@@ -51,6 +53,7 @@ public:
   int cell_count() const;
 
 protected:
+  std::shared_ptr<Texture> texture_;
   Size2i cell_size_{};
   Size2i grid_size_;
   int cell_count_;

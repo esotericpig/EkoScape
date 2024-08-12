@@ -126,9 +126,7 @@ void GameEngine::init_gui(const Config& config) {
   if(res_.context == NULL) {
     throw EkoScapeError{Util::build_string("Failed to create OpenGL context: ",Util::get_sdl_error(),'.')};
   }
-}
 
-void GameEngine::init_renderer(const Config& config) {
   GLenum error = glewInit();
 
   if(error != GLEW_OK) {
@@ -137,7 +135,9 @@ void GameEngine::init_renderer(const Config& config) {
   }
 
   if(config.vsync) { set_vsync(true); }
+}
 
+void GameEngine::init_renderer(const Config& config) {
   renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
 }
 
@@ -207,11 +207,11 @@ void GameEngine::resize(const Size2i& size) {
 }
 
 bool GameEngine::push_scene(int type) {
-  int old_type = curr_scene_type_;
+  int prev_type = curr_scene_type_;
 
   if(!set_scene(type)) { return false; }
 
-  prev_scene_types_.push_back(old_type);
+  prev_scene_types_.push_back(prev_type);
 
   return true;
 }

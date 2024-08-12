@@ -17,8 +17,8 @@ EkoScape::EkoScape(Config config) {
 
   game_engine_ = std::make_unique<GameEngine>(*this,config
       ,[&](int action) { return build_scene(action); });
-  assets_ = std::make_unique<Assets>(Assets::TexturesType::kRealistic,game_engine_->has_music_player());
-  map_file_ = "assets/maps/classic/tron.txt"; // TODO: Set by callback passed to MenuPlayScene.
+  assets_ = std::make_unique<Assets>(StyledGraphics::Style::kRealistic,game_engine_->has_music_player());
+  map_file_ = "assets/maps/classic/castles_garden.txt"; // TODO: Set by callback passed to MenuPlayScene.
 
   if(!game_engine_->push_scene(SceneAction::kGoToMenu)) {
     throw EkoScapeError{"Failed to push the Menu Scene onto the stack."};

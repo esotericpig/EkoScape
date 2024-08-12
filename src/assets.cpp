@@ -9,35 +9,25 @@
 
 namespace ekoscape {
 
-const std::string Assets::kAssetsDir = "assets";
+const std::filesystem::path Assets::kAssetsDir = "assets";
 
-Assets::Assets(TexturesType textures_type,bool has_music_player)
-    : has_music_player_(has_music_player) {
-  reload_textures(textures_type);
+Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player)
+    : styled_graphics_(kAssetsDir,graphics_style),has_music_player_(has_music_player) {
+  reload_graphics();
   reload_music();
 }
 
-void Assets::reload_textures() {
-  reload_textures(textures_type_);
+void Assets::reload_graphics() {
+  styled_graphics_.reload();
+  reload_images();
 }
 
-void Assets::reload_textures(TexturesType type) {
-  textures_type_ = type;
+void Assets::reload_images() {
+  const std::filesystem::path img_dir = kAssetsDir / "images";
 
-  const std::string img_dir = kAssetsDir + "/images";
-  const std::string tex_dir = build_textures_dir();
-
-  ceiling_texture_ = std::make_unique<Texture>(Image{tex_dir + "/ceiling.png"});
-  cell_texture_ = std::make_unique<Texture>(Image{tex_dir + "/cell.png"});
-  end_texture_ = std::make_unique<Texture>(Image{tex_dir + "/end.png"});
-  floor_texture_ = std::make_unique<Texture>(Image{tex_dir + "/floor.png"});
-  robot_texture_ = std::make_unique<Texture>(Image{tex_dir + "/robot.png"});
-  wall_texture_ = std::make_unique<Texture>(Image{tex_dir + "/wall.png"});
-  white_texture_ = std::make_unique<Texture>(255,255,255,255);
-
-  font_texture_ = std::make_unique<Texture>(Image{img_dir + "/font_monogram.png"});
+  logo_sprite_ = std::make_unique<Sprite>(Texture{Image{img_dir / "ekoscape.png"}});
   font_atlas_ = std::make_unique<FontAtlas>(
-    FontAtlas::Builder{*font_texture_}
+    FontAtlas::Builder{Texture{Image{img_dir / "font_monogram.png"}}}
       .offset(0,0)
       .cell_size(9,14)
       .cell_padding(2)
@@ -61,44 +51,36 @@ void Assets::reload_music() {
   if(!has_music_player_) { return; }
 
   try {
-    //music_ = std::make_unique<Music>(kAssetsDir + "/music/matrix.mid");
+    //music_ = std::make_unique<Music>(kAssetsDir / "music/matrix.mid");
   } catch(const EkoScapeError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     // Don't fail, since music is optional.
   }
 }
 
-std::string Assets::build_textures_dir() const {
-  std::string dir = kAssetsDir + "/textures";
+const std::string& Assets::prev_graphics_style() { return styled_graphics_.prev_style(); }
 
-  switch(textures_type_) {
-    case TexturesType::kRealistic:
-      dir += "/realistic";
-      break;
+const std::string& Assets::next_graphics_style() { return styled_graphics_.next_style(); }
 
-    default:
-      dir += "/classic";
-      break;
-  }
+StyledGraphics::Style Assets::graphics_style() const { return styled_graphics_.style(); }
 
-  return dir;
-}
+const std::string& Assets::graphics_style_name() const { return styled_graphics_.style_name(); }
 
-const Texture& Assets::ceiling_texture() const { return *ceiling_texture_; }
+const Texture& Assets::ceiling_texture() const { return *styled_graphics_.graphics().ceiling_texture; }
 
-const Texture& Assets::cell_texture() const { return *cell_texture_; }
+const Texture& Assets::cell_texture() const { return *styled_graphics_.graphics().cell_texture; }
 
-const Texture& Assets::end_texture() const { return *end_texture_; }
+const Texture& Assets::end_texture() const { return *styled_graphics_.graphics().end_texture; }
 
-const Texture& Assets::floor_texture() const { return *floor_texture_; }
+const Texture& Assets::floor_texture() const { return *styled_graphics_.graphics().floor_texture; }
 
-const Texture& Assets::robot_texture() const { return *robot_texture_; }
+const Texture& Assets::robot_texture() const { return *styled_graphics_.graphics().robot_texture; }
 
-const Texture& Assets::wall_texture() const { return *wall_texture_; }
+const Texture& Assets::wall_texture() const { return *styled_graphics_.graphics().wall_texture; }
 
-const Texture& Assets::white_texture() const { return *white_texture_; }
+const Texture& Assets::white_texture() const { return *styled_graphics_.graphics().white_texture; }
 
-const Texture& Assets::font_texture() const { return *font_texture_; }
+const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
 
 const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
 

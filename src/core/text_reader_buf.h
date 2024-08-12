@@ -14,6 +14,7 @@
 #include "util.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <streambuf>
 #include <vector>
 
@@ -37,7 +38,7 @@ public:
    */
   static const std::size_t kDefaultInitBufferSize = 1024;
 
-  TextReaderBuf(const std::string& file,std::size_t buffer_size = kDefaultInitBufferSize);
+  TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = kDefaultInitBufferSize);
   TextReaderBuf(const TextReaderBuf& other) = delete;
   TextReaderBuf(TextReaderBuf&& other) noexcept;
   virtual ~TextReaderBuf() noexcept;

@@ -20,6 +20,8 @@
 
 #include "assets.h"
 
+#include <filesystem>
+
 namespace ekoscape {
 
 class EkoScape : public Scene {
@@ -49,7 +51,7 @@ private:
   int dantares_dist_ = 0;
 
   std::unique_ptr<Assets> assets_{};
-  std::string map_file_{};
+  std::filesystem::path map_file_{};
 };
 
 } // Namespace.

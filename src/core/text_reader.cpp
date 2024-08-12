@@ -9,7 +9,7 @@
 
 namespace ekoscape {
 
-TextReader::TextReader(const std::string& file,std::size_t buffer_size)
+TextReader::TextReader(const std::filesystem::path& file,std::size_t buffer_size)
     : buf_(file,buffer_size),in_(&buf_) {}
 
 bool TextReader::read_line(std::string& line) {
