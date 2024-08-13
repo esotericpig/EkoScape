@@ -26,9 +26,9 @@ Timer& Timer::end() {
   return *this;
 }
 
-Uint32 Timer::start_time() const { return start_time_; }
+std::uint32_t Timer::start_time() const { return start_time_; }
 
-Uint32 Timer::end_time() const { return end_time_; }
+std::uint32_t Timer::end_time() const { return end_time_; }
 
 const Duration& Timer::duration() const { return duration_; }
 

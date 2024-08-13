@@ -277,7 +277,7 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,const Size
 
 Renderer& Renderer::begin_texture(const Texture& texture) {
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D,texture.id());
+  glBindTexture(GL_TEXTURE_2D,texture.gl_id());
 
   return *this;
 }

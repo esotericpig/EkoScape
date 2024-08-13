@@ -12,6 +12,7 @@
 
 #include "ekoscape_error.h"
 #include "image.h"
+#include "render_data.h"
 #include "util.h"
 
 namespace ekoscape {
@@ -23,7 +24,7 @@ class Texture {
 public:
   Texture(Image& image,bool make_weird = false);
   Texture(Image&& image,bool make_weird = false);
-  Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird = false);
+  Texture(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255,bool make_weird = false);
   Texture(const Texture& other) = delete;
   Texture(Texture&& other) noexcept;
   virtual ~Texture() noexcept;
@@ -31,12 +32,12 @@ public:
   Texture& operator=(const Texture& other) = delete;
   Texture& operator=(Texture&& other) noexcept;
 
-  GLuint id() const;
+  GLuint gl_id() const;
   int width() const;
   int height() const;
 
 private:
-  GLuint id_ = 0;
+  GLuint gl_id_ = 0;
   int width_ = 0;
   int height_ = 0;
 

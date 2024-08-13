@@ -21,13 +21,13 @@ public:
   Timer& start();
   Timer& end();
 
-  Uint32 start_time() const;
-  Uint32 end_time() const;
+  std::uint32_t start_time() const;
+  std::uint32_t end_time() const;
   const Duration& duration() const;
 
 private:
-  Uint32 start_time_ = 0;
-  Uint32 end_time_ = 0;
+  std::uint32_t start_time_ = 0;
+  std::uint32_t end_time_ = 0;
   Duration duration_{};
 };
 

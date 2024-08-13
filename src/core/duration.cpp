@@ -58,12 +58,12 @@ double Duration::millis() const { return value_; }
 
 double Duration::secs() const { return value_ / 1000.0; }
 
-Uint32 Duration::round_millis() const { return static_cast<Uint32>(std::round(millis())); }
+std::uint32_t Duration::round_millis() const { return static_cast<std::uint32_t>(std::round(millis())); }
 
-Uint32 Duration::round_secs() const { return static_cast<Uint32>(std::round(secs())); }
+std::uint32_t Duration::round_secs() const { return static_cast<std::uint32_t>(std::round(secs())); }
 
-Uint32 Duration::whole_millis() const { return static_cast<Uint32>(millis()); }
+std::uint32_t Duration::whole_millis() const { return static_cast<std::uint32_t>(millis()); }
 
-Uint32 Duration::whole_secs() const { return static_cast<Uint32>(secs()); }
+std::uint32_t Duration::whole_secs() const { return static_cast<std::uint32_t>(secs()); }
 
 } // Namespace.

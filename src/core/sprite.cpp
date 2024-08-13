@@ -16,23 +16,23 @@ Pos4f Sprite::build_src(const Texture& texture,const Pos2i& offset,const Size2i&
     src.x1 = 0.0f;
     src.x2 = 0.0f;
   } else {
-    const GLfloat tex_w = static_cast<GLfloat>(texture.width());
-    const GLfloat src_x = static_cast<GLfloat>(offset.x + padding);
+    const float tex_w = static_cast<float>(texture.width());
+    const float src_x = static_cast<float>(offset.x + padding);
 
     // Clamp between 0 & 1.
     src.x1 = src_x / tex_w;
-    src.x2 = (src_x + static_cast<GLfloat>(size.w)) / tex_w;
+    src.x2 = (src_x + static_cast<float>(size.w)) / tex_w;
   }
   if(texture.height() == 0) { // Avoid divides by 0.
     src.y1 = 0.0f;
     src.y2 = 0.0f;
   } else {
-    const GLfloat tex_h = static_cast<GLfloat>(texture.height());
-    const GLfloat src_y = static_cast<GLfloat>(offset.y + padding);
+    const float tex_h = static_cast<float>(texture.height());
+    const float src_y = static_cast<float>(offset.y + padding);
 
     // Clamp between 0 & 1.
     src.y1 = src_y / tex_h;
-    src.y2 = (src_y + static_cast<GLfloat>(size.h)) / tex_h;
+    src.y2 = (src_y + static_cast<float>(size.h)) / tex_h;
   }
 
   return src;

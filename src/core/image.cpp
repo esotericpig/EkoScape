@@ -83,7 +83,7 @@ int Image::width() const { return surface_->w; }
 
 int Image::height() const { return surface_->h; }
 
-Uint8 Image::bpp() const { return surface_->format->BytesPerPixel; }
+std::uint8_t Image::bpp() const { return surface_->format->BytesPerPixel; }
 
 bool Image::is_red_first() const { return(surface_->format->Rmask == 0x000000ff); }
 

@@ -33,7 +33,7 @@ public:
   const std::string& id() const;
   int width() const;
   int height() const;
-  Uint8 bpp() const;
+  std::uint8_t bpp() const;
   bool is_red_first() const;
   const void* pixels() const;
   GLenum gl_type() const;

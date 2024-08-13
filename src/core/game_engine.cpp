@@ -90,12 +90,12 @@ void GameEngine::init_config(Config& config) {
   config.target_size.h = (config.target_size.h > 0) ? config.target_size.h : config.size.h;
 
   // Allow 0 if the user wants to use delta time only (no delay).
-  // - See: end_time()
+  // - See: end_frame_timer()
   target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
 
   if(target_fps_ > 0) { // Avoid divide by 0.
     // Convert from FPS to Duration (milliseconds) Per Frame.
-    target_dpf_.set_from_millis(static_cast<Uint32>(std::round(1000.0f / static_cast<float>(target_fps_))));
+    target_dpf_.set_from_millis(std::round(1000.0f / static_cast<float>(target_fps_)));
   }
 }
 

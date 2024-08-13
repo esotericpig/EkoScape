@@ -37,11 +37,11 @@ public:
   double millis() const;
   double secs() const;
 
-  Uint32 round_millis() const;
-  Uint32 round_secs() const;
+  std::uint32_t round_millis() const;
+  std::uint32_t round_secs() const;
 
-  Uint32 whole_millis() const;
-  Uint32 whole_secs() const;
+  std::uint32_t whole_millis() const;
+  std::uint32_t whole_secs() const;
 
 private:
   /**

@@ -10,7 +10,7 @@
 namespace ekoscape {
 
 Texture::Texture(Image& image,bool make_weird) {
-  const Uint8 bpp = image.bpp();
+  const std::uint8_t bpp = image.bpp();
   bool is_red_first = image.is_red_first();
   GLenum image_format = GL_RGBA;
 
@@ -29,8 +29,8 @@ Texture::Texture(Image& image,bool make_weird) {
       throw EkoScapeError{Util::build_string("Unsupported BPP [",bpp,"] for image [",image.id(),"].")};
   }
 
-  glGenTextures(1,&id_);
-  glBindTexture(GL_TEXTURE_2D,id_);
+  glGenTextures(1,&gl_id_);
+  glBindTexture(GL_TEXTURE_2D,gl_id_);
 
   // I didn't have any problems without this, but could be needed.
   // - https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_upload_and_pixel_reads
@@ -60,11 +60,7 @@ Texture::Texture(Image& image,bool make_weird) {
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    if(id_ != 0) {
-      glDeleteTextures(1,&id_);
-      id_ = 0;
-    }
-
+    destroy();
     throw EkoScapeError{Util::build_string("Failed to gen/bind texture for image [",image.id()
         ,"]; error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
@@ -76,7 +72,7 @@ Texture::Texture(Image& image,bool make_weird) {
 Texture::Texture(Image&& image,bool make_weird)
     : Texture(image,make_weird) {}
 
-Texture::Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird) {
+Texture::Texture(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a,bool make_weird) {
   if(make_weird) {
     r = 255 - r;
     g = 255 - g;
@@ -90,8 +86,8 @@ Texture::Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird) {
     r,g,b,a, r,g,b,a
   };
 
-  glGenTextures(1,&id_);
-  glBindTexture(GL_TEXTURE_2D,id_);
+  glGenTextures(1,&gl_id_);
+  glBindTexture(GL_TEXTURE_2D,gl_id_);
 
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
@@ -108,11 +104,7 @@ Texture::Texture(GLubyte r,GLubyte g,GLubyte b,GLubyte a,bool make_weird) {
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    if(id_ != 0) {
-      glDeleteTextures(1,&id_);
-      id_ = 0;
-    }
-
+    destroy();
     throw EkoScapeError{Util::build_string("Failed to gen/bind texture for color ("
         ,r,',',g,',',b,',',a,"); error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
@@ -128,7 +120,7 @@ Texture::Texture(Texture&& other) noexcept {
 void Texture::move_from(Texture&& other) noexcept {
   destroy();
 
-  id_ = std::exchange(other.id_,0);
+  gl_id_ = std::exchange(other.gl_id_,0);
   width_ = std::exchange(other.width_,0);
   height_ = std::exchange(other.height_,0);
 }
@@ -138,9 +130,9 @@ Texture::~Texture() noexcept {
 }
 
 void Texture::destroy() noexcept {
-  if(id_ != 0) {
-    glDeleteTextures(1,&id_);
-    id_ = 0;
+  if(gl_id_ != 0) {
+    glDeleteTextures(1,&gl_id_);
+    gl_id_ = 0;
   }
 }
 
@@ -150,7 +142,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
   return *this;
 }
 
-GLuint Texture::id() const { return id_; }
+GLuint Texture::gl_id() const { return gl_id_; }
 
 int Texture::width() const { return width_; }
 

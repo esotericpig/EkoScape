@@ -208,9 +208,9 @@ void GameScene::set_space_textures(SpaceType type,const Texture* ceiling,const T
   int space_id = SpaceTypes::value_of(type);
 
   // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
-  if(ceiling != nullptr) { dantares_.SetFloorTexture(space_id,ceiling->id()); }
-  if(wall != nullptr) { dantares_.SetWallTexture(space_id,wall->id()); }
-  if(floor != nullptr) { dantares_.SetCeilingTexture(space_id,floor->id()); }
+  if(ceiling != nullptr) { dantares_.SetFloorTexture(space_id,ceiling->gl_id()); }
+  if(wall != nullptr) { dantares_.SetWallTexture(space_id,wall->gl_id()); }
+  if(floor != nullptr) { dantares_.SetCeilingTexture(space_id,floor->gl_id()); }
 }
 
 } // Namespace.
