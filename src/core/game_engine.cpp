@@ -186,20 +186,21 @@ void GameEngine::set_vsync(bool enable) {
   }
 }
 
-void GameEngine::fetch_size_and_resize() {
+void GameEngine::fetch_size_and_resize(bool force) {
   Size2i size{};
 
   SDL_GL_GetDrawableSize(res_.window,&size.w,&size.h);
-  resize(size);
+  resize(size,force);
 }
 
 void GameEngine::resize() {
-  resize(renderer_->dimens().size);
+  resize(renderer_->dimens().size,true);
 }
 
-void GameEngine::resize(const Size2i& size) {
-  // Allow resize even if the width & height haven't changed.
-  // - If decide to change this logic, need to allow force resize so can resize on init.
+void GameEngine::resize(const Size2i& size,bool force) {
+  if(!force && size.w == renderer_->dimens().size.w && size.h == renderer_->dimens().size.h) {
+    return; // Size didn't change.
+  }
 
   renderer_->resize(size);
   main_scene_.resize_scene(*renderer_,renderer_->dimens());
@@ -350,7 +351,7 @@ void GameEngine::handle_events() {
     }
   }
 
-  if(should_resize) { fetch_size_and_resize(); }
+  if(should_resize) { fetch_size_and_resize(false); }
 }
 
 bool GameEngine::has_music_player() const { return res_.has_music_player; }

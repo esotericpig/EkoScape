@@ -89,9 +89,9 @@ public:
   GameEngine& operator=(GameEngine&& other) noexcept = delete;
 
   void set_vsync(bool enable);
-  void fetch_size_and_resize();
+  void fetch_size_and_resize(bool force = true);
   void resize();
-  void resize(const Size2i& size);
+  void resize(const Size2i& size,bool force = true);
 
   bool push_scene(int type);
   bool pop_scene();
