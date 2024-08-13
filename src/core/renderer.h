@@ -13,66 +13,103 @@
 #include "ekoscape_error.h"
 #include "font_atlas.h"
 #include "render_data.h"
-#include "sprite.h"
 #include "sprite_atlas.h"
 #include "texture.h"
 #include "texture_bag.h"
 #include "util.h"
 
+#include <functional>
 #include <vector>
 
 namespace ekoscape {
 
 class Renderer {
 public:
+  class TextureWrapper {
+  public:
+    Renderer& ren;
+    const Texture& texture;
+    Pos4f src;
+
+    TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src);
+
+    TextureWrapper& draw_quad(int x,int y);
+    TextureWrapper& draw_quad(int x,int y,int width,int height);
+  };
+
+  class SpriteAtlasWrapper {
+  public:
+    Renderer& ren;
+    const SpriteAtlas& atlas;
+
+    SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas);
+
+    SpriteAtlasWrapper& draw_quad(int index,int x,int y);
+    SpriteAtlasWrapper& draw_quad(int index,int x,int y,int width,int height);
+    SpriteAtlasWrapper& draw_quad(int column,int row,int x,int y);
+    SpriteAtlasWrapper& draw_quad(int column,int row,int x,int y,int width,int height);
+  };
+
+  class FontAtlasWrapper {
+  public:
+    Renderer& ren;
+    const FontAtlas& font;
+    Pos2i init_pos;
+    Pos2i pos;
+    Size2i char_size;
+    Size2i spacing;
+
+    FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos2i& pos,const Size2i& char_size
+        ,const Size2i& spacing);
+
+    FontAtlasWrapper& print();
+    FontAtlasWrapper& print(const tiny_utf8::string& str);
+    FontAtlasWrapper& print(const std::vector<tiny_utf8::string>& strs);
+    FontAtlasWrapper& puts();
+    FontAtlasWrapper& puts(const tiny_utf8::string& str);
+    FontAtlasWrapper& puts(const std::vector<tiny_utf8::string>& lines);
+  };
+
+  using WrapCallback = std::function<void()>;
+  using WrapTextureCallback = std::function<void(TextureWrapper&)>;
+  using WrapSpriteAtlasCallback = std::function<void(SpriteAtlasWrapper&)>;
+  using WrapFontAtlasCallback = std::function<void(FontAtlasWrapper&)>;
+
+  static const Pos4f kDefaultSrc;
+
   Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
   void resize(const Size2i& size);
+  void clear_view();
 
   void begin_2d_scene();
   void begin_3d_scene();
-  void clear_view();
 
-  void begin_texture(const Texture& texture);
-  void begin_texture(const TextureBag& bag);
-  void end_texture();
+  Renderer& wrap_scale(const WrapCallback& callback);
+  Renderer& wrap_scale(float scale,const WrapCallback& callback);
+  Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
 
-  void begin_color(const Color4f& color);
-  void end_color();
+  Renderer& wrap_texture(const Texture& texture,const WrapTextureCallback& callback);
+  Renderer& wrap_texture(const Texture& texture,const Pos4f& src,const WrapTextureCallback& callback);
+  Renderer& wrap_texture(const TextureBag& tex_bag,const WrapTextureCallback& callback);
+  Renderer& wrap_texture(const TextureBag& tex_bag,const Pos4f& src,const WrapTextureCallback& callback);
 
-  void draw_quad(int x,int y,int width,int height);
-  void draw_quad(const Pos4f& src,int x,int y,int width,int height);
+  Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,const WrapFontAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+      ,const WrapFontAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+      ,const Size2i& spacing,const WrapFontAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,const Size2i& spacing
+      ,const WrapFontAtlasCallback& callback);
 
-  void draw_quad(const Sprite& sprite,int x,int y);
-  void draw_quad(const Sprite& sprite,int x,int y,int width,int height);
+  Renderer& begin_texture(const Texture& texture);
+  Renderer& end_texture();
 
-  void draw_quad(const SpriteAtlas& atlas,int index,int x,int y);
-  void draw_quad(const SpriteAtlas& atlas,int index,int x,int y,int width,int height);
-  void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y);
-  void draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y,int width,int height);
+  Renderer& draw_quad(int x,int y,int width,int height);
+  Renderer& draw_quad(const Pos4f& src,int x,int y,int width,int height);
 
-  /**
-   * `str` is at end in case have a multi-line string.
-   */
-  void draw_str(const FontAtlas& font,int x,int y,const tiny_utf8::string& str);
-
-  /**
-   * Using Size2i for `spacing` to prevent ambiguous overloads.
-   */
-  void draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing,const tiny_utf8::string& str);
-
-  void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
-      ,const tiny_utf8::string& str);
-  void draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing
-      ,const tiny_utf8::string& str);
-
-  void draw_strs(const FontAtlas& font,int x,int y,const std::vector<tiny_utf8::string>& lines);
-  void draw_strs(const FontAtlas& font,int x,int y,const Size2i& spacing
-      ,const std::vector<tiny_utf8::string>& lines);
-  void draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height
-      ,const std::vector<tiny_utf8::string>& lines);
-  void draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height,const Size2i& spacing
-      ,const std::vector<tiny_utf8::string>& lines);
+  Pos4f build_dest_pos4f(int x,int y,int width,int height);
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();

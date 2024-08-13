@@ -9,6 +9,108 @@
 
 namespace ekoscape {
 
+const Pos4f Renderer::kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
+
+Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src)
+    : ren(ren),texture(texture),src(src) {}
+
+Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y) {
+  draw_quad(x,y,texture.width(),texture.height());
+  return *this;
+}
+
+Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y,int width,int height) {
+  ren.draw_quad(src,x,y,width,height);
+  return *this;
+}
+
+Renderer::SpriteAtlasWrapper::SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas)
+    : ren(ren),atlas(atlas) {}
+
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,int x,int y) {
+  draw_quad(index,x,y,atlas.cell_size().w,atlas.cell_size().h);
+  return *this;
+}
+
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,int x,int y,int width
+    ,int height) {
+  const Pos4f* src = atlas.src(index);
+  if(src == nullptr) { return *this; }
+
+  ren.draw_quad(*src,x,y,width,height);
+  return *this;
+}
+
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column,int row,int x,int y) {
+  return draw_quad(column,row,x,y,atlas.cell_size().w,atlas.cell_size().h);
+}
+
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column,int row,int x,int y
+    ,int width,int height) {
+  const Pos4f* src = atlas.src(column,row);
+  if(src == nullptr) { return *this; }
+
+  ren.draw_quad(*src,x,y,width,height);
+  return *this;
+}
+
+Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos2i& pos
+    ,const Size2i& char_size,const Size2i& spacing)
+    : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() {
+  pos.x += (char_size.w + spacing.w);
+  return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const tiny_utf8::string& str) {
+  if(str.empty()) { return print(); }
+
+  const int x_spacing = char_size.w + spacing.w;
+  const int y_spacing = char_size.h + spacing.h;
+
+  for(auto c: str) {
+    if(c == '\n') {
+      pos.x = init_pos.x;
+      pos.y += y_spacing;
+      continue;
+    }
+
+    const Pos4f* src = font.src(font.char_index(c));
+    if(src != nullptr) { ren.draw_quad(*src,pos.x,pos.y,char_size.w,char_size.h); }
+
+    pos.x += x_spacing;
+  }
+
+  return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<tiny_utf8::string>& strs) {
+  for(auto& str: strs) {
+    print(str);
+    print(); // Space.
+  }
+
+  return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() {
+  pos.x = init_pos.x;
+  pos.y += (char_size.h + spacing.h);
+
+  return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const tiny_utf8::string& str) {
+  if(!str.empty()) { print(str); }
+  return puts();
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const std::vector<tiny_utf8::string>& lines) {
+  for(auto& line: lines) { puts(line); }
+  return *this;
+}
+
 Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)
     : clear_color_(clear_color){
   // Avoid divides by 0.
@@ -66,6 +168,13 @@ void Renderer::resize(const Size2i& size) {
   glViewport(0,0,dimens_.size.w,dimens_.size.h);
 }
 
+void Renderer::clear_view() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+}
+
 void Renderer::begin_2d_scene() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -87,164 +196,132 @@ void Renderer::begin_3d_scene() {
   glLoadIdentity();
 }
 
-void Renderer::clear_view() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+Renderer& Renderer::wrap_scale(const WrapCallback& callback) {
+  return wrap_scale(1.0f,callback);
 }
 
-void Renderer::begin_texture(const Texture& texture) {
+Renderer& Renderer::wrap_scale(float scale,const WrapCallback& callback) {
+  const float orig_scale = dimens_.scale;
+
+  dimens_.scale = scale;
+  callback();
+  dimens_.scale = orig_scale;
+
+  return *this;
+}
+
+Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback) {
+  glColor4f(color.r,color.g,color.b,color.a);
+  callback();
+  glColor4f(1.0f,1.0f,1.0f,1.0f);
+
+  return *this;
+}
+
+Renderer& Renderer::wrap_texture(const Texture& texture,const WrapTextureCallback& callback) {
+  return wrap_texture(texture,kDefaultSrc,callback);
+}
+
+Renderer& Renderer::wrap_texture(const Texture& texture,const Pos4f& src
+    ,const WrapTextureCallback& callback) {
+  TextureWrapper wrapper{*this,texture,src};
+
+  begin_texture(texture);
+  callback(wrapper);
+
+  return end_texture();
+}
+
+Renderer& Renderer::wrap_texture(const TextureBag& tex_bag,const WrapTextureCallback& callback) {
+  return wrap_texture(tex_bag.texture(),callback);
+}
+
+Renderer& Renderer::wrap_texture(const TextureBag& tex_bag,const Pos4f& src
+    ,const WrapTextureCallback& callback) {
+  return wrap_texture(tex_bag.texture(),src,callback);
+}
+
+Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback) {
+  SpriteAtlasWrapper wrapper{*this,atlas};
+
+  begin_texture(atlas.texture());
+  callback(wrapper);
+
+  return end_texture();
+}
+
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y
+    ,const WrapFontAtlasCallback& callback) {
+  return wrap_font_atlas(font,x,y,font.cell_size().w,font.cell_size().h,font.spacing(),callback);
+}
+
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+    ,const WrapFontAtlasCallback& callback) {
+  return wrap_font_atlas(font,x,y,char_width,char_height,font.spacing(),callback);
+}
+
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+    ,const Size2i& spacing,const WrapFontAtlasCallback& callback) {
+  FontAtlasWrapper wrapper{*this,font,{x,y},{char_width,char_height},spacing};
+
+  begin_texture(font.texture());
+  callback(wrapper);
+
+  return end_texture();
+}
+
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,const Size2i& spacing
+    ,const WrapFontAtlasCallback& callback) {
+  return wrap_font_atlas(font,x,y,font.cell_size().w,font.cell_size().h,spacing,callback);
+}
+
+Renderer& Renderer::begin_texture(const Texture& texture) {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D,texture.id());
+
+  return *this;
 }
 
-void Renderer::begin_texture(const TextureBag& bag) {
-  begin_texture(bag.texture());
-}
-
-void Renderer::end_texture() {
+Renderer& Renderer::end_texture() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);
+
+  return *this;
 }
 
-void Renderer::begin_color(const Color4f& color) {
-  glColor4f(color.r,color.g,color.b,color.a);
-}
-
-void Renderer::end_color() {
-  glColor4f(1.0f,1.0f,1.0f,1.0f);
-}
-
-void Renderer::draw_quad(int x,int y,int width,int height) {
-  Pos2f pos1 = {
-    static_cast<GLfloat>(x) * dimens_.scale,
-    static_cast<GLfloat>(y) * dimens_.scale
-  };
-  Pos2f pos2 = {
-    pos1.x + (static_cast<GLfloat>(width) * dimens_.scale),
-    pos1.y + (static_cast<GLfloat>(height) * dimens_.scale)
-  };
+Renderer& Renderer::draw_quad(int x,int y,int width,int height) {
+  Pos4f dest = build_dest_pos4f(x,y,width,height);
 
   glBegin(GL_QUADS);
-    glVertex2f(pos1.x,pos1.y);
-    glVertex2f(pos2.x,pos1.y);
-    glVertex2f(pos2.x,pos2.y);
-    glVertex2f(pos1.x,pos2.y);
+    glVertex2f(dest.x1,dest.y1);
+    glVertex2f(dest.x2,dest.y1);
+    glVertex2f(dest.x2,dest.y2);
+    glVertex2f(dest.x1,dest.y2);
   glEnd();
+
+  return *this;
 }
 
-void Renderer::draw_quad(const Pos4f& src,int x,int y,int width,int height) {
-  Pos2f dest1 = {
-    static_cast<GLfloat>(x) * dimens_.scale,
-    static_cast<GLfloat>(y) * dimens_.scale
-  };
-  Pos2f dest2 = {
-    dest1.x + (static_cast<GLfloat>(width) * dimens_.scale),
-    dest1.y + (static_cast<GLfloat>(height) * dimens_.scale)
-  };
+Renderer& Renderer::draw_quad(const Pos4f& src,int x,int y,int width,int height) {
+  Pos4f dest = build_dest_pos4f(x,y,width,height);
 
   glBegin(GL_QUADS);
-    glTexCoord2f(src.x1,src.y1); glVertex2f(dest1.x,dest1.y);
-    glTexCoord2f(src.x2,src.y1); glVertex2f(dest2.x,dest1.y);
-    glTexCoord2f(src.x2,src.y2); glVertex2f(dest2.x,dest2.y);
-    glTexCoord2f(src.x1,src.y2); glVertex2f(dest1.x,dest2.y);
+    glTexCoord2f(src.x1,src.y1); glVertex2f(dest.x1,dest.y1);
+    glTexCoord2f(src.x2,src.y1); glVertex2f(dest.x2,dest.y1);
+    glTexCoord2f(src.x2,src.y2); glVertex2f(dest.x2,dest.y2);
+    glTexCoord2f(src.x1,src.y2); glVertex2f(dest.x1,dest.y2);
   glEnd();
+
+  return *this;
 }
 
-void Renderer::draw_quad(const Sprite& sprite,int x,int y) {
-  draw_quad(sprite,x,y,sprite.size().w,sprite.size().h);
-}
+Pos4f Renderer::build_dest_pos4f(int x,int y,int width,int height) {
+  float x1 = static_cast<float>(x) * dimens_.scale;
+  float y1 = static_cast<float>(y) * dimens_.scale;
+  float x2 = x1 + (static_cast<float>(width) * dimens_.scale);
+  float y2 = y1 + (static_cast<float>(height) * dimens_.scale);
 
-void Renderer::draw_quad(const Sprite& sprite,int x,int y,int width,int height) {
-  draw_quad(sprite.src(),x,y,width,height);
-}
-
-void Renderer::draw_quad(const SpriteAtlas& atlas,int index,int x,int y) {
-  draw_quad(atlas,index,x,y,atlas.cell_size().w,atlas.cell_size().h);
-}
-
-void Renderer::draw_quad(const SpriteAtlas& atlas,int index,int x,int y,int width,int height) {
-  const Pos4f* src = atlas.src(index);
-  if(src == nullptr) { return; }
-
-  draw_quad(*src,x,y,width,height);
-}
-
-void Renderer::draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y) {
-  draw_quad(atlas,column,row,x,y,atlas.cell_size().w,atlas.cell_size().h);
-}
-
-void Renderer::draw_quad(const SpriteAtlas& atlas,int column,int row,int x,int y,int width,int height) {
-  const Pos4f* src = atlas.src(column,row);
-  if(src == nullptr) { return; }
-
-  draw_quad(*src,x,y,width,height);
-}
-
-void Renderer::draw_str(const FontAtlas& font,int x,int y,const tiny_utf8::string& str) {
-  draw_str(font,x,y,font.spacing(),str);
-}
-
-void Renderer::draw_str(const FontAtlas& font,int x,int y,const Size2i& spacing
-    ,const tiny_utf8::string& str) {
-  draw_str(font,x,y,font.cell_size().w,font.cell_size().h,spacing,str);
-}
-
-void Renderer::draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
-    ,const tiny_utf8::string& str) {
-  draw_str(font,x,y,char_width,char_height,font.spacing(),str);
-}
-
-void Renderer::draw_str(const FontAtlas& font,int x,int y,int char_width,int char_height
-    ,const Size2i& spacing,const tiny_utf8::string& str) {
-  const int x_spacing = char_width + spacing.w;
-  const int y_spacing = char_height + spacing.h;
-  int char_x = x;
-  int char_y = y;
-
-  for(auto c: str) {
-    if(c == '\n') {
-      char_x = x;
-      char_y += y_spacing;
-      continue;
-    }
-
-    draw_quad(font,font.char_index(c),char_x,char_y,char_width,char_height);
-    char_x += x_spacing;
-  }
-}
-
-void Renderer::draw_strs(const FontAtlas& font,int x,int y,const std::vector<tiny_utf8::string>& lines) {
-  draw_strs(font,x,y,font.spacing(),lines);
-}
-
-void Renderer::draw_strs(const FontAtlas& font,int x,int y,const Size2i& spacing
-    ,const std::vector<tiny_utf8::string>& lines) {
-  draw_strs(font,x,y,font.cell_size().w,font.cell_size().h,spacing,lines);
-}
-
-void Renderer::draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height
-    ,const std::vector<tiny_utf8::string>& lines) {
-  draw_strs(font,x,y,char_width,char_height,font.spacing(),lines);
-}
-
-void Renderer::draw_strs(const FontAtlas& font,int x,int y,int char_width,int char_height
-    ,const Size2i& spacing,const std::vector<tiny_utf8::string>& lines) {
-  const int x_spacing = char_width + spacing.w;
-  const int y_spacing = char_height + spacing.h;
-  int char_x = x;
-  int char_y = y;
-
-  for(auto line: lines) {
-    for(auto c: line) {
-      draw_quad(font,font.char_index(c),char_x,char_y,char_width,char_height);
-      char_x += x_spacing;
-    }
-
-    char_x = x;
-    char_y += y_spacing;
-  }
+  return {x1,y1,x2,y2};
 }
 
 const ViewDimens& Renderer::dimens() const { return dimens_; }
