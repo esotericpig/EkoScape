@@ -29,17 +29,17 @@
 
 #if defined(DANTARES_MACOS)
     //Mac OS X OpenGL headers.
-    #include<OpenGL/OpenGL.h>
+    //#include<OpenGL/OpenGL.h>
     #include<OpenGL/gl.h>
     //#include<OpenGL/glu.h>
 #elif defined(DANTARES_WINDOWS)
     //Windows OpenGL headers.
-    #include<windows.h>
+    //#include<windows.h>
     #include<GL/gl.h>
     //#include<GL/glu.h>
 #else
     //X11 OpenGL headers.
-    #include<GL/glx.h>
+    //#include<GL/glx.h>
     #include<GL/gl.h>
     //#include<GL/glu.h>
 #endif
