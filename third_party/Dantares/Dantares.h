@@ -512,7 +512,7 @@ private:
     public:
         static const GLsizei DISPLAY_LIST_RANGE = 6;
 
-        SpaceClass(int Type);
+        explicit SpaceClass(int Type);
         SpaceClass(const SpaceClass &Copy) = delete;
         SpaceClass(SpaceClass &&Other);
         SpaceClass &operator = (const SpaceClass &r) = delete;

@@ -38,7 +38,7 @@ public:
    */
   static const std::size_t kDefaultInitBufferSize = 1024;
 
-  TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = kDefaultInitBufferSize);
+  explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = kDefaultInitBufferSize);
   TextReaderBuf(const TextReaderBuf& other) = delete;
   TextReaderBuf(TextReaderBuf&& other) noexcept;
   virtual ~TextReaderBuf() noexcept;

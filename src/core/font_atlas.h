@@ -21,8 +21,8 @@ class FontAtlas : public SpriteAtlas {
 public:
   class Builder : public SpriteAtlas::Builder {
   public:
-    Builder(Texture&& texture);
-    Builder(std::shared_ptr<Texture> texture);
+    explicit Builder(Texture&& texture);
+    explicit Builder(std::shared_ptr<Texture> texture);
 
     FontAtlas build();
 
@@ -58,7 +58,7 @@ protected:
   int default_index_ = 0;
   std::unordered_map<char32_t,int> char_to_index_;
 
-  FontAtlas(const Builder& builder);
+  explicit FontAtlas(const Builder& builder);
 };
 
 } // Namespace.

@@ -17,7 +17,7 @@ namespace ekoscape {
 class Space {
 public:
   Space();
-  Space(SpaceType empty_type);
+  explicit Space(SpaceType empty_type);
   Space(SpaceType empty_type,SpaceType thing_type);
 
   /**

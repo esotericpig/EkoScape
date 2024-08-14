@@ -27,7 +27,7 @@ public:
     int player_y = 0;
     std::vector<std::unique_ptr<Robot>> new_robots{};
 
-    MoveData(DantaresMap& map);
+    explicit MoveData(DantaresMap& map);
 
     void refresh();
   };

@@ -19,7 +19,7 @@ namespace ekoscape {
 
 class Image {
 public:
-  Image(const std::filesystem::path& file);
+  explicit Image(const std::filesystem::path& file);
   Image(const Image& other) = delete;
   Image(Image&& other) noexcept;
   virtual ~Image() noexcept;

@@ -23,7 +23,10 @@ struct Color4f {
 
   Color4f();
   Color4f(float r,float g,float b,float a = 1.0f);
-  // `int` so that it's not ambiguous (unlike `uint8_t`).
+
+  /**
+   * `int` so that it's not ambiguous (unlike `uint8_t`).
+   */
   Color4f(int r,int g,int b,int a = 255);
 
   Color4f& set_f(float r,float g,float b,float a = 1.0f);

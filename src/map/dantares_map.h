@@ -44,7 +44,7 @@ class DantaresMap : public Map {
 public:
   using SpaceCallback = std::function<void(int x,int y,Space&,SpaceType)>;
 
-  DantaresMap(Dantares& dantares);
+  explicit DantaresMap(Dantares& dantares);
 
   Map& clear_spaces() override;
 

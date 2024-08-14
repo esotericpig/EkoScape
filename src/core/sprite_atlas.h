@@ -22,8 +22,8 @@ class SpriteAtlas : public TextureBag {
 public:
   class Builder {
   public:
-    Builder(Texture&& texture);
-    Builder(std::shared_ptr<Texture> texture);
+    explicit Builder(Texture&& texture);
+    explicit Builder(std::shared_ptr<Texture> texture);
     virtual ~Builder() noexcept = default;
 
     SpriteAtlas build();
@@ -59,7 +59,7 @@ protected:
   int cell_count_;
   std::vector<Pos4f> index_to_src_;
 
-  SpriteAtlas(const Builder& builder);
+  explicit SpriteAtlas(const Builder& builder);
 };
 
 } // Namespace.

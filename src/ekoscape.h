@@ -36,7 +36,7 @@ public:
 
   static const std::string kTitle;
 
-  EkoScape(Config config);
+  explicit EkoScape(Config config);
 
   std::shared_ptr<Scene> build_scene(int type);
 

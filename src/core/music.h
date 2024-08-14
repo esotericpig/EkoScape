@@ -21,7 +21,7 @@ class GameEngine;
 
 class Music {
 public:
-  Music(const std::filesystem::path& file);
+  explicit Music(const std::filesystem::path& file);
   Music(const Music& other) = delete;
   Music(Music&& other) noexcept;
   virtual ~Music() noexcept;

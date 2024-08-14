@@ -49,7 +49,7 @@ private:
    */
   double value_ = 0;
 
-  Duration(double value);
+  explicit Duration(double value);
 };
 
 } // Namespace.

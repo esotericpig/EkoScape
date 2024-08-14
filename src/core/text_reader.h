@@ -25,7 +25,8 @@ namespace ekoscape {
  */
 class TextReader {
 public:
-  TextReader(const std::filesystem::path& file,std::size_t buffer_size = TextReaderBuf::kDefaultInitBufferSize);
+  explicit TextReader(const std::filesystem::path& file
+      ,std::size_t buffer_size = TextReaderBuf::kDefaultInitBufferSize);
 
   bool read_line(std::string& line);
 

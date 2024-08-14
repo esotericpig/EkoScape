@@ -93,12 +93,11 @@ TextReaderBuf::int_type TextReaderBuf::underflow() {
     }
 
     // Find the last non-zero value.
-    // - `read_count` is unsigned, so need >0 and -1 inside the loop, instead of >=0.
-    for(; read_count > 0; --read_count) {
+    for(; read_count > 0; --read_count) { // Unsigned loop.
       if(buffer_.at(read_count - 1) != 0) { break; }
     }
 
-    if(read_count <= 0) { return traits_type::eof(); }
+    if(read_count == 0) { return traits_type::eof(); }
   }
 
   setg(buffer_.data(),buffer_.data(),buffer_.data() + read_count);
