@@ -9,9 +9,22 @@
 #define EKOSCAPE_CORE_COMMON_H_
 
 // TODO: Define in build.
-#define DANTARES_LINUX
-//#define DANTARES_MACOS
-//#define DANTARES_WINDOWS
+#if defined(EKOSCAPE_MACOS)
+  #define DANTARES_MACOS
+
+  #include <OpenGL/glew.h>
+  #include <OpenGL/glu.h>
+#elif defined(EKOSCAPE_WINDOWS)
+  #define DANTARES_WINDOWS
+
+  #include <GL/glew.h>
+  #include <GL/glu.h>
+#else
+  #define DANTARES_LINUX
+
+  #include <GL/glew.h>
+  #include <GL/glu.h>
+#endif
 
 #include <array>
 #include <cstdint>
@@ -22,9 +35,6 @@
 #include <utility>
 
 #include <tinyutf8/tinyutf8.h>
-
-#include <GL/glew.h>
-#include <GL/glu.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
