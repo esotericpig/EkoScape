@@ -52,6 +52,8 @@ private:
 
   std::unique_ptr<Assets> assets_{};
   std::filesystem::path map_file_{};
+
+  void pop_scene();
 };
 
 } // Namespace.

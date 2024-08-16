@@ -34,10 +34,7 @@ std::shared_ptr<Scene> EkoScape::build_scene(int action) {
       break;
 
     case SceneAction::kGoBack:
-      if(!game_engine_->pop_scene()) {
-        std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
-        game_engine_->request_stop();
-      }
+      pop_scene();
       break;
 
     case SceneAction::kGoToMenu:
@@ -59,6 +56,13 @@ std::shared_ptr<Scene> EkoScape::build_scene(int action) {
   return scene;
 }
 
+void EkoScape::pop_scene() {
+  if(!game_engine_->pop_scene()) {
+    std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
+    game_engine_->request_stop();
+  }
+}
+
 void EkoScape::run() {
   play_music();
   game_engine_->run(); // Game loop.
@@ -72,21 +76,24 @@ void EkoScape::play_music() {
 
 void EkoScape::on_key_down_event(SDL_Keycode key) {
   switch(key) {
-    case SDLK_HOME:
     case SDLK_AUDIOPLAY:
       play_music();
       break;
 
-    case SDLK_END:
     case SDLK_AUDIOSTOP:
       game_engine_->stop_music();
       break;
 
-    case SDLK_BACKSPACE:
-      if(!game_engine_->pop_scene()) {
-        std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
-        game_engine_->request_stop();
+    case SDLK_m:
+      if(game_engine_->is_music_playing()) {
+        game_engine_->stop_music();
+      } else {
+        play_music();
       }
+      break;
+
+    case SDLK_BACKSPACE:
+      pop_scene();
       break;
   }
 }
