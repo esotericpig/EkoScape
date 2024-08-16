@@ -112,6 +112,8 @@ public:
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
   Scene& main_scene();
+  std::shared_ptr<Scene> curr_scene() const;
+  int curr_scene_type() const;
   const std::string& title() const;
   Renderer& renderer() const;
   const ViewDimens& dimens() const;
@@ -125,7 +127,7 @@ private:
   std::shared_ptr<Scene> curr_scene_{std::make_shared<Scene>()}; // Never null.
   int curr_scene_type_ = 0;
   std::vector<int> prev_scene_types_{};
-  SceneBuilder build_scene_;
+  SceneBuilder build_scene_{};
 
   std::string title_{};
   std::unique_ptr<Renderer> renderer_{};

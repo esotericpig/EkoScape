@@ -395,6 +395,10 @@ void GameEngine::show_error_global(const std::string& title,const std::string& e
 
 Scene& GameEngine::main_scene() { return main_scene_; }
 
+std::shared_ptr<Scene> GameEngine::curr_scene() const { return curr_scene_; }
+
+int GameEngine::curr_scene_type() const { return curr_scene_type_; }
+
 const std::string& GameEngine::title() const { return title_; }
 
 Renderer& GameEngine::renderer() const { return *renderer_; }

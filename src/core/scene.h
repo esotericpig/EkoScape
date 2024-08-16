@@ -23,6 +23,7 @@ public:
    * If you know that all of your scenes will only either be in 2D or 3D, then you can call
    * begin_2d_scene()/begin_3d_scene() in init_scene() & resize_scene(), instead of in the
    * main loop with draw_scene().
+   * - This also applies to: begin_*center(), begin_*scale(), begin_*offset().
    */
   virtual void init_scene(Renderer& /*ren*/) {}
   virtual void resize_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}

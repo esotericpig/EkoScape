@@ -37,17 +37,26 @@ std::shared_ptr<Scene> EkoScape::build_scene(int action) {
       pop_scene();
       break;
 
+    case SceneAction::kGoToBoringWork:
+      scene = std::make_shared<BoringWorkScene>(*assets_);
+      break;
+
     case SceneAction::kGoToMenu:
       scene = std::make_shared<MenuScene>(*assets_);
       break;
 
     case SceneAction::kGoToGame:
-      try {
-        scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
-      } catch(const EkoScapeError& e) {
-        game_engine_->show_error(e.what());
-        scene = nullptr;
+      // Was not paused?
+      if(!game_scene_) {
+        try {
+          game_scene_ = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
+        } catch(const EkoScapeError& e) {
+          game_engine_->show_error(e.what());
+          game_scene_ = nullptr;
+        }
       }
+
+      scene = game_scene_;
       break;
 
     default: break;
@@ -57,6 +66,10 @@ std::shared_ptr<Scene> EkoScape::build_scene(int action) {
 }
 
 void EkoScape::pop_scene() {
+  if(game_engine_->curr_scene_type() == SceneAction::kGoToGame) {
+    game_scene_ = nullptr;
+  }
+
   if(!game_engine_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
     game_engine_->request_stop();
@@ -66,12 +79,6 @@ void EkoScape::pop_scene() {
 void EkoScape::run() {
   play_music();
   game_engine_->run(); // Game loop.
-}
-
-void EkoScape::play_music() {
-  if(game_engine_->has_music_player() && assets_->music() != nullptr) {
-    game_engine_->play_music(*assets_->music());
-  }
 }
 
 void EkoScape::on_key_down_event(SDL_Keycode key) {
@@ -84,6 +91,7 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
       game_engine_->stop_music();
       break;
 
+    // Toggle music.
     case SDLK_m:
       if(game_engine_->is_music_playing()) {
         game_engine_->stop_music();
@@ -95,6 +103,21 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
     case SDLK_BACKSPACE:
       pop_scene();
       break;
+
+    // Toggle boring work scene.
+    case SDLK_b:
+      if(game_engine_->curr_scene_type() == SceneAction::kGoToBoringWork) {
+        pop_scene();
+      } else {
+        game_engine_->push_scene(SceneAction::kGoToBoringWork);
+      }
+      break;
+  }
+}
+
+void EkoScape::play_music() {
+  if(game_engine_->has_music_player() && assets_->music() != nullptr) {
+    game_engine_->play_music(*assets_->music());
   }
 }
 

@@ -14,6 +14,7 @@
 #include "core/game_engine.h"
 #include "core/scene.h"
 
+#include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"
@@ -39,19 +40,17 @@ public:
   explicit EkoScape(Config config);
 
   std::shared_ptr<Scene> build_scene(int type);
-
   void run();
-  void play_music();
-
   void on_key_down_event(SDL_Keycode key) override;
+  void play_music();
 
   static void show_error_global(const std::string& error);
 
 private:
   int dantares_dist_ = 0;
-
   std::unique_ptr<Assets> assets_{};
   std::filesystem::path map_file_{};
+  std::shared_ptr<GameScene> game_scene_{};
 
   void pop_scene();
 };
