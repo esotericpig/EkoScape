@@ -82,11 +82,31 @@ public:
   void resize(const Size2i& size);
   void clear_view();
 
-  void begin_2d_scene();
-  void begin_3d_scene();
+  Renderer& begin_2d_scene();
+  Renderer& begin_3d_scene();
 
-  Renderer& wrap_scale(const WrapCallback& callback);
-  Renderer& wrap_scale(float scale,const WrapCallback& callback);
+  Renderer& begin_auto_center();
+  Renderer& end_auto_center();
+
+  Renderer& begin_auto_scale();
+  Renderer& begin_scale(float scale);
+  Renderer& end_scale();
+
+  /**
+   * This uses the scale, so if you want to change the scale, you must change it first
+   * before calling this function.
+   * - Note that this is done for you automatically in begin_auto_center().
+   */
+  Renderer& begin_auto_center_offset();
+  Renderer& begin_offset(float x_offset,float y_offset);
+  Renderer& end_offset();
+
+  Renderer& begin_color(const Color4f& color);
+  Renderer& end_color();
+
+  Renderer& begin_texture(const Texture& texture);
+  Renderer& end_texture();
+
   Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
 
   Renderer& wrap_texture(const Texture& texture,const WrapTextureCallback& callback);
@@ -95,6 +115,7 @@ public:
   Renderer& wrap_texture(const TextureBag& tex_bag,const Pos4f& src,const WrapTextureCallback& callback);
 
   Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);
+
   Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,const WrapFontAtlasCallback& callback);
   Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
       ,const WrapFontAtlasCallback& callback);
@@ -102,9 +123,6 @@ public:
       ,const Size2i& spacing,const WrapFontAtlasCallback& callback);
   Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,const Size2i& spacing
       ,const WrapFontAtlasCallback& callback);
-
-  Renderer& begin_texture(const Texture& texture);
-  Renderer& end_texture();
 
   Renderer& draw_quad(int x,int y,int width,int height);
   Renderer& draw_quad(const Pos4f& src,int x,int y,int width,int height);
@@ -116,6 +134,8 @@ public:
 
 private:
   ViewDimens dimens_{};
+  float scale_ = 1.0f;
+  Pos2f offset_{0.0f,0.0f};
   Color4f clear_color_{};
 
   void init_gl();

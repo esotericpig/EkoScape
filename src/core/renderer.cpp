@@ -157,12 +157,13 @@ void Renderer::resize(const Size2i& size) {
   // Allow resize even if the width & height haven't changed.
   // - If decide to change this logic, need to allow force resize so can resize on init.
 
-  // Avoid divides by 0 [e.g., begin_3d_scene()].
+  // Avoid divides by 0 [e.g., in begin_3d_scene()].
   dimens_.size.w = (size.w > 0) ? size.w : 1;
   dimens_.size.h = (size.h > 0) ? size.h : 1;
+  // Target size should never be 0 (checked in ctor).
   dimens_.scale = std::min(
-    static_cast<float>(dimens_.size.w) / static_cast<float>(dimens_.target_size.w)
-    ,static_cast<float>(dimens_.size.h) / static_cast<float>(dimens_.target_size.h)
+    static_cast<float>(dimens_.size.w) / static_cast<float>(dimens_.target_size.w),
+    static_cast<float>(dimens_.size.h) / static_cast<float>(dimens_.target_size.h)
   );
 
   glViewport(0,0,dimens_.size.w,dimens_.size.h);
@@ -175,7 +176,7 @@ void Renderer::clear_view() {
   glLoadIdentity();
 }
 
-void Renderer::begin_2d_scene() {
+Renderer& Renderer::begin_2d_scene() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
@@ -183,9 +184,11 @@ void Renderer::begin_2d_scene() {
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+
+  return *this;
 }
 
-void Renderer::begin_3d_scene() {
+Renderer& Renderer::begin_3d_scene() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
@@ -194,28 +197,83 @@ void Renderer::begin_3d_scene() {
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+
+  return *this;
 }
 
-Renderer& Renderer::wrap_scale(const WrapCallback& callback) {
-  return wrap_scale(1.0f,callback);
+Renderer& Renderer::begin_auto_center() {
+  // Must change scale first before offset, since center offset uses scale.
+  return begin_auto_scale().begin_auto_center_offset();
 }
 
-Renderer& Renderer::wrap_scale(float scale,const WrapCallback& callback) {
-  const float orig_scale = dimens_.scale;
+Renderer& Renderer::end_auto_center() {
+  return end_offset().end_scale();
+}
 
-  dimens_.scale = scale;
-  callback();
-  dimens_.scale = orig_scale;
+Renderer& Renderer::begin_auto_scale() { return begin_scale(dimens_.scale); }
+
+Renderer& Renderer::begin_scale(float scale) {
+  scale_ = scale;
+  return *this;
+}
+
+Renderer& Renderer::end_scale() {
+  scale_ = 1.0f;
+  return *this;
+}
+
+Renderer& Renderer::begin_auto_center_offset() {
+  const float w = static_cast<float>(dimens_.size.w);
+  const float h = static_cast<float>(dimens_.size.h);
+  const float tw = static_cast<float>(dimens_.target_size.w);
+  const float th = static_cast<float>(dimens_.target_size.h);
+
+  return begin_offset((w - (tw * scale_)) / 2.0f,(h - (th * scale_)) / 2.0f);
+}
+
+Renderer& Renderer::begin_offset(float x_offset,float y_offset) {
+  offset_.x = x_offset;
+  offset_.y = y_offset;
+
+  return *this;
+}
+
+Renderer& Renderer::end_offset() {
+  offset_.x = 0.0f;
+  offset_.y = 0.0f;
+
+  return *this;
+}
+
+Renderer& Renderer::begin_color(const Color4f& color) {
+  glColor4f(color.r,color.g,color.b,color.a);
+  return *this;
+}
+
+Renderer& Renderer::end_color() {
+  glColor4f(1.0f,1.0f,1.0f,1.0f);
+  return *this;
+}
+
+Renderer& Renderer::begin_texture(const Texture& texture) {
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D,texture.gl_id());
+
+  return *this;
+}
+
+Renderer& Renderer::end_texture() {
+  glBindTexture(GL_TEXTURE_2D,0); // Unbind.
+  glDisable(GL_TEXTURE_2D);
 
   return *this;
 }
 
 Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback) {
-  glColor4f(color.r,color.g,color.b,color.a);
+  begin_color(color);
   callback();
-  glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-  return *this;
+  return end_color();
 }
 
 Renderer& Renderer::wrap_texture(const Texture& texture,const WrapTextureCallback& callback) {
@@ -275,20 +333,6 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,const Size
   return wrap_font_atlas(font,x,y,font.cell_size().w,font.cell_size().h,spacing,callback);
 }
 
-Renderer& Renderer::begin_texture(const Texture& texture) {
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D,texture.gl_id());
-
-  return *this;
-}
-
-Renderer& Renderer::end_texture() {
-  glBindTexture(GL_TEXTURE_2D,0); // Unbind.
-  glDisable(GL_TEXTURE_2D);
-
-  return *this;
-}
-
 Renderer& Renderer::draw_quad(int x,int y,int width,int height) {
   Pos4f dest = build_dest_pos4f(x,y,width,height);
 
@@ -316,10 +360,10 @@ Renderer& Renderer::draw_quad(const Pos4f& src,int x,int y,int width,int height)
 }
 
 Pos4f Renderer::build_dest_pos4f(int x,int y,int width,int height) {
-  float x1 = static_cast<float>(x) * dimens_.scale;
-  float y1 = static_cast<float>(y) * dimens_.scale;
-  float x2 = x1 + (static_cast<float>(width) * dimens_.scale);
-  float y2 = y1 + (static_cast<float>(height) * dimens_.scale);
+  float x1 = offset_.x + (static_cast<float>(x) * scale_);
+  float y1 = offset_.y + (static_cast<float>(y) * scale_);
+  float x2 = x1 + (static_cast<float>(width) * scale_);
+  float y2 = y1 + (static_cast<float>(height) * scale_);
 
   return {x1,y1,x2,y2};
 }
