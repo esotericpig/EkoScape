@@ -49,6 +49,7 @@ public:
   const Sprite& logo_sprite() const;
   const FontAtlas& font_atlas() const;
   const Sprite& keys_sprite() const;
+  const Sprite& boring_work_sprite() const;
 
   const Music* music() const;
 
@@ -59,6 +60,7 @@ private:
   std::unique_ptr<Sprite> logo_sprite_{};
   std::unique_ptr<FontAtlas> font_atlas_{};
   std::unique_ptr<Sprite> keys_sprite_{};
+  std::unique_ptr<Sprite> boring_work_sprite_{};
 
   std::unique_ptr<Music> music_{};
 

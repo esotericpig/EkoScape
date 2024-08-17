@@ -21,6 +21,10 @@ int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/) {
 
 void BoringWorkScene::draw_scene(Renderer& ren) {
   ren.begin_2d_scene();
+
+  ren.wrap_sprite(assets_.boring_work_sprite(),[&](auto& s) {
+    s.draw_quad(0,0,ren.dimens().size.w,ren.dimens().size.h);
+  });
 }
 
 } // Namespace.

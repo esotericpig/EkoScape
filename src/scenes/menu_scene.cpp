@@ -151,6 +151,8 @@ void MenuScene::draw_scene(Renderer& ren) {
   ren.wrap_sprite(assets_.keys_sprite(),[&](auto& s) {
     s.draw_quad(849,670,741,220); // 1482x440.
   });
+
+  ren.end_scale_offset();
 }
 
 void MenuScene::update_graphics_option(Option& option) {
