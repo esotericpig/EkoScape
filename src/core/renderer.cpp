@@ -284,10 +284,6 @@ Renderer& Renderer::begin_texture(const Texture& texture) {
   return *this;
 }
 
-Renderer& Renderer::begin_texture(const TextureBag& tex_bag) {
-  return begin_texture(tex_bag.texture());
-}
-
 Renderer& Renderer::end_texture() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);
@@ -314,15 +310,6 @@ Renderer& Renderer::wrap_texture(const Texture& texture,const Pos4f& src
   callback(wrapper);
 
   return end_texture();
-}
-
-Renderer& Renderer::wrap_texture(const TextureBag& tex_bag,const WrapTextureCallback& callback) {
-  return wrap_texture(tex_bag.texture(),callback);
-}
-
-Renderer& Renderer::wrap_texture(const TextureBag& tex_bag,const Pos4f& src
-    ,const WrapTextureCallback& callback) {
-  return wrap_texture(tex_bag.texture(),src,callback);
 }
 
 Renderer& Renderer::wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback) {

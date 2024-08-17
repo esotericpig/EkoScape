@@ -12,13 +12,13 @@
 
 #include "render_data.h"
 #include "sprite.h"
-#include "texture_bag.h"
+#include "texture.h"
 
 #include <vector>
 
 namespace ekoscape {
 
-class SpriteAtlas : public TextureBag {
+class SpriteAtlas {
 public:
   class Builder {
   public:
@@ -45,7 +45,7 @@ public:
 
   virtual ~SpriteAtlas() noexcept = default;
 
-  const Texture& texture() const override;
+  const Texture& texture() const;
   const Pos4f* src(int index) const;
   const Pos4f* src(int column,int row) const;
   const Size2i& cell_size() const;

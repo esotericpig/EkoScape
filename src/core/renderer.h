@@ -15,7 +15,6 @@
 #include "render_data.h"
 #include "sprite_atlas.h"
 #include "texture.h"
-#include "texture_bag.h"
 #include "util.h"
 
 #include <functional>
@@ -138,15 +137,12 @@ public:
   Renderer& end_color();
 
   Renderer& begin_texture(const Texture& texture);
-  Renderer& begin_texture(const TextureBag& tex_bag);
   Renderer& end_texture();
 
   Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
 
   Renderer& wrap_texture(const Texture& texture,const WrapTextureCallback& callback);
   Renderer& wrap_texture(const Texture& texture,const Pos4f& src,const WrapTextureCallback& callback);
-  Renderer& wrap_texture(const TextureBag& tex_bag,const WrapTextureCallback& callback);
-  Renderer& wrap_texture(const TextureBag& tex_bag,const Pos4f& src,const WrapTextureCallback& callback);
 
   Renderer& wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback);
   Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);

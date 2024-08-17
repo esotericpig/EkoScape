@@ -11,6 +11,7 @@
 #include "common.h"
 
 #include "sprite_atlas.h"
+#include "texture.h"
 
 #include <unordered_map>
 #include <vector>
