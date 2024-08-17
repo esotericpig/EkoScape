@@ -36,7 +36,7 @@ public:
     friend class SpriteAtlas;
 
   protected:
-    std::shared_ptr<Texture> texture_;
+    std::shared_ptr<Texture> texture_{};
     Pos2i offset_{};
     Size2i cell_size_{};
     int cell_padding_ = 0;
@@ -53,11 +53,11 @@ public:
   int cell_count() const;
 
 protected:
-  std::shared_ptr<Texture> texture_;
+  std::shared_ptr<Texture> texture_{};
   Size2i cell_size_{};
-  Size2i grid_size_;
-  int cell_count_;
-  std::vector<Pos4f> index_to_src_;
+  Size2i grid_size_{};
+  int cell_count_ = 0;
+  std::vector<Pos4f> index_to_src_{};
 
   explicit SpriteAtlas(const Builder& builder);
 };

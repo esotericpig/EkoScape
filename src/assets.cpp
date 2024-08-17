@@ -45,6 +45,7 @@ void Assets::reload_images() {
       })
       .build()
   );
+  keys_sprite_ = std::make_unique<Sprite>(Texture{Image{img_dir / "keys.png"}});
 }
 
 void Assets::reload_music() {
@@ -83,6 +84,8 @@ const Texture& Assets::white_texture() const { return *styled_graphics_.graphics
 const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
 
 const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
+
+const Sprite& Assets::keys_sprite() const { return *keys_sprite_; }
 
 const Music* Assets::music() const { return music_.get(); }
 

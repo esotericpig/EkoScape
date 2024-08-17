@@ -15,8 +15,7 @@ Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& texture,co
     : ren(ren),texture(texture),src(src) {}
 
 Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y) {
-  draw_quad(x,y,texture.width(),texture.height());
-  return *this;
+  return draw_quad(x,y,texture.width(),texture.height());
 }
 
 Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y,int width,int height) {
@@ -24,20 +23,31 @@ Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y,int wi
   return *this;
 }
 
+Renderer::SpriteWrapper::SpriteWrapper(Renderer& ren,const Sprite& sprite)
+    : ren(ren),sprite(sprite) {}
+
+Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(int x,int y) {
+  return draw_quad(x,y,sprite.size().w,sprite.size().h);
+}
+
+Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(int x,int y,int width,int height) {
+  ren.draw_quad(sprite.src(),x,y,width,height);
+  return *this;
+}
+
 Renderer::SpriteAtlasWrapper::SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas)
     : ren(ren),atlas(atlas) {}
 
 Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,int x,int y) {
-  draw_quad(index,x,y,atlas.cell_size().w,atlas.cell_size().h);
-  return *this;
+  return draw_quad(index,x,y,atlas.cell_size().w,atlas.cell_size().h);
 }
 
 Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,int x,int y,int width
     ,int height) {
   const Pos4f* src = atlas.src(index);
-  if(src == nullptr) { return *this; }
 
-  ren.draw_quad(*src,x,y,width,height);
+  if(src != nullptr) { ren.draw_quad(*src,x,y,width,height); }
+
   return *this;
 }
 
@@ -48,9 +58,9 @@ Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column
 Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column,int row,int x,int y
     ,int width,int height) {
   const Pos4f* src = atlas.src(column,row);
-  if(src == nullptr) { return *this; }
 
-  ren.draw_quad(*src,x,y,width,height);
+  if(src != nullptr) { ren.draw_quad(*src,x,y,width,height); }
+
   return *this;
 }
 
@@ -63,23 +73,24 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() {
   return *this;
 }
 
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {
+  const Pos4f* src = font.src(font.char_index(c));
+
+  if(src != nullptr) { ren.draw_quad(*src,pos.x,pos.y,char_size.w,char_size.h); }
+
+  return print();
+}
+
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const tiny_utf8::string& str) {
   if(str.empty()) { return print(); }
 
-  const int x_spacing = char_size.w + spacing.w;
-  const int y_spacing = char_size.h + spacing.h;
-
-  for(auto c: str) {
+  for(char32_t c: str) {
     if(c == '\n') {
-      pos.x = init_pos.x;
-      pos.y += y_spacing;
+      puts();
       continue;
     }
 
-    const Pos4f* src = font.src(font.char_index(c));
-    if(src != nullptr) { ren.draw_quad(*src,pos.x,pos.y,char_size.w,char_size.h); }
-
-    pos.x += x_spacing;
+    print(c);
   }
 
   return *this;
@@ -99,6 +110,11 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() {
   pos.y += (char_size.h + spacing.h);
 
   return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t c) {
+  print(c);
+  return puts();
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const tiny_utf8::string& str) {
@@ -201,12 +217,18 @@ Renderer& Renderer::begin_3d_scene() {
   return *this;
 }
 
+Renderer& Renderer::end_all() {
+  return end_scale_offset()
+        .end_color()
+        .end_texture();
+}
+
 Renderer& Renderer::begin_auto_center() {
   // Must change scale first before offset, since center offset uses scale.
   return begin_auto_scale().begin_auto_center_offset();
 }
 
-Renderer& Renderer::end_auto_center() {
+Renderer& Renderer::end_scale_offset() {
   return end_offset().end_scale();
 }
 
@@ -262,6 +284,10 @@ Renderer& Renderer::begin_texture(const Texture& texture) {
   return *this;
 }
 
+Renderer& Renderer::begin_texture(const TextureBag& tex_bag) {
+  return begin_texture(tex_bag.texture());
+}
+
 Renderer& Renderer::end_texture() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);
@@ -297,6 +323,15 @@ Renderer& Renderer::wrap_texture(const TextureBag& tex_bag,const WrapTextureCall
 Renderer& Renderer::wrap_texture(const TextureBag& tex_bag,const Pos4f& src
     ,const WrapTextureCallback& callback) {
   return wrap_texture(tex_bag.texture(),src,callback);
+}
+
+Renderer& Renderer::wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback) {
+  SpriteWrapper wrapper{*this,sprite};
+
+  begin_texture(sprite.texture());
+  callback(wrapper);
+
+  return end_texture();
 }
 
 Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback) {

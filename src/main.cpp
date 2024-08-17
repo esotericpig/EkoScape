@@ -7,8 +7,8 @@
 
 #include "ekoscape.h"
 
-// TODO: Implement MenuScene.
-//       - Have `default` and `realistic` graphics and can choose in menu.
+// TODO: Implement MenuPlayScene.
+//       Need to walk assets/maps dir. Show as "classic / Title by Author" or something.
 // TODO: Implement GameOver (GameOverScene?) in GameScene to show message and to press Enter.
 //       After enter, go to MenuScene.
 // TODO: Implement mini map (MiniMapScene?) in GameScene and include number of Ekos rescued out of total.
@@ -16,6 +16,8 @@
 //       - Special color for non-walkable, Robot, Cell, and "fruit".
 //       Moore neighborhood of 4 spaces out or whatever (param). Can implement in Map.
 // TODO: credits in ReadMe and in game: Ryan, Monogram
+//       - https://datagoblin.itch.io/monogram
+//       - https://www.piskelapp.com/
 
 // TODO: Use own Ogg music from iPad.
 // TODO: If special flag, make weird colors and also flip cell & robot (flips capture).
@@ -39,9 +41,11 @@
 // TODO: Make flatpack/snap/appimage.
 // TODO: Try using emscripten to make web version.
 // TODO: Publish on itch.io?
+// TODO: Can we put this crap on Roku?
 
-// TODO: Use CMake. Probably Premake actually. Maybe use CLion first and see what it uses.
+// TODO: Use CMake & vcpkg. Maybe use CLion first and see what it uses.
 //       - https://internalpointers.com/post/modern-cmake-beginner-introduction
+//       - https://github.com/gosu/gosu/blob/master/CMakeLists.txt
 //       Use Meson?
 //       - https://mesonbuild.com/Wrapdb-projects.html
 //       - https://mesonbuild.com/Wrap-dependency-system-manual.html
@@ -49,11 +53,6 @@
 //       - https://mesonbuild.com/FAQ.html#should-i-check-for-buildtype-or-individual-options-like-debug-in-my-build-files
 //       - mylib = library('mylib', 'mysource.c', c_args: ['-DFOO'])
 // TODO: Test pulling down project in clean Linux VM and building.
-
-
-// TODO: Remove after testing.
-using namespace ekoscape;
-
 
 // I believe SDL requires `int main(int,char*[])`.
 // - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_...
@@ -84,9 +83,6 @@ int main(int /*argc*/,char** /*argv*/) {
     return -1;
   }
 
-  // TODO: Everything inside of EkoScape code should have individual try-catch
-  //       to show error globally.
-  //       So like when reload textures, create scene, etc.
   eko->run();
 
   return 0;
