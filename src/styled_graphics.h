@@ -35,7 +35,7 @@ public:
   };
 
   struct Graphics {
-    Style style;
+    Style style{};
     std::string name{};
 
     std::unique_ptr<Texture> ceiling_texture{};

@@ -32,31 +32,26 @@ std::string Util::strip(const std::string& str) {
 std::string Util::get_sdl_error() {
   // This should technically never return null, but Justin Case.
   const char* str = SDL_GetError();
-
   return (str == NULL) ? "" : str;
 }
 
 std::string Util::get_sdl_img_error() {
   const char* str = IMG_GetError();
-
   return (str == NULL) ? "" : str;
 }
 
 std::string Util::get_sdl_mix_error() {
   const char* str = Mix_GetError();
-
   return (str == NULL) ? "" : str;
 }
 
 std::string Util::get_gl_error(GLenum error) {
   const GLubyte* str = gluErrorString(error);
-
   return (str == NULL) ? "" : reinterpret_cast<const char*>(str);
 }
 
 std::string Util::get_glew_error(GLenum error) {
   const GLubyte* str = glewGetErrorString(error);
-
   return (str == NULL) ? "" : reinterpret_cast<const char*>(str);
 }
 

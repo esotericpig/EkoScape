@@ -30,15 +30,14 @@ bool TextReader::read_line(std::string& line) {
   return true;
 }
 
-bool TextReader::read(char& data) {
-  data = 0;
-
-  return in_.get(data) ? true : false;
-}
-
 bool TextReader::read(float& data) { return read_imp(data,0.0f); }
 
 bool TextReader::read(int& data) { return read_imp(data,0); }
+
+bool TextReader::get(char& data) {
+  data = 0;
+  return in_.get(data) ? true : false;
+}
 
 bool TextReader::seek_and_destroy(char target) {
   if(in_.eof()) { return false; }

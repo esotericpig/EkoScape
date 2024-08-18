@@ -32,7 +32,7 @@ public:
   const Size2i& size() const;
 
 protected:
-  std::shared_ptr<Texture> texture_;
+  std::shared_ptr<Texture> texture_{};
   Pos4f src_{};
   Size2i size_{};
 };

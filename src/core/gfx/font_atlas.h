@@ -55,9 +55,9 @@ public:
   int char_index(char32_t c) const;
 
 protected:
-  Size2i spacing_;
+  Size2i spacing_{};
   int default_index_ = 0;
-  std::unordered_map<char32_t,int> char_to_index_;
+  std::unordered_map<char32_t,int> char_to_index_{};
 
   explicit FontAtlas(const Builder& builder);
 };

@@ -16,7 +16,7 @@ namespace cybel {
 
 struct FrameStep {
   const Duration& dpf;
-  double delta_time;
+  double delta_time = 0.016;
 };
 
 } // Namespace.

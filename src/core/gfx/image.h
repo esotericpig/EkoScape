@@ -39,7 +39,7 @@ public:
   GLenum gl_type() const;
 
 private:
-  std::string id_;
+  std::string id_{};
   SDL_Surface* surface_ = NULL;
   bool is_locked_ = false;
 

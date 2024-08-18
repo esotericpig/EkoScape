@@ -66,7 +66,7 @@ Map& Map::load_file(const std::filesystem::path& file) {
   set_walking_speed(data_f);
 
   if(!reader.seek_and_destroy('\'')
-      || !reader.read(data_c)
+      || !reader.get(data_c)
       || !reader.seek_and_destroy('\'')) {
     throw CybelError{Util::build_string("Missing default empty space in map [",file,"].")};
   }

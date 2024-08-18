@@ -30,13 +30,13 @@ public:
 
   bool read_line(std::string& line);
 
+  bool read(float& data);
+  bool read(int& data);
+
   /**
    * This doesn't ignore white space.
    */
-  bool read(char& data);
-
-  bool read(float& data);
-  bool read(int& data);
+  bool get(char& data);
 
   bool seek_and_destroy(char target);
   bool consume_lines_if_empty(int line_count);
@@ -54,7 +54,6 @@ private:
 template <typename T>
 bool TextReader::read_imp(T& data,T init_value) {
   data = init_value;
-
   return (in_ >> data) ? true : false;
 }
 

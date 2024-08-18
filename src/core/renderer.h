@@ -46,7 +46,7 @@ public:
   public:
     Renderer& ren;
     const Texture& texture;
-    Pos4f src;
+    Pos4f src{};
 
     TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src);
 
@@ -82,10 +82,10 @@ public:
   public:
     Renderer& ren;
     const FontAtlas& font;
-    Pos2i init_pos;
-    Pos2i pos;
-    Size2i char_size;
-    Size2i spacing;
+    Pos2i init_pos{};
+    Pos2i pos{};
+    Size2i char_size{};
+    Size2i spacing{};
 
     FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos2i& pos,const Size2i& char_size
         ,const Size2i& spacing);
