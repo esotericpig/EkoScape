@@ -25,8 +25,8 @@ EkoScape::EkoScape(Config config) {
   }
 }
 
-std::shared_ptr<Scene> EkoScape::build_scene(int action) {
-  std::shared_ptr<Scene> scene = nullptr;
+SceneBag EkoScape::build_scene(int action) {
+  SceneBag result{action};
 
   switch(action) {
     case SceneAction::kQuit:
@@ -38,38 +38,31 @@ std::shared_ptr<Scene> EkoScape::build_scene(int action) {
       break;
 
     case SceneAction::kGoToBoringWork:
-      scene = std::make_shared<BoringWorkScene>(*assets_);
+      result.scene = std::make_shared<BoringWorkScene>(*assets_);
       break;
 
     case SceneAction::kGoToMenu:
-      scene = std::make_shared<MenuScene>(*assets_);
+      result.scene = std::make_shared<MenuScene>(*assets_);
       break;
 
+    case SceneAction::kGoToMenuPlay:
     case SceneAction::kGoToGame:
-      // Was not paused?
-      if(!game_scene_) {
-        try {
-          game_scene_ = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
-        } catch(const CybelError& e) {
-          game_engine_->show_error(e.what());
-          game_scene_ = nullptr;
-        }
+      try {
+        result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
+        result.persist = true;
+      } catch(const CybelError& e) {
+        game_engine_->show_error(e.what());
+        result.scene = nullptr;
       }
-
-      scene = game_scene_;
       break;
 
     default: break;
   }
 
-  return scene;
+  return result;
 }
 
 void EkoScape::pop_scene() {
-  if(game_engine_->curr_scene_type() == SceneAction::kGoToGame) {
-    game_scene_ = nullptr;
-  }
-
   if(!game_engine_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
     game_engine_->request_stop();

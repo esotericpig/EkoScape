@@ -15,7 +15,8 @@ namespace cybel {
 /**
  * Clamped float to [0,1].
  */
-struct Color4f {
+class Color4f {
+public:
   float r = 0.0f;
   float g = 0.0f;
   float b = 0.0f;

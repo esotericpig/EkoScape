@@ -17,6 +17,7 @@
 #include "cybel_error.h"
 #include "renderer.h"
 #include "scene.h"
+#include "scene_bag.h"
 
 #include <cmath>
 #include <functional>
@@ -56,7 +57,7 @@ public:
     int music_types = MIX_INIT_OGG;
   };
 
-  using SceneBuilder = std::function<std::shared_ptr<Scene>(int type)>;
+  using SceneBuilder = std::function<SceneBag(int type)>;
 
   static const int kFallbackWidth = 1600;
   static const int kFallbackHeight = 900;
@@ -128,9 +129,8 @@ private:
 
 private:
   Scene& main_scene_;
-  std::shared_ptr<Scene> curr_scene_{std::make_shared<Scene>()}; // Never null.
-  int curr_scene_type_ = 0;
-  std::vector<int> prev_scene_types_{};
+  SceneBag curr_scene_bag_ = SceneBag::kEmpty;
+  std::vector<SceneBag> prev_scene_bags_{};
   SceneBuilder build_scene_{};
 
   std::string title_{};
@@ -149,7 +149,7 @@ private:
   void init_renderer(const Config& config);
   void init_music_player(const Config& config);
 
-  bool set_scene(int type);
+  void set_scene(const SceneBag& scene_bag);
   void start_frame_timer();
   void end_frame_timer();
   void handle_events();

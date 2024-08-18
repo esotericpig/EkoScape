@@ -204,55 +204,61 @@ void GameEngine::resize(const Size2i& size,bool force) {
 
   renderer_->resize(size);
   main_scene_.resize_scene(*renderer_,renderer_->dimens());
-  curr_scene_->resize_scene(*renderer_,renderer_->dimens());
+  curr_scene_bag_->resize_scene(*renderer_,renderer_->dimens());
 }
 
 bool GameEngine::push_scene(int type) {
-  int prev_type = curr_scene_type_;
+  SceneBag scene_bag = build_scene_(type);
+  if(!scene_bag.scene) { return false; }
 
-  if(!set_scene(type)) { return false; }
+  SceneBag prev = curr_scene_bag_;
+  set_scene(scene_bag);
 
-  prev_scene_types_.push_back(prev_type);
+  if(!prev.persist) { prev.scene = nullptr; }
+  prev_scene_bags_.emplace_back(prev);
 
   return true;
 }
 
 bool GameEngine::pop_scene() {
-  while(!prev_scene_types_.empty()) {
-    int prev_type = prev_scene_types_.back();
-    prev_scene_types_.pop_back();
+  while(!prev_scene_bags_.empty()) {
+    SceneBag prev = prev_scene_bags_.back();
+    prev_scene_bags_.pop_back();
 
-    if(set_scene(prev_type)) { return true; }
+    if(prev.type == SceneBag::kEmptyType) { continue; }
+
+    // Not persisted? (i.e., need to recreate)
+    if(!prev.scene) {
+      prev.scene = build_scene_(prev.type).scene;
+      if(!prev.scene) { continue; }
+    }
+
+    set_scene(prev);
+    return true;
   }
 
+  curr_scene_bag_ = SceneBag::kEmpty;
   return false;
 }
 
 void GameEngine::pop_all_scenes() {
-  prev_scene_types_.clear();
-  curr_scene_ = std::make_shared<Scene>(); // Never null.
-  curr_scene_type_ = 0;
+  prev_scene_bags_.clear();
+  curr_scene_bag_ = SceneBag::kEmpty;
 }
 
-bool GameEngine::set_scene(int type) {
-  std::shared_ptr<Scene> scene = build_scene_(type);
+void GameEngine::set_scene(const SceneBag& scene_bag) {
+  if(!scene_bag.scene) { throw CybelError{"Scene is null."}; }
 
-  if(!scene) { return false; }
-
-  curr_scene_ = scene;
-  curr_scene_type_ = type;
-
-  curr_scene_->init_scene(*renderer_);
-  curr_scene_->resize_scene(*renderer_,renderer_->dimens());
-
-  return true;
+  curr_scene_bag_ = scene_bag;
+  curr_scene_bag_->init_scene(*renderer_);
+  curr_scene_bag_->resize_scene(*renderer_,renderer_->dimens());
 }
 
 void GameEngine::run() {
   is_running_ = true;
 
   main_scene_.init_scene(*renderer_);
-  curr_scene_->init_scene(*renderer_);
+  curr_scene_bag_->init_scene(*renderer_);
 
   // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
   //     and also need to call the scenes' resize() after init_scene().
@@ -264,11 +270,11 @@ void GameEngine::run() {
 
     const Uint8* keys = get_key_states();
     main_scene_.handle_key_states(keys);
-    curr_scene_->handle_key_states(keys);
+    curr_scene_bag_->handle_key_states(keys);
 
     const FrameStep& step = {dpf_,delta_time_};
     main_scene_.update_scene_logic(step);
-    push_scene(curr_scene_->update_scene_logic(step));
+    push_scene(curr_scene_bag_->update_scene_logic(step));
 
     // Check if event/scene requested to stop.
     if(!is_running_) { break; }
@@ -276,7 +282,7 @@ void GameEngine::run() {
     renderer_->clear_view();
 
     main_scene_.draw_scene(*renderer_);
-    curr_scene_->draw_scene(*renderer_);
+    curr_scene_bag_->draw_scene(*renderer_);
 
     SDL_GL_SwapWindow(res_.window);
     end_frame_timer();
@@ -327,7 +333,7 @@ void GameEngine::handle_events() {
         }
 
         main_scene_.on_key_down_event(key);
-        curr_scene_->on_key_down_event(key);
+        curr_scene_bag_->on_key_down_event(key);
       } break;
 
       case SDL_KEYUP: {
@@ -395,9 +401,9 @@ void GameEngine::show_error_global(const std::string& title,const std::string& e
 
 Scene& GameEngine::main_scene() { return main_scene_; }
 
-std::shared_ptr<Scene> GameEngine::curr_scene() const { return curr_scene_; }
+std::shared_ptr<Scene> GameEngine::curr_scene() const { return curr_scene_bag_.scene; }
 
-int GameEngine::curr_scene_type() const { return curr_scene_type_; }
+int GameEngine::curr_scene_type() const { return curr_scene_bag_.type; }
 
 const std::string& GameEngine::title() const { return title_; }
 
