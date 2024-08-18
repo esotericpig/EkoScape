@@ -5,15 +5,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_TEXTURE_H_
-#define EKOSCAPE_CORE_TEXTURE_H_
+#ifndef EKOSCAPE_CORE_GFX_TEXTURE_H_
+#define EKOSCAPE_CORE_GFX_TEXTURE_H_
 
-#include "common.h"
+#include "core/common.h"
 
-#include "ekoscape_error.h"
+#include "core/util/util.h"
+#include "core/ekoscape_error.h"
+#include "core/render_data.h"
 #include "image.h"
-#include "render_data.h"
-#include "util.h"
 
 namespace ekoscape {
 

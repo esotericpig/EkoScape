@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_SPRITE_H_
-#define EKOSCAPE_CORE_SPRITE_H_
+#ifndef EKOSCAPE_CORE_GFX_SPRITE_H_
+#define EKOSCAPE_CORE_GFX_SPRITE_H_
 
-#include "common.h"
+#include "core/common.h"
 
-#include "render_data.h"
+#include "core/render_data.h"
 #include "texture.h"
 
 namespace ekoscape {

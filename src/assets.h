@@ -10,13 +10,12 @@
 
 #include "core/common.h"
 
+#include "core/audio/music.h"
+#include "core/gfx/font_atlas.h"
+#include "core/gfx/image.h"
+#include "core/gfx/sprite.h"
+#include "core/gfx/texture.h"
 #include "core/ekoscape_error.h"
-#include "core/font_atlas.h"
-#include "core/image.h"
-#include "core/music.h"
-#include "core/sprite.h"
-#include "core/texture.h"
-
 #include "styled_graphics.h"
 
 #include <filesystem>

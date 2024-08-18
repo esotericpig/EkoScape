@@ -13,12 +13,10 @@
 #include "core/ekoscape_error.h"
 #include "core/game_engine.h"
 #include "core/scene.h"
-
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"
-
 #include "assets.h"
 
 #include <filesystem>

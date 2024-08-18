@@ -10,12 +10,12 @@
 
 #include "common.h"
 
+#include "gfx/font_atlas.h"
+#include "gfx/sprite_atlas.h"
+#include "gfx/texture.h"
+#include "util/util.h"
 #include "ekoscape_error.h"
-#include "font_atlas.h"
 #include "render_data.h"
-#include "sprite_atlas.h"
-#include "texture.h"
-#include "util.h"
 
 #include <functional>
 #include <vector>

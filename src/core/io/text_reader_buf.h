@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_TEXT_READER_BUF_H_
-#define EKOSCAPE_CORE_TEXT_READER_BUF_H_
+#ifndef EKOSCAPE_CORE_IO_TEXT_READER_BUF_H_
+#define EKOSCAPE_CORE_IO_TEXT_READER_BUF_H_
 
-#include "common.h"
+#include "core/common.h"
 
-#include "ekoscape_error.h"
-#include "util.h"
+#include "core/util/util.h"
+#include "core/ekoscape_error.h"
 
 #include <algorithm>
 #include <filesystem>

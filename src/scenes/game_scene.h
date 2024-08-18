@@ -10,14 +10,11 @@
 
 #include "core/common.h"
 
+#include "core/gfx/texture.h"
+#include "core/util/timer.h"
 #include "core/scene.h"
-#include "core/texture.h"
-#include "core/timer.h"
-
 #include "map/dantares_map.h"
-
 #include "world/robot.h"
-
 #include "assets.h"
 #include "scene_action.h"
 

@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#include "duration.h"
+#include "util/duration.h"
 
 namespace ekoscape {
 

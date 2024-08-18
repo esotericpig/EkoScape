@@ -11,7 +11,6 @@
 #include "core/common.h"
 
 #include "core/scene.h"
-
 #include "assets.h"
 #include "scene_action.h"
 

@@ -10,10 +10,8 @@
 
 #include "core/common.h"
 
-#include "core/rando.h"
-
+#include "core/util/rando.h"
 #include "map/dantares_map.h"
-
 #include "thing.h"
 
 namespace ekoscape {

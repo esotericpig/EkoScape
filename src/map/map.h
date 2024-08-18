@@ -10,11 +10,10 @@
 
 #include "core/common.h"
 
-#include "core/duration.h"
+#include "core/io/text_reader.h"
+#include "core/util/duration.h"
+#include "core/util/util.h"
 #include "core/ekoscape_error.h"
-#include "core/text_reader.h"
-#include "core/util.h"
-
 #include "facing.h"
 #include "space.h"
 #include "space_type.h"

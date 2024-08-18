@@ -10,9 +10,8 @@
 
 #include "core/common.h"
 
+#include "core/util/util.h"
 #include "core/ekoscape_error.h"
-#include "core/util.h"
-
 #include "facing.h"
 #include "map.h"
 #include "space.h"

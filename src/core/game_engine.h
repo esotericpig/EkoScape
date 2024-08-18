@@ -10,13 +10,13 @@
 
 #include "common.h"
 
-#include "duration.h"
+#include "audio/music.h"
+#include "util/duration.h"
+#include "util/timer.h"
+#include "util/util.h"
 #include "ekoscape_error.h"
-#include "music.h"
 #include "renderer.h"
 #include "scene.h"
-#include "timer.h"
-#include "util.h"
 
 #include <cmath>
 #include <functional>

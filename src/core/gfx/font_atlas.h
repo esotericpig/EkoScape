@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_FONT_ATLAS_H_
-#define EKOSCAPE_CORE_FONT_ATLAS_H_
+#ifndef EKOSCAPE_CORE_GFX_FONT_ATLAS_H_
+#define EKOSCAPE_CORE_GFX_FONT_ATLAS_H_
 
-#include "common.h"
+#include "core/common.h"
 
 #include "sprite_atlas.h"
 #include "texture.h"

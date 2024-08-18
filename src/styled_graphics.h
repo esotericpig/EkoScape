@@ -10,9 +10,9 @@
 
 #include "core/common.h"
 
+#include "core/gfx/texture.h"
+#include "core/util/util.h"
 #include "core/ekoscape_error.h"
-#include "core/texture.h"
-#include "core/util.h"
 
 #include <filesystem>
 #include <vector>
