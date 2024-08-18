@@ -13,7 +13,7 @@
 #include "core/render_data.h"
 #include "texture.h"
 
-namespace ekoscape {
+namespace cybel {
 
 class Renderer;
 

@@ -16,7 +16,7 @@
 
 #include <vector>
 
-namespace ekoscape {
+namespace cybel {
 
 class SpriteAtlas {
 public:

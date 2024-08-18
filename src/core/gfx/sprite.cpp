@@ -7,7 +7,7 @@
 
 #include "sprite.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Pos4f Sprite::build_src(const Texture& texture,const Pos2i& offset,const Size2i& size,int padding) {
   Pos4f src{};

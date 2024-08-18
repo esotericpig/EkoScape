@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ekoscape {
+namespace cybel {
 
 class FontAtlas : public SpriteAtlas {
 public:

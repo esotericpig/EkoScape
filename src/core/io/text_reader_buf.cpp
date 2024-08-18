@@ -7,7 +7,7 @@
 
 #include "text_reader_buf.h"
 
-namespace ekoscape {
+namespace cybel {
 
 TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size) {
   const std::u8string file_str = file.u8string();
@@ -18,7 +18,7 @@ TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffe
   context_ = SDL_RWFromFile(file_cstr,"r");
 
   if(context_ == NULL) {
-    throw EkoScapeError{Util::build_string("Failed to open file [",file_cstr,"] for reading: "
+    throw CybelError{Util::build_string("Failed to open file [",file_cstr,"] for reading: "
         ,Util::get_sdl_error(),'.')};
   }
 

@@ -13,7 +13,7 @@
 #include "renderer.h"
 #include "scene_data.h"
 
-namespace ekoscape {
+namespace cybel {
 
 class Scene {
 public:

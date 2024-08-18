@@ -11,11 +11,11 @@
 #include "core/common.h"
 
 #include "core/util/util.h"
-#include "core/ekoscape_error.h"
+#include "core/cybel_error.h"
 #include "core/render_data.h"
 #include "image.h"
 
-namespace ekoscape {
+namespace cybel {
 
 /**
  * Only supports images with BPP of: RGB, RGBA, BGR, or BGRA.

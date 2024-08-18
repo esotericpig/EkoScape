@@ -7,7 +7,7 @@
 
 #include "rando.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Rando::Rando() {}
 

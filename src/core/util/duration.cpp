@@ -7,7 +7,7 @@
 
 #include "duration.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Duration::Duration() {}
 

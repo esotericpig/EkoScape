@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-namespace ekoscape {
+namespace cybel {
 
 /**
  * Clamped float to [0,1].

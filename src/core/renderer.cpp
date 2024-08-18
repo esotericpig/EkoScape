@@ -7,7 +7,7 @@
 
 #include "renderer.h"
 
-namespace ekoscape {
+namespace cybel {
 
 const Pos4f Renderer::kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
 
@@ -164,7 +164,7 @@ void Renderer::init_gl() {
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    throw EkoScapeError{Util::build_string("Failed to init OpenGL [",error,"]: "
+    throw CybelError{Util::build_string("Failed to init OpenGL [",error,"]: "
         ,Util::get_gl_error(error),'.')};
   }
 }

@@ -7,7 +7,7 @@
 
 #include "render_data.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Color4f::Color4f() {}
 

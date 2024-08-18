@@ -5,17 +5,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_EKOSCAPE_ERROR_H_
-#define EKOSCAPE_CORE_EKOSCAPE_ERROR_H_
+#ifndef EKOSCAPE_CORE_CYBEL_ERROR_H_
+#define EKOSCAPE_CORE_CYBEL_ERROR_H_
 
 #include "common.h"
 
-namespace ekoscape {
+namespace cybel {
 
-class EkoScapeError : public std::exception {
+class CybelError : public std::exception {
 public:
-  EkoScapeError() noexcept;
-  explicit EkoScapeError(const std::string& msg) noexcept;
+  CybelError() noexcept;
+  explicit CybelError(const std::string& msg) noexcept;
 
   const char* what() const noexcept override;
 

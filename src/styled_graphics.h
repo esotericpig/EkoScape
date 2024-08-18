@@ -12,12 +12,14 @@
 
 #include "core/gfx/texture.h"
 #include "core/util/util.h"
-#include "core/ekoscape_error.h"
+#include "core/cybel_error.h"
 
 #include <filesystem>
 #include <vector>
 
 namespace ekoscape {
+
+using namespace cybel;
 
 /**
  * This can contain Textures, Sprites, Fonts, etc.

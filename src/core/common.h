@@ -9,12 +9,12 @@
 #define EKOSCAPE_CORE_COMMON_H_
 
 // TODO: Define in build.
-#if defined(EKOSCAPE_MACOS)
+#if defined(CYBEL_MACOS)
   #define DANTARES_MACOS
 
   #include <OpenGL/glew.h>
   #include <OpenGL/glu.h>
-#elif defined(EKOSCAPE_WINDOWS)
+#elif defined(CYBEL_WINDOWS)
   #define DANTARES_WINDOWS
 
   #include <GL/glew.h>

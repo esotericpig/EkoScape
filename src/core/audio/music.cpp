@@ -7,7 +7,7 @@
 
 #include "music.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Music::Music(const std::filesystem::path& file) {
   const std::u8string file_str = file.u8string();
@@ -16,7 +16,7 @@ Music::Music(const std::filesystem::path& file) {
   music_ = Mix_LoadMUS(file_cstr);
 
   if(music_ == NULL) {
-    throw EkoScapeError{Util::build_string("Failed to load music [",file_cstr,"]: "
+    throw CybelError{Util::build_string("Failed to load music [",file_cstr,"]: "
         ,Util::get_sdl_mix_error(),'.')};
   }
 }

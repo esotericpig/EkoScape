@@ -81,7 +81,7 @@ int main(int /*argc*/,char** /*argv*/) {
     config.target_size = {1600,900};
 
     eko = std::make_unique<EkoScape>(config);
-  } catch(const EkoScapeError& e) {
+  } catch(const CybelError& e) {
     EkoScape::show_error_global(e.what());
     return -1;
   } catch(const std::invalid_argument& e) {

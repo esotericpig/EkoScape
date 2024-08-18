@@ -14,13 +14,13 @@
 #include "gfx/sprite_atlas.h"
 #include "gfx/texture.h"
 #include "util/util.h"
-#include "ekoscape_error.h"
+#include "cybel_error.h"
 #include "render_data.h"
 
 #include <functional>
 #include <vector>
 
-namespace ekoscape {
+namespace cybel {
 
 /**
  * Note that wrapping inside of a wrap doesn't work as one might expect.

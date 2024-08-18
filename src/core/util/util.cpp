@@ -7,7 +7,7 @@
 
 #include "util.h"
 
-namespace ekoscape {
+namespace cybel {
 
 std::string Util::strip(const std::string& str) {
   if(str.empty()) { return str; }

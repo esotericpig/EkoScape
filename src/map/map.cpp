@@ -21,7 +21,7 @@ bool Map::is_map_file(const std::filesystem::path& file) {
     if(!parse_header(line,version,false)) { return false; }
 
     return version >= kMinSupportedVersion && version <= kMaxSupportedVersion;
-  } catch(const EkoScapeError& e) {
+  } catch(const CybelError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     return false;
   }
@@ -35,51 +35,51 @@ Map& Map::load_file(const std::filesystem::path& file) {
   int data_i = 0;
 
   if(!reader.read_line(line)) {
-    throw EkoScapeError{Util::build_string("Missing header in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing header in map [",file,"].")};
   }
   if(!parse_header(line,data_i)) {
-    throw EkoScapeError{Util::build_string("Invalid header [",line,"] in map [",file,"].")};
+    throw CybelError{Util::build_string("Invalid header [",line,"] in map [",file,"].")};
   }
   if(data_i < kMinSupportedVersion || data_i > kMaxSupportedVersion) {
-    throw EkoScapeError{Util::build_string("Unsupported version [",data_i,"] in map [",file,"].")};
+    throw CybelError{Util::build_string("Unsupported version [",data_i,"] in map [",file,"].")};
   }
   version_ = data_i;
 
   if(!reader.read_line(line)) {
-    throw EkoScapeError{Util::build_string("Missing title in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing title in map [",file,"].")};
   }
   set_title(line);
 
   if(!reader.read_line(line)) {
-    throw EkoScapeError{Util::build_string("Missing author in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing author in map [",file,"].")};
   }
   set_author(line);
 
   if(!reader.read(data_f)) {
-    throw EkoScapeError{Util::build_string("Missing turning speed in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing turning speed in map [",file,"].")};
   }
   set_turning_speed(data_f);
 
   if(!reader.read(data_f)) {
-    throw EkoScapeError{Util::build_string("Missing walking speed in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing walking speed in map [",file,"].")};
   }
   set_walking_speed(data_f);
 
   if(!reader.seek_and_destroy('\'')
       || !reader.read(data_c)
       || !reader.seek_and_destroy('\'')) {
-    throw EkoScapeError{Util::build_string("Missing default empty space in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing default empty space in map [",file,"].")};
   }
   set_default_empty(SpaceTypes::to_space_type(data_c));
 
   if(!reader.read(data_i)) {
-    throw EkoScapeError{Util::build_string("Missing robot delay in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing robot delay in map [",file,"].")};
   }
   set_robot_delay(Duration::from_millis(data_i));
 
   if(!reader.read_line(line) // Finish consuming previous line.
       || !reader.consume_lines_if_empty(1)) {
-    throw EkoScapeError{Util::build_string("Missing map grid in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing map grid in map [",file,"].")};
   }
 
   std::vector<std::string> lines{};
@@ -96,7 +96,7 @@ Map& Map::load_file(const std::filesystem::path& file) {
   }
 
   if(lines.empty() || width <= 0) {
-    throw EkoScapeError{Util::build_string("Missing map grid in map [",file,"].")};
+    throw CybelError{Util::build_string("Missing map grid in map [",file,"].")};
   }
 
   return parse_grid(lines,width,static_cast<int>(lines.size()));
@@ -202,17 +202,21 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
   }
 
   if(!has_player) {
-    throw EkoScapeError{Util::build_string("Missing a Player space {"
+    throw CybelError{Util::build_string(
+        "Missing a Player space {"
         ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
         ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
         ,',',SpaceTypes::value_of(SpaceType::kPlayerEast)
         ,',',SpaceTypes::value_of(SpaceType::kPlayerWest)
-        ,"} in the grid of map [",title_,"].")};
+        ,"} in the grid of map [",title_,"]."
+    )};
   }
   if(!has_end) {
-    throw EkoScapeError{Util::build_string("Missing an End space ["
+    throw CybelError{Util::build_string(
+        "Missing an End space ["
         ,SpaceTypes::value_of(SpaceType::kEnd)
-        ,"] in the grid of map [",title_,"].")};
+        ,"] in the grid of map [",title_,"]."
+    )};
   }
 
   return *this;

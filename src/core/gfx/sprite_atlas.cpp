@@ -7,7 +7,7 @@
 
 #include "sprite_atlas.h"
 
-namespace ekoscape {
+namespace cybel {
 
 SpriteAtlas::Builder::Builder(Texture&& texture)
     : Builder(std::make_shared<Texture>(std::move(texture))) {}

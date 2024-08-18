@@ -12,7 +12,7 @@
 
 #include "duration.h"
 
-namespace ekoscape {
+namespace cybel {
 
 class Timer {
 public:

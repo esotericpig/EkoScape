@@ -21,7 +21,7 @@ EkoScape::EkoScape(Config config) {
   map_file_ = "assets/maps/classic/castles_garden.txt"; // TODO: Set by callback passed to MenuPlayScene.
 
   if(!game_engine_->push_scene(SceneAction::kGoToMenu)) {
-    throw EkoScapeError{"Failed to push the Menu Scene onto the stack."};
+    throw CybelError{"Failed to push the Menu Scene onto the stack."};
   }
 }
 
@@ -50,7 +50,7 @@ std::shared_ptr<Scene> EkoScape::build_scene(int action) {
       if(!game_scene_) {
         try {
           game_scene_ = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
-        } catch(const EkoScapeError& e) {
+        } catch(const CybelError& e) {
           game_engine_->show_error(e.what());
           game_scene_ = nullptr;
         }

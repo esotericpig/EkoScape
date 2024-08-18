@@ -12,7 +12,7 @@
 
 #include <random>
 
-namespace ekoscape {
+namespace cybel {
 
 /**
  * Min & Max are always inclusive.

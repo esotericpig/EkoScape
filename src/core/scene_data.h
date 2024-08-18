@@ -12,7 +12,7 @@
 
 #include "util/duration.h"
 
-namespace ekoscape {
+namespace cybel {
 
 struct FrameStep {
   const Duration& dpf;

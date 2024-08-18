@@ -7,7 +7,7 @@
 
 #include "font_atlas.h"
 
-namespace ekoscape {
+namespace cybel {
 
 FontAtlas::Builder::Builder(Texture&& texture)
     : Base(std::move(texture)) {}

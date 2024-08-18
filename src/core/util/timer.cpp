@@ -7,7 +7,7 @@
 
 #include "timer.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Timer::Timer(bool start) {
   if(start) { this->start(); }

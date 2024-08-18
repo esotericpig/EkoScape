@@ -11,11 +11,11 @@
 #include "core/common.h"
 
 #include "core/util/util.h"
-#include "core/ekoscape_error.h"
+#include "core/cybel_error.h"
 
 #include <filesystem>
 
-namespace ekoscape {
+namespace cybel {
 
 class Image {
 public:

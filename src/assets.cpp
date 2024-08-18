@@ -54,7 +54,7 @@ void Assets::reload_music() {
 
   try {
     //music_ = std::make_unique<Music>(kAssetsDir / "music/matrix.mid");
-  } catch(const EkoScapeError& e) {
+  } catch(const CybelError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     // Don't fail, since music is optional.
   }

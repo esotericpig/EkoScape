@@ -15,7 +15,7 @@
 #include <filesystem>
 #include <istream>
 
-namespace ekoscape {
+namespace cybel {
 
 /**
  * See limitations of TextReaderBuf before modifying this class.

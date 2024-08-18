@@ -14,34 +14,16 @@
 #include "util/duration.h"
 #include "util/timer.h"
 #include "util/util.h"
-#include "ekoscape_error.h"
+#include "cybel_error.h"
 #include "renderer.h"
 #include "scene.h"
 
 #include <cmath>
 #include <functional>
 
-namespace ekoscape {
+namespace cybel {
 
 class GameEngine {
-private:
-  // This is necessary for RAII, since GameEngine() ctor can throw an exception.
-  // I decided to do this over using `unique_ptr`s or individual wrappers.
-  class Resources {
-  public:
-    SDL_Window* window = NULL;
-    SDL_GLContext context = NULL;
-    bool has_music_player = false;
-
-    Resources() noexcept;
-    Resources(const Resources& other) = delete;
-    Resources(Resources&& other) noexcept = delete;
-    virtual ~Resources() noexcept;
-
-    Resources& operator=(const Resources& other) = delete;
-    Resources& operator=(Resources&& other) noexcept = delete;
-  } res_{};
-
 public:
   struct Config {
     std::string title{};
@@ -121,6 +103,28 @@ public:
   const Duration& target_dpf() const;
   const Duration& dpf() const;
   double delta_time() const;
+
+private:
+  /**
+   * This must be defined first so that its dtor is called last.
+   *
+   * This is necessary for RAII, since GameEngine() ctor can throw an exception.
+   * I decided to do this over using `unique_ptr`s or individual wrappers.
+   */
+  class Resources {
+  public:
+    SDL_Window* window = NULL;
+    SDL_GLContext context = NULL;
+    bool has_music_player = false;
+
+    Resources() noexcept;
+    Resources(const Resources& other) = delete;
+    Resources(Resources&& other) noexcept = delete;
+    virtual ~Resources() noexcept;
+
+    Resources& operator=(const Resources& other) = delete;
+    Resources& operator=(Resources&& other) noexcept = delete;
+  } res_{};
 
 private:
   Scene& main_scene_;

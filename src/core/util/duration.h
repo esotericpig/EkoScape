@@ -12,7 +12,7 @@
 
 #include <cmath>
 
-namespace ekoscape {
+namespace cybel {
 
 class Duration {
 public:

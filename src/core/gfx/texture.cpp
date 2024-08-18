@@ -7,7 +7,7 @@
 
 #include "texture.h"
 
-namespace ekoscape {
+namespace cybel {
 
 Texture::Texture(Image& image,bool make_weird) {
   const std::uint8_t bpp = image.bpp();
@@ -26,7 +26,7 @@ Texture::Texture(Image& image,bool make_weird) {
       break;
 
     default:
-      throw EkoScapeError{Util::build_string("Unsupported BPP [",bpp,"] for image [",image.id(),"].")};
+      throw CybelError{Util::build_string("Unsupported BPP [",bpp,"] for image [",image.id(),"].")};
   }
 
   glGenTextures(1,&gl_id_);
@@ -61,7 +61,7 @@ Texture::Texture(Image& image,bool make_weird) {
 
   if(error != GL_NO_ERROR) {
     destroy();
-    throw EkoScapeError{Util::build_string("Failed to gen/bind texture for image [",image.id()
+    throw CybelError{Util::build_string("Failed to gen/bind texture for image [",image.id()
         ,"]; error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 
@@ -105,7 +105,7 @@ Texture::Texture(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a,boo
 
   if(error != GL_NO_ERROR) {
     destroy();
-    throw EkoScapeError{Util::build_string("Failed to gen/bind texture for color ("
+    throw CybelError{Util::build_string("Failed to gen/bind texture for color ("
         ,r,',',g,',',b,',',a,"); error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 

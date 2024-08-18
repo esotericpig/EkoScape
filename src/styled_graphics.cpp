@@ -13,7 +13,7 @@ StyledGraphics::StyledGraphics(const std::filesystem::path& assets_dir,Style sty
     : assets_dir_(assets_dir) {
   reload(style);
 
-  if(graphics_ == nullptr) { throw EkoScapeError{"Graphics pointer was not set."}; }
+  if(graphics_ == nullptr) { throw CybelError{"Graphics pointer was not set."}; }
 }
 
 void StyledGraphics::reload() {
@@ -36,7 +36,7 @@ void StyledGraphics::reload(Style style) {
   }
 
   if(graphics_bag_index_ < 0) {
-    throw EkoScapeError{Util::build_string("Graphics style [",static_cast<int>(style),"] was not loaded.")};
+    throw CybelError{Util::build_string("Graphics style [",static_cast<int>(style),"] was not loaded.")};
   }
 
   graphics_ = &graphics_bag_.at(graphics_bag_index_);

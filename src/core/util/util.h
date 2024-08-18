@@ -13,7 +13,7 @@
 #include <cctype>
 #include <sstream>
 
-namespace ekoscape {
+namespace cybel {
 
 namespace Util {
   template <typename... Args>
