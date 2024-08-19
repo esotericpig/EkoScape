@@ -22,8 +22,8 @@ void StyledGraphics::reload() {
 
 void StyledGraphics::reload(Style style) {
   graphics_bag_.clear();
-  graphics_bag_.push_back(load_style(Style::kClassic,"classic"));
-  graphics_bag_.push_back(load_style(Style::kRealistic,"realistic"));
+  graphics_bag_.emplace_back(load_style(Style::kClassic,"classic"));
+  graphics_bag_.emplace_back(load_style(Style::kRealistic,"realistic"));
   graphics_bag_.shrink_to_fit();
 
   graphics_bag_index_ = -1;

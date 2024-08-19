@@ -27,7 +27,7 @@ public:
 
     FontAtlas build();
 
-    // Re-define base funcs to return derived Builder, instead of base Builder.
+    // Re-define base funcs to return derived Builder (instead of base Builder).
     Builder& offset(int x,int y);
     Builder& cell_size(int width,int height);
     Builder& cell_padding(int padding);

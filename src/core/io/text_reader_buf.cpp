@@ -38,10 +38,8 @@ void TextReaderBuf::init(std::size_t buffer_size) noexcept {
 void TextReaderBuf::move_from(TextReaderBuf&& other) noexcept {
   close();
 
-  // Can't use std::exchange(), because have to use NULL instead of nullptr.
   context_ = other.context_;
   other.context_ = NULL;
-
   buffer_ = std::move(other.buffer_);
 }
 

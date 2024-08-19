@@ -11,13 +11,13 @@
 #include "common.h"
 
 #include "audio/music.h"
+#include "render/renderer.h"
+#include "scene/scene.h"
+#include "scene/scene_bag.h"
+#include "util/cybel_error.h"
 #include "util/duration.h"
 #include "util/timer.h"
 #include "util/util.h"
-#include "cybel_error.h"
-#include "renderer.h"
-#include "scene.h"
-#include "scene_bag.h"
 
 #include <cmath>
 #include <functional>
@@ -25,6 +25,28 @@
 namespace cybel {
 
 class GameEngine {
+private:
+  /**
+   * This must be defined first so that its dtor is called last.
+   *
+   * This is necessary for RAII, since GameEngine() ctor can throw an exception.
+   * I decided to do this over using `unique_ptr`s or individual wrappers.
+   */
+  class Resources {
+  public:
+    SDL_Window* window = NULL;
+    SDL_GLContext context = NULL;
+    bool has_music_player = false;
+
+    Resources() noexcept;
+    Resources(const Resources& other) = delete;
+    Resources(Resources&& other) noexcept = delete;
+    virtual ~Resources() noexcept;
+
+    Resources& operator=(const Resources& other) = delete;
+    Resources& operator=(Resources&& other) noexcept = delete;
+  } res_{};
+
 public:
   struct Config {
     std::string title{};
@@ -72,7 +94,7 @@ public:
   GameEngine& operator=(GameEngine&& other) noexcept = delete;
 
   void set_vsync(bool enable);
-  void fetch_size_and_resize(bool force = true);
+  void fetch_resize(bool force = true);
   void resize();
   void resize(const Size2i& size,bool force = true);
 
@@ -83,16 +105,16 @@ public:
   void run();
   void request_stop();
 
-  bool has_music_player() const;
   void play_music(const Music& music);
   void stop_music();
-  bool is_music_playing() const;
-
-  const Uint8* get_key_states() const;
 
   void show_error(const std::string& error);
   void show_error(const std::string& title,const std::string& error);
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
+
+  bool has_music_player() const;
+  bool is_music_playing() const;
+  const Uint8* fetch_key_states() const;
 
   Scene& main_scene();
   std::shared_ptr<Scene> curr_scene() const;
@@ -104,28 +126,6 @@ public:
   const Duration& target_dpf() const;
   const Duration& dpf() const;
   double delta_time() const;
-
-private:
-  /**
-   * This must be defined first so that its dtor is called last.
-   *
-   * This is necessary for RAII, since GameEngine() ctor can throw an exception.
-   * I decided to do this over using `unique_ptr`s or individual wrappers.
-   */
-  class Resources {
-  public:
-    SDL_Window* window = NULL;
-    SDL_GLContext context = NULL;
-    bool has_music_player = false;
-
-    Resources() noexcept;
-    Resources(const Resources& other) = delete;
-    Resources(Resources&& other) noexcept = delete;
-    virtual ~Resources() noexcept;
-
-    Resources& operator=(const Resources& other) = delete;
-    Resources& operator=(Resources&& other) noexcept = delete;
-  } res_{};
 
 private:
   Scene& main_scene_;

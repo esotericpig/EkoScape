@@ -15,7 +15,7 @@
 #include "core/gfx/image.h"
 #include "core/gfx/sprite.h"
 #include "core/gfx/texture.h"
-#include "core/cybel_error.h"
+#include "core/util/cybel_error.h"
 #include "styled_graphics.h"
 
 #include <filesystem>

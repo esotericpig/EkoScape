@@ -49,7 +49,7 @@ SceneBag EkoScape::build_scene(int action) {
     case SceneAction::kGoToGame:
       try {
         result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
-        result.persist = true;
+        result.persist = true; // Preserve game state when pausing (e.g., BoringWorkScene).
       } catch(const CybelError& e) {
         game_engine_->show_error(e.what());
         result.scene = nullptr;
@@ -97,7 +97,7 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
       pop_scene();
       break;
 
-    // Toggle boring work scene.
+    // Toggle BoringWorkScene.
     case SDLK_b:
       if(game_engine_->curr_scene_type() == SceneAction::kGoToBoringWork) {
         pop_scene();

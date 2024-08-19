@@ -33,9 +33,6 @@ public:
   bool read(float& data);
   bool read(int& data);
 
-  /**
-   * This doesn't ignore white space.
-   */
   bool get(char& data);
 
   bool seek_and_destroy(char target);

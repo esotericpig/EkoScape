@@ -44,6 +44,20 @@ Duration& Duration::operator-=(const Duration& other) {
   return *this;
 }
 
+Duration Duration::operator*(const Duration& other) const { return Duration{value_ * other.value_}; }
+
+Duration& Duration::operator*=(const Duration& other) {
+  value_ *= other.value_;
+  return *this;
+}
+
+Duration Duration::operator/(const Duration& other) const { return Duration{value_ / other.value_}; }
+
+Duration& Duration::operator/=(const Duration& other) {
+  value_ /= other.value_;
+  return *this;
+}
+
 Duration& Duration::set_from_millis(double millis) {
   value_ = millis;
   return *this;

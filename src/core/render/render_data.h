@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_RENDER_DATA_H_
-#define EKOSCAPE_CORE_RENDER_DATA_H_
+#ifndef EKOSCAPE_CORE_RENDER_RENDER_DATA_H_
+#define EKOSCAPE_CORE_RENDER_RENDER_DATA_H_
 
-#include "common.h"
+#include "core/common.h"
 
 namespace cybel {
 

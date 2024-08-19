@@ -138,7 +138,6 @@ void Texture::destroy() noexcept {
 
 Texture& Texture::operator=(Texture&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
-
   return *this;
 }
 

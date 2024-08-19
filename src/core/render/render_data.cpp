@@ -27,7 +27,6 @@ Color4f& Color4f::set_f(float r,float g,float b,float a) {
   this->g = g;
   this->b = b;
   this->a = a;
-
   return *this;
 }
 
@@ -36,7 +35,6 @@ Color4f& Color4f::set_i(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_
   this->g = g / 255.0f;
   this->b = b / 255.0f;
   this->a = a / 255.0f;
-
   return *this;
 }
 

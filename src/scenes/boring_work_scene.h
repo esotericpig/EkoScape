@@ -10,7 +10,7 @@
 
 #include "core/common.h"
 
-#include "core/scene.h"
+#include "core/scene/scene.h"
 #include "assets.h"
 #include "scene_action.h"
 

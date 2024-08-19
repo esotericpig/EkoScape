@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_CYBEL_ERROR_H_
-#define EKOSCAPE_CORE_CYBEL_ERROR_H_
+#ifndef EKOSCAPE_CORE_UTIL_CYBEL_ERROR_H_
+#define EKOSCAPE_CORE_UTIL_CYBEL_ERROR_H_
 
-#include "common.h"
+#include "core/common.h"
 
 namespace cybel {
 

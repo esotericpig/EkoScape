@@ -10,7 +10,7 @@
 
 #include "core/common.h"
 
-#include "core/render_data.h"
+#include "core/render/render_data.h"
 #include "sprite.h"
 #include "texture.h"
 

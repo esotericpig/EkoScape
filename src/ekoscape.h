@@ -10,10 +10,10 @@
 
 #include "core/common.h"
 
-#include "core/cybel_error.h"
+#include "core/scene/scene.h"
+#include "core/scene/scene_bag.h"
+#include "core/util/cybel_error.h"
 #include "core/game_engine.h"
-#include "core/scene.h"
-#include "core/scene_bag.h"
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_scene.h"
@@ -25,6 +25,10 @@
 namespace ekoscape {
 
 class EkoScape : public Scene {
+private:
+  // This must be defined first so that its dtor is called last.
+  std::unique_ptr<GameEngine> game_engine_{};
+
 public:
   struct Config : public GameEngine::Config {
     int dantares_dist = 24;
@@ -39,10 +43,6 @@ public:
   void play_music();
 
   static void show_error_global(const std::string& error);
-
-private:
-  // This must be defined first so that its dtor is called last.
-  std::unique_ptr<GameEngine> game_engine_{};
 
 private:
   int dantares_dist_ = 0;

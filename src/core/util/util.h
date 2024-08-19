@@ -40,7 +40,6 @@ std::string Util::build_string(const Args&... args) {
   std::stringstream ss{};
 
   (ss << ... << args);
-
   return ss.str();
 }
 
@@ -48,8 +47,7 @@ template <typename... Args>
 std::size_t Util::build_hash(const Args&... args) {
   std::size_t seed = 0;
 
-  ((seed ^= std::hash<Args>{}(args) + 0x9e3779b9 + (seed << 6) + (seed >> 2)), ...);
-
+  ((seed ^= std::hash<Args>{}(args) + 0x9e3779b9 + (seed << 6) + (seed >> 2)),... );
   return seed;
 }
 

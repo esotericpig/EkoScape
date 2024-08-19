@@ -31,7 +31,6 @@ void Image::move_from(Image&& other) noexcept {
 
   surface_ = other.surface_;
   other.surface_ = NULL;
-
   id_ = std::exchange(other.id_,"");
   is_locked_ = std::exchange(other.is_locked_,false);
 }
@@ -50,20 +49,17 @@ void Image::destroy() noexcept {
 
 Image& Image::operator=(Image&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
-
   return *this;
 }
 
 Image& Image::lock() {
-  if(is_locked_) { return *this; }
-  if(!SDL_MUSTLOCK(surface_)) { return *this; }
+  if(is_locked_ || !SDL_MUSTLOCK(surface_)) { return *this; }
 
   if(SDL_LockSurface(surface_) != 0) {
     throw CybelError{Util::build_string("Failed to lock image [",id_,"]: ",Util::get_sdl_error(),'.')};
   }
 
   is_locked_ = true;
-
   return *this;
 }
 

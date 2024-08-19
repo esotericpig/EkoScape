@@ -30,23 +30,23 @@ void GameScene::load_map(const std::filesystem::path& file) {
 void GameScene::init_map_space(int x,int y,Space&,SpaceType type) {
   switch(type) {
     case SpaceType::kRobot:
-      robots_.push_back(std::make_unique<RobotNormal>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotNormal>(type,x,y));
       break;
 
     case SpaceType::kRobotGhost:
-      robots_.push_back(std::make_unique<RobotGhost>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotGhost>(type,x,y));
       break;
 
     case SpaceType::kRobotSnake:
-      robots_.push_back(std::make_unique<RobotSnake>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotSnake>(type,x,y));
       break;
 
     case SpaceType::kRobotStatue:
-      robots_.push_back(std::make_unique<RobotStatue>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotStatue>(type,x,y));
       break;
 
     case SpaceType::kRobotWorm:
-      robots_.push_back(std::make_unique<RobotWorm>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotWorm>(type,x,y));
       break;
 
     default: break; // Ignore.
@@ -185,7 +185,7 @@ void GameScene::move_robots(const FrameStep& step) {
 
   // Add new robots after the move loop, because we can't add new ones inside of its loop.
   for(auto& new_robot: robot_move_data_.new_robots) {
-    robots_.push_back(std::move(new_robot));
+    robots_.emplace_back(std::move(new_robot));
   }
   robot_move_data_.new_robots.clear();
 

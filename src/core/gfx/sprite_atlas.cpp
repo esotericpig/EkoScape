@@ -61,7 +61,7 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
       y_offset + (builder.cell_size_.h * row),
     };
 
-    index_to_src_.at(i) = Sprite::build_src(*texture_,offset,cell_size_);
+    index_to_src_[i] = Sprite::build_src(*texture_,offset,cell_size_);
   }
 }
 
@@ -69,7 +69,6 @@ const Texture& SpriteAtlas::texture() const { return *texture_; }
 
 const Pos4f* SpriteAtlas::src(int index) const {
   if(index < 0 || index >= cell_count_) { return nullptr; }
-
   return &index_to_src_.at(index);
 }
 

@@ -93,7 +93,7 @@ bool Robot::try_move(int to_x,int to_y,int likes,MoveData& data) {
 
   if(likes & kSnakeLike) {
     if(data.map.place_thing(SpaceType::kRobotStatue,from_x,from_y)) {
-      data.new_robots.push_back(std::make_unique<RobotStatue>(from_x,from_y,kSnakeTailLifespan));
+      data.new_robots.emplace_back(std::make_unique<RobotStatue>(from_x,from_y,kSnakeTailLifespan));
     }
   }
 

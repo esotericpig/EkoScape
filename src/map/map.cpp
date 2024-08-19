@@ -89,7 +89,7 @@ Map& Map::load_file(const std::filesystem::path& file) {
     // Ignore last blank line, if there is one.
     if(reader.eof() && line.empty()) { break; }
 
-    lines.push_back(line);
+    lines.emplace_back(line);
 
     int len = static_cast<int>(line.length());
     if(len > width) { width = len; }
@@ -245,7 +245,6 @@ bool Map::move_thing(int from_x,int from_y,int to_x,int to_y) {
 
   SpaceType thing_type = from_space->remove_thing();
   to_space->set_thing(thing_type);
-
   return true;
 }
 
@@ -256,7 +255,6 @@ bool Map::remove_thing(int x,int y) {
   if(!space->has_thing()) { return true; } // This is why move_thing() can't use this method.
 
   space->remove_thing();
-
   return true;
 }
 
@@ -266,7 +264,6 @@ bool Map::place_thing(SpaceType type,int x,int y) {
   if(space == nullptr || space->has_thing()) { return false; }
 
   space->set_thing(type);
-
   return true;
 }
 
@@ -277,7 +274,6 @@ bool Map::unlock_cell(int x,int y) {
 
   space->remove_thing();
   ++total_rescues_;
-
   return true;
 }
 
@@ -320,7 +316,6 @@ bool Map::set_space(int x,int y,SpaceType empty_type,SpaceType thing_type) {
 
   space->set_empty(empty_type);
   space->set_thing(thing_type);
-
   return true;
 }
 
@@ -330,7 +325,6 @@ bool Map::set_empty(int x,int y,SpaceType type) {
   if(space == nullptr) { return false; }
 
   space->set_empty(type);
-
   return true;
 }
 
@@ -340,7 +334,6 @@ bool Map::set_thing(int x,int y,SpaceType type) {
   if(space == nullptr) { return false; }
 
   space->set_thing(type);
-
   return true;
 }
 
@@ -364,7 +357,6 @@ int Map::height() const { return height_; }
 
 const Space* Map::space(int x,int y) const {
   if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
-
   return &raw_space(x,y);
 }
 
@@ -384,7 +376,6 @@ void Map::set_raw_space(int x,int y,Space&& space) {
 
 Space* Map::mutable_space(int x,int y) {
   if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
-
   return &raw_space(x,y);
 }
 

@@ -14,7 +14,6 @@ DantaresMap::DantaresMap(Dantares& dantares)
 
 Map& DantaresMap::clear_spaces() {
   Base::clear_spaces();
-
   id_ = -1;
 
   return *this;
@@ -112,7 +111,6 @@ bool DantaresMap::move_thing(int from_x,int from_y,int to_x,int to_y) {
 
   change_square(from_x,from_y,raw_space(from_x,from_y).empty_type());
   change_square(to_x,to_y,raw_space(to_x,to_y).thing_type());
-
   return true;
 }
 
@@ -120,7 +118,6 @@ bool DantaresMap::remove_thing(int x,int y) {
   if(!Base::remove_thing(x,y)) { return false; }
 
   change_square(x,y,raw_space(x,y).empty_type());
-
   return true;
 }
 
@@ -128,7 +125,6 @@ bool DantaresMap::place_thing(SpaceType type,int x,int y) {
   if(!Base::place_thing(type,x,y)) { return false; }
 
   change_square(x,y,type);
-
   return true;
 }
 
@@ -136,7 +132,6 @@ bool DantaresMap::unlock_cell(int x,int y) {
   if(!Base::unlock_cell(x,y)) { return false; }
 
   change_square(x,y,raw_space(x,y).empty_type());
-
   return true;
 }
 
@@ -144,7 +139,6 @@ bool DantaresMap::set_space(int x,int y,SpaceType empty_type,SpaceType thing_typ
   if(!Base::set_space(x,y,empty_type,thing_type)) { return false; }
 
   change_square(x,y,raw_space(x,y).type()); // Use type() to determine if empty or thing.
-
   return true;
 }
 
@@ -152,7 +146,6 @@ bool DantaresMap::set_empty(int x,int y,SpaceType type) {
   if(!Base::set_empty(x,y,type)) { return false; }
 
   change_square(x,y,raw_space(x,y).type()); // Use type() in case there is a thing.
-
   return true;
 }
 
@@ -160,7 +153,6 @@ bool DantaresMap::set_thing(int x,int y,SpaceType type) {
   if(!Base::set_thing(x,y,type)) { return false; }
 
   change_square(x,y,raw_space(x,y).type()); // Use type() in case thing is kNil.
-
   return true;
 }
 

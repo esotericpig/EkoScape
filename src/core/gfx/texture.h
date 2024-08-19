@@ -10,9 +10,9 @@
 
 #include "core/common.h"
 
+#include "core/render/render_data.h"
+#include "core/util/cybel_error.h"
 #include "core/util/util.h"
-#include "core/cybel_error.h"
-#include "core/render_data.h"
 #include "image.h"
 
 namespace cybel {

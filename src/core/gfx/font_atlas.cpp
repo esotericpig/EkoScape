@@ -88,7 +88,6 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf
   return *this;
 }
 
-// We don't do std::move() on char_to_index_ so that the Builder can be reused.
 FontAtlas::FontAtlas(const Builder& builder)
     : SpriteAtlas(builder)
       ,spacing_(builder.spacing_)
@@ -106,7 +105,6 @@ int FontAtlas::char_index(char32_t c) const {
   auto it = char_to_index_.find(c);
 
   if(it == char_to_index_.end()) { return default_index_; }
-
   return it->second;
 }
 

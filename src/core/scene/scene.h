@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_SCENE_H_
-#define EKOSCAPE_CORE_SCENE_H_
+#ifndef EKOSCAPE_CORE_SCENE_SCENE_H_
+#define EKOSCAPE_CORE_SCENE_SCENE_H_
 
-#include "common.h"
+#include "core/common.h"
 
-#include "renderer.h"
+#include "core/render/renderer.h"
 #include "scene_data.h"
 
 namespace cybel {

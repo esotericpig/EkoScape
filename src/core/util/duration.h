@@ -30,6 +30,10 @@ public:
   Duration& operator+=(const Duration& other);
   Duration operator-(const Duration& other) const;
   Duration& operator-=(const Duration& other);
+  Duration operator*(const Duration& other) const;
+  Duration& operator*=(const Duration& other);
+  Duration operator/(const Duration& other) const;
+  Duration& operator/=(const Duration& other);
 
   Duration& set_from_millis(double millis);
   Duration& set_from_secs(double secs);

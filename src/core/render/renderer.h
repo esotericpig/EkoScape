@@ -5,16 +5,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_RENDERER_H_
-#define EKOSCAPE_CORE_RENDERER_H_
+#ifndef EKOSCAPE_CORE_RENDER_RENDERER_H_
+#define EKOSCAPE_CORE_RENDER_RENDERER_H_
 
-#include "common.h"
+#include "core/common.h"
 
-#include "gfx/font_atlas.h"
-#include "gfx/sprite_atlas.h"
-#include "gfx/texture.h"
-#include "util/util.h"
-#include "cybel_error.h"
+#include "core/gfx/font_atlas.h"
+#include "core/gfx/sprite_atlas.h"
+#include "core/gfx/texture.h"
+#include "core/util/cybel_error.h"
+#include "core/util/util.h"
 #include "render_data.h"
 
 #include <functional>

@@ -15,14 +15,12 @@ Timer::Timer(bool start) {
 
 Timer& Timer::start() {
   start_time_ = SDL_GetTicks();
-
   return *this;
 }
 
 Timer& Timer::end() {
   end_time_ = SDL_GetTicks();
   duration_.set_from_millis(end_time_ - start_time_);
-
   return *this;
 }
 

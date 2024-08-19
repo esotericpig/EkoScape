@@ -47,7 +47,6 @@ Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,
   const Pos4f* src = atlas.src(index);
 
   if(src != nullptr) { ren.draw_quad(*src,x,y,width,height); }
-
   return *this;
 }
 
@@ -60,7 +59,6 @@ Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column
   const Pos4f* src = atlas.src(column,row);
 
   if(src != nullptr) { ren.draw_quad(*src,x,y,width,height); }
-
   return *this;
 }
 
@@ -77,7 +75,6 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {
   const Pos4f* src = font.src(font.char_index(c));
 
   if(src != nullptr) { ren.draw_quad(*src,pos.x,pos.y,char_size.w,char_size.h); }
-
   return print();
 }
 
@@ -108,7 +105,6 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() {
   pos.x = init_pos.x;
   pos.y += (char_size.h + spacing.h);
-
   return *this;
 }
 
@@ -256,14 +252,12 @@ Renderer& Renderer::begin_auto_center_offset() {
 Renderer& Renderer::begin_offset(float x_offset,float y_offset) {
   offset_.x = x_offset;
   offset_.y = y_offset;
-
   return *this;
 }
 
 Renderer& Renderer::end_offset() {
   offset_.x = 0.0f;
   offset_.y = 0.0f;
-
   return *this;
 }
 
@@ -280,21 +274,18 @@ Renderer& Renderer::end_color() {
 Renderer& Renderer::begin_texture(const Texture& texture) {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D,texture.gl_id());
-
   return *this;
 }
 
 Renderer& Renderer::end_texture() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);
-
   return *this;
 }
 
 Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback) {
   begin_color(color);
   callback();
-
   return end_color();
 }
 
@@ -308,7 +299,6 @@ Renderer& Renderer::wrap_texture(const Texture& texture,const Pos4f& src
 
   begin_texture(texture);
   callback(wrapper);
-
   return end_texture();
 }
 
@@ -317,7 +307,6 @@ Renderer& Renderer::wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& c
 
   begin_texture(sprite.texture());
   callback(wrapper);
-
   return end_texture();
 }
 
@@ -326,7 +315,6 @@ Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteA
 
   begin_texture(atlas.texture());
   callback(wrapper);
-
   return end_texture();
 }
 
@@ -346,7 +334,6 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,int char_w
 
   begin_texture(font.texture());
   callback(wrapper);
-
   return end_texture();
 }
 

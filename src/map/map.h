@@ -11,9 +11,9 @@
 #include "core/common.h"
 
 #include "core/io/text_reader.h"
+#include "core/util/cybel_error.h"
 #include "core/util/duration.h"
 #include "core/util/util.h"
-#include "core/cybel_error.h"
 #include "facing.h"
 #include "space.h"
 #include "space_type.h"
