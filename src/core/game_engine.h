@@ -112,6 +112,9 @@ public:
   void show_error(const std::string& title,const std::string& error);
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
+  void set_title(const std::string& title);
+  void reset_title();
+
   bool has_music_player() const;
   bool is_music_playing() const;
   const Uint8* fetch_key_states() const;

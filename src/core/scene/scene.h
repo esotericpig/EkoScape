@@ -28,6 +28,12 @@ public:
   virtual void init_scene(Renderer& /*ren*/) {}
   virtual void resize_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 
+  /**
+   * Called when this scene is no longer the current scene (scene changed).
+   * Should not delete objects in here (i.e., not a destructor).
+   */
+  virtual void on_scene_exit() {}
+
   virtual void on_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}
   virtual int update_scene_logic(const FrameStep& /*step*/) { return 0; }

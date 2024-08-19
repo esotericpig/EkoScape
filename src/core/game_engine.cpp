@@ -249,6 +249,8 @@ void GameEngine::pop_all_scenes() {
 void GameEngine::set_scene(const SceneBag& scene_bag) {
   if(!scene_bag.scene) { throw CybelError{"Scene is null."}; }
 
+  curr_scene_bag_->on_scene_exit();
+
   curr_scene_bag_ = scene_bag;
   curr_scene_bag_->init_scene(*renderer_);
   curr_scene_bag_->resize_scene(*renderer_,renderer_->dimens());
@@ -390,6 +392,10 @@ void GameEngine::show_error_global(const std::string& title,const std::string& e
   // This can be called before/after SDL_Init()/SDL_Quit().
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
 }
+
+void GameEngine::set_title(const std::string& title) { SDL_SetWindowTitle(res_.window,title.c_str()); }
+
+void GameEngine::reset_title() { set_title(title_); }
 
 bool GameEngine::has_music_player() const { return res_.has_music_player; }
 

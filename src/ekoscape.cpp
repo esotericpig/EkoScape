@@ -38,7 +38,7 @@ SceneBag EkoScape::build_scene(int action) {
       break;
 
     case SceneAction::kGoToBoringWork:
-      result.scene = std::make_shared<BoringWorkScene>(*assets_);
+      result.scene = std::make_shared<BoringWorkScene>(*game_engine_,*assets_);
       break;
 
     case SceneAction::kGoToMenu:
