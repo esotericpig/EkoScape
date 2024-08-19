@@ -17,7 +17,7 @@ def check_header_guards(src_dir,proj_name=nil)
   proj_name = proj_name.strip.upcase
 
   puts
-  src_path.glob('**/*{.h,.hpp}') do |file|
+  src_path.glob('**/*.{h,H,hh,hpp,hxx,h++}') do |file|
     guard = file.relative_path_from(src_path).descend.to_a
                 .map { |p| p.basename.to_s.strip.upcase }
                 .reject(&:empty?)
