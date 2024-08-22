@@ -14,6 +14,8 @@
 #include "core/util/cybel_error.h"
 #include "core/util/duration.h"
 #include "core/util/util.h"
+#include "core/types.h"
+
 #include "facing.h"
 #include "space.h"
 #include "space_type.h"
@@ -56,8 +58,7 @@ using namespace cybel;
  */
 class Map {
 public:
-  static const int kMinSupportedVersion = 1;
-  static const int kMaxSupportedVersion = 1;
+  static const Range2i kSupportedVersions;
   static const Duration kMinRobotDelay;
 
   static bool is_map_file(const std::filesystem::path& file);
@@ -65,13 +66,13 @@ public:
   virtual ~Map() noexcept = default;
 
   Map& load_file(const std::filesystem::path& file);
-  Map& parse_grid(const std::vector<std::string>& lines,int width = 0,int height = 0);
+  Map& parse_grid(const std::vector<std::string>& lines,Size2i size = {0,0});
   virtual Map& clear_spaces();
 
-  virtual bool move_thing(int from_x,int from_y,int to_x,int to_y);
-  virtual bool remove_thing(int x,int y);
-  virtual bool place_thing(SpaceType type,int x,int y);
-  virtual bool unlock_cell(int x,int y);
+  virtual bool move_thing(const Pos2i& from_pos,const Pos2i& to_pos);
+  virtual bool remove_thing(const Pos2i& pos);
+  virtual bool place_thing(SpaceType type,const Pos2i& pos);
+  virtual bool unlock_cell(const Pos2i& pos);
 
   Map& set_title(const std::string& title);
   Map& set_author(const std::string& author);
@@ -82,9 +83,9 @@ public:
   Map& set_default_empty(SpaceType type);
   Map& set_robot_delay(Duration duration);
 
-  virtual bool set_space(int x,int y,SpaceType empty_type,SpaceType thing_type);
-  virtual bool set_empty(int x,int y,SpaceType type);
-  virtual bool set_thing(int x,int y,SpaceType type);
+  virtual bool set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type);
+  virtual bool set_empty(const Pos2i& pos,SpaceType type);
+  virtual bool set_thing(const Pos2i& pos,SpaceType type);
 
   std::string build_header() const;
   int version() const;
@@ -97,21 +98,19 @@ public:
   SpaceType default_empty() const;
   const Duration& robot_delay() const;
 
-  int width() const;
-  int height() const;
-  const Space* space(int x,int y) const;
+  const Size2i& size() const;
+  const Space* space(const Pos2i& pos) const;
 
   int total_cells() const;
   int total_rescues() const;
 
-  int player_init_x() const;
-  int player_init_y() const;
+  const Pos2i& player_init_pos() const;
   Facing player_init_facing() const;
 
   friend std::ostream& operator<<(std::ostream& out,const Map& map);
 
 protected:
-  int version_ = kMaxSupportedVersion;
+  int version_ = kSupportedVersions.max;
   std::string title_{};
   std::string author_{};
 
@@ -121,24 +120,22 @@ protected:
   SpaceType default_empty_ = SpaceType::kEmpty;
   Duration robot_delay_ = Duration::from_millis(900);
 
-  int width_ = 0;
-  int height_ = 0;
+  Size2i size_{};
   std::vector<Space> spaces_{};
 
   int total_cells_ = 0;
   int total_rescues_ = 0;
 
-  int player_init_x_ = 0;
-  int player_init_y_ = 0;
+  Pos2i player_init_pos_{};
   Facing player_init_facing_ = Facing::kSouth;
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 
-  void set_raw_space(int x,int y,Space&& space);
+  void set_raw_space(const Pos2i& pos,Space&& space);
 
-  Space* mutable_space(int x,int y);
-  Space& raw_space(int x,int y);
-  const Space& raw_space(int x,int y) const;
+  Space* mutable_space(const Pos2i& pos);
+  Space& raw_space(const Pos2i& pos);
+  const Space& raw_space(const Pos2i& pos) const;
 };
 
 } // Namespace.

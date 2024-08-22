@@ -10,9 +10,11 @@
 namespace ekoscape {
 
 const std::filesystem::path Assets::kAssetsDir = "assets";
+const std::filesystem::path Assets::kImagesDir = kAssetsDir / "images";
+const std::filesystem::path Assets::kTexturesDir = kAssetsDir / "textures";
 
 Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player)
-    : styled_graphics_(kAssetsDir,graphics_style),has_music_player_(has_music_player) {
+    : styled_graphics_(kTexturesDir,graphics_style),has_music_player_(has_music_player) {
   reload_graphics();
   reload_music();
 }
@@ -23,11 +25,9 @@ void Assets::reload_graphics() {
 }
 
 void Assets::reload_images() {
-  const std::filesystem::path img_dir = kAssetsDir / "images";
-
-  logo_sprite_ = std::make_unique<Sprite>(Texture{Image{img_dir / "ekoscape.png"}});
+  logo_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "ekoscape.png"}});
   font_atlas_ = std::make_unique<FontAtlas>(
-    FontAtlas::Builder{Texture{Image{img_dir / "font_monogram.png"}}}
+    FontAtlas::Builder{Texture{Image{kImagesDir / "font_monogram.png"}}}
       .offset(0,0)
       .cell_size(9,14)
       .cell_padding(2)
@@ -45,8 +45,9 @@ void Assets::reload_images() {
       })
       .build()
   );
-  keys_sprite_ = std::make_unique<Sprite>(Texture{Image{img_dir / "keys.png"}});
-  boring_work_sprite_ = std::make_unique<Sprite>(Texture{Image{img_dir / "boring_work.png"}});
+  keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"}});
+  star_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star.png"});
+  boring_work_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "boring_work.png"}});
 }
 
 void Assets::reload_music() {
@@ -87,6 +88,8 @@ const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
 const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
 
 const Sprite& Assets::keys_sprite() const { return *keys_sprite_; }
+
+const Texture& Assets::star_texture() const { return *star_texture_; }
 
 const Sprite& Assets::boring_work_sprite() const { return *boring_work_sprite_; }
 

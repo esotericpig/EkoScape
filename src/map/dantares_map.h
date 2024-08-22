@@ -12,6 +12,8 @@
 
 #include "core/util/cybel_error.h"
 #include "core/util/util.h"
+#include "core/types.h"
+
 #include "facing.h"
 #include "map.h"
 #include "space.h"
@@ -41,7 +43,7 @@ namespace ekoscape {
  */
 class DantaresMap : public Map {
 public:
-  using SpaceCallback = std::function<void(int x,int y,Space&,SpaceType)>;
+  using SpaceCallback = std::function<void(const Pos2i&,Space&,SpaceType)>;
 
   explicit DantaresMap(Dantares& dantares);
 
@@ -53,16 +55,17 @@ public:
   DantaresMap& make_current_in_dantares();
   DantaresMap& generate_in_dantares();
 
-  bool move_thing(int from_x,int from_y,int to_x,int to_y) override;
-  bool remove_thing(int x,int y) override;
-  bool place_thing(SpaceType type,int x,int y) override;
-  bool unlock_cell(int x,int y) override;
+  bool move_thing(const Pos2i& from_pos,const Pos2i& to_pos) override;
+  bool remove_thing(const Pos2i& pos) override;
+  bool place_thing(SpaceType type,const Pos2i& pos) override;
+  bool unlock_cell(const Pos2i& pos) override;
 
-  bool set_space(int x,int y,SpaceType empty_type,SpaceType thing_type) override;
-  bool set_empty(int x,int y,SpaceType type) override;
-  bool set_thing(int x,int y,SpaceType type) override;
+  bool set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) override;
+  bool set_empty(const Pos2i& pos,SpaceType type) override;
+  bool set_thing(const Pos2i& pos,SpaceType type) override;
 
   int id() const;
+  Pos2i player_pos() const;
   int player_x() const;
   int player_y() const;
   const Space* player_space() const;
@@ -75,7 +78,7 @@ private:
   Dantares& dantares_;
   int id_ = -1;
 
-  void change_square(int x,int y,SpaceType type);
+  void change_square(const Pos2i& pos,SpaceType type);
 };
 
 } // Namespace.

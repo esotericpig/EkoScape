@@ -10,9 +10,9 @@
 
 #include "core/common.h"
 
-#include "core/render/render_data.h"
 #include "core/util/cybel_error.h"
 #include "core/util/util.h"
+#include "core/types.h"
 #include "image.h"
 
 namespace cybel {
@@ -33,13 +33,11 @@ public:
   Texture& operator=(Texture&& other) noexcept;
 
   GLuint gl_id() const;
-  int width() const;
-  int height() const;
+  const Size2i& size() const;
 
 private:
   GLuint gl_id_ = 0;
-  int width_ = 0;
-  int height_ = 0;
+  Size2i size_{};
 
   void move_from(Texture&& other) noexcept;
   void destroy() noexcept;

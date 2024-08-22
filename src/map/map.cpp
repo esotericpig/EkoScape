@@ -9,6 +9,7 @@
 
 namespace ekoscape {
 
+const Range2i Map::kSupportedVersions{1,1};
 const Duration Map::kMinRobotDelay = Duration::from_millis(110);
 
 bool Map::is_map_file(const std::filesystem::path& file) {
@@ -20,7 +21,7 @@ bool Map::is_map_file(const std::filesystem::path& file) {
     if(!reader.read_line(line)) { return false; }
     if(!parse_header(line,version,false)) { return false; }
 
-    return version >= kMinSupportedVersion && version <= kMaxSupportedVersion;
+    return kSupportedVersions.in_range(version);
   } catch(const CybelError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     return false;
@@ -40,7 +41,7 @@ Map& Map::load_file(const std::filesystem::path& file) {
   if(!parse_header(line,data_i)) {
     throw CybelError{Util::build_string("Invalid header [",line,"] in map [",file,"].")};
   }
-  if(data_i < kMinSupportedVersion || data_i > kMaxSupportedVersion) {
+  if(!kSupportedVersions.in_range(data_i)) {
     throw CybelError{Util::build_string("Unsupported version [",data_i,"] in map [",file,"].")};
   }
   version_ = data_i;
@@ -83,7 +84,7 @@ Map& Map::load_file(const std::filesystem::path& file) {
   }
 
   std::vector<std::string> lines{};
-  int width = 0;
+  Size2i size{};
 
   while(reader.read_line(line)) {
     // Ignore last blank line, if there is one.
@@ -92,14 +93,15 @@ Map& Map::load_file(const std::filesystem::path& file) {
     lines.emplace_back(line);
 
     int len = static_cast<int>(line.length());
-    if(len > width) { width = len; }
+    if(len > size.w) { size.w = len; }
   }
 
-  if(lines.empty() || width <= 0) {
+  if(lines.empty() || size.w <= 0) {
     throw CybelError{Util::build_string("Missing map grid in map [",file,"].")};
   }
+  size.h = static_cast<int>(lines.size());
 
-  return parse_grid(lines,width,static_cast<int>(lines.size()));
+  return parse_grid(lines,size);
 }
 
 bool Map::parse_header(const std::string& line,int& version,bool warn) {
@@ -127,55 +129,53 @@ std::string Map::build_header() const {
   return Util::build_string("[EkoScape/v",version_,']');
 }
 
-Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height) {
+Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
   clear_spaces();
 
-  if(width <= 0) {
+  if(size.w <= 0) {
     // Find max line length (width).
-    width = 0;
+    size.w = 0;
 
     for(const auto& line: lines) {
       const int len = static_cast<int>(line.length());
-      if(len > width) { width = len; }
+      if(len > size.w) { size.w = len; }
     }
   }
 
   const int row_count = static_cast<int>(lines.size());
+  if(size.h <= 0) { size.h = row_count; }
 
-  if(height <= 0) { height = row_count; }
-  if(width <= 0 || height <= 0) { return *this; }
+  if(size.w <= 0 || size.h <= 0) { return *this; }
 
-  spaces_.resize(width * height);
-  width_ = width;
-  height_ = height;
+  spaces_.resize(size.w * size.h);
+  size_ = size;
 
   bool has_player = false;
   bool has_end = false;
 
   // Dantares expects a map where the origin (0,0) is from the bottom left,
   //    instead of the top left, so we match this internally.
-  // Therefore, we use `dan_y` to flip it vertically,
-  //    and `dan_x` is to just match it visually.
-  for(int y = 0; y < height_; ++y) {
-    int dan_y = height_ - 1 - y;
+  // Therefore, we use `dan_pos` to flip it vertically.
+  for(Pos2i pos{0,0}; pos.y < size_.h; ++pos.y) {
+    Pos2i dan_pos{0,size_.h - 1 - pos.y};
     const std::string* line;
-    int column_count;
+    int col_count;
 
-    if(y < row_count) {
-      line = &lines.at(y);
-      column_count = static_cast<int>(line->length());
+    if(pos.y < row_count) {
+      line = &lines.at(pos.y);
+      col_count = static_cast<int>(line->length());
     } else {
       line = nullptr;
-      column_count = 0;
+      col_count = 0;
     }
 
-    for(int x = 0; x < width_; ++x) {
-      int dan_x = x;
+    for(pos.x = 0; pos.x < size_.w; ++pos.x) {
+      dan_pos.x = pos.x;
       SpaceType empty_type = SpaceType::kDeadSpace;
       SpaceType thing_type = SpaceType::kNil;
 
-      if(line != nullptr && x < column_count) {
-        SpaceType type = SpaceTypes::to_space_type(line->at(x));
+      if(line != nullptr && pos.x < col_count) {
+        SpaceType type = SpaceTypes::to_space_type(line->at(pos.x));
 
         if(type == SpaceType::kCell) {
           empty_type = default_empty_;
@@ -183,8 +183,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
           ++total_cells_;
         } else if(SpaceTypes::is_player(type)) {
           empty_type = default_empty_;
-          player_init_x_ = dan_x;
-          player_init_y_ = dan_y;
+          player_init_pos_ = dan_pos;
           player_init_facing_ = SpaceTypes::to_player_facing(type);
           has_player = true;
         } else if(SpaceTypes::is_robot(type)) {
@@ -197,7 +196,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
         }
       }
 
-      set_raw_space(dan_x,dan_y,Space{empty_type,thing_type});
+      set_raw_space(dan_pos,{empty_type,thing_type});
     }
   }
 
@@ -223,23 +222,23 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,int width,int height)
 }
 
 Map& Map::clear_spaces() {
-  width_ = 0;
-  height_ = 0;
+  size_.w = 0;
+  size_.h = 0;
   spaces_.clear();
   total_cells_ = 0;
   total_rescues_ = 0;
-  player_init_x_ = 0;
-  player_init_y_ = 0;
+  player_init_pos_.x = 0;
+  player_init_pos_.y = 0;
 
   return *this;
 }
 
-bool Map::move_thing(int from_x,int from_y,int to_x,int to_y) {
-  Space* from_space = mutable_space(from_x,from_y);
+bool Map::move_thing(const Pos2i& from_pos,const Pos2i& to_pos) {
+  Space* from_space = mutable_space(from_pos);
 
   if(from_space == nullptr || !from_space->has_thing()) { return false; }
 
-  Space* to_space = mutable_space(to_x,to_y);
+  Space* to_space = mutable_space(to_pos);
 
   if(to_space == nullptr || to_space->has_thing()) { return false; }
 
@@ -248,8 +247,8 @@ bool Map::move_thing(int from_x,int from_y,int to_x,int to_y) {
   return true;
 }
 
-bool Map::remove_thing(int x,int y) {
-  Space* space = mutable_space(x,y);
+bool Map::remove_thing(const Pos2i& pos) {
+  Space* space = mutable_space(pos);
 
   if(space == nullptr) { return false; }
   if(!space->has_thing()) { return true; } // This is why move_thing() can't use this method.
@@ -258,8 +257,8 @@ bool Map::remove_thing(int x,int y) {
   return true;
 }
 
-bool Map::place_thing(SpaceType type,int x,int y) {
-  Space* space = mutable_space(x,y);
+bool Map::place_thing(SpaceType type,const Pos2i& pos) {
+  Space* space = mutable_space(pos);
 
   if(space == nullptr || space->has_thing()) { return false; }
 
@@ -267,8 +266,8 @@ bool Map::place_thing(SpaceType type,int x,int y) {
   return true;
 }
 
-bool Map::unlock_cell(int x,int y) {
-  Space* space = mutable_space(x,y);
+bool Map::unlock_cell(const Pos2i& pos) {
+  Space* space = mutable_space(pos);
 
   if(space == nullptr || space->thing_type() != SpaceType::kCell) { return false; }
 
@@ -309,8 +308,8 @@ Map& Map::set_robot_delay(Duration duration) {
   return *this;
 }
 
-bool Map::set_space(int x,int y,SpaceType empty_type,SpaceType thing_type) {
-  Space* space = mutable_space(x,y);
+bool Map::set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) {
+  Space* space = mutable_space(pos);
 
   if(space == nullptr) { return false; }
 
@@ -319,8 +318,8 @@ bool Map::set_space(int x,int y,SpaceType empty_type,SpaceType thing_type) {
   return true;
 }
 
-bool Map::set_empty(int x,int y,SpaceType type) {
-  Space* space = mutable_space(x,y);
+bool Map::set_empty(const Pos2i& pos,SpaceType type) {
+  Space* space = mutable_space(pos);
 
   if(space == nullptr) { return false; }
 
@@ -328,8 +327,8 @@ bool Map::set_empty(int x,int y,SpaceType type) {
   return true;
 }
 
-bool Map::set_thing(int x,int y,SpaceType type) {
-  Space* space = mutable_space(x,y);
+bool Map::set_thing(const Pos2i& pos,SpaceType type) {
+  Space* space = mutable_space(pos);
 
   if(space == nullptr) { return false; }
 
@@ -351,37 +350,33 @@ SpaceType Map::default_empty() const { return default_empty_; }
 
 const Duration& Map::robot_delay() const { return robot_delay_; }
 
-int Map::width() const { return width_; }
+const Size2i& Map::size() const { return size_; }
 
-int Map::height() const { return height_; }
-
-const Space* Map::space(int x,int y) const {
-  if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
-  return &raw_space(x,y);
+const Space* Map::space(const Pos2i& pos) const {
+  if(!size_.in_bounds(pos.x,pos.y)) { return nullptr; }
+  return &raw_space(pos);
 }
 
 int Map::total_cells() const { return total_cells_; }
 
 int Map::total_rescues() const { return total_rescues_; }
 
-int Map::player_init_x() const { return player_init_x_; }
-
-int Map::player_init_y() const { return player_init_y_; }
+const Pos2i& Map::player_init_pos() const { return player_init_pos_; }
 
 Facing Map::player_init_facing() const { return player_init_facing_; }
 
-void Map::set_raw_space(int x,int y,Space&& space) {
-  spaces_.at(x + (y * width_)) = std::move(space);
+void Map::set_raw_space(const Pos2i& pos,Space&& space) {
+  spaces_.at(pos.x + (pos.y * size_.w)) = std::move(space);
 }
 
-Space* Map::mutable_space(int x,int y) {
-  if(x < 0 || x >= width_ || y < 0 || y >= height_) { return nullptr; }
-  return &raw_space(x,y);
+Space* Map::mutable_space(const Pos2i& pos) {
+  if(!size_.in_bounds(pos.x,pos.y)) { return nullptr; }
+  return &raw_space(pos);
 }
 
-Space& Map::raw_space(int x,int y) { return spaces_.at(x + (y * width_)); }
+Space& Map::raw_space(const Pos2i& pos) { return spaces_.at(pos.x + (pos.y * size_.w)); }
 
-const Space& Map::raw_space(int x,int y) const { return spaces_.at(x + (y * width_)); }
+const Space& Map::raw_space(const Pos2i& pos) const { return spaces_.at(pos.x + (pos.y * size_.w)); }
 
 std::ostream& operator<<(std::ostream& out,const Map& map) {
   out << map.build_header() << '\n'
@@ -395,16 +390,16 @@ std::ostream& operator<<(std::ostream& out,const Map& map) {
 
   // Flip vertically, since internally, we match Dantares where
   //     the origin (0,0) is from the bottom left, instead of the top left.
-  for(int y = map.height_ - 1; y >= 0; --y) {
+  for(Pos2i pos{0,map.size_.h - 1}; pos.y >= 0; --pos.y) {
     out << '\n';
 
-    for(int x = 0; x < map.width_; ++x) {
+    for(pos.x = 0; pos.x < map.size_.w; ++pos.x) {
       SpaceType type;
 
-      if(x == map.player_init_x_ && y == map.player_init_y_) {
+      if(pos.x == map.player_init_pos_.x && pos.y == map.player_init_pos_.y) {
         type = SpaceTypes::to_player(map.player_init_facing_);
       } else {
-        type = map.raw_space(x,y).type();
+        type = map.raw_space(pos).type();
       }
 
       out << SpaceTypes::value_of(type);

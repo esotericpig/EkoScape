@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_SCENE_SCENE_DATA_H_
-#define EKOSCAPE_CORE_SCENE_SCENE_DATA_H_
+#ifndef EKOSCAPE_CORE_SCENE_SCENE_TYPES_H_
+#define EKOSCAPE_CORE_SCENE_SCENE_TYPES_H_
 
 #include "core/common.h"
 

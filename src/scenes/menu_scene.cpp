@@ -27,6 +27,8 @@ MenuScene::MenuScene(Assets& assets)
   }
 }
 
+void MenuScene::init_scene(Renderer& /*ren*/) {}
+
 void MenuScene::on_key_down_event(SDL_Keycode key) {
   auto& selected_option = options_.at(selected_option_index_);
 
@@ -101,13 +103,14 @@ int MenuScene::update_scene_logic(const FrameStep& /*step*/) {
 
 void MenuScene::draw_scene(Renderer& ren) {
   ren.begin_2d_scene()
-     .begin_auto_center();
+     .begin_auto_center()
+     .begin_add_blend();
 
   ren.wrap_sprite(assets_.logo_sprite(),[&](auto& s) {
-    s.draw_quad(150,10,1300,300);
+    s.draw_quad({150,10},{1300,300});
   });
 
-  ren.wrap_font_atlas(assets_.font_atlas(),395,330,40,90,[&](auto& font) {
+  ren.wrap_font_atlas(assets_.font_atlas(),{395,330},{40,90},[&](auto& font) {
     for(int i = 0; i < static_cast<int>(options_.size()); ++i) {
       auto& option = options_[i];
 
@@ -143,16 +146,17 @@ void MenuScene::draw_scene(Renderer& ren) {
   });
 
   ren.wrap_texture(assets_.robot_texture(),[&](auto& tex) {
-    tex.draw_quad(10,368,300,256);
+    tex.draw_quad({10,368},{300,256});
   });
   ren.wrap_texture(assets_.cell_texture(),[&](auto& tex) {
-    tex.draw_quad(10,634,300,256);
+    tex.draw_quad({10,634},{300,256});
   });
   ren.wrap_sprite(assets_.keys_sprite(),[&](auto& s) {
-    s.draw_quad(849,670,741,220); // 1482x440.
+    s.draw_quad({849,670},{741,220}); // 1482x440.
   });
 
-  ren.end_scale_offset();
+  ren.end_blend()
+     .end_scale_offset();
 }
 
 void MenuScene::update_graphics_option(Option& option) {

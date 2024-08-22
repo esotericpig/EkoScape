@@ -13,6 +13,7 @@
 #include "core/gfx/texture.h"
 #include "core/scene/scene.h"
 #include "core/util/timer.h"
+
 #include "map/dantares_map.h"
 #include "world/robot.h"
 #include "assets.h"
@@ -50,7 +51,7 @@ private:
   Duration robot_move_duration_{};
 
   void load_map(const std::filesystem::path& file);
-  void init_map_space(int x,int y,Space&,SpaceType type);
+  void init_map_space(const Pos2i& pos,Space&,SpaceType type);
   void generate_map();
 
   int update_player();

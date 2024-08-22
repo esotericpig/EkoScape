@@ -14,55 +14,55 @@ const Pos4f Renderer::kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
 Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src)
     : ren(ren),texture(texture),src(src) {}
 
-Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y) {
-  return draw_quad(x,y,texture.width(),texture.height());
+Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(const Pos3i& pos) {
+  return draw_quad(pos,texture.size());
 }
 
-Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(int x,int y,int width,int height) {
-  ren.draw_quad(src,x,y,width,height);
+Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(const Pos3i& pos,const Size2i& size) {
+  ren.draw_quad(src,pos,size);
   return *this;
 }
 
 Renderer::SpriteWrapper::SpriteWrapper(Renderer& ren,const Sprite& sprite)
     : ren(ren),sprite(sprite) {}
 
-Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(int x,int y) {
-  return draw_quad(x,y,sprite.size().w,sprite.size().h);
+Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos) {
+  return draw_quad(pos,sprite.size());
 }
 
-Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(int x,int y,int width,int height) {
-  ren.draw_quad(sprite.src(),x,y,width,height);
+Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos,const Size2i& size) {
+  ren.draw_quad(sprite.src(),pos,size);
   return *this;
 }
 
 Renderer::SpriteAtlasWrapper::SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas)
     : ren(ren),atlas(atlas) {}
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,int x,int y) {
-  return draw_quad(index,x,y,atlas.cell_size().w,atlas.cell_size().h);
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos) {
+  return draw_quad(index,pos,atlas.cell_size());
 }
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,int x,int y,int width
-    ,int height) {
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos
+    ,const Size2i& size) {
   const Pos4f* src = atlas.src(index);
 
-  if(src != nullptr) { ren.draw_quad(*src,x,y,width,height); }
+  if(src != nullptr) { ren.draw_quad(*src,pos,size); }
   return *this;
 }
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column,int row,int x,int y) {
-  return draw_quad(column,row,x,y,atlas.cell_size().w,atlas.cell_size().h);
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2i& cell,const Pos3i& pos) {
+  return draw_quad(cell,pos,atlas.cell_size());
 }
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int column,int row,int x,int y
-    ,int width,int height) {
-  const Pos4f* src = atlas.src(column,row);
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2i& cell,const Pos3i& pos
+    ,const Size2i& size) {
+  const Pos4f* src = atlas.src(cell);
 
-  if(src != nullptr) { ren.draw_quad(*src,x,y,width,height); }
+  if(src != nullptr) { ren.draw_quad(*src,pos,size); }
   return *this;
 }
 
-Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos2i& pos
+Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos
     ,const Size2i& char_size,const Size2i& spacing)
     : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
 
@@ -74,7 +74,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() {
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {
   const Pos4f* src = font.src(font.char_index(c));
 
-  if(src != nullptr) { ren.draw_quad(*src,pos.x,pos.y,char_size.w,char_size.h); }
+  if(src != nullptr) { ren.draw_quad(*src,pos,char_size); }
   return print();
 }
 
@@ -148,8 +148,7 @@ void Renderer::init_gl() {
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
 
-  glShadeModel(GL_SMOOTH);
-  //glShadeModel(GL_FLAT);
+  glShadeModel(GL_SMOOTH); // GL_SMOOTH, GL_FLAT
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -192,7 +191,7 @@ Renderer& Renderer::begin_2d_scene() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  glOrtho(0.0,dimens_.size.w,dimens_.size.h,0.0,-1.0,1.0);
+  glOrtho(0.0,dimens_.size.w,dimens_.size.h,0.0,-5.0,5.0);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -211,12 +210,6 @@ Renderer& Renderer::begin_3d_scene() {
   glLoadIdentity();
 
   return *this;
-}
-
-Renderer& Renderer::end_all() {
-  return end_scale_offset()
-        .end_color()
-        .end_texture();
 }
 
 Renderer& Renderer::begin_auto_center() {
@@ -271,6 +264,21 @@ Renderer& Renderer::end_color() {
   return *this;
 }
 
+Renderer& Renderer::begin_add_blend() {
+  glGetIntegerv(GL_BLEND_SRC_RGB,&blend_src_rgb_);
+  glGetIntegerv(GL_BLEND_SRC_ALPHA,&blend_src_alpha_);
+  glGetIntegerv(GL_BLEND_DST_RGB,&blend_dst_rgb_);
+  glGetIntegerv(GL_BLEND_DST_ALPHA,&blend_dst_alpha_);
+
+  glBlendFunc(GL_ONE,GL_ONE);
+  return *this;
+}
+
+Renderer& Renderer::end_blend() {
+  glBlendFuncSeparate(blend_src_rgb_,blend_dst_rgb_,blend_src_alpha_,blend_dst_alpha_);
+  return *this;
+}
+
 Renderer& Renderer::begin_texture(const Texture& texture) {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D,texture.gl_id());
@@ -287,6 +295,27 @@ Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback
   begin_color(color);
   callback();
   return end_color();
+}
+
+Renderer& Renderer::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
+  const GLfloat x = static_cast<GLfloat>(pos.x);
+  const GLfloat y = static_cast<GLfloat>(pos.y);
+  const GLfloat z = static_cast<GLfloat>(pos.z);
+
+  glPushMatrix();
+    glTranslatef(x,y,z);
+    glRotatef(angle,0.0f,0.0f,1.0f);
+    glTranslatef(-x,-y,-z);
+    callback();
+  glPopMatrix();
+
+  return *this;
+}
+
+Renderer& Renderer::wrap_add_blend(const WrapCallback& callback) {
+  begin_add_blend();
+  callback();
+  return end_blend();
 }
 
 Renderer& Renderer::wrap_texture(const Texture& texture,const WrapTextureCallback& callback) {
@@ -318,63 +347,59 @@ Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteA
   return end_texture();
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos
     ,const WrapFontAtlasCallback& callback) {
-  return wrap_font_atlas(font,x,y,font.cell_size().w,font.cell_size().h,font.spacing(),callback);
+  return wrap_font_atlas(font,pos,font.cell_size(),callback);
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
     ,const WrapFontAtlasCallback& callback) {
-  return wrap_font_atlas(font,x,y,char_width,char_height,font.spacing(),callback);
+  return wrap_font_atlas(font,pos,char_size,font.spacing(),callback);
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
     ,const Size2i& spacing,const WrapFontAtlasCallback& callback) {
-  FontAtlasWrapper wrapper{*this,font,{x,y},{char_width,char_height},spacing};
+  FontAtlasWrapper wrapper{*this,font,pos,char_size,spacing};
 
   begin_texture(font.texture());
   callback(wrapper);
   return end_texture();
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,int x,int y,const Size2i& spacing
-    ,const WrapFontAtlasCallback& callback) {
-  return wrap_font_atlas(font,x,y,font.cell_size().w,font.cell_size().h,spacing,callback);
-}
-
-Renderer& Renderer::draw_quad(int x,int y,int width,int height) {
-  Pos4f dest = build_dest_pos4f(x,y,width,height);
+Renderer& Renderer::draw_quad(const Pos3i& pos,const Size2i& size) {
+  Pos5f dest = build_dest_pos5f(pos,size);
 
   glBegin(GL_QUADS);
-    glVertex2f(dest.x1,dest.y1);
-    glVertex2f(dest.x2,dest.y1);
-    glVertex2f(dest.x2,dest.y2);
-    glVertex2f(dest.x1,dest.y2);
+    glVertex3f(dest.x1,dest.y1,dest.z);
+    glVertex3f(dest.x2,dest.y1,dest.z);
+    glVertex3f(dest.x2,dest.y2,dest.z);
+    glVertex3f(dest.x1,dest.y2,dest.z);
   glEnd();
 
   return *this;
 }
 
-Renderer& Renderer::draw_quad(const Pos4f& src,int x,int y,int width,int height) {
-  Pos4f dest = build_dest_pos4f(x,y,width,height);
+Renderer& Renderer::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size) {
+  Pos5f dest = build_dest_pos5f(pos,size);
 
   glBegin(GL_QUADS);
-    glTexCoord2f(src.x1,src.y1); glVertex2f(dest.x1,dest.y1);
-    glTexCoord2f(src.x2,src.y1); glVertex2f(dest.x2,dest.y1);
-    glTexCoord2f(src.x2,src.y2); glVertex2f(dest.x2,dest.y2);
-    glTexCoord2f(src.x1,src.y2); glVertex2f(dest.x1,dest.y2);
+    glTexCoord2f(src.x1,src.y1); glVertex3f(dest.x1,dest.y1,dest.z);
+    glTexCoord2f(src.x2,src.y1); glVertex3f(dest.x2,dest.y1,dest.z);
+    glTexCoord2f(src.x2,src.y2); glVertex3f(dest.x2,dest.y2,dest.z);
+    glTexCoord2f(src.x1,src.y2); glVertex3f(dest.x1,dest.y2,dest.z);
   glEnd();
 
   return *this;
 }
 
-Pos4f Renderer::build_dest_pos4f(int x,int y,int width,int height) {
-  float x1 = offset_.x + (static_cast<float>(x) * scale_);
-  float y1 = offset_.y + (static_cast<float>(y) * scale_);
-  float x2 = x1 + (static_cast<float>(width) * scale_);
-  float y2 = y1 + (static_cast<float>(height) * scale_);
+Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) {
+  float x1 = offset_.x + (static_cast<float>(pos.x) * scale_);
+  float y1 = offset_.y + (static_cast<float>(pos.y) * scale_);
+  float x2 = x1 + (static_cast<float>(size.w) * scale_);
+  float y2 = y1 + (static_cast<float>(size.h) * scale_);
+  float z = static_cast<float>(pos.z);
 
-  return {x1,y1,x2,y2};
+  return {x1,y1,x2,y2,z};
 }
 
 const ViewDimens& Renderer::dimens() const { return dimens_; }

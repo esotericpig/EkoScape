@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-StyledGraphics::StyledGraphics(const std::filesystem::path& assets_dir,Style style)
-    : assets_dir_(assets_dir) {
+StyledGraphics::StyledGraphics(const std::filesystem::path& textures_dir,Style style)
+    : textures_dir_(textures_dir) {
   reload(style);
 
   if(graphics_ == nullptr) { throw CybelError{"Graphics pointer was not set."}; }
@@ -43,7 +43,7 @@ void StyledGraphics::reload(Style style) {
 }
 
 StyledGraphics::Graphics StyledGraphics::load_style(Style style,const std::string& dirname) {
-  const auto tex_dir = assets_dir_ / "textures" / dirname;
+  const auto tex_dir = textures_dir_ / dirname;
 
   Graphics graphics{};
 

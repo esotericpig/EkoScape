@@ -21,32 +21,32 @@ void GameScene::load_map(const std::filesystem::path& file) {
   std::cout << "[INFO] Map file: '" << file << "'\n";
   std::cout << map_ << std::endl;
 
-  map_.add_to_dantares([&](int x,int y,Space& space,SpaceType type) {
-    init_map_space(x,y,space,type);
+  map_.add_to_dantares([&](const Pos2i& pos,Space& space,SpaceType type) {
+    init_map_space(pos,space,type);
   });
   map_.make_current_in_dantares();
 }
 
-void GameScene::init_map_space(int x,int y,Space&,SpaceType type) {
+void GameScene::init_map_space(const Pos2i& pos,Space&,SpaceType type) {
   switch(type) {
     case SpaceType::kRobot:
-      robots_.emplace_back(std::make_unique<RobotNormal>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotNormal>(type,pos));
       break;
 
     case SpaceType::kRobotGhost:
-      robots_.emplace_back(std::make_unique<RobotGhost>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotGhost>(type,pos));
       break;
 
     case SpaceType::kRobotSnake:
-      robots_.emplace_back(std::make_unique<RobotSnake>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotSnake>(type,pos));
       break;
 
     case SpaceType::kRobotStatue:
-      robots_.emplace_back(std::make_unique<RobotStatue>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotStatue>(type,pos));
       break;
 
     case SpaceType::kRobotWorm:
-      robots_.emplace_back(std::make_unique<RobotWorm>(type,x,y));
+      robots_.emplace_back(std::make_unique<RobotWorm>(type,pos));
       break;
 
     default: break; // Ignore.
@@ -129,7 +129,7 @@ int GameScene::update_player() {
 
   switch(player_space_type) {
     case SpaceType::kCell:
-      map_.unlock_cell(map_.player_x(),map_.player_y());
+      map_.unlock_cell(map_.player_pos());
       break;
 
     case SpaceType::kEnd:
@@ -163,7 +163,7 @@ void GameScene::update_robots(const FrameStep& step) {
     auto& robot = *it;
 
     if(robot->is_dead()) {
-      map_.remove_thing(robot->x(),robot->y());
+      map_.remove_thing(robot->pos());
       it = robots_.erase(it);
     } else {
       robot->age(step.delta_time);

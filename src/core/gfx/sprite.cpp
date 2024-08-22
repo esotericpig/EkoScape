@@ -12,22 +12,22 @@ namespace cybel {
 Pos4f Sprite::build_src(const Texture& texture,const Pos2i& offset,const Size2i& size,int padding) {
   Pos4f src{};
 
-  if(texture.width() == 0) { // Avoid divides by 0.
+  if(texture.size().w == 0) { // Avoid divides by 0.
     src.x1 = 0.0f;
     src.x2 = 0.0f;
   } else {
-    const float tex_w = static_cast<float>(texture.width());
+    const float tex_w = static_cast<float>(texture.size().w);
     const float src_x = static_cast<float>(offset.x + padding);
 
     // Clamp between 0 & 1.
     src.x1 = src_x / tex_w;
     src.x2 = (src_x + static_cast<float>(size.w)) / tex_w;
   }
-  if(texture.height() == 0) { // Avoid divides by 0.
+  if(texture.size().h == 0) { // Avoid divides by 0.
     src.y1 = 0.0f;
     src.y2 = 0.0f;
   } else {
-    const float tex_h = static_cast<float>(texture.height());
+    const float tex_h = static_cast<float>(texture.size().h);
     const float src_y = static_cast<float>(offset.y + padding);
 
     // Clamp between 0 & 1.
@@ -51,8 +51,8 @@ Sprite::Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i
     : texture_(texture) {
   const int p2 = padding * 2;
 
-  size_.w = (size.w > 0) ? size.w : (texture_->width() - p2 - offset.x);
-  size_.h = (size.h > 0) ? size.h : (texture_->height() - p2 - offset.y);
+  size_.w = (size.w > 0) ? size.w : (texture_->size().w - p2 - offset.x);
+  size_.h = (size.h > 0) ? size.h : (texture_->size().h - p2 - offset.y);
   src_ = build_src(*texture_,offset,size_,padding);
 }
 

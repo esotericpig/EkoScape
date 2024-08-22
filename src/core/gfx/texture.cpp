@@ -45,7 +45,7 @@ Texture::Texture(Image& image,bool make_weird) {
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
 
   image.lock();
-  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,image.width(),image.height(),0,image_format
+  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,image.size().w,image.size().h,0,image_format
       ,image.gl_type(),image.pixels());
   image.unlock();
 
@@ -65,8 +65,7 @@ Texture::Texture(Image& image,bool make_weird) {
         ,"]; error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 
-  width_ = image.width();
-  height_ = image.height();
+  size_ = image.size();
 }
 
 Texture::Texture(Image&& image,bool make_weird)
@@ -109,8 +108,8 @@ Texture::Texture(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a,boo
         ,r,',',g,',',b,',',a,"); error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 
-  width_ = width;
-  height_ = height;
+  size_.w = width;
+  size_.h = height;
 }
 
 Texture::Texture(Texture&& other) noexcept {
@@ -121,8 +120,7 @@ void Texture::move_from(Texture&& other) noexcept {
   destroy();
 
   gl_id_ = std::exchange(other.gl_id_,0);
-  width_ = std::exchange(other.width_,0);
-  height_ = std::exchange(other.height_,0);
+  size_ = std::exchange(other.size_,{});
 }
 
 Texture::~Texture() noexcept {
@@ -143,8 +141,6 @@ Texture& Texture::operator=(Texture&& other) noexcept {
 
 GLuint Texture::gl_id() const { return gl_id_; }
 
-int Texture::width() const { return width_; }
-
-int Texture::height() const { return height_; }
+const Size2i& Texture::size() const { return size_; }
 
 } // Namespace.

@@ -34,8 +34,8 @@ SpriteAtlas::Builder& SpriteAtlas::Builder::cell_padding(int padding) {
   return *this;
 }
 
-SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int columns,int rows) {
-  grid_size_.w = columns;
+SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int cols,int rows) {
+  grid_size_.w = cols;
   grid_size_.h = rows;
   return *this;
 }
@@ -54,10 +54,10 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
   const int y_offset = builder.offset_.y + builder.cell_padding_;
 
   for(int i = 0; i < cell_count_; ++i) {
-    const int column = i % grid_size_.w;
+    const int col = i % grid_size_.w;
     const int row = i / grid_size_.w;
     const Pos2i offset{
-      x_offset + (builder.cell_size_.w * column),
+      x_offset + (builder.cell_size_.w * col),
       y_offset + (builder.cell_size_.h * row),
     };
 
@@ -72,8 +72,8 @@ const Pos4f* SpriteAtlas::src(int index) const {
   return &index_to_src_.at(index);
 }
 
-const Pos4f* SpriteAtlas::src(int column,int row) const {
-  return src(column + (row * grid_size_.w));
+const Pos4f* SpriteAtlas::src(const Pos2i& cell) const {
+  return src(cell.x + (cell.y * grid_size_.w));
 }
 
 const Size2i& SpriteAtlas::cell_size() const { return cell_size_; }

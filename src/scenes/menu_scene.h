@@ -11,6 +11,7 @@
 #include "core/common.h"
 
 #include "core/scene/scene.h"
+
 #include "assets.h"
 #include "scene_action.h"
 
@@ -32,6 +33,7 @@ public:
 
   explicit MenuScene(Assets& assets);
 
+  void init_scene(Renderer& ren) override;
   void on_key_down_event(SDL_Keycode key) override;
   int update_scene_logic(const FrameStep& step) override;
   void draw_scene(Renderer& ren) override;

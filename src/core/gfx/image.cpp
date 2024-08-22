@@ -20,6 +20,9 @@ Image::Image(const std::filesystem::path& file)
     throw CybelError{Util::build_string("Failed to load image [",file_cstr,"]: "
         ,Util::get_sdl_img_error(),'.')};
   }
+
+  size_.w = surface_->w;
+  size_.h = surface_->h;
 }
 
 Image::Image(Image&& other) noexcept {
@@ -31,7 +34,9 @@ void Image::move_from(Image&& other) noexcept {
 
   surface_ = other.surface_;
   other.surface_ = NULL;
+
   id_ = std::exchange(other.id_,"");
+  size_ = std::exchange(other.size_,{});
   is_locked_ = std::exchange(other.is_locked_,false);
 }
 
@@ -74,9 +79,7 @@ Image& Image::unlock() noexcept {
 
 const std::string& Image::id() const { return id_; }
 
-int Image::width() const { return surface_->w; }
-
-int Image::height() const { return surface_->h; }
+const Size2i& Image::size() const { return size_; }
 
 std::uint8_t Image::bpp() const { return surface_->format->BytesPerPixel; }
 

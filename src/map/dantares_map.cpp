@@ -20,10 +20,10 @@ Map& DantaresMap::clear_spaces() {
 }
 
 DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
-  std::vector<int> int_spaces(width_ * height_,0);
+  std::vector<int> int_spaces(size_.w * size_.h,0);
 
   // Explicitly casting to ensure that `const void*` overload is used.
-  id_ = dantares_.AddMap(static_cast<const void*>(int_spaces.data()),width_,height_);
+  id_ = dantares_.AddMap(static_cast<const void*>(int_spaces.data()),size_.w,size_.h);
 
   if(id_ == -1 || !dantares_.IsMap(id_)) {
     throw CybelError{Util::build_string("Failed to add map [",id_,':',title_,"].")};
@@ -41,14 +41,14 @@ DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
     throw CybelError{Util::build_string("Failed to make map [",id_,':',title_,"] current.")};
   }
 
-  for(int y = 0; y < height_; ++y) {
-    for(int x = 0; x < width_; ++x) {
-      Space& space = raw_space(x,y);
+  for(Pos2i pos{0,0}; pos.y < size_.h; ++pos.y) {
+    for(pos.x = 0; pos.x < size_.w; ++pos.x) {
+      Space& space = raw_space(pos);
       SpaceType type = space.type();
 
-      change_square(x,y,type);
+      change_square(pos,type);
 
-      if(on_space) { on_space(x,y,space,type); }
+      if(on_space) { on_space(pos,space,type); }
     }
   }
 
@@ -80,9 +80,9 @@ DantaresMap& DantaresMap::make_current_in_dantares() {
 
   int dan_facing = Facings::value_of(player_init_facing_);
 
-  if(!dantares_.SetPlayerPosition(player_init_x_,player_init_y_,dan_facing)) {
+  if(!dantares_.SetPlayerPosition(player_init_pos_.x,player_init_pos_.y,dan_facing)) {
     throw CybelError{Util::build_string("Failed to set player pos [",dan_facing,":("
-        ,player_init_x_,',',player_init_y_,")] for map [",id_,':',title_,"].")};
+        ,player_init_pos_.x,',',player_init_pos_.y,")] for map [",id_,':',title_,"].")};
   }
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
     std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map ["
@@ -106,63 +106,65 @@ DantaresMap& DantaresMap::generate_in_dantares() {
   return *this;
 }
 
-bool DantaresMap::move_thing(int from_x,int from_y,int to_x,int to_y) {
-  if(!Base::move_thing(from_x,from_y,to_x,to_y)) { return false; }
+bool DantaresMap::move_thing(const Pos2i& from_pos,const Pos2i& to_pos) {
+  if(!Base::move_thing(from_pos,to_pos)) { return false; }
 
-  change_square(from_x,from_y,raw_space(from_x,from_y).empty_type());
-  change_square(to_x,to_y,raw_space(to_x,to_y).thing_type());
+  change_square(from_pos,raw_space(from_pos).empty_type());
+  change_square(to_pos,raw_space(to_pos).thing_type());
   return true;
 }
 
-bool DantaresMap::remove_thing(int x,int y) {
-  if(!Base::remove_thing(x,y)) { return false; }
+bool DantaresMap::remove_thing(const Pos2i& pos) {
+  if(!Base::remove_thing(pos)) { return false; }
 
-  change_square(x,y,raw_space(x,y).empty_type());
+  change_square(pos,raw_space(pos).empty_type());
   return true;
 }
 
-bool DantaresMap::place_thing(SpaceType type,int x,int y) {
-  if(!Base::place_thing(type,x,y)) { return false; }
+bool DantaresMap::place_thing(SpaceType type,const Pos2i& pos) {
+  if(!Base::place_thing(type,pos)) { return false; }
 
-  change_square(x,y,type);
+  change_square(pos,type);
   return true;
 }
 
-bool DantaresMap::unlock_cell(int x,int y) {
-  if(!Base::unlock_cell(x,y)) { return false; }
+bool DantaresMap::unlock_cell(const Pos2i& pos) {
+  if(!Base::unlock_cell(pos)) { return false; }
 
-  change_square(x,y,raw_space(x,y).empty_type());
+  change_square(pos,raw_space(pos).empty_type());
   return true;
 }
 
-bool DantaresMap::set_space(int x,int y,SpaceType empty_type,SpaceType thing_type) {
-  if(!Base::set_space(x,y,empty_type,thing_type)) { return false; }
+bool DantaresMap::set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) {
+  if(!Base::set_space(pos,empty_type,thing_type)) { return false; }
 
-  change_square(x,y,raw_space(x,y).type()); // Use type() to determine if empty or thing.
+  change_square(pos,raw_space(pos).type()); // Use type() to determine if empty or thing.
   return true;
 }
 
-bool DantaresMap::set_empty(int x,int y,SpaceType type) {
-  if(!Base::set_empty(x,y,type)) { return false; }
+bool DantaresMap::set_empty(const Pos2i& pos,SpaceType type) {
+  if(!Base::set_empty(pos,type)) { return false; }
 
-  change_square(x,y,raw_space(x,y).type()); // Use type() in case there is a thing.
+  change_square(pos,raw_space(pos).type()); // Use type() in case there is a thing.
   return true;
 }
 
-bool DantaresMap::set_thing(int x,int y,SpaceType type) {
-  if(!Base::set_thing(x,y,type)) { return false; }
+bool DantaresMap::set_thing(const Pos2i& pos,SpaceType type) {
+  if(!Base::set_thing(pos,type)) { return false; }
 
-  change_square(x,y,raw_space(x,y).type()); // Use type() in case thing is kNil.
+  change_square(pos,raw_space(pos).type()); // Use type() in case thing is kNil.
   return true;
 }
 
 int DantaresMap::id() const { return id_; }
 
+Pos2i DantaresMap::player_pos() const { return {player_x(),player_y()}; }
+
 int DantaresMap::player_x() const { return dantares_.GetPlayerX(); }
 
 int DantaresMap::player_y() const { return dantares_.GetPlayerY(); }
 
-const Space* DantaresMap::player_space() const { return space(player_x(),player_y()); }
+const Space* DantaresMap::player_space() const { return space(player_pos()); }
 
 SpaceType DantaresMap::player_space_type() const {
   return SpaceTypes::to_space_type(dantares_.GetCurrentSpace());
@@ -172,14 +174,14 @@ Facing DantaresMap::player_facing() const {
   return Facings::to_facing(dantares_.GetPlayerFacing());
 }
 
-void DantaresMap::change_square(int x,int y,SpaceType type) {
-  dantares_.ChangeSquare(x,y,SpaceTypes::value_of(type));
+void DantaresMap::change_square(const Pos2i& pos,SpaceType type) {
+  dantares_.ChangeSquare(pos.x,pos.y,SpaceTypes::value_of(type));
 
   // Walkability must always be updated after changing the square.
   if(SpaceTypes::is_walkable(type)) {
-    dantares_.MakeSpaceWalkable(x,y);
+    dantares_.MakeSpaceWalkable(pos.x,pos.y);
   } else {
-    dantares_.MakeSpaceNonWalkable(x,y);
+    dantares_.MakeSpaceNonWalkable(pos.x,pos.y);
   }
 }
 

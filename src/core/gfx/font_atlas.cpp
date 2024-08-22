@@ -32,8 +32,8 @@ FontAtlas::Builder& FontAtlas::Builder::cell_padding(int padding) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::grid_size(int columns,int rows) {
-  Base::grid_size(columns,rows);
+FontAtlas::Builder& FontAtlas::Builder::grid_size(int cols,int rows) {
+  Base::grid_size(cols,rows);
   return *this;
 }
 
@@ -50,9 +50,9 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int index) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::default_index(int column,int row) {
+FontAtlas::Builder& FontAtlas::Builder::default_index(int col,int row) {
   default_index_ = 0;
-  default_cell_.x = column;
+  default_cell_.x = col;
   default_cell_.y = row;
   return *this;
 }
@@ -70,11 +70,11 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const tiny_utf8::string& s
 
 FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf8::string>& lines) {
   int index = 0;
-  int column_count = 0;
+  int col_count = 0;
 
   for(auto& line: lines) {
     int len = static_cast<int>(line.length());
-    if(len > column_count) { column_count = len; }
+    if(len > col_count) { col_count = len; }
 
     for(auto c: line) {
       char_to_index_[c] = index;
@@ -82,7 +82,7 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf
     }
   }
 
-  if(grid_size_.w == 0) { grid_size_.w = column_count; }
+  if(grid_size_.w == 0) { grid_size_.w = col_count; }
   if(grid_size_.h == 0) { grid_size_.h = static_cast<int>(lines.size()); }
 
   return *this;

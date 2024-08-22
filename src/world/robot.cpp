@@ -17,32 +17,31 @@ Robot::MoveData::MoveData(DantaresMap& map)
 }
 
 void Robot::MoveData::refresh() {
-  player_x = map.player_x();
-  player_y = map.player_y();
+  player_pos = map.player_pos();
 }
 
-Robot::Robot(SpaceType type,int x,int y,double lifespan)
-    : Thing(type,x,y),lifespan_(lifespan) {}
+Robot::Robot(SpaceType type,const Pos2i& pos,double lifespan)
+    : Thing(type,pos),lifespan_(lifespan) {}
 
 void Robot::move_like(int likes,MoveData& data) {
-  bool on_player_x = (x_ == data.player_x);
-  bool on_player_y = (y_ == data.player_y);
+  bool on_player_x = (pos_.x == data.player_pos.x);
+  bool on_player_y = (pos_.y == data.player_pos.y);
 
   if(on_player_x && on_player_y) { return; } // No need to move.
 
   int x_vel;
   int y_vel;
 
-  if(x_ < data.player_x) {
+  if(pos_.x < data.player_pos.x) {
     x_vel = 1;
-  } else if(x_ > data.player_x) {
+  } else if(pos_.x > data.player_pos.x) {
     x_vel = -1;
   } else {
     x_vel = Rando::it().rand_bool() ? 1 : -1;
   }
-  if(y_ < data.player_y) {
+  if(pos_.y < data.player_pos.y) {
     y_vel = 1;
-  } else if(y_ > data.player_y) {
+  } else if(pos_.y > data.player_pos.y) {
     y_vel = -1;
   } else {
     y_vel = Rando::it().rand_bool() ? 1 : -1;
@@ -57,43 +56,42 @@ void Robot::move_like(int likes,MoveData& data) {
 
   // Try normally.
   if(try_x_first) {
-    if(!on_player_x && try_move(x_ + x_vel,y_,likes,data)) { return; }
-    if(!on_player_y && try_move(x_,y_ + y_vel,likes,data)) { return; }
+    if(!on_player_x && try_move(x_vel,0,likes,data)) { return; }
+    if(!on_player_y && try_move(0,y_vel,likes,data)) { return; }
   } else {
-    if(!on_player_y && try_move(x_,y_ + y_vel,likes,data)) { return; }
-    if(!on_player_x && try_move(x_ + x_vel,y_,likes,data)) { return; }
+    if(!on_player_y && try_move(0,y_vel,likes,data)) { return; }
+    if(!on_player_x && try_move(x_vel,0,likes,data)) { return; }
   }
 
   // Just make a move (if not stuck), so try the opposites.
   if(try_x_first) {
-    if(on_player_x && try_move(x_ + x_vel,y_,likes,data)) { return; }
-    if(on_player_y && try_move(x_,y_ + y_vel,likes,data)) { return; }
-    if(try_move(x_ - x_vel,y_,likes,data)) { return; }
-    if(try_move(x_,y_ - y_vel,likes,data)) { return; }
+    if(on_player_x && try_move(x_vel,0,likes,data)) { return; }
+    if(on_player_y && try_move(0,y_vel,likes,data)) { return; }
+    if(try_move(-x_vel,0,likes,data)) { return; }
+    if(try_move(0,-y_vel,likes,data)) { return; }
   } else {
-    if(on_player_y && try_move(x_,y_ + y_vel,likes,data)) { return; }
-    if(on_player_x && try_move(x_ + x_vel,y_,likes,data)) { return; }
-    if(try_move(x_,y_ - y_vel,likes,data)) { return; }
-    if(try_move(x_ - x_vel,y_,likes,data)) { return; }
+    if(on_player_y && try_move(0,y_vel,likes,data)) { return; }
+    if(on_player_x && try_move(x_vel,0,likes,data)) { return; }
+    if(try_move(0,-y_vel,likes,data)) { return; }
+    if(try_move(-x_vel,0,likes,data)) { return; }
   }
 }
 
-bool Robot::try_move(int to_x,int to_y,int likes,MoveData& data) {
-  const Space* to_space = data.map.space(to_x,to_y);
+bool Robot::try_move(int x_vel,int y_vel,int likes,MoveData& data) {
+  const Pos2i to_pos{pos_.x + x_vel,pos_.y + y_vel};
+  const Space* to_space = data.map.space(to_pos);
 
   if(to_space == nullptr || to_space->has_thing()) { return false; }
   if(!(likes & kGhostLike) && to_space->is_non_walkable()) { return false; }
 
-  int from_x = x_;
-  int from_y = y_;
+  Pos2i from_pos = pos_; // Store origin for snake's tail.
 
-  if(!data.map.move_thing(from_x,from_y,to_x,to_y)) { return false; }
-
-  set_pos(to_x,to_y);
+  if(!data.map.move_thing(from_pos,to_pos)) { return false; }
+  pos_ = to_pos;
 
   if(likes & kSnakeLike) {
-    if(data.map.place_thing(SpaceType::kRobotStatue,from_x,from_y)) {
-      data.new_robots.emplace_back(std::make_unique<RobotStatue>(from_x,from_y,kSnakeTailLifespan));
+    if(data.map.place_thing(SpaceType::kRobotStatue,from_pos)) {
+      data.new_robots.emplace_back(std::make_unique<RobotStatue>(from_pos,kSnakeTailLifespan));
     }
   }
 
@@ -108,7 +106,7 @@ void Robot::age(double delta_time) {
   age_ += (delta_time / lifespan_);
 }
 
-bool Robot::is_alive() const { return lifespan_ <= 0.0 || age_ <= 1.0; }
+bool Robot::is_alive() const { return lifespan_ <= 0.0 || age_ < 1.0; }
 
 bool Robot::is_dead() const { return !is_alive(); }
 
@@ -118,8 +116,8 @@ void RobotGhost::move(MoveData& data) { move_like(kGhostLike,data); }
 
 void RobotSnake::move(MoveData& data) { move_like(kSnakeLike,data); }
 
-RobotStatue::RobotStatue(int x,int y,double lifespan)
-    : Robot(SpaceType::kRobotStatue,x,y,lifespan) {}
+RobotStatue::RobotStatue(const Pos2i& pos,double lifespan)
+    : Robot(SpaceType::kRobotStatue,pos,lifespan) {}
 
 void RobotStatue::move(MoveData& /*data*/) {}
 

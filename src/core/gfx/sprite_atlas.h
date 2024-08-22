@@ -10,7 +10,7 @@
 
 #include "core/common.h"
 
-#include "core/render/render_data.h"
+#include "core/types.h"
 #include "sprite.h"
 #include "texture.h"
 
@@ -31,7 +31,7 @@ public:
     Builder& offset(int x,int y);
     Builder& cell_size(int width,int height);
     Builder& cell_padding(int padding);
-    Builder& grid_size(int columns,int rows);
+    Builder& grid_size(int cols,int rows);
 
     friend class SpriteAtlas;
 
@@ -47,7 +47,7 @@ public:
 
   const Texture& texture() const;
   const Pos4f* src(int index) const;
-  const Pos4f* src(int column,int row) const;
+  const Pos4f* src(const Pos2i& cell) const;
   const Size2i& cell_size() const;
   const Size2i& grid_size() const;
   int cell_count() const;

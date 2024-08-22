@@ -12,6 +12,7 @@
 
 #include "core/util/cybel_error.h"
 #include "core/util/util.h"
+#include "core/types.h"
 
 #include <filesystem>
 
@@ -31,8 +32,7 @@ public:
   Image& unlock() noexcept;
 
   const std::string& id() const;
-  int width() const;
-  int height() const;
+  const Size2i& size() const;
   std::uint8_t bpp() const;
   bool is_red_first() const;
   const void* pixels() const;
@@ -41,6 +41,7 @@ public:
 private:
   std::string id_{};
   SDL_Surface* surface_ = NULL;
+  Size2i size_{};
   bool is_locked_ = false;
 
   void move_from(Image&& other) noexcept;

@@ -47,7 +47,7 @@ public:
     std::unique_ptr<Texture> white_texture{};
   };
 
-  StyledGraphics(const std::filesystem::path& assets_dir,Style style);
+  StyledGraphics(const std::filesystem::path& textures_dir,Style style);
 
   void reload();
 
@@ -59,7 +59,7 @@ public:
   const Graphics& graphics() const;
 
 private:
-  const std::filesystem::path assets_dir_;
+  const std::filesystem::path textures_dir_;
 
   std::vector<Graphics> graphics_bag_{};
   int graphics_bag_index_ = 0;

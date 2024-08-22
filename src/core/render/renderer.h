@@ -15,7 +15,7 @@
 #include "core/gfx/texture.h"
 #include "core/util/cybel_error.h"
 #include "core/util/util.h"
-#include "render_data.h"
+#include "core/types.h"
 
 #include <functional>
 #include <vector>
@@ -50,8 +50,8 @@ public:
 
     TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src);
 
-    TextureWrapper& draw_quad(int x,int y);
-    TextureWrapper& draw_quad(int x,int y,int width,int height);
+    TextureWrapper& draw_quad(const Pos3i& pos);
+    TextureWrapper& draw_quad(const Pos3i& pos,const Size2i& size);
   };
 
   class SpriteWrapper {
@@ -61,8 +61,8 @@ public:
 
     SpriteWrapper(Renderer& ren,const Sprite& sprite);
 
-    SpriteWrapper& draw_quad(int x,int y);
-    SpriteWrapper& draw_quad(int x,int y,int width,int height);
+    SpriteWrapper& draw_quad(const Pos3i& pos);
+    SpriteWrapper& draw_quad(const Pos3i& pos,const Size2i& size);
   };
 
   class SpriteAtlasWrapper {
@@ -72,22 +72,22 @@ public:
 
     SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas);
 
-    SpriteAtlasWrapper& draw_quad(int index,int x,int y);
-    SpriteAtlasWrapper& draw_quad(int index,int x,int y,int width,int height);
-    SpriteAtlasWrapper& draw_quad(int column,int row,int x,int y);
-    SpriteAtlasWrapper& draw_quad(int column,int row,int x,int y,int width,int height);
+    SpriteAtlasWrapper& draw_quad(int index,const Pos3i& pos);
+    SpriteAtlasWrapper& draw_quad(int index,const Pos3i& pos,const Size2i& size);
+    SpriteAtlasWrapper& draw_quad(const Pos2i& cell,const Pos3i& pos);
+    SpriteAtlasWrapper& draw_quad(const Pos2i& cell,const Pos3i& pos,const Size2i& size);
   };
 
   class FontAtlasWrapper {
   public:
     Renderer& ren;
     const FontAtlas& font;
-    Pos2i init_pos{};
-    Pos2i pos{};
+    Pos3i init_pos{};
+    Pos3i pos{};
     Size2i char_size{};
     Size2i spacing{};
 
-    FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos2i& pos,const Size2i& char_size
+    FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
         ,const Size2i& spacing);
 
     FontAtlasWrapper& print();
@@ -115,7 +115,6 @@ public:
 
   Renderer& begin_2d_scene();
   Renderer& begin_3d_scene();
-  Renderer& end_all();
 
   Renderer& begin_auto_center();
   Renderer& end_scale_offset();
@@ -136,10 +135,15 @@ public:
   Renderer& begin_color(const Color4f& color);
   Renderer& end_color();
 
+  Renderer& begin_add_blend();
+  Renderer& end_blend();
+
   Renderer& begin_texture(const Texture& texture);
   Renderer& end_texture();
 
   Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
+  Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback);
+  Renderer& wrap_add_blend(const WrapCallback& callback);
 
   Renderer& wrap_texture(const Texture& texture,const WrapTextureCallback& callback);
   Renderer& wrap_texture(const Texture& texture,const Pos4f& src,const WrapTextureCallback& callback);
@@ -147,18 +151,16 @@ public:
   Renderer& wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback);
   Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);
 
-  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const WrapFontAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
       ,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,int char_width,int char_height
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
       ,const Size2i& spacing,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,int x,int y,const Size2i& spacing
-      ,const WrapFontAtlasCallback& callback);
 
-  Renderer& draw_quad(int x,int y,int width,int height);
-  Renderer& draw_quad(const Pos4f& src,int x,int y,int width,int height);
+  Renderer& draw_quad(const Pos3i& pos,const Size2i& size);
+  Renderer& draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size);
 
-  Pos4f build_dest_pos4f(int x,int y,int width,int height);
+  Pos5f build_dest_pos5f(const Pos3i& pos,const Size2i& size);
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();
@@ -168,6 +170,10 @@ private:
   float scale_ = 1.0f;
   Pos2f offset_{0.0f,0.0f};
   Color4f clear_color_{};
+  GLint blend_src_rgb_ = 0;
+  GLint blend_src_alpha_ = 0;
+  GLint blend_dst_rgb_ = 0;
+  GLint blend_dst_alpha_ = 0;
 
   void init_gl();
 };

@@ -10,14 +10,18 @@
 
 #include "core/common.h"
 
+#include "core/types.h"
+
 #include "map/space_type.h"
 
 namespace ekoscape {
 
+using namespace cybel;
+
 class Thing {
 public:
   Thing();
-  Thing(SpaceType type,int x,int y);
+  Thing(SpaceType type,const Pos2i& pos);
   virtual ~Thing() noexcept = default;
 
   /**
@@ -32,16 +36,14 @@ public:
 
   int id() const;
   SpaceType type() const;
-  int x() const;
-  int y() const;
+  const Pos2i& pos() const;
 
   friend std::ostream& operator<<(std::ostream& out,const Thing& thing);
 
 protected:
   int id_ = -1;
   SpaceType type_ = SpaceType::kNil;
-  int x_ = -1;
-  int y_ = -1;
+  Pos2i pos_{};
 
 private:
   static int next_id_;

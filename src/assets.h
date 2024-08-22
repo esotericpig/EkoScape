@@ -16,6 +16,7 @@
 #include "core/gfx/sprite.h"
 #include "core/gfx/texture.h"
 #include "core/util/cybel_error.h"
+
 #include "styled_graphics.h"
 
 #include <filesystem>
@@ -25,6 +26,8 @@ namespace ekoscape {
 class Assets {
 public:
   static const std::filesystem::path kAssetsDir;
+  static const std::filesystem::path kImagesDir;
+  static const std::filesystem::path kTexturesDir;
 
   Assets(StyledGraphics::Style graphics_style,bool has_music_player);
 
@@ -48,6 +51,7 @@ public:
   const Sprite& logo_sprite() const;
   const FontAtlas& font_atlas() const;
   const Sprite& keys_sprite() const;
+  const Texture& star_texture() const;
   const Sprite& boring_work_sprite() const;
 
   const Music* music() const;
@@ -59,6 +63,7 @@ private:
   std::unique_ptr<Sprite> logo_sprite_{};
   std::unique_ptr<FontAtlas> font_atlas_{};
   std::unique_ptr<Sprite> keys_sprite_{};
+  std::unique_ptr<Texture> star_texture_{};
   std::unique_ptr<Sprite> boring_work_sprite_{};
 
   std::unique_ptr<Music> music_{};

@@ -11,7 +11,7 @@
 #include "core/common.h"
 
 #include "core/render/renderer.h"
-#include "scene_data.h"
+#include "scene_types.h"
 
 namespace cybel {
 

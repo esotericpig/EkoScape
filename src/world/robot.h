@@ -11,6 +11,8 @@
 #include "core/common.h"
 
 #include "core/util/rando.h"
+#include "core/types.h"
+
 #include "map/dantares_map.h"
 #include "thing.h"
 
@@ -21,8 +23,7 @@ public:
   class MoveData {
   public:
     DantaresMap& map;
-    int player_x = 0;
-    int player_y = 0;
+    Pos2i player_pos{};
     std::vector<std::unique_ptr<Robot>> new_robots{};
 
     explicit MoveData(DantaresMap& map);
@@ -36,7 +37,7 @@ public:
   static const double kSnakeTailLifespan;
 
   using Thing::Thing;
-  Robot(SpaceType type,int x,int y,double lifespan = 0.0);
+  Robot(SpaceType type,const Pos2i& pos,double lifespan = 0.0);
 
   virtual void move(MoveData& data) = 0;
   void age(double delta_time);
@@ -49,7 +50,7 @@ protected:
   double lifespan_ = 0.0; // In seconds.
 
   void move_like(int likes,MoveData& data);
-  bool try_move(int to_x,int to_y,int likes,MoveData& data);
+  bool try_move(int x_vel,int y_vel,int likes,MoveData& data);
 };
 
 class RobotNormal : public Robot {
@@ -77,7 +78,7 @@ class RobotStatue : public Robot {
 public:
   using Robot::Robot;
 
-  RobotStatue(int x,int y,double lifespan = 0.0);
+  RobotStatue(const Pos2i& pos,double lifespan = 0.0);
 
   void move(MoveData& data) override;
 };
