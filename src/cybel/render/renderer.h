@@ -48,7 +48,7 @@ public:
     const Texture& texture;
     Pos4f src{};
 
-    TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src);
+    explicit TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src);
 
     TextureWrapper& draw_quad(const Pos3i& pos);
     TextureWrapper& draw_quad(const Pos3i& pos,const Size2i& size);
@@ -59,7 +59,7 @@ public:
     Renderer& ren;
     const Sprite& sprite;
 
-    SpriteWrapper(Renderer& ren,const Sprite& sprite);
+    explicit SpriteWrapper(Renderer& ren,const Sprite& sprite);
 
     SpriteWrapper& draw_quad(const Pos3i& pos);
     SpriteWrapper& draw_quad(const Pos3i& pos,const Size2i& size);
@@ -70,7 +70,7 @@ public:
     Renderer& ren;
     const SpriteAtlas& atlas;
 
-    SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas);
+    explicit SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas);
 
     SpriteAtlasWrapper& draw_quad(int index,const Pos3i& pos);
     SpriteAtlasWrapper& draw_quad(int index,const Pos3i& pos,const Size2i& size);
@@ -87,7 +87,7 @@ public:
     Size2i char_size{};
     Size2i spacing{};
 
-    FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
+    explicit FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
         ,const Size2i& spacing);
 
     FontAtlasWrapper& print();
@@ -108,7 +108,7 @@ public:
 
   static const Pos4f kDefaultSrc;
 
-  Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
+  explicit Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
   void resize(const Size2i& size);
   void clear_view();

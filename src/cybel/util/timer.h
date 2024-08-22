@@ -16,7 +16,7 @@ namespace cybel {
 
 class Timer {
 public:
-  Timer(bool start = false);
+  explicit Timer(bool start = false);
 
   Timer& start();
   Timer& end();

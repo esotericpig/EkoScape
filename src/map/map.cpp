@@ -196,7 +196,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
         }
       }
 
-      set_raw_space(dan_pos,{empty_type,thing_type});
+      set_raw_space(dan_pos,Space{empty_type,thing_type});
     }
   }
 

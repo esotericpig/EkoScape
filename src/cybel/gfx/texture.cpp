@@ -71,7 +71,12 @@ Texture::Texture(Image& image,bool make_weird) {
 Texture::Texture(Image&& image,bool make_weird)
     : Texture(image,make_weird) {}
 
-Texture::Texture(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a,bool make_weird) {
+Texture::Texture(const Color4f& color,bool make_weird) {
+  GLubyte r = static_cast<GLubyte>(std::round(color.r * 255.0f));
+  GLubyte g = static_cast<GLubyte>(std::round(color.g * 255.0f));
+  GLubyte b = static_cast<GLubyte>(std::round(color.b * 255.0f));
+  GLubyte a = static_cast<GLubyte>(std::round(color.a * 255.0f));
+
   if(make_weird) {
     r = 255 - r;
     g = 255 - g;

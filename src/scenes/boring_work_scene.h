@@ -20,7 +20,7 @@ namespace ekoscape {
 
 class BoringWorkScene : public Scene {
 public:
-  BoringWorkScene(GameEngine& game_engine,Assets& assets);
+  explicit BoringWorkScene(GameEngine& game_engine,Assets& assets);
 
   void init_scene(Renderer& ren) override;
   void on_scene_exit() override;

@@ -29,7 +29,7 @@ public:
   static const std::filesystem::path kImagesDir;
   static const std::filesystem::path kTexturesDir;
 
-  Assets(StyledGraphics::Style graphics_style,bool has_music_player);
+  explicit Assets(StyledGraphics::Style graphics_style,bool has_music_player);
 
   void reload_graphics();
   void reload_music();

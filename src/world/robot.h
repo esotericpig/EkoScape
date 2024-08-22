@@ -37,7 +37,7 @@ public:
   static const double kSnakeTailLifespan;
 
   using Thing::Thing;
-  Robot(SpaceType type,const Pos2i& pos,double lifespan = 0.0);
+  explicit Robot(SpaceType type,const Pos2i& pos,double lifespan = 0.0);
 
   virtual void move(MoveData& data) = 0;
   void age(double delta_time);
@@ -78,7 +78,7 @@ class RobotStatue : public Robot {
 public:
   using Robot::Robot;
 
-  RobotStatue(const Pos2i& pos,double lifespan = 0.0);
+  explicit RobotStatue(const Pos2i& pos,double lifespan = 0.0);
 
   void move(MoveData& data) override;
 };

@@ -26,7 +26,7 @@ namespace ekoscape {
 
 class GameScene : public Scene {
 public:
-  GameScene(const Assets& assets,const std::filesystem::path& map_file,int dantares_dist);
+  explicit GameScene(const Assets& assets,const std::filesystem::path& map_file,int dantares_dist);
 
   void init_scene(Renderer& ren) override;
   void on_key_down_event(SDL_Keycode key) override;

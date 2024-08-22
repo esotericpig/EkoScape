@@ -56,7 +56,7 @@ StyledGraphics::Graphics StyledGraphics::load_style(Style style,const std::strin
   graphics.floor_texture = std::make_unique<Texture>(Image{tex_dir / "floor.png"});
   graphics.robot_texture = std::make_unique<Texture>(Image{tex_dir / "robot.png"});
   graphics.wall_texture = std::make_unique<Texture>(Image{tex_dir / "wall.png"});
-  graphics.white_texture = std::make_unique<Texture>(255,255,255,255);
+  graphics.white_texture = std::make_unique<Texture>(Color4f::bytes(255,255,255,200));
 
   return graphics;
 }

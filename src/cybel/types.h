@@ -27,7 +27,7 @@ public:
   static Color4f bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255);
 
   Color4f();
-  explicit Color4f(float rgb,float a = 1.0f);
+  Color4f(float rgb,float a = 1.0f);
   Color4f(float r,float g,float b,float a = 1.0f);
 
   Color4f& set(float rgb,float a = 1.0f);

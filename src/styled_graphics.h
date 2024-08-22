@@ -13,6 +13,7 @@
 #include "cybel/gfx/texture.h"
 #include "cybel/util/cybel_error.h"
 #include "cybel/util/util.h"
+#include "cybel/types.h"
 
 #include <filesystem>
 #include <vector>
@@ -47,7 +48,7 @@ public:
     std::unique_ptr<Texture> white_texture{};
   };
 
-  StyledGraphics(const std::filesystem::path& textures_dir,Style style);
+  explicit StyledGraphics(const std::filesystem::path& textures_dir,Style style);
 
   void reload();
 

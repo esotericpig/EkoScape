@@ -20,8 +20,8 @@ using namespace cybel;
 
 class Thing {
 public:
-  Thing();
-  Thing(SpaceType type,const Pos2i& pos);
+  explicit Thing();
+  explicit Thing(SpaceType type,const Pos2i& pos);
   virtual ~Thing() noexcept = default;
 
   /**

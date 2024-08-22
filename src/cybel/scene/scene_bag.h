@@ -23,7 +23,7 @@ public:
   std::shared_ptr<Scene> scene{};
   bool persist = false;
 
-  SceneBag();
+  explicit SceneBag();
   explicit SceneBag(int type,std::shared_ptr<Scene> scene = nullptr,bool persist = false);
 
   operator bool() const;

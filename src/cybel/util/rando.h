@@ -64,7 +64,7 @@ private:
   std::uniform_real_distribution<float> float_distr_{0.0f,1.0f};
   std::uniform_int_distribution<int> int_distr_{0,99}; // I don't have 99 problems.
 
-  Rando();
+  explicit Rando();
 };
 
 } // Namespace.

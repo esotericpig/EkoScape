@@ -38,7 +38,7 @@ private:
     SDL_GLContext context = NULL;
     bool has_music_player = false;
 
-    Resources() noexcept;
+    explicit Resources() noexcept;
     Resources(const Resources& other) = delete;
     Resources(Resources&& other) noexcept = delete;
     virtual ~Resources() noexcept;
@@ -85,7 +85,7 @@ public:
   static const int kFallbackHeight = 900;
   static const int kFallbackFps = 60;
 
-  GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene);
+  explicit GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene);
   GameEngine(const GameEngine& other) = delete;
   GameEngine(GameEngine&& other) noexcept = delete;
   virtual ~GameEngine() noexcept = default;

@@ -14,7 +14,7 @@ namespace cybel {
 
 class CybelError : public std::exception {
 public:
-  CybelError() noexcept;
+  explicit CybelError() noexcept;
   explicit CybelError(const std::string& msg) noexcept;
 
   const char* what() const noexcept override;

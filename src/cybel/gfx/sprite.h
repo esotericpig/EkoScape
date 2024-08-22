@@ -22,9 +22,9 @@ public:
   static Pos4f build_src(const Texture& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
 
   explicit Sprite(Texture&& texture,int padding = 0);
-  Sprite(Texture&& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
+  explicit Sprite(Texture&& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
   explicit Sprite(std::shared_ptr<Texture> texture,int padding = 0);
-  Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i& size,int padding = 0);
+  explicit Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i& size,int padding = 0);
   virtual ~Sprite() noexcept = default;
 
   const Texture& texture() const;

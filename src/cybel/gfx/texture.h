@@ -24,7 +24,7 @@ class Texture {
 public:
   explicit Texture(Image& image,bool make_weird = false);
   explicit Texture(Image&& image,bool make_weird = false);
-  Texture(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255,bool make_weird = false);
+  explicit Texture(const Color4f& color,bool make_weird = false);
   Texture(const Texture& other) = delete;
   Texture(Texture&& other) noexcept;
   virtual ~Texture() noexcept;

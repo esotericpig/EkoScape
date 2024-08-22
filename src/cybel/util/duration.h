@@ -16,7 +16,7 @@ namespace cybel {
 
 class Duration {
 public:
-  Duration();
+  explicit Duration();
   static Duration from_millis(double millis);
   static Duration from_secs(double secs);
 
