@@ -10,12 +10,12 @@
 require 'pathname'
 
 def check_header_guards(proj_name,src_dir,exc_dirs: [])
-  src_path = Pathname.new(src_dir)
-  exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
-
   # Guess project name based on parent dir.
   proj_name = src_path.realdirpath.parent.basename.to_s if proj_name.nil?
   proj_name = proj_name.strip.upcase
+
+  src_path = Pathname.new(src_dir)
+  exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
 
   puts
   src_path.glob('**/*.{h,H,hh,hpp,hxx,h++}') do |file|
