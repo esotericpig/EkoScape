@@ -27,9 +27,7 @@ using namespace cybel;
  */
 class StyledGraphics {
 public:
-  /**
-   * If add a new one, update reload().
-   */
+  // If add a new one, update reload().
   enum class Style : int {
     kClassic = 0,
     kRealistic,

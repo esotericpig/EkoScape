@@ -18,11 +18,10 @@
 namespace cybel {
 
 /**
- * See limitations of TextReaderBuf before modifying this class.
- *
  * All line functions are platform-independent.
  * Every line can be '\r', '\n', or "\r\n", instead of only one.
  */
+// NOTE: See limitations of TextReaderBuf before modifying this class.
 class TextReader {
 public:
   explicit TextReader(const std::filesystem::path& file

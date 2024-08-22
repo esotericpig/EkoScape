@@ -14,15 +14,13 @@
 
 namespace ekoscape {
 
-/**
- * If change a value, need to update:
- * - assets/maps/README.md
- *
- * If add a new type, need to update:
- * - to_space_type(char)
- * - [maybe] Map.parse_grid()
- * - GameScene.generate_map()
- */
+// If change a value, need to update:
+// - assets/maps/README.md
+//
+// If add a new type, need to update:
+// - to_space_type(char)
+// - [maybe] Map.parse_grid()
+// - GameScene.generate_map()
 enum class SpaceType : char {
   kNil         = 0, // Not for game users.
   kCell        = '@',

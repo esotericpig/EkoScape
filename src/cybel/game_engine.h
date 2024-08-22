@@ -27,11 +27,10 @@ namespace cybel {
 class GameEngine {
 private:
   /**
-   * This must be defined first so that its dtor is called last.
-   *
    * This is necessary for RAII, since GameEngine() ctor can throw an exception.
    * I decided to do this over using `unique_ptr`s or individual wrappers.
    */
+  // NOTE: This must be defined first so that its dtor is called last.
   class Resources {
   public:
     SDL_Window* window = NULL;

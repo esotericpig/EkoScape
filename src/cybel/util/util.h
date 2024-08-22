@@ -31,10 +31,8 @@ namespace Util {
   std::string get_glew_error(GLenum error);
 }
 
-/**
- * See Example at bottom:
- * - https://en.cppreference.com/w/cpp/language/fold
- */
+// See Example at bottom:
+// - https://en.cppreference.com/w/cpp/language/fold
 template <typename... Args>
 std::string Util::build_string(const Args&... args) {
   std::stringstream ss{};
