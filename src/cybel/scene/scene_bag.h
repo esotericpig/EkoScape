@@ -26,7 +26,7 @@ public:
   explicit SceneBag();
   explicit SceneBag(int type,std::shared_ptr<Scene> scene = nullptr,bool persist = false);
 
-  operator bool() const;
+  explicit operator bool() const;
   Scene* operator->() const;
   Scene& operator*() const;
 };
