@@ -393,7 +393,23 @@ std::ostream& operator<<(std::ostream& out,const Map& map) {
   for(Pos2i pos{0,map.size_.h - 1}; pos.y >= 0; --pos.y) {
     out << '\n';
 
-    for(pos.x = 0; pos.x < map.size_.w; ++pos.x) {
+    // Find the last non-dead space, so can avoid printing a bunch of trailing x's,
+    //     which is how the map files are usually written.
+    int width = map.size_.w;
+
+    for(pos.x = width - 1; pos.x >= 0; --pos.x) {
+      SpaceType type = map.raw_space(pos).type();
+
+      if(type != SpaceType::kDeadSpace) {
+        width = pos.x + 1;
+        break;
+      }
+    }
+
+    // Avoid a completely blank line.
+    if(width <= 0 && map.size_.w > 0) { width = 1; }
+
+    for(pos.x = 0; pos.x < width; ++pos.x) {
       SpaceType type;
 
       if(pos.x == map.player_init_pos_.x && pos.y == map.player_init_pos_.y) {
