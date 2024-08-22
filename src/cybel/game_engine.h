@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_GAME_ENGINE_H_
-#define EKOSCAPE_CORE_GAME_ENGINE_H_
+#ifndef CYBEL_GAME_ENGINE_H_
+#define CYBEL_GAME_ENGINE_H_
 
 #include "common.h"
 

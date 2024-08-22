@@ -8,10 +8,10 @@
 #ifndef EKOSCAPE_SCENES_BORING_WORK_SCENE_H_
 #define EKOSCAPE_SCENES_BORING_WORK_SCENE_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/scene/scene.h"
-#include "core/game_engine.h"
+#include "cybel/scene/scene.h"
+#include "cybel/game_engine.h"
 
 #include "assets.h"
 #include "scene_action.h"

@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_GFX_SPRITE_ATLAS_H_
-#define EKOSCAPE_CORE_GFX_SPRITE_ATLAS_H_
+#ifndef CYBEL_GFX_SPRITE_ATLAS_H_
+#define CYBEL_GFX_SPRITE_ATLAS_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/types.h"
+#include "cybel/types.h"
 #include "sprite.h"
 #include "texture.h"
 

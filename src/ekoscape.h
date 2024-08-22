@@ -8,12 +8,12 @@
 #ifndef EKOSCAPE_EKOSCAPE_H_
 #define EKOSCAPE_EKOSCAPE_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/scene/scene.h"
-#include "core/scene/scene_bag.h"
-#include "core/util/cybel_error.h"
-#include "core/game_engine.h"
+#include "cybel/scene/scene.h"
+#include "cybel/scene/scene_bag.h"
+#include "cybel/util/cybel_error.h"
+#include "cybel/game_engine.h"
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_scene.h"

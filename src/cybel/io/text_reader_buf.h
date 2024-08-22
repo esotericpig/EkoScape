@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_IO_TEXT_READER_BUF_H_
-#define EKOSCAPE_CORE_IO_TEXT_READER_BUF_H_
+#ifndef CYBEL_IO_TEXT_READER_BUF_H_
+#define CYBEL_IO_TEXT_READER_BUF_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/util/cybel_error.h"
-#include "core/util/util.h"
+#include "cybel/util/cybel_error.h"
+#include "cybel/util/util.h"
 
 #include <algorithm>
 #include <filesystem>

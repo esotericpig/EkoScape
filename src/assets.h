@@ -8,14 +8,14 @@
 #ifndef EKOSCAPE_ASSETS_H_
 #define EKOSCAPE_ASSETS_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/audio/music.h"
-#include "core/gfx/font_atlas.h"
-#include "core/gfx/image.h"
-#include "core/gfx/sprite.h"
-#include "core/gfx/texture.h"
-#include "core/util/cybel_error.h"
+#include "cybel/audio/music.h"
+#include "cybel/gfx/font_atlas.h"
+#include "cybel/gfx/image.h"
+#include "cybel/gfx/sprite.h"
+#include "cybel/gfx/texture.h"
+#include "cybel/util/cybel_error.h"
 
 #include "styled_graphics.h"
 

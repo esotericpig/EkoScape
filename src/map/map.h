@@ -8,13 +8,13 @@
 #ifndef EKOSCAPE_MAP_MAP_H_
 #define EKOSCAPE_MAP_MAP_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/io/text_reader.h"
-#include "core/util/cybel_error.h"
-#include "core/util/duration.h"
-#include "core/util/util.h"
-#include "core/types.h"
+#include "cybel/io/text_reader.h"
+#include "cybel/util/cybel_error.h"
+#include "cybel/util/duration.h"
+#include "cybel/util/util.h"
+#include "cybel/types.h"
 
 #include "facing.h"
 #include "space.h"

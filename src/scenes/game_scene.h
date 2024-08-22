@@ -8,11 +8,11 @@
 #ifndef EKOSCAPE_SCENES_GAME_SCENE_H_
 #define EKOSCAPE_SCENES_GAME_SCENE_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/gfx/texture.h"
-#include "core/scene/scene.h"
-#include "core/util/timer.h"
+#include "cybel/gfx/texture.h"
+#include "cybel/scene/scene.h"
+#include "cybel/util/timer.h"
 
 #include "map/dantares_map.h"
 #include "world/robot.h"

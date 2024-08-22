@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_MAP_FACING_H_
 #define EKOSCAPE_MAP_FACING_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
 namespace ekoscape {
 

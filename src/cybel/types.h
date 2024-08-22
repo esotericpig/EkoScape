@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_TYPES_H_
-#define EKOSCAPE_CORE_TYPES_H_
+#ifndef CYBEL_TYPES_H_
+#define CYBEL_TYPES_H_
 
 #include "common.h"
 

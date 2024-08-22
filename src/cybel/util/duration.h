@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_UTIL_DURATION_H_
-#define EKOSCAPE_CORE_UTIL_DURATION_H_
+#ifndef CYBEL_UTIL_DURATION_H_
+#define CYBEL_UTIL_DURATION_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
 #include <cmath>
 

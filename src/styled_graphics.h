@@ -8,11 +8,11 @@
 #ifndef EKOSCAPE_STYLED_GRAPHICS_H_
 #define EKOSCAPE_STYLED_GRAPHICS_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/gfx/texture.h"
-#include "core/util/cybel_error.h"
-#include "core/util/util.h"
+#include "cybel/gfx/texture.h"
+#include "cybel/util/cybel_error.h"
+#include "cybel/util/util.h"
 
 #include <filesystem>
 #include <vector>

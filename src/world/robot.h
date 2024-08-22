@@ -8,10 +8,10 @@
 #ifndef EKOSCAPE_WORLD_ROBOT_H_
 #define EKOSCAPE_WORLD_ROBOT_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/util/rando.h"
-#include "core/types.h"
+#include "cybel/util/rando.h"
+#include "cybel/types.h"
 
 #include "map/dantares_map.h"
 #include "thing.h"

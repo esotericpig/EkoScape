@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_MAP_SPACE_TYPE_H_
 #define EKOSCAPE_MAP_SPACE_TYPE_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
 #include "facing.h"
 

@@ -8,9 +8,9 @@
 #ifndef EKOSCAPE_SCENES_MENU_SCENE_H_
 #define EKOSCAPE_SCENES_MENU_SCENE_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/scene/scene.h"
+#include "cybel/scene/scene.h"
 
 #include "assets.h"
 #include "scene_action.h"

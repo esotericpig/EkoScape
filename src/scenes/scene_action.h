@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_SCENES_SCENE_ACTION_H_
 #define EKOSCAPE_SCENES_SCENE_ACTION_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
 namespace ekoscape {
 

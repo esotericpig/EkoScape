@@ -3,14 +3,15 @@
 # frozen_string_literal: true
 
 ###
-# @version 0.1.0
+# @version 0.2.0
 # @author Bradley Whited
 ###
 
 require 'pathname'
 
-def check_header_guards(src_dir,proj_name=nil)
+def check_header_guards(proj_name,src_dir,exc_dirs: [])
   src_path = Pathname.new(src_dir)
+  exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
 
   # Guess project name based on parent dir.
   proj_name = src_path.realdirpath.parent.basename.to_s if proj_name.nil?
@@ -18,7 +19,9 @@ def check_header_guards(src_dir,proj_name=nil)
 
   puts
   src_path.glob('**/*.{h,H,hh,hpp,hxx,h++}') do |file|
-    guard = file.relative_path_from(src_path).descend.to_a
+    next if exc_dirs.any? { |exc_dir| file.realdirpath.to_s.start_with?(exc_dir) }
+
+    guard = file.relative_path_from(src_path).descend
                 .map { |p| p.basename.to_s.strip.upcase }
                 .reject(&:empty?)
                 .join('_').gsub('.','_')
@@ -45,4 +48,21 @@ def check_header_guards(src_dir,proj_name=nil)
   end
 end
 
-check_header_guards('src')
+def check_multi_header_guards(*projs)
+  projs = projs.map do |proj|
+    proj[1] = Pathname.new(proj[1]).realdirpath.to_s
+    proj
+  end
+
+  projs.each do |(name,src_dir)|
+    exc_dirs = projs.map { |(_n,d)| d }
+                    .reject { |d| src_dir.start_with?(d) }
+
+    check_header_guards(name,src_dir,exc_dirs: exc_dirs)
+  end
+end
+
+check_multi_header_guards(
+  ['Cybel'   ,'src/cybel'],
+  ['EkoScape','src'],
+)

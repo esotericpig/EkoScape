@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_COMMON_H_
-#define EKOSCAPE_CORE_COMMON_H_
+#ifndef CYBEL_COMMON_H_
+#define CYBEL_COMMON_H_
 
 // TODO: Define in build.
 #if defined(CYBEL_MACOS)

@@ -5,14 +5,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_GFX_IMAGE_H_
-#define EKOSCAPE_CORE_GFX_IMAGE_H_
+#ifndef CYBEL_GFX_IMAGE_H_
+#define CYBEL_GFX_IMAGE_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/util/cybel_error.h"
-#include "core/util/util.h"
-#include "core/types.h"
+#include "cybel/util/cybel_error.h"
+#include "cybel/util/util.h"
+#include "cybel/types.h"
 
 #include <filesystem>
 

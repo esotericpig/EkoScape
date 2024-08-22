@@ -8,9 +8,9 @@
 #ifndef EKOSCAPE_WORLD_THING_H_
 #define EKOSCAPE_WORLD_THING_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
-#include "core/types.h"
+#include "cybel/types.h"
 
 #include "map/space_type.h"
 

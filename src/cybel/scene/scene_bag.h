@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_CORE_SCENE_SCENE_BAG_H_
-#define EKOSCAPE_CORE_SCENE_SCENE_BAG_H_
+#ifndef CYBEL_SCENE_SCENE_BAG_H_
+#define CYBEL_SCENE_SCENE_BAG_H_
 
-#include "core/common.h"
+#include "cybel/common.h"
 
 #include "scene.h"
 
