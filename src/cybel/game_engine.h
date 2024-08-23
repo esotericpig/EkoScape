@@ -11,6 +11,7 @@
 #include "common.h"
 
 #include "audio/music.h"
+#include "render/render_types.h"
 #include "render/renderer.h"
 #include "scene/scene.h"
 #include "scene/scene_man.h"

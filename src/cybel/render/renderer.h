@@ -16,6 +16,7 @@
 #include "cybel/util/cybel_error.h"
 #include "cybel/util/util.h"
 #include "cybel/types.h"
+#include "render_types.h"
 
 #include <functional>
 #include <vector>

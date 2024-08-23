@@ -98,12 +98,5 @@ public:
 using Size2f = Size2<float>;
 using Size2i = Size2<int>;
 
-struct ViewDimens {
-  Size2i size{};
-  Size2i target_size{};
-  Size2i init_size{};
-  float scale = 1.0f;
-};
-
 } // Namespace.
 #endif

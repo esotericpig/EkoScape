@@ -10,6 +10,7 @@
 
 #include "cybel/common.h"
 
+#include "cybel/render/render_types.h"
 #include "cybel/render/renderer.h"
 #include "scene_types.h"
 
