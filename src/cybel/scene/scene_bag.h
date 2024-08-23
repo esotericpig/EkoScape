@@ -16,9 +16,6 @@ namespace cybel {
 
 class SceneBag {
 public:
-  static const int kEmptyType = 0;
-  static const SceneBag kEmpty;
-
   int type = -1;
   std::shared_ptr<Scene> scene{};
   bool persist = false;

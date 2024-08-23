@@ -18,7 +18,7 @@ GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,
 void GameScene::load_map(const std::filesystem::path& file) {
   map_.load_file(file);
 
-  std::cout << "[INFO] Map file: '" << file << "'\n";
+  std::cout << "[INFO] Map file: '" << file.string() << "'\n";
   std::cout << map_ << std::endl;
 
   map_.add_to_dantares([&](const Pos2i& pos,Space& space,SpaceType type) {

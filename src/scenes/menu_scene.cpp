@@ -27,8 +27,6 @@ MenuScene::MenuScene(Assets& assets)
   }
 }
 
-void MenuScene::init_scene(Renderer& /*ren*/) {}
-
 void MenuScene::on_key_down_event(SDL_Keycode key) {
   auto& selected_option = options_.at(selected_option_index_);
 

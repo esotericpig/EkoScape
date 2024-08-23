@@ -13,7 +13,7 @@
 #include "audio/music.h"
 #include "render/renderer.h"
 #include "scene/scene.h"
-#include "scene/scene_bag.h"
+#include "scene/scene_man.h"
 #include "util/cybel_error.h"
 #include "util/duration.h"
 #include "util/timer.h"
@@ -78,13 +78,11 @@ public:
     int music_types = MIX_INIT_OGG;
   };
 
-  using SceneBuilder = std::function<SceneBag(int type)>;
-
   static const int kFallbackWidth = 1600;
   static const int kFallbackHeight = 900;
   static const int kFallbackFps = 60;
 
-  explicit GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene);
+  explicit GameEngine(Scene& main_scene,Config config,SceneMan::SceneBuilder build_scene);
   GameEngine(const GameEngine& other) = delete;
   GameEngine(GameEngine&& other) noexcept = delete;
   virtual ~GameEngine() noexcept = default;
@@ -96,10 +94,6 @@ public:
   void fetch_resize(bool force = true);
   void resize();
   void resize(const Size2i& size,bool force = true);
-
-  bool push_scene(int type);
-  bool pop_scene();
-  void pop_all_scenes();
 
   void run();
   void request_stop();
@@ -118,9 +112,8 @@ public:
   bool is_music_playing() const;
   const Uint8* fetch_key_states() const;
 
-  Scene& main_scene();
-  std::shared_ptr<Scene> curr_scene() const;
-  int curr_scene_type() const;
+  Scene& main_scene() const;
+  SceneMan& scene_man() const;
   const std::string& title() const;
   Renderer& renderer() const;
   const ViewDimens& dimens() const;
@@ -131,27 +124,24 @@ public:
 
 private:
   Scene& main_scene_;
-  SceneBag curr_scene_bag_ = SceneBag::kEmpty;
-  std::vector<SceneBag> prev_scene_bags_{};
-  SceneBuilder build_scene_{};
-
   std::string title_{};
   std::unique_ptr<Renderer> renderer_{};
+  std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after renderer_.
+
   int target_fps_ = 0;
   Duration target_dpf_{};
   Duration dpf_{};
   double delta_time_ = 0.0;
-
   bool is_running_ = false;
   Timer frame_timer_{};
 
   void init_hints(const Config& config);
   void init_config(Config& config);
   void init_gui(const Config& config);
-  void init_renderer(const Config& config);
+  void init_renderer(const Config& config,SceneMan::SceneBuilder build_scene);
+  void init_scene(Scene& scene);
   void init_music_player(const Config& config);
 
-  void set_scene(const SceneBag& scene_bag);
   void start_frame_timer();
   void end_frame_timer();
   void handle_events();

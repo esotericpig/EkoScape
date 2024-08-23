@@ -35,8 +35,8 @@ GameEngine::Resources::~Resources() noexcept {
   SDL_Quit();
 }
 
-GameEngine::GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene)
-    : main_scene_(main_scene),build_scene_(build_scene) {
+GameEngine::GameEngine(Scene& main_scene,Config config,SceneMan::SceneBuilder build_scene)
+    : main_scene_(main_scene) {
   init_hints(config);
 
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
@@ -48,7 +48,7 @@ GameEngine::GameEngine(Scene& main_scene,Config config,SceneBuilder build_scene)
 
   init_config(config);
   init_gui(config);
-  init_renderer(config);
+  init_renderer(config,build_scene);
   init_music_player(config);
 }
 
@@ -137,8 +137,14 @@ void GameEngine::init_gui(const Config& config) {
   if(config.vsync) { set_vsync(true); }
 }
 
-void GameEngine::init_renderer(const Config& config) {
+void GameEngine::init_renderer(const Config& config,SceneMan::SceneBuilder build_scene) {
   renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
+  scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
+}
+
+void GameEngine::init_scene(Scene& scene) {
+  scene.init_scene(*renderer_);
+  scene.resize_scene(*renderer_,renderer_->dimens());
 }
 
 void GameEngine::init_music_player(const Config& config) {
@@ -204,63 +210,15 @@ void GameEngine::resize(const Size2i& size,bool force) {
 
   renderer_->resize(size);
   main_scene_.resize_scene(*renderer_,renderer_->dimens());
-  curr_scene_bag_->resize_scene(*renderer_,renderer_->dimens());
-}
-
-bool GameEngine::push_scene(int type) {
-  SceneBag scene_bag = build_scene_(type);
-  if(!scene_bag.scene) { return false; }
-
-  SceneBag prev = curr_scene_bag_;
-  set_scene(scene_bag);
-
-  if(!prev.persist) { prev.scene = nullptr; }
-  prev_scene_bags_.emplace_back(prev);
-
-  return true;
-}
-
-bool GameEngine::pop_scene() {
-  while(!prev_scene_bags_.empty()) {
-    SceneBag prev = prev_scene_bags_.back();
-    prev_scene_bags_.pop_back();
-
-    if(prev.type == SceneBag::kEmptyType) { continue; }
-
-    // Not persisted? (i.e., need to recreate)
-    if(!prev.scene) {
-      prev.scene = build_scene_(prev.type).scene;
-      if(!prev.scene) { continue; }
-    }
-
-    set_scene(prev);
-    return true;
-  }
-
-  set_scene(SceneBag::kEmpty);
-  return false;
-}
-
-void GameEngine::pop_all_scenes() {
-  prev_scene_bags_.clear();
-  set_scene(SceneBag::kEmpty);
-}
-
-void GameEngine::set_scene(const SceneBag& scene_bag) {
-  if(!scene_bag.scene) { throw CybelError{"Scene is null."}; }
-
-  curr_scene_bag_->on_scene_exit();
-
-  curr_scene_bag_ = scene_bag;
-  curr_scene_bag_->init_scene(*renderer_);
-  curr_scene_bag_->resize_scene(*renderer_,renderer_->dimens());
+  scene_man_->curr_scene().resize_scene(*renderer_,renderer_->dimens());
 }
 
 void GameEngine::run() {
   is_running_ = true;
 
+  // No need to init the current scene in scene_man_,
+  //     since it would have already been called on push_scene().
   main_scene_.init_scene(*renderer_);
-  curr_scene_bag_->init_scene(*renderer_);
 
   // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
   //     and also need to call the scenes' resize() after init_scene().
@@ -272,19 +230,22 @@ void GameEngine::run() {
 
     const Uint8* keys = fetch_key_states();
     main_scene_.handle_key_states(keys);
-    curr_scene_bag_->handle_key_states(keys);
+    scene_man_->curr_scene().handle_key_states(keys);
 
     const FrameStep& step = {dpf_,delta_time_};
     main_scene_.update_scene_logic(step);
-    push_scene(curr_scene_bag_->update_scene_logic(step));
+    int scene_result = scene_man_->curr_scene().update_scene_logic(step);
+
+    if(scene_result != Scene::kNilType) {
+      scene_man_->push_scene(scene_result);
+    }
 
     // Check if event/scene requested to stop.
     if(!is_running_) { break; }
 
     renderer_->clear_view();
-
     main_scene_.draw_scene(*renderer_);
-    curr_scene_bag_->draw_scene(*renderer_);
+    scene_man_->curr_scene().draw_scene(*renderer_);
 
     SDL_GL_SwapWindow(res_.window);
     end_frame_timer();
@@ -335,7 +296,7 @@ void GameEngine::handle_events() {
         }
 
         main_scene_.on_key_down_event(key);
-        curr_scene_bag_->on_key_down_event(key);
+        scene_man_->curr_scene().on_key_down_event(key);
       } break;
 
       case SDL_KEYUP: {
@@ -405,11 +366,9 @@ bool GameEngine::is_music_playing() const {
 
 const Uint8* GameEngine::fetch_key_states() const { return SDL_GetKeyboardState(NULL); }
 
-Scene& GameEngine::main_scene() { return main_scene_; }
+Scene& GameEngine::main_scene() const { return main_scene_; }
 
-std::shared_ptr<Scene> GameEngine::curr_scene() const { return curr_scene_bag_.scene; }
-
-int GameEngine::curr_scene_type() const { return curr_scene_bag_.type; }
+SceneMan& GameEngine::scene_man() const { return *scene_man_; }
 
 const std::string& GameEngine::title() const { return title_; }
 

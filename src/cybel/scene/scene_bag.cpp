@@ -9,12 +9,6 @@
 
 namespace cybel {
 
-const SceneBag SceneBag::kEmpty{
-  kEmptyType,
-  std::make_shared<Scene>(), // Should never be null (for current scene in GameEngine).
-  false,
-};
-
 SceneBag::SceneBag() {}
 
 SceneBag::SceneBag(int type,std::shared_ptr<Scene> scene,bool persist)

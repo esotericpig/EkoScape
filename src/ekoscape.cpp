@@ -15,12 +15,15 @@ EkoScape::EkoScape(Config config) {
   config.title = kTitle;
   dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
 
-  game_engine_ = std::make_unique<GameEngine>(*this,config
-      ,[&](int action) { return build_scene(action); });
+  game_engine_ = std::make_unique<GameEngine>(
+    *this,config
+    ,[&](int action) { return build_scene(action); }
+  );
+  scene_man_ = &game_engine_->scene_man();
   assets_ = std::make_unique<Assets>(StyledGraphics::Style::kRealistic,game_engine_->has_music_player());
   map_file_ = "assets/maps/classic/castles_garden.txt"; // TODO: Set by callback passed to MenuPlayScene.
 
-  if(!game_engine_->push_scene(SceneAction::kGoToMenu)) {
+  if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
   }
 }
@@ -63,7 +66,7 @@ SceneBag EkoScape::build_scene(int action) {
 }
 
 void EkoScape::pop_scene() {
-  if(!game_engine_->pop_scene()) {
+  if(!scene_man_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
     game_engine_->request_stop();
   }
@@ -99,13 +102,20 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
 
     // Toggle BoringWorkScene.
     case SDLK_b:
-      if(game_engine_->curr_scene_type() == SceneAction::kGoToBoringWork) {
+      if(scene_man_->curr_scene_type() == SceneAction::kGoToBoringWork) {
         pop_scene();
       } else {
-        game_engine_->push_scene(SceneAction::kGoToBoringWork);
+        scene_man_->push_scene(SceneAction::kGoToBoringWork);
       }
       break;
   }
+}
+
+int EkoScape::update_scene_logic(const FrameStep& step) {
+  return SceneAction::kNil;
+}
+
+void EkoScape::draw_scene(Renderer& ren) {
 }
 
 void EkoScape::play_music() {

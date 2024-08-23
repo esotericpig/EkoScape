@@ -17,6 +17,12 @@ namespace cybel {
 
 class Scene {
 public:
+  /**
+   * Return in update_scene_logic() to indicate no scene change (default).
+   * Do not use this for your own scene types, else they'll be ignored.
+   */
+  static const int kNilType = 0;
+
   virtual ~Scene() noexcept = default;
 
   /**
@@ -36,7 +42,7 @@ public:
 
   virtual void on_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}
-  virtual int update_scene_logic(const FrameStep& /*step*/) { return 0; }
+  virtual int update_scene_logic(const FrameStep& /*step*/) { return kNilType; }
   virtual void draw_scene(Renderer& /*ren*/) {}
 };
 
