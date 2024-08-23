@@ -16,6 +16,7 @@ def check_header_guards(proj_name,src_dir,exc_dirs: [])
 
   src_path = Pathname.new(src_dir)
   exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
+  is_good = true
 
   puts
   src_path.glob('**/*.{h,H,hh,hpp,hxx,h++}') do |file|
@@ -41,11 +42,15 @@ def check_header_guards(proj_name,src_dir,exc_dirs: [])
     end
 
     if !guards_to_find.empty?
+      is_good = false
+
       puts "'#{file}'"
       guards.each { |g| puts g }
       puts
     end
   end
+
+  return is_good
 end
 
 def check_multi_header_guards(*projs)
@@ -53,16 +58,21 @@ def check_multi_header_guards(*projs)
     proj[1] = Pathname.new(proj[1]).realdirpath.to_s
     proj
   end
+  is_good = true
 
   projs.each do |(name,src_dir)|
     exc_dirs = projs.map { |(_n,d)| d }
                     .reject { |d| src_dir.start_with?(d) }
 
-    check_header_guards(name,src_dir,exc_dirs: exc_dirs)
+    is_good &&= check_header_guards(name,src_dir,exc_dirs: exc_dirs)
   end
+
+  return is_good
 end
 
-check_multi_header_guards(
+is_good = check_multi_header_guards(
   ['Cybel'   ,'src/cybel'],
   ['EkoScape','src'],
 )
+
+exit(1) unless is_good
