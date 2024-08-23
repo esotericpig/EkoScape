@@ -15,6 +15,8 @@
 #include "assets.h"
 #include "scene_action.h"
 
+#include <vector>
+
 namespace ekoscape {
 
 class MenuScene : public Scene {
@@ -51,12 +53,12 @@ private:
   int scene_action_ = SceneAction::kNil;
 
   int selected_option_index_ = 0;
-  std::array<Option,4> options_ = {{
+  std::vector<Option> options_ = {
     {OptionType::kPlay,"play"},
     {OptionType::kGraphics,""},
     {OptionType::kCredits,"credits"},
     {OptionType::kQuit,"quit"},
-  }};
+  };
 
   void update_graphics_option(Option& option);
 };

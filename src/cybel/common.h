@@ -26,7 +26,6 @@
   #include <GL/glu.h>
 #endif
 
-#include <array>
 #include <cstdint>
 #include <iostream>
 #include <memory>
