@@ -9,11 +9,10 @@
 
 namespace cybel {
 
-TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size) {
+TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size)
+    : buffer_(buffer_size,0) {
   const std::u8string file_str = file.u8string();
   const char* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
-
-  init(buffer_size);
 
   context_ = SDL_RWFromFile(file_cstr,"r");
 
@@ -31,15 +30,12 @@ TextReaderBuf::TextReaderBuf(TextReaderBuf&& other) noexcept
   move_from(std::move(other));
 }
 
-void TextReaderBuf::init(std::size_t buffer_size) noexcept {
-  buffer_.resize(buffer_size,0);
-}
-
 void TextReaderBuf::move_from(TextReaderBuf&& other) noexcept {
   close();
 
   context_ = other.context_;
   other.context_ = NULL;
+
   buffer_ = std::move(other.buffer_);
 }
 

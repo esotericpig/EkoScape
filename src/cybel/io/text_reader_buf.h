@@ -76,9 +76,8 @@ private:
   using Base = std::streambuf;
 
   SDL_RWops* context_ = NULL;
-  std::vector<char_type> buffer_{};
+  std::vector<char_type> buffer_;
 
-  void init(std::size_t buffer_size) noexcept;
   void move_from(TextReaderBuf&& other) noexcept;
   void close() noexcept;
 };
