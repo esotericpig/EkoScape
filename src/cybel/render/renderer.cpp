@@ -105,6 +105,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() {
   pos.x = init_pos.x;
   pos.y += (char_size.h + spacing.h);
+
   return *this;
 }
 
@@ -129,7 +130,6 @@ Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& c
   dimens_.init_size = {(size.w > 0) ? size.w : 1,(size.h > 0) ? size.h : 1};
   dimens_.size = dimens_.init_size;
   dimens_.target_size = {(target_size.w > 0) ? target_size.w : 1,(target_size.h > 0) ? target_size.h : 1};
-  dimens_.scale = 1.0f;
 
   init_gl();
 }
@@ -171,11 +171,10 @@ void Renderer::resize(const Size2i& size) {
   // Avoid divides by 0 [e.g., in begin_3d_scene()].
   dimens_.size.w = (size.w > 0) ? size.w : 1;
   dimens_.size.h = (size.h > 0) ? size.h : 1;
-  // Target size should never be 0 (checked in ctor).
-  dimens_.scale = std::min(
-    static_cast<float>(dimens_.size.w) / static_cast<float>(dimens_.target_size.w),
-    static_cast<float>(dimens_.size.h) / static_cast<float>(dimens_.target_size.h)
-  );
+  // `target_size.w/h` should never be 0 (checked in ctor).
+  dimens_.scale.x = static_cast<float>(dimens_.size.w) / static_cast<float>(dimens_.target_size.w);
+  dimens_.scale.y = static_cast<float>(dimens_.size.h) / static_cast<float>(dimens_.target_size.h);
+  dimens_.aspect_scale = std::min(dimens_.scale.x,dimens_.scale.y);
 
   glViewport(0,0,dimens_.size.w,dimens_.size.h);
 }
@@ -212,45 +211,36 @@ Renderer& Renderer::begin_3d_scene() {
   return *this;
 }
 
-Renderer& Renderer::begin_auto_center() {
-  // Must change scale first before offset, since center offset uses scale.
-  return begin_auto_scale().begin_auto_center_offset();
-}
-
-Renderer& Renderer::end_scale_offset() {
-  return end_offset().end_scale();
-}
-
-Renderer& Renderer::begin_auto_scale() { return begin_scale(dimens_.scale); }
-
-Renderer& Renderer::begin_scale(float scale) {
-  scale_ = scale;
-  return *this;
-}
-
-Renderer& Renderer::end_scale() {
-  scale_ = 1.0f;
-  return *this;
-}
-
-Renderer& Renderer::begin_auto_center_offset() {
+Renderer& Renderer::begin_auto_center_scale() {
   const float w = static_cast<float>(dimens_.size.w);
   const float h = static_cast<float>(dimens_.size.h);
   const float tw = static_cast<float>(dimens_.target_size.w);
   const float th = static_cast<float>(dimens_.target_size.h);
 
-  return begin_offset((w - (tw * scale_)) / 2.0f,(h - (th * scale_)) / 2.0f);
-}
+  scale_.x = dimens_.aspect_scale;
+  scale_.y = dimens_.aspect_scale;
+  aspect_scale_ = dimens_.aspect_scale;
+  offset_.x = (w - (tw * scale_.x)) / 2.0f;
+  offset_.y = (h - (th * scale_.y)) / 2.0f;
 
-Renderer& Renderer::begin_offset(float x_offset,float y_offset) {
-  offset_.x = x_offset;
-  offset_.y = y_offset;
   return *this;
 }
 
-Renderer& Renderer::end_offset() {
+Renderer& Renderer::begin_auto_scale() {
+  scale_.x = dimens_.scale.x;
+  scale_.y = dimens_.scale.y;
+  aspect_scale_ = dimens_.aspect_scale;
+
+  return *this;
+}
+
+Renderer& Renderer::end_scale() {
+  scale_.x = 1.0f;
+  scale_.y = 1.0f;
+  aspect_scale_ = 1.0f;
   offset_.x = 0.0f;
   offset_.y = 0.0f;
+
   return *this;
 }
 
@@ -271,6 +261,7 @@ Renderer& Renderer::begin_add_blend() {
   glGetIntegerv(GL_BLEND_DST_ALPHA,&blend_dst_alpha_);
 
   glBlendFunc(GL_ONE,GL_ONE);
+
   return *this;
 }
 
@@ -282,12 +273,14 @@ Renderer& Renderer::end_blend() {
 Renderer& Renderer::begin_texture(const Texture& texture) {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D,texture.gl_id());
+
   return *this;
 }
 
 Renderer& Renderer::end_texture() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);
+
   return *this;
 }
 
@@ -298,8 +291,8 @@ Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback
 }
 
 Renderer& Renderer::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
-  const GLfloat x = static_cast<GLfloat>(pos.x);
-  const GLfloat y = static_cast<GLfloat>(pos.y);
+  const GLfloat x = offset_.x + (static_cast<GLfloat>(pos.x) * scale_.x);
+  const GLfloat y = offset_.y + (static_cast<GLfloat>(pos.y) * scale_.y);
   const GLfloat z = static_cast<GLfloat>(pos.z);
 
   glPushMatrix();
@@ -393,10 +386,10 @@ Renderer& Renderer::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& si
 }
 
 Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) {
-  float x1 = offset_.x + (static_cast<float>(pos.x) * scale_);
-  float y1 = offset_.y + (static_cast<float>(pos.y) * scale_);
-  float x2 = x1 + (static_cast<float>(size.w) * scale_);
-  float y2 = y1 + (static_cast<float>(size.h) * scale_);
+  float x1 = offset_.x + (static_cast<float>(pos.x) * scale_.x);
+  float y1 = offset_.y + (static_cast<float>(pos.y) * scale_.y);
+  float x2 = x1 + (static_cast<float>(size.w) * aspect_scale_);
+  float y2 = y1 + (static_cast<float>(size.h) * aspect_scale_);
   float z = static_cast<float>(pos.z);
 
   return {x1,y1,x2,y2,z};

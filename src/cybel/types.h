@@ -55,8 +55,10 @@ public:
   T z{};
 
   Pos3() {}
-  Pos3(T x,T y,T z = {})
-      : x(x),y(y),z(z) {}
+  Pos3(T x,T y,T z = {}) : x(x),y(y),z(z) {}
+
+  template <typename T2>
+  Pos3<T2> to_pos3() { return {static_cast<T2>(x),static_cast<T2>(y),static_cast<T2>(z)}; }
 };
 
 using Pos3f = Pos3<float>;
@@ -91,8 +93,14 @@ public:
   T w{};
   T h{};
 
-  template <typename P>
-  bool in_bounds(P x,P y) const { return x >= 0 && x < w && y >= 0 && y < h; }
+  Size2() {}
+  Size2(T s) : w(s),h(s) {}
+  Size2(T w,T h) : w(w),h(h) {}
+
+  bool in_bounds(T x,T y) const { return x >= 0 && x < w && y >= 0 && y < h; }
+
+  template <typename T2>
+  Size2<T2> to_size2() { return {static_cast<T2>(w),static_cast<T2>(h)}; }
 };
 
 using Size2f = Size2<float>;

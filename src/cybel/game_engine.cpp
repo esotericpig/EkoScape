@@ -65,15 +65,17 @@ void GameEngine::init_config(Config& config) {
   int width = config.size.w;
   int height = config.size.h;
 
+  // If getting the current display mode fails, we fall back to Config.size.
+  //     Therefore, scale_factor needs to have priority over Config.size.
   if(config.scale_factor > 0.0f) {
     SDL_DisplayMode display_mode;
 
     if(SDL_GetCurrentDisplayMode(0,&display_mode) != 0) {
       std::cerr << "[WARN] Failed to get current display mode: " << Util::get_sdl_error() << '.'
           << std::endl;
-      // Don't fail; fall back to Config.width/height.
+      // Don't fail; fall back to Config.size.
     } else {
-      // Check values so can fall back to Config.width/height if necessary.
+      // Check values so can fall back to Config.size if necessary.
       if(display_mode.w > 0) {
         width = static_cast<int>(std::round(static_cast<float>(display_mode.w) * config.scale_factor));
       }

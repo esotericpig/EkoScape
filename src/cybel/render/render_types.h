@@ -18,7 +18,8 @@ struct ViewDimens {
   Size2i size{};
   Size2i target_size{};
   Size2i init_size{};
-  float scale = 1.0f;
+  Pos2f scale{1.0f,1.0f};
+  float aspect_scale = 1.0f;
 };
 
 } // Namespace.

@@ -11,25 +11,27 @@
 // TODO: credits in ReadMe and in game: Ryan, Monogram
 //       - https://datagoblin.itch.io/monogram
 //       - https://www.piskelapp.com/
+//       - And for stars too?
 //       If press 'f', make weird colors and also flip cell & robot (flips capture).
+//       Also use star2.png.
 // TODO: Implement MenuPlayScene.
 //       Need to walk assets/maps dir. Show as "classic / Title by Author" or something.
 //       'r' in MenuPlay should also re-crawl dirs.
 
-// TODO: Implement "fruit" in Game so can eat robots.
 // TODO: Implement mini map in GameScene and include number of Ekos rescued out of total.
 //       Just do colors. If walkable, then nothing. If non-walkable or Entity/Thing, then color.
 //       - Special color for non-walkable, Robot, Cell, and "fruit".
 //       Moore neighborhood of 4 spaces out or whatever (param). Can implement in Map.
 // TODO: Implement Game Over in GameScene to show message and to press Enter.
 //       After enter, kGoBack.
+//       Continue to have update/draw, but ignore user input.
 
 // TODO: Use own Ogg music from iPad.
 // TODO: Cruise control button? So continuously presses up. Can turn on or off.
 //       Maybe always on?
-// TODO: Stuff from forums:
-//       - Make pacman style. So can eat something and then it allows you to eat robots.
-//       - Lean into pacman theme?
+// TODO: Implement "fruit" in Game so can eat robots -- pacman: if eat, they go back to origin?
+// TODO: Implement portals and multiple layers/floors? -- pacman: 0-9 are matching portals; 0<=>0, 1<=>1
+// TODO: Any other pacman stuff?
 
 // TODO: Experiment with different tex for dead/living spaces.
 //       probably have living space look slightly different in some way.
@@ -71,10 +73,9 @@ int main(int /*argc*/,char** /*argv*/) {
     EkoScape::Config config{};
 
     config.scale_factor = 0.8333f; // Arrival?
-    //config.size = {740,500};
+    //config.size = {740,500}; // For GIFs/screenshots.
     config.fps = 60;
     config.vsync = true;
-    //config.clear_color.set_i(106,48,137,255); // Cosmic purple.
 
     // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
     // These are fixed values and should not be changed.

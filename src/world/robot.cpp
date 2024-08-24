@@ -101,12 +101,11 @@ bool Robot::try_move(int x_vel,int y_vel,int likes,MoveData& data) {
 void Robot::age(double delta_time) {
   if(lifespan_ <= 0.0) { return; } // Besides immortality, prevent divide by 0.
 
-  // Divide delta time by lifespan to normalize age between 0 and 1
-  //     so that the age ends at 1.
+  // Divide by lifespan to normalize to [0,1].
   age_ += (delta_time / lifespan_);
 }
 
-bool Robot::is_alive() const { return lifespan_ <= 0.0 || age_ < 1.0; }
+bool Robot::is_alive() const { return lifespan_ <= 0.0 || age_ <= 1.0; }
 
 bool Robot::is_dead() const { return !is_alive(); }
 

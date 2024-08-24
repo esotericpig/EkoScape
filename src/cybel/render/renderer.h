@@ -117,21 +117,9 @@ public:
   Renderer& begin_2d_scene();
   Renderer& begin_3d_scene();
 
-  Renderer& begin_auto_center();
-  Renderer& end_scale_offset();
-
+  Renderer& begin_auto_center_scale();
   Renderer& begin_auto_scale();
-  Renderer& begin_scale(float scale);
   Renderer& end_scale();
-
-  /**
-   * This uses the scale, so if you want to change the scale, you must change it first
-   * before calling this function.
-   * - Note that this is done for you automatically in begin_auto_center().
-   */
-  Renderer& begin_auto_center_offset();
-  Renderer& begin_offset(float x_offset,float y_offset);
-  Renderer& end_offset();
 
   Renderer& begin_color(const Color4f& color);
   Renderer& end_color();
@@ -168,7 +156,8 @@ public:
 
 private:
   ViewDimens dimens_{};
-  float scale_ = 1.0f;
+  Pos2f scale_{1.0f,1.0f};
+  float aspect_scale_ = 1.0f;
   Pos2f offset_{0.0f,0.0f};
   Color4f clear_color_{};
   GLint blend_src_rgb_ = 0;

@@ -20,6 +20,7 @@
 #include "scenes/game_scene.h"
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"
+#include "world/star_sys.h"
 #include "assets.h"
 
 #include <filesystem>
@@ -54,6 +55,7 @@ private:
   int dantares_dist_ = 0;
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
+  StarSys star_sys_{};
   std::filesystem::path map_file_{};
 
   SceneBag build_scene(int type);

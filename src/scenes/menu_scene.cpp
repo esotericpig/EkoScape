@@ -101,7 +101,7 @@ int MenuScene::update_scene_logic(const FrameStep& /*step*/) {
 
 void MenuScene::draw_scene(Renderer& ren) {
   ren.begin_2d_scene()
-     .begin_auto_center()
+     .begin_auto_center_scale()
      .begin_add_blend();
 
   ren.wrap_sprite(assets_.logo_sprite(),[&](auto& s) {
@@ -154,7 +154,7 @@ void MenuScene::draw_scene(Renderer& ren) {
   });
 
   ren.end_blend()
-     .end_scale_offset();
+     .end_scale();
 }
 
 void MenuScene::update_graphics_option(Option& option) {

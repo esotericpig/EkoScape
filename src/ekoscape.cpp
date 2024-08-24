@@ -53,6 +53,7 @@ SceneBag EkoScape::build_scene(int action) {
       try {
         result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
         result.persist = true; // Preserve game state when pausing (e.g., BoringWorkScene).
+        star_sys_.clear();
       } catch(const CybelError& e) {
         game_engine_->show_error(e.what());
         result.scene = nullptr;
@@ -60,6 +61,13 @@ SceneBag EkoScape::build_scene(int action) {
       break;
 
     default: break;
+  }
+
+  if(action != SceneAction::kGoToBoringWork
+      && action != SceneAction::kGoToMenuPlay // TODO: Remove this.
+      && action != SceneAction::kGoToGame
+      && star_sys_.is_empty()) {
+    star_sys_.init(game_engine_->dimens());
   }
 
   return result;
@@ -112,10 +120,22 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
 }
 
 int EkoScape::update_scene_logic(const FrameStep& step) {
+  star_sys_.update(step);
+
   return SceneAction::kNil;
 }
 
 void EkoScape::draw_scene(Renderer& ren) {
+  if(star_sys_.is_empty()) { return; }
+
+  ren.begin_2d_scene()
+     .begin_auto_scale()
+     .begin_add_blend();
+
+  star_sys_.draw(ren,assets_->star_texture());
+
+  ren.end_blend()
+     .end_scale();
 }
 
 void EkoScape::play_music() {
