@@ -24,31 +24,31 @@ void StarSys::init(const ViewDimens& view_dimens) {
   for(auto& star: stars_) {
     birth_star(star);
 
-    // The next logic is only on init, not birth, else stars appear "popping" in & out.
-
+    // The following logic is only on init, not birth, else stars appear "popping" in & out.
     star.age = Rando::it().rand_float();
-
     if(Rando::it().rand_bool()) { star.fade().past_lives = 1; }
   }
 }
 
 void StarSys::birth_star(Particle& star) {
-  star.lifespan = Rando::it().rand_float(5.0f,10.0f);
+  auto& r = Rando::it();
 
-  star.pos.x = static_cast<float>(Rando::it().rand_int(view_dimens_.target_size.w));
-  star.pos.y = static_cast<float>(Rando::it().rand_int(view_dimens_.target_size.h));
-  star.pos_vel.x = (Rando::it().rand_float() < 0.40f) ? Rando::it().rand_float_vel(20.0f) : 0.0f;
-  star.pos_vel.y = (Rando::it().rand_float() < 0.40f) ? Rando::it().rand_float_vel(20.0f) : 0.0f;
-  star.spin_angle = Rando::it().rand_float(360);
-  star.spin_vel = (Rando::it().rand_float() < 0.70f) ? Rando::it().rand_float_vel(60.0f) : 0.0f;
+  star.lifespan = r.rand_float(5.0f,10.0f);
 
-  star.baby_size.w = Rando::it().rand_float(10.0f,25.0f);
+  star.pos.x = static_cast<float>(r.rand_int(view_dimens_.target_size.w));
+  star.pos.y = static_cast<float>(r.rand_int(view_dimens_.target_size.h));
+  star.pos_vel.x = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
+  star.pos_vel.y = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
+  star.spin_angle = r.rand_float(360);
+  star.spin_vel = (r.rand_float() < 0.70f) ? r.rand_float_vel(60.0f) : 0.0f;
+
+  star.baby_size.w = r.rand_float(10.0f,25.0f);
   star.baby_size.h = star.baby_size.w;
-  star.elder_size.w = Rando::it().rand_float(75.0f,100.0f);
+  star.elder_size.w = r.rand_float(75.0f,100.0f);
   star.elder_size.h = star.elder_size.w;
-  star.baby_color = kColors.at(Rando::it().rand_sizet(kColors.size()));
+  star.baby_color = kColors.at(r.rand_sizet(kColors.size()));
   star.baby_color.a = 0.1f;
-  star.elder_color = kColors.at(Rando::it().rand_sizet(kColors.size()));
+  star.elder_color = kColors.at(r.rand_sizet(kColors.size()));
   star.elder_color.a = 1.0f;
 
   star.birth();

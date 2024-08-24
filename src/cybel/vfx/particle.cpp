@@ -37,7 +37,6 @@ Particle& Particle::age_by(float delta_time) {
 Particle& Particle::rebirth() {
   age = 0.0f;
   ++past_lives;
-
   return birth();
 }
 
