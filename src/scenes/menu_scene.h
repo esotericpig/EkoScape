@@ -41,12 +41,6 @@ public:
 
 private:
   static const tiny_utf8::string kGraphicsText;
-  static const Color4f kArrowColor;
-  static const Color4f kCycleArrowColor;
-  static const Color4f kTextColor;
-  static const tiny_utf8::string kLeftArrowText;
-  static const tiny_utf8::string kRightArrowText;
-  static const int kSmallSpaceSize;
 
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;

@@ -17,6 +17,7 @@
 #include "cybel/gfx/texture.h"
 #include "cybel/util/cybel_error.h"
 
+#include "menu_renderer.h"
 #include "styled_graphics.h"
 
 #include <filesystem>
@@ -50,6 +51,7 @@ public:
 
   const Sprite& logo_sprite() const;
   const FontAtlas& font_atlas() const;
+  MenuRenderer& menu_renderer() const;
   const Sprite& keys_sprite() const;
   const Texture& star_texture() const;
   const Sprite& boring_work_sprite() const;
@@ -61,7 +63,8 @@ private:
   const bool has_music_player_;
 
   std::unique_ptr<Sprite> logo_sprite_{};
-  std::unique_ptr<FontAtlas> font_atlas_{};
+  std::shared_ptr<FontAtlas> font_atlas_{};
+  std::unique_ptr<MenuRenderer> menu_renderer_{};
   std::unique_ptr<Sprite> keys_sprite_{};
   std::unique_ptr<Texture> star_texture_{};
   std::unique_ptr<Sprite> boring_work_sprite_{};

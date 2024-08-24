@@ -26,7 +26,7 @@ void Assets::reload_graphics() {
 
 void Assets::reload_images() {
   logo_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "ekoscape.png"}});
-  font_atlas_ = std::make_unique<FontAtlas>(
+  font_atlas_ = std::make_shared<FontAtlas>(
     FontAtlas::Builder{Texture{Image{kImagesDir / "font_monogram.png"}}}
       .offset(0,0)
       .cell_size(9,14)
@@ -45,6 +45,7 @@ void Assets::reload_images() {
       })
       .build()
   );
+  menu_renderer_ = std::make_unique<MenuRenderer>(font_atlas_);
   keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"}});
   star_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star.png"});
   boring_work_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "boring_work.png"}});
@@ -86,6 +87,8 @@ const Texture& Assets::white_texture() const { return *styled_graphics_.graphics
 const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
 
 const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
+
+MenuRenderer& Assets::menu_renderer() const { return *menu_renderer_; }
 
 const Sprite& Assets::keys_sprite() const { return *keys_sprite_; }
 

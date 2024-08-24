@@ -10,12 +10,6 @@
 namespace ekoscape {
 
 const tiny_utf8::string MenuScene::kGraphicsText = "gfx: ";
-const Color4f MenuScene::kArrowColor = {0,252,0};
-const Color4f MenuScene::kCycleArrowColor = {254,0,0};
-const Color4f MenuScene::kTextColor = {214,214,214};
-const tiny_utf8::string MenuScene::kLeftArrowText = "←";
-const tiny_utf8::string MenuScene::kRightArrowText = "→";
-const int MenuScene::kSmallSpaceSize = 24;
 
 MenuScene::MenuScene(Assets& assets)
     : assets_(assets) {
@@ -108,38 +102,20 @@ void MenuScene::draw_scene(Renderer& ren) {
     s.draw_quad({150,10},{1300,300});
   });
 
-  ren.wrap_font_atlas(assets_.font_atlas(),{395,330},{40,90},[&](auto& font) {
-    for(int i = 0; i < static_cast<int>(options_.size()); ++i) {
+  assets_.menu_renderer().wrap(ren,{395,330},[&](auto& /*font*/,auto& menu) {
+    for(std::size_t i = 0; i < options_.size(); ++i) {
       auto& option = options_[i];
+      int styles = 0;
 
-      if(i == selected_option_index_) {
-        const Color4f* color;
-        const tiny_utf8::string* text;
-
+      if(static_cast<int>(i) == selected_option_index_) {
         if(option.type == OptionType::kGraphics) {
-          color = &kCycleArrowColor;
-          text = &kLeftArrowText;
+          styles |= MenuRenderer::kStyleCycle;
         } else {
-          color = &kArrowColor;
-          text = &kRightArrowText;
-        }
-
-        ren.wrap_color(*color,[&]() { font.print(*text); });
-      } else {
-        font.print(); // Space.
-      }
-
-      font.pos.x += kSmallSpaceSize;
-      ren.wrap_color(kTextColor,[&]() { font.print(option.text); });
-
-      if(i == selected_option_index_) {
-        if(option.type == OptionType::kGraphics) {
-          font.pos.x += kSmallSpaceSize;
-          ren.wrap_color(kCycleArrowColor,[&]() { font.print(kRightArrowText); });
+          styles |= MenuRenderer::kStyleSelected;
         }
       }
 
-      font.puts();
+      menu.option(option.text,styles);
     }
   });
 
