@@ -31,8 +31,8 @@ public:
     void refresh();
   };
 
-  static const int kGhostLike = 1 << 0; // Can go through walls.
-  static const int kSnakeLike = 1 << 1; // Leaves behind a "shadow"/tail of statues.
+  static const int kLikeGhost = 1 << 0; // Can go through walls.
+  static const int kLikeSnake = 1 << 1; // Leaves behind a "shadow"/tail of statues.
 
   static const double kSnakeTailLifespan;
 

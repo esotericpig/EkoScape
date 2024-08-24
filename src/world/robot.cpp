@@ -82,14 +82,14 @@ bool Robot::try_move(int x_vel,int y_vel,int likes,MoveData& data) {
   const Space* to_space = data.map.space(to_pos);
 
   if(to_space == nullptr || to_space->has_thing()) { return false; }
-  if(!(likes & kGhostLike) && to_space->is_non_walkable()) { return false; }
+  if(!(likes & kLikeGhost) && to_space->is_non_walkable()) { return false; }
 
   Pos2i from_pos = pos_; // Store origin for snake's tail.
 
   if(!data.map.move_thing(from_pos,to_pos)) { return false; }
   pos_ = to_pos;
 
-  if(likes & kSnakeLike) {
+  if(likes & kLikeSnake) {
     if(data.map.place_thing(SpaceType::kRobotStatue,from_pos)) {
       data.new_robots.emplace_back(std::make_unique<RobotStatue>(from_pos,kSnakeTailLifespan));
     }
@@ -111,15 +111,15 @@ bool Robot::is_dead() const { return !is_alive(); }
 
 void RobotNormal::move(MoveData& data) { move_like(0,data); }
 
-void RobotGhost::move(MoveData& data) { move_like(kGhostLike,data); }
+void RobotGhost::move(MoveData& data) { move_like(kLikeGhost,data); }
 
-void RobotSnake::move(MoveData& data) { move_like(kSnakeLike,data); }
+void RobotSnake::move(MoveData& data) { move_like(kLikeSnake,data); }
 
 RobotStatue::RobotStatue(const Pos2i& pos,double lifespan)
     : Robot(SpaceType::kRobotStatue,pos,lifespan) {}
 
 void RobotStatue::move(MoveData& /*data*/) {}
 
-void RobotWorm::move(MoveData& data) { move_like(kGhostLike | kSnakeLike,data); }
+void RobotWorm::move(MoveData& data) { move_like(kLikeGhost | kLikeSnake,data); }
 
 } // Namespace.
