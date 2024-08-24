@@ -46,7 +46,7 @@ protected:
   Pos2i pos_{};
 
 private:
-  static int next_id_;
+  static inline int next_id_ = -1;
 };
 
 } // Namespace.

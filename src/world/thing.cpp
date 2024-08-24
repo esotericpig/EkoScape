@@ -9,8 +9,6 @@
 
 namespace ekoscape {
 
-int Thing::next_id_ = -1;
-
 Thing::Thing() {}
 
 Thing::Thing(SpaceType type,const Pos2i& pos)
