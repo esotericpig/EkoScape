@@ -28,7 +28,7 @@ bool Map::is_map_file(const std::filesystem::path& file) {
   }
 }
 
-Map& Map::load_file(const std::filesystem::path& file) {
+Map& Map::load_file(const std::filesystem::path& file,bool meta_only) {
   TextReader reader{file};
   std::string line{};
   char data_c = 0;
@@ -78,6 +78,8 @@ Map& Map::load_file(const std::filesystem::path& file) {
   }
   set_robot_delay(Duration::from_millis(data_i));
 
+  if(meta_only) { return *this; }
+
   if(!reader.read_line(line) // Finish consuming previous line.
       || !reader.consume_lines_if_empty(1)) {
     throw CybelError{Util::build_string("Missing map grid in map [",file,"].")};
@@ -104,29 +106,8 @@ Map& Map::load_file(const std::filesystem::path& file) {
   return parse_grid(lines,size);
 }
 
-bool Map::parse_header(const std::string& line,int& version,bool warn) {
-  std::regex re(R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase);
-  std::smatch matches;
-
-  if(!std::regex_match(line,matches,re) || matches.size() != 2) {
-    return false;
-  }
-
-  try {
-    version = std::stoi(matches[1]);
-  } catch(const std::invalid_argument& e) {
-    if(warn) { std::cerr << "[WARN] " << e.what() << std::endl; }
-    return false;
-  } catch(const std::out_of_range& e) {
-    if(warn) { std::cerr << "[WARN] " << e.what() << std::endl; }
-    return false;
-  }
-
-  return true;
-}
-
-std::string Map::build_header() const {
-  return Util::build_string("[EkoScape/v",version_,']');
+Map& Map::load_file_meta(const std::filesystem::path& file) {
+  return load_file(file,true);
 }
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
@@ -336,6 +317,10 @@ bool Map::set_thing(const Pos2i& pos,SpaceType type) {
   return true;
 }
 
+std::string Map::build_header() const {
+  return Util::build_string("[EkoScape/v",version_,']');
+}
+
 int Map::version() const { return version_; }
 
 const std::string& Map::title() const { return title_; }
@@ -364,6 +349,27 @@ int Map::total_rescues() const { return total_rescues_; }
 const Pos2i& Map::player_init_pos() const { return player_init_pos_; }
 
 Facing Map::player_init_facing() const { return player_init_facing_; }
+
+bool Map::parse_header(const std::string& line,int& version,bool warn) {
+  std::regex re(R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase);
+  std::smatch matches{};
+
+  if(!std::regex_match(line,matches,re) || matches.size() != 2) {
+    return false;
+  }
+
+  try {
+    version = std::stoi(matches[1]);
+  } catch(const std::invalid_argument& e) {
+    if(warn) { std::cerr << "[WARN] " << e.what() << std::endl; }
+    return false;
+  } catch(const std::out_of_range& e) {
+    if(warn) { std::cerr << "[WARN] " << e.what() << std::endl; }
+    return false;
+  }
+
+  return true;
+}
 
 void Map::set_raw_space(const Pos2i& pos,Space&& space) {
   spaces_.at(pos.x + (pos.y * size_.w)) = std::move(space);

@@ -65,7 +65,8 @@ public:
 
   virtual ~Map() noexcept = default;
 
-  Map& load_file(const std::filesystem::path& file);
+  Map& load_file(const std::filesystem::path& file,bool meta_only = false);
+  Map& load_file_meta(const std::filesystem::path& file);
   Map& parse_grid(const std::vector<std::string>& lines,Size2i size = {0,0});
   virtual Map& clear_spaces();
 
