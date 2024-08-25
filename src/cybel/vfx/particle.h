@@ -63,7 +63,8 @@ public:
 
   bool is_alive() const;
   bool is_dead() const;
-  float clamped_age() const;
+
+  float calc_clamped_age() const;
 };
 
 } // Namespace.

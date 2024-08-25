@@ -14,7 +14,7 @@ Particle& Particle::birth() { return age_by(0.0f); }
 Particle& Particle::age_by(float delta_time) {
   age += (delta_time / lifespan); // Divide by lifespan to normalize to [0,1].
 
-  const float cage = clamped_age(); // Prevents invalid values, Nicolas Cage style.
+  const float cage = calc_clamped_age(); // Prevent invalid values, Nicolas Cage style.
 
   pos.x += (pos_vel.x * delta_time);
   pos.y += (pos_vel.y * delta_time);
@@ -67,7 +67,7 @@ bool Particle::is_alive() const { return age <= 1.0f; }
 
 bool Particle::is_dead() const { return !is_alive(); }
 
-float Particle::clamped_age() const {
+float Particle::calc_clamped_age() const {
   if(age < 0.0f) { return 0.0f; }
   if(age > 1.0f) { return 1.0f; }
   return age;
