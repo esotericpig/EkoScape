@@ -11,6 +11,7 @@ namespace ekoscape {
 
 const std::filesystem::path Assets::kAssetsDir = "assets";
 const std::filesystem::path Assets::kImagesDir = kAssetsDir / "images";
+const std::filesystem::path Assets::kMapsDir = kAssetsDir / "maps";
 const std::filesystem::path Assets::kTexturesDir = kAssetsDir / "textures";
 
 Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player)
@@ -26,7 +27,7 @@ void Assets::reload_graphics() {
 
 void Assets::reload_images() {
   logo_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "ekoscape.png"}});
-  font_atlas_ = std::make_shared<FontAtlas>(
+  font_atlas_ = std::make_unique<FontAtlas>(
     FontAtlas::Builder{Texture{Image{kImagesDir / "font_monogram.png"}}}
       .offset(0,0)
       .cell_size(9,14)
@@ -45,7 +46,7 @@ void Assets::reload_images() {
       })
       .build()
   );
-  menu_renderer_ = std::make_unique<MenuRenderer>(font_atlas_);
+  menu_renderer_ = std::make_unique<MenuRenderer>(*font_atlas_);
   keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"}});
   star_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star.png"});
   boring_work_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "boring_work.png"}});

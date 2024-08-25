@@ -28,6 +28,7 @@ class Assets {
 public:
   static const std::filesystem::path kAssetsDir;
   static const std::filesystem::path kImagesDir;
+  static const std::filesystem::path kMapsDir;
   static const std::filesystem::path kTexturesDir;
 
   explicit Assets(StyledGraphics::Style graphics_style,bool has_music_player);
@@ -63,7 +64,7 @@ private:
   const bool has_music_player_;
 
   std::unique_ptr<Sprite> logo_sprite_{};
-  std::shared_ptr<FontAtlas> font_atlas_{};
+  std::unique_ptr<FontAtlas> font_atlas_{};
   std::unique_ptr<MenuRenderer> menu_renderer_{};
   std::unique_ptr<Sprite> keys_sprite_{};
   std::unique_ptr<Texture> star_texture_{};

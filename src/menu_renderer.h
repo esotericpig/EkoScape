@@ -28,7 +28,7 @@ public:
 
     explicit Wrapper(Renderer::FontAtlasWrapper& font);
 
-    Wrapper& option(const tiny_utf8::string& text,int styles = 0);
+    Wrapper& draw_opt(const tiny_utf8::string& text,int styles = 0);
   };
 
   using WrapCallback = std::function<void(Renderer::FontAtlasWrapper&,Wrapper&)>;
@@ -36,7 +36,7 @@ public:
   static const int kStyleSelected = 1 << 0;
   static const int kStyleCycle = 1 << 1;
 
-  explicit MenuRenderer(std::shared_ptr<FontAtlas> font_atlas);
+  explicit MenuRenderer(FontAtlas& font_atlas);
 
   void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
 
@@ -51,7 +51,7 @@ private:
   static const tiny_utf8::string kRightArrowText;
   static const int kSmallSpaceSize;
 
-  std::shared_ptr<FontAtlas> font_atlas_;
+  FontAtlas& font_atlas_;
 };
 
 } // Namespace.

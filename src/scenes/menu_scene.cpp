@@ -115,7 +115,7 @@ void MenuScene::draw_scene(Renderer& ren) {
         }
       }
 
-      menu.option(option.text,styles);
+      menu.draw_opt(option.text,styles);
     }
   });
 

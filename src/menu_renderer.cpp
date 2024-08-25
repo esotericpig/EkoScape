@@ -22,7 +22,7 @@ const int MenuRenderer::kSmallSpaceSize = 24;
 MenuRenderer::Wrapper::Wrapper(Renderer::FontAtlasWrapper& font)
     : font(font) {}
 
-MenuRenderer::Wrapper& MenuRenderer::Wrapper::option(const tiny_utf8::string& text,int styles) {
+MenuRenderer::Wrapper& MenuRenderer::Wrapper::draw_opt(const tiny_utf8::string& text,int styles) {
   const bool is_selected = styles & kStyleSelected;
   const bool is_cycle = styles & kStyleCycle;
 
@@ -47,11 +47,11 @@ MenuRenderer::Wrapper& MenuRenderer::Wrapper::option(const tiny_utf8::string& te
   return *this;
 }
 
-MenuRenderer::MenuRenderer(std::shared_ptr<FontAtlas> font_atlas)
+MenuRenderer::MenuRenderer(FontAtlas& font_atlas)
     : font_atlas_(font_atlas) {}
 
 void MenuRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback) {
-  ren.wrap_font_atlas(*font_atlas_,pos,kCharSize,[&](auto& font) {
+  ren.wrap_font_atlas(font_atlas_,pos,kCharSize,[&](auto& font) {
     Wrapper wrapper{font};
     callback(font,wrapper);
   });
