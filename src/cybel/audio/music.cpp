@@ -16,7 +16,7 @@ Music::Music(const std::filesystem::path& file) {
   music_ = Mix_LoadMUS(file_cstr);
 
   if(music_ == NULL) {
-    throw CybelError{Util::build_string("Failed to load music [",file_cstr,"]: "
+    throw CybelError{Util::build_str("Failed to load music [",file_cstr,"]: "
         ,Util::get_sdl_mix_error(),'.')};
   }
 }

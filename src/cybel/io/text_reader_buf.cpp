@@ -17,7 +17,7 @@ TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffe
   context_ = SDL_RWFromFile(file_cstr,"r");
 
   if(context_ == NULL) {
-    throw CybelError{Util::build_string("Failed to open file [",file_cstr,"] for reading: "
+    throw CybelError{Util::build_str("Failed to open file [",file_cstr,"] for reading: "
         ,Util::get_sdl_error(),'.')};
   }
 

@@ -17,9 +17,10 @@ namespace cybel {
 
 namespace Util {
   template <typename... Args>
-  std::string build_string(const Args&... args);
+  std::string build_str(const Args&... args);
 
-  std::string strip(const std::string& str);
+  std::string strip_str(const std::string& str);
+  std::string ellips_str(const std::string& str,std::size_t max_len);
 
   template <typename... Args>
   std::size_t build_hash(const Args&... args);
@@ -34,7 +35,7 @@ namespace Util {
 // See Example at bottom:
 // - https://en.cppreference.com/w/cpp/language/fold
 template <typename... Args>
-std::string Util::build_string(const Args&... args) {
+std::string Util::build_str(const Args&... args) {
   std::stringstream ss{};
 
   (ss << ... << args);

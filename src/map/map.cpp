@@ -36,45 +36,45 @@ Map& Map::load_file(const std::filesystem::path& file,bool meta_only) {
   int data_i = 0;
 
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_string("Missing header in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing header in map [",file,"].")};
   }
   if(!parse_header(line,data_i)) {
-    throw CybelError{Util::build_string("Invalid header [",line,"] in map [",file,"].")};
+    throw CybelError{Util::build_str("Invalid header [",line,"] in map [",file,"].")};
   }
   if(!kSupportedVersions.in_range(data_i)) {
-    throw CybelError{Util::build_string("Unsupported version [",data_i,"] in map [",file,"].")};
+    throw CybelError{Util::build_str("Unsupported version [",data_i,"] in map [",file,"].")};
   }
   version_ = data_i;
 
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_string("Missing title in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing title in map [",file,"].")};
   }
   set_title(line);
 
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_string("Missing author in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing author in map [",file,"].")};
   }
   set_author(line);
 
   if(!reader.read(data_f)) {
-    throw CybelError{Util::build_string("Missing turning speed in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing turning speed in map [",file,"].")};
   }
   set_turning_speed(data_f);
 
   if(!reader.read(data_f)) {
-    throw CybelError{Util::build_string("Missing walking speed in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing walking speed in map [",file,"].")};
   }
   set_walking_speed(data_f);
 
   if(!reader.seek_and_destroy('\'')
       || !reader.get(data_c)
       || !reader.seek_and_destroy('\'')) {
-    throw CybelError{Util::build_string("Missing default empty space in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing default empty space in map [",file,"].")};
   }
   set_default_empty(SpaceTypes::to_space_type(data_c));
 
   if(!reader.read(data_i)) {
-    throw CybelError{Util::build_string("Missing robot delay in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing robot delay in map [",file,"].")};
   }
   set_robot_delay(Duration::from_millis(data_i));
 
@@ -82,7 +82,7 @@ Map& Map::load_file(const std::filesystem::path& file,bool meta_only) {
 
   if(!reader.read_line(line) // Finish consuming previous line.
       || !reader.consume_lines_if_empty(1)) {
-    throw CybelError{Util::build_string("Missing map grid in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing map grid in map [",file,"].")};
   }
 
   std::vector<std::string> lines{};
@@ -99,7 +99,7 @@ Map& Map::load_file(const std::filesystem::path& file,bool meta_only) {
   }
 
   if(lines.empty() || size.w <= 0) {
-    throw CybelError{Util::build_string("Missing map grid in map [",file,"].")};
+    throw CybelError{Util::build_str("Missing map grid in map [",file,"].")};
   }
   size.h = static_cast<int>(lines.size());
 
@@ -182,7 +182,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
   }
 
   if(!has_player) {
-    throw CybelError{Util::build_string(
+    throw CybelError{Util::build_str(
         "Missing a Player space {"
         ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
         ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
@@ -192,7 +192,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
     )};
   }
   if(!has_end) {
-    throw CybelError{Util::build_string(
+    throw CybelError{Util::build_str(
         "Missing an End space ["
         ,SpaceTypes::value_of(SpaceType::kEnd)
         ,"] in the grid of map [",title_,"]."
@@ -258,12 +258,12 @@ bool Map::unlock_cell(const Pos2i& pos) {
 }
 
 Map& Map::set_title(const std::string& title) {
-  title_ = Util::strip(title);
+  title_ = Util::strip_str(title);
   return *this;
 }
 
 Map& Map::set_author(const std::string& author) {
-  author_ = Util::strip(author);
+  author_ = Util::strip_str(author);
   return *this;
 }
 
@@ -318,7 +318,7 @@ bool Map::set_thing(const Pos2i& pos,SpaceType type) {
 }
 
 std::string Map::build_header() const {
-  return Util::build_string("[EkoScape/v",version_,']');
+  return Util::build_str("[EkoScape/v",version_,']');
 }
 
 int Map::version() const { return version_; }

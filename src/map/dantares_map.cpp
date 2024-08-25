@@ -26,7 +26,7 @@ DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
   id_ = dantares_.AddMap(static_cast<const void*>(int_spaces.data()),size_.w,size_.h);
 
   if(id_ == -1 || !dantares_.IsMap(id_)) {
-    throw CybelError{Util::build_string("Failed to add map [",id_,':',title_,"].")};
+    throw CybelError{Util::build_str("Failed to add map [",id_,':',title_,"].")};
   }
 
   // Temporarily set this map as the current map.
@@ -38,7 +38,7 @@ DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
       dantares_.SetCurrentMap(curr_map_id);
     }
 
-    throw CybelError{Util::build_string("Failed to make map [",id_,':',title_,"] current.")};
+    throw CybelError{Util::build_str("Failed to make map [",id_,':',title_,"] current.")};
   }
 
   for(Pos2i pos{0,0}; pos.y < size_.h; ++pos.y) {
@@ -71,17 +71,17 @@ DantaresMap& DantaresMap::delete_from_dantares() {
 
 DantaresMap& DantaresMap::make_current_in_dantares() {
   if(id_ == -1 || !dantares_.IsMap(id_)) {
-    throw CybelError{Util::build_string("Invalid map ID [",id_,':',title_
+    throw CybelError{Util::build_str("Invalid map ID [",id_,':',title_
         ,"]. Add map to Dantares first before making it current.")};
   }
   if(!dantares_.SetCurrentMap(id_)) {
-    throw CybelError{Util::build_string("Failed to make map [",id_,':',title_,"] current.")};
+    throw CybelError{Util::build_str("Failed to make map [",id_,':',title_,"] current.")};
   }
 
   int dan_facing = Facings::value_of(player_init_facing_);
 
   if(!dantares_.SetPlayerPosition(player_init_pos_.x,player_init_pos_.y,dan_facing)) {
-    throw CybelError{Util::build_string("Failed to set player pos [",dan_facing,":("
+    throw CybelError{Util::build_str("Failed to set player pos [",dan_facing,":("
         ,player_init_pos_.x,',',player_init_pos_.y,")] for map [",id_,':',title_,"].")};
   }
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
@@ -100,7 +100,7 @@ DantaresMap& DantaresMap::make_current_in_dantares() {
 
 DantaresMap& DantaresMap::generate_in_dantares() {
   if(!dantares_.GenerateMap()) {
-    throw CybelError{Util::build_string("Failed to generate map [",id_,':',title_,"].")};
+    throw CybelError{Util::build_str("Failed to generate map [",id_,':',title_,"].")};
   }
 
   return *this;

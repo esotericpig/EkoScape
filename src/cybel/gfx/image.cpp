@@ -17,7 +17,7 @@ Image::Image(const std::filesystem::path& file)
   surface_ = IMG_Load(file_cstr);
 
   if(surface_ == NULL) {
-    throw CybelError{Util::build_string("Failed to load image [",file_cstr,"]: "
+    throw CybelError{Util::build_str("Failed to load image [",file_cstr,"]: "
         ,Util::get_sdl_img_error(),'.')};
   }
 
@@ -61,7 +61,7 @@ Image& Image::lock() {
   if(is_locked_ || !SDL_MUSTLOCK(surface_)) { return *this; }
 
   if(SDL_LockSurface(surface_) != 0) {
-    throw CybelError{Util::build_string("Failed to lock image [",id_,"]: ",Util::get_sdl_error(),'.')};
+    throw CybelError{Util::build_str("Failed to lock image [",id_,"]: ",Util::get_sdl_error(),'.')};
   }
 
   is_locked_ = true;

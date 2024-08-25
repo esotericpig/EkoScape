@@ -40,10 +40,10 @@ GameEngine::GameEngine(Scene& main_scene,Config config,SceneMan::SceneBuilder bu
   init_hints(config);
 
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
-    throw CybelError{Util::build_string("Failed to init SDL: ",Util::get_sdl_error(),'.')};
+    throw CybelError{Util::build_str("Failed to init SDL: ",Util::get_sdl_error(),'.')};
   }
   if(IMG_Init(config.image_types) == 0) {
-    throw CybelError{Util::build_string("Failed to init SDL_image: ",Util::get_sdl_img_error(),'.')};
+    throw CybelError{Util::build_str("Failed to init SDL_image: ",Util::get_sdl_img_error(),'.')};
   }
 
   init_config(config);
@@ -116,7 +116,7 @@ void GameEngine::init_gui(const Config& config) {
   );
 
   if(res_.window == NULL) {
-    throw CybelError{Util::build_string("Failed to create window: ",Util::get_sdl_error(),'.')};
+    throw CybelError{Util::build_str("Failed to create window: ",Util::get_sdl_error(),'.')};
   }
 
   // The SDL_WINDOW_RESIZABLE flag in SDL_CreateWindow() increases the size for some reason
@@ -126,13 +126,13 @@ void GameEngine::init_gui(const Config& config) {
   res_.context = SDL_GL_CreateContext(res_.window);
 
   if(res_.context == NULL) {
-    throw CybelError{Util::build_string("Failed to create OpenGL context: ",Util::get_sdl_error(),'.')};
+    throw CybelError{Util::build_str("Failed to create OpenGL context: ",Util::get_sdl_error(),'.')};
   }
 
   GLenum error = glewInit();
 
   if(error != GLEW_OK) {
-    throw CybelError{Util::build_string("Failed to init OpenGL GLEW [",error,"]: "
+    throw CybelError{Util::build_str("Failed to init OpenGL GLEW [",error,"]: "
         ,Util::get_glew_error(error),'.')};
   }
 

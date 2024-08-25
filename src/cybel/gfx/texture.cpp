@@ -26,7 +26,7 @@ Texture::Texture(Image& image,bool make_weird) {
       break;
 
     default:
-      throw CybelError{Util::build_string("Unsupported BPP [",(int)bpp,"] for image [",image.id(),"].")};
+      throw CybelError{Util::build_str("Unsupported BPP [",(int)bpp,"] for image [",image.id(),"].")};
   }
 
   glGenTextures(1,&gl_id_);
@@ -61,7 +61,7 @@ Texture::Texture(Image& image,bool make_weird) {
 
   if(error != GL_NO_ERROR) {
     destroy();
-    throw CybelError{Util::build_string("Failed to gen/bind texture for image [",image.id()
+    throw CybelError{Util::build_str("Failed to gen/bind texture for image [",image.id()
         ,"]; error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 
@@ -109,8 +109,9 @@ Texture::Texture(const Color4f& color,bool make_weird) {
 
   if(error != GL_NO_ERROR) {
     destroy();
-    throw CybelError{Util::build_string("Failed to gen/bind texture for color ("
-        ,(int)r,',',(int)g,',',(int)b,',',(int)a,"); error [",error,"]: ",Util::get_gl_error(error),'.')};
+    throw CybelError{Util::build_str("Failed to gen/bind texture for color ("
+        ,(int)r,',',(int)g,',',(int)b,',',(int)a
+        ,"); error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 
   size_.w = width;

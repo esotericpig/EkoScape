@@ -86,7 +86,7 @@ int main(int /*argc*/,char** /*argv*/) {
     EkoScape::show_error_global(e.what());
     return -1;
   } catch(const std::invalid_argument& e) {
-    EkoScape::show_error_global(Util::build_string("Invalid argument: ",e.what()));
+    EkoScape::show_error_global(Util::build_str("Invalid argument: ",e.what()));
     return -1;
   }
 
