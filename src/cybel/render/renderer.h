@@ -95,10 +95,12 @@ public:
     FontAtlasWrapper& print(char32_t c);
     FontAtlasWrapper& print(const tiny_utf8::string& str);
     FontAtlasWrapper& print(const std::vector<tiny_utf8::string>& strs);
+    FontAtlasWrapper& print_blanks(int count);
     FontAtlasWrapper& puts();
     FontAtlasWrapper& puts(char32_t c);
     FontAtlasWrapper& puts(const tiny_utf8::string& str);
     FontAtlasWrapper& puts(const std::vector<tiny_utf8::string>& lines);
+    FontAtlasWrapper& puts_blanks(int count);
   };
 
   using WrapCallback = std::function<void()>;

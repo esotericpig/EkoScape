@@ -45,15 +45,15 @@ private:
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;
 
-  int selected_option_index_ = 0;
-  std::vector<Option> options_ = {
+  int opt_index_ = 0;
+  std::vector<Option> opts_ = {
     {OptionType::kPlay,"play"},
     {OptionType::kGraphics,""},
     {OptionType::kCredits,"credits"},
     {OptionType::kQuit,"quit"},
   };
 
-  void update_graphics_option(Option& option);
+  void update_graphics_opt(Option& opt);
 };
 
 } // Namespace.

@@ -13,29 +13,29 @@ const tiny_utf8::string MenuScene::kGraphicsText = "gfx: ";
 
 MenuScene::MenuScene(Assets& assets)
     : assets_(assets) {
-  for(auto& option: options_) {
-    if(option.type == OptionType::kGraphics) {
-      update_graphics_option(option);
+  for(auto& opt: opts_) {
+    if(opt.type == OptionType::kGraphics) {
+      update_graphics_opt(opt);
       break;
     }
   }
 }
 
 void MenuScene::on_key_down_event(SDL_Keycode key) {
-  auto& selected_option = options_.at(selected_option_index_);
+  auto& sel_opt = opts_.at(opt_index_);
 
   switch(key) {
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
-      switch(selected_option.type) {
+      switch(sel_opt.type) {
         case OptionType::kPlay:
           scene_action_ = SceneAction::kGoToMenuPlay;
           break;
 
         case OptionType::kGraphics:
           assets_.next_graphics_style();
-          update_graphics_option(selected_option);
+          update_graphics_opt(sel_opt);
           break;
 
         case OptionType::kCredits:
@@ -50,22 +50,22 @@ void MenuScene::on_key_down_event(SDL_Keycode key) {
 
     case SDLK_UP:
     case SDLK_w:
-      if(selected_option_index_ > 0) { --selected_option_index_; }
+      if(opt_index_ > 0) { --opt_index_; }
       break;
 
     case SDLK_DOWN:
     case SDLK_s:
-      if(selected_option_index_ < (static_cast<int>(options_.size()) - 1)) {
-        ++selected_option_index_;
+      if(opt_index_ < (static_cast<int>(opts_.size()) - 1)) {
+        ++opt_index_;
       }
       break;
 
     case SDLK_LEFT:
     case SDLK_a:
-      switch(selected_option.type) {
+      switch(sel_opt.type) {
         case OptionType::kGraphics:
           assets_.prev_graphics_style();
-          update_graphics_option(selected_option);
+          update_graphics_opt(sel_opt);
           break;
 
         default: break; // Ignore.
@@ -74,10 +74,10 @@ void MenuScene::on_key_down_event(SDL_Keycode key) {
 
     case SDLK_RIGHT:
     case SDLK_d:
-      switch(selected_option.type) {
+      switch(sel_opt.type) {
         case OptionType::kGraphics:
           assets_.next_graphics_style();
-          update_graphics_option(selected_option);
+          update_graphics_opt(sel_opt);
           break;
 
         default: break; // Ignore.
@@ -103,19 +103,19 @@ void MenuScene::draw_scene(Renderer& ren) {
   });
 
   assets_.menu_renderer().wrap(ren,{395,330},[&](auto& /*font*/,auto& menu) {
-    for(std::size_t i = 0; i < options_.size(); ++i) {
-      auto& option = options_[i];
+    for(std::size_t i = 0; i < opts_.size(); ++i) {
+      auto& opt = opts_[i];
       int styles = 0;
 
-      if(static_cast<int>(i) == selected_option_index_) {
-        if(option.type == OptionType::kGraphics) {
+      if(static_cast<int>(i) == opt_index_) {
+        if(opt.type == OptionType::kGraphics) {
           styles |= MenuRenderer::kStyleCycle;
         } else {
           styles |= MenuRenderer::kStyleSelected;
         }
       }
 
-      menu.draw_opt(option.text,styles);
+      menu.draw_opt(opt.text,styles);
     }
   });
 
@@ -133,8 +133,8 @@ void MenuScene::draw_scene(Renderer& ren) {
      .end_scale();
 }
 
-void MenuScene::update_graphics_option(Option& option) {
-  option.text = kGraphicsText + assets_.graphics_style_name();
+void MenuScene::update_graphics_opt(Option& opt) {
+  opt.text = kGraphicsText + assets_.graphics_style_name();
 }
 
 } // Namespace.

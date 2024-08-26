@@ -66,10 +66,7 @@ Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font
     ,const Size2i& char_size,const Size2i& spacing)
     : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() {
-  pos.x += (char_size.w + spacing.w);
-  return *this;
-}
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() { return print_blanks(1); }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {
   const Pos4f* src = font.src(font.char_index(c));
@@ -102,12 +99,12 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<
   return *this;
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() {
-  pos.x = init_pos.x;
-  pos.y += (char_size.h + spacing.h);
-
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_blanks(int count) {
+  pos.x += ((char_size.w + spacing.w) * count);
   return *this;
 }
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() { return puts_blanks(1); }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t c) {
   print(c);
@@ -121,6 +118,13 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const tiny_utf8::st
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const std::vector<tiny_utf8::string>& lines) {
   for(auto& line: lines) { puts(line); }
+  return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {
+  pos.x = init_pos.x;
+  pos.y += ((char_size.h + spacing.h) * count);
+
   return *this;
 }
 

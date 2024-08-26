@@ -18,6 +18,7 @@
 
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
+#include "scenes/menu_play_scene.h"
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"
 #include "world/star_sys.h"
@@ -48,15 +49,18 @@ public:
   void draw_scene(Renderer& ren) override;
 
   void play_music();
+  void select_map_file(const std::filesystem::path& file,bool is_rand);
 
   static void show_error_global(const std::string& error);
 
 private:
-  int dantares_dist_ = 0;
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
+
   std::filesystem::path map_file_{};
+  bool is_rand_map_ = false;
+  int dantares_dist_ = 0;
 
   SceneBag build_scene(int type);
   void pop_scene();

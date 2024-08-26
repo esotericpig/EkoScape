@@ -47,11 +47,32 @@ MenuRenderer::Wrapper& MenuRenderer::Wrapper::draw_opt(const tiny_utf8::string& 
   return *this;
 }
 
+MenuRenderer::Wrapper& MenuRenderer::Wrapper::draw_up_arrow() {
+  font.ren.wrap_color(kCycleArrowColor,[&]() { font.puts(kUpArrowText); });
+  return *this;
+}
+
+MenuRenderer::Wrapper& MenuRenderer::Wrapper::draw_down_arrow() {
+  font.ren.wrap_color(kCycleArrowColor,[&]() { font.puts(kDownArrowText); });
+  return *this;
+}
+
 MenuRenderer::MenuRenderer(FontAtlas& font_atlas)
     : font_atlas_(font_atlas) {}
 
 void MenuRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback) {
-  ren.wrap_font_atlas(font_atlas_,pos,kCharSize,[&](auto& font) {
+  wrap(ren,pos,1.0f,callback);
+}
+
+void MenuRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback) {
+  Size2i char_size = kCharSize;
+
+  if(scale != 1.0f) {
+    char_size.w = static_cast<int>(std::round(static_cast<float>(char_size.w) * scale));
+    char_size.h = static_cast<int>(std::round(static_cast<float>(char_size.h) * scale));
+  }
+
+  ren.wrap_font_atlas(font_atlas_,pos,char_size,[&](auto& font) {
     Wrapper wrapper{font};
     callback(font,wrapper);
   });

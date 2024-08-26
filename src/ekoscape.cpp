@@ -21,7 +21,6 @@ EkoScape::EkoScape(Config config) {
   );
   scene_man_ = &game_engine_->scene_man();
   assets_ = std::make_unique<Assets>(StyledGraphics::Style::kRealistic,game_engine_->has_music_player());
-  map_file_ = "assets/maps/classic/castles_garden.txt"; // TODO: Set by callback passed to MenuPlayScene.
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
@@ -49,14 +48,24 @@ SceneBag EkoScape::build_scene(int action) {
       break;
 
     case SceneAction::kGoToMenuPlay:
+      result.scene = std::make_shared<MenuPlayScene>(
+        *game_engine_,*assets_,map_file_,is_rand_map_
+        ,[&](const auto& file,bool is_rand) { select_map_file(file,is_rand); }
+      );
+      break;
+
     case SceneAction::kGoToGame:
-      try {
-        result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
-        result.persist = true; // Preserve game state when pausing (e.g., BoringWorkScene).
-        star_sys_.clear();
-      } catch(const CybelError& e) {
-        game_engine_->show_error(e.what());
-        result.scene = nullptr;
+      if(map_file_.empty()) {
+        game_engine_->show_error("No map was selected.");
+      } else {
+        try {
+          result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
+          result.persist = true; // Preserve game state when pausing (e.g., BoringWorkScene).
+          star_sys_.clear();
+        } catch(const CybelError& e) {
+          game_engine_->show_error(e.what());
+          result.scene = nullptr;
+        }
       }
       break;
 
@@ -64,7 +73,6 @@ SceneBag EkoScape::build_scene(int action) {
   }
 
   if(action != SceneAction::kGoToBoringWork
-      && action != SceneAction::kGoToMenuPlay // TODO: Remove this.
       && action != SceneAction::kGoToGame
       && star_sys_.is_empty()) {
     star_sys_.init(game_engine_->dimens());
@@ -142,6 +150,11 @@ void EkoScape::play_music() {
   if(game_engine_->has_music_player() && assets_->music() != nullptr) {
     game_engine_->play_music(*assets_->music());
   }
+}
+
+void EkoScape::select_map_file(const std::filesystem::path& file,bool is_rand) {
+  map_file_ = file;
+  is_rand_map_ = is_rand;
 }
 
 void EkoScape::show_error_global(const std::string& error) {
