@@ -152,8 +152,8 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
 
     for(pos.x = 0; pos.x < size_.w; ++pos.x) {
       dan_pos.x = pos.x;
-      SpaceType empty_type = SpaceType::kDeadSpace;
-      SpaceType thing_type = SpaceType::kNil;
+      auto empty_type = SpaceType::kDeadSpace;
+      auto thing_type = SpaceType::kNil;
 
       if(line != nullptr && pos.x < col_count) {
         SpaceType type = SpaceTypes::to_space_type(line->at(pos.x));

@@ -12,7 +12,7 @@ namespace cybel {
 TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size)
     : buffer_(buffer_size,0) {
   const std::u8string file_str = file.u8string();
-  const char* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
+  auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 
   context_ = SDL_RWFromFile(file_cstr,"r");
 
@@ -73,7 +73,7 @@ TextReaderBuf::int_type TextReaderBuf::underflow() {
   //     with no info about how many bytes were read before EOF.
   // Because of this, we have to rely on the last value in `buffer_` that is not 0.
   //     Terrible design.
-  std::fill(buffer_.begin(),buffer_.end(),0);
+  std::ranges::fill(buffer_,0);
   SDL_ClearError();
 
   if(SDL_RWread(context_,buffer_.data(),sizeof(char_type) * read_count,1) == 0) {
@@ -101,7 +101,7 @@ TextReaderBuf::int_type TextReaderBuf::underflow() {
 
 TextReaderBuf::int_type TextReaderBuf::pbackfail(int_type) { return traits_type::eof(); }
 
-TextReaderBuf::int_type TextReaderBuf::overflow(TextReaderBuf::int_type) { return traits_type::eof(); }
+TextReaderBuf::int_type TextReaderBuf::overflow(int_type) { return traits_type::eof(); }
 
 bool TextReaderBuf::is_open() const { return context_ != NULL; }
 

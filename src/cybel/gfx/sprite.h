@@ -23,8 +23,9 @@ public:
 
   explicit Sprite(Texture&& texture,int padding = 0);
   explicit Sprite(Texture&& texture,const Pos2i& offset,const Size2i& size,int padding = 0);
-  explicit Sprite(std::shared_ptr<Texture> texture,int padding = 0);
-  explicit Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i& size,int padding = 0);
+  explicit Sprite(const std::shared_ptr<Texture>& texture,int padding = 0);
+  explicit Sprite(const std::shared_ptr<Texture>& texture,const Pos2i& offset,const Size2i& size
+      ,int padding = 0);
   virtual ~Sprite() noexcept = default;
 
   const Texture& texture() const;

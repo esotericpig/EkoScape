@@ -12,7 +12,7 @@ namespace cybel {
 Image::Image(const std::filesystem::path& file)
     : id_(file) {
   const std::u8string file_str = file.u8string();
-  const char* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
+  auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 
   surface_ = IMG_Load(file_cstr);
 

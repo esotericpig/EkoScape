@@ -44,10 +44,10 @@ Sprite::Sprite(Texture&& texture,int padding)
 Sprite::Sprite(Texture&& texture,const Pos2i& offset,const Size2i& size,int padding)
     : Sprite(std::make_shared<Texture>(std::move(texture)),offset,size,padding) {}
 
-Sprite::Sprite(std::shared_ptr<Texture> texture,int padding)
+Sprite::Sprite(const std::shared_ptr<Texture>& texture,int padding)
     : Sprite(texture,{0,0},{0,0},padding) {}
 
-Sprite::Sprite(std::shared_ptr<Texture> texture,const Pos2i& offset,const Size2i& size,int padding)
+Sprite::Sprite(const std::shared_ptr<Texture>& texture,const Pos2i& offset,const Size2i& size,int padding)
     : texture_(texture) {
   const int p2 = padding * 2;
 

@@ -11,7 +11,7 @@ namespace cybel {
 
 Music::Music(const std::filesystem::path& file) {
   const std::u8string file_str = file.u8string();
-  const char* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
+  auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 
   music_ = Mix_LoadMUS(file_cstr);
 

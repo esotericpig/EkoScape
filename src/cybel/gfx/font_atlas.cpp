@@ -12,7 +12,7 @@ namespace cybel {
 FontAtlas::Builder::Builder(Texture&& texture)
     : Base(std::move(texture)) {}
 
-FontAtlas::Builder::Builder(std::shared_ptr<Texture> texture)
+FontAtlas::Builder::Builder(const std::shared_ptr<Texture>& texture)
     : Base(texture) {}
 
 FontAtlas FontAtlas::Builder::build() { return FontAtlas{*this}; }

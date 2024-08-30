@@ -10,7 +10,7 @@
 namespace ekoscape {
 
 Facing Facings::to_facing(int value) {
-  Facing facing = static_cast<Facing>(value);
+  auto facing = static_cast<Facing>(value);
 
   switch(facing) {
     case Facing::kNorth:

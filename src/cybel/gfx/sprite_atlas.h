@@ -23,7 +23,7 @@ public:
   class Builder {
   public:
     explicit Builder(Texture&& texture);
-    explicit Builder(std::shared_ptr<Texture> texture);
+    explicit Builder(const std::shared_ptr<Texture>& texture);
     virtual ~Builder() noexcept = default;
 
     SpriteAtlas build();

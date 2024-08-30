@@ -11,7 +11,7 @@ namespace cybel {
 
 SceneBag::SceneBag() {}
 
-SceneBag::SceneBag(int type,std::shared_ptr<Scene> scene,bool persist)
+SceneBag::SceneBag(int type,const std::shared_ptr<Scene>& scene,bool persist)
     : type(type),scene(scene),persist(persist) {}
 
 SceneBag::operator bool() const { return static_cast<bool>(scene); }

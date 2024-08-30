@@ -25,7 +25,7 @@ public:
 
   static const SceneBag kEmptySceneBag;
 
-  explicit SceneMan(SceneBuilder build_scene,SceneIniter init_scene);
+  explicit SceneMan(const SceneBuilder& build_scene,const SceneIniter& init_scene);
 
   bool push_scene(int type);
   bool pop_scene();

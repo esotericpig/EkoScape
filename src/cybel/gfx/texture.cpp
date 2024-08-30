@@ -26,7 +26,8 @@ Texture::Texture(Image& image,bool make_weird) {
       break;
 
     default:
-      throw CybelError{Util::build_str("Unsupported BPP [",(int)bpp,"] for image [",image.id(),"].")};
+      throw CybelError{Util::build_str("Unsupported BPP [",static_cast<int>(bpp)
+          ,"] for image [",image.id(),"].")};
   }
 
   glGenTextures(1,&gl_id_);
@@ -72,10 +73,10 @@ Texture::Texture(Image&& image,bool make_weird)
     : Texture(image,make_weird) {}
 
 Texture::Texture(const Color4f& color,bool make_weird) {
-  GLubyte r = static_cast<GLubyte>(std::round(color.r * 255.0f));
-  GLubyte g = static_cast<GLubyte>(std::round(color.g * 255.0f));
-  GLubyte b = static_cast<GLubyte>(std::round(color.b * 255.0f));
-  GLubyte a = static_cast<GLubyte>(std::round(color.a * 255.0f));
+  auto r = static_cast<GLubyte>(std::round(color.r * 255.0f));
+  auto g = static_cast<GLubyte>(std::round(color.g * 255.0f));
+  auto b = static_cast<GLubyte>(std::round(color.b * 255.0f));
+  auto a = static_cast<GLubyte>(std::round(color.a * 255.0f));
 
   if(make_weird) {
     r = 255 - r;
@@ -110,7 +111,7 @@ Texture::Texture(const Color4f& color,bool make_weird) {
   if(error != GL_NO_ERROR) {
     destroy();
     throw CybelError{Util::build_str("Failed to gen/bind texture for color ("
-        ,(int)r,',',(int)g,',',(int)b,',',(int)a
+        ,static_cast<int>(r),',',static_cast<int>(g),',',static_cast<int>(b),',',static_cast<int>(a)
         ,"); error [",error,"]: ",Util::get_gl_error(error),'.')};
   }
 

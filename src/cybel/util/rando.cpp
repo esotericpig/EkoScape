@@ -23,7 +23,7 @@ double Rando::rand_double() { return double_distr_(gen_); }
 double Rando::rand_double(double max) { return rand_double(0.0,max); }
 
 double Rando::rand_double(double min,double max) {
-  return double_distr_(gen_,std::uniform_real_distribution<double>::param_type(min,max));
+  return double_distr_(gen_,std::uniform_real_distribution<>::param_type(min,max));
 }
 
 double Rando::rand_double_vel() { return rand_double() * rand_double_sign(); }
@@ -55,7 +55,7 @@ int Rando::rand_int() { return int_distr_(gen_); }
 int Rando::rand_int(int max) { return rand_int(0,max); }
 
 int Rando::rand_int(int min,int max) {
-  return int_distr_(gen_,std::uniform_int_distribution<int>::param_type(min,max - 1));
+  return int_distr_(gen_,std::uniform_int_distribution<>::param_type(min,max - 1));
 }
 
 int Rando::rand_int_vel() { return rand_int() * rand_int_sign(); }

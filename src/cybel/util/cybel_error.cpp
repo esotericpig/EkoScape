@@ -9,8 +9,6 @@
 
 namespace cybel {
 
-CybelError::CybelError() noexcept {}
-
 CybelError::CybelError(const std::string& msg) noexcept
     : msg_{msg} {}
 

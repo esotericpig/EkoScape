@@ -36,7 +36,6 @@ public:
 
   static const double kSnakeTailLifespan;
 
-  using Thing::Thing;
   explicit Robot(SpaceType type,const Pos2i& pos,double lifespan = 0.0);
 
   virtual void move(MoveData& data) = 0;

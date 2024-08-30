@@ -13,8 +13,8 @@
 #include "cybel/util/cybel_error.h"
 #include "cybel/util/util.h"
 
-#include <algorithm>
 #include <filesystem>
+#include <ranges>
 #include <streambuf>
 #include <vector>
 

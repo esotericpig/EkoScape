@@ -71,7 +71,7 @@ SpaceType SpaceTypes::to_player(Facing facing) {
 }
 
 SpaceType SpaceTypes::to_space_type(char value) {
-  SpaceType type = static_cast<SpaceType>(value);
+  auto type = static_cast<SpaceType>(value);
 
   switch(type) {
     case SpaceType::kNil:

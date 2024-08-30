@@ -12,7 +12,7 @@ namespace cybel {
 SpriteAtlas::Builder::Builder(Texture&& texture)
     : Builder(std::make_shared<Texture>(std::move(texture))) {}
 
-SpriteAtlas::Builder::Builder(std::shared_ptr<Texture> texture)
+SpriteAtlas::Builder::Builder(const std::shared_ptr<Texture>& texture)
     : texture_(texture) {}
 
 SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas(*this); }

@@ -20,7 +20,7 @@ Map& DantaresMap::clear_spaces() {
 }
 
 DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
-  std::vector<int> int_spaces(size_.w * size_.h,0);
+  std::vector int_spaces(size_.w * size_.h,0);
 
   // Explicitly casting to ensure that `const void*` overload is used.
   id_ = dantares_.AddMap(static_cast<const void*>(int_spaces.data()),size_.w,size_.h);
