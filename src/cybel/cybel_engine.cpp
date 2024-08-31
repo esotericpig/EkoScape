@@ -84,7 +84,7 @@ void CybelEngine::init_config(Config& config) {
             / static_cast<float>(config.target_size.h);
         const float ar_h = std::round(sw / aspect_ratio);
 
-        if(static_cast<int>(ar_h) <= display_mode.h) {
+        if(ar_h <= std::round(sh)) {
           sh = ar_h; // Adjust height based on width.
         } else {
           sw = sh * aspect_ratio; // Adjust width based on height.
