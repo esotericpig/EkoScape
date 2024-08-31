@@ -35,7 +35,7 @@ GameEngine::Resources::~Resources() noexcept {
   SDL_Quit();
 }
 
-GameEngine::GameEngine(Scene& main_scene,Config config,SceneMan::SceneBuilder build_scene)
+GameEngine::GameEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
     : main_scene_(main_scene) {
   init_hints(config);
 
@@ -74,14 +74,25 @@ void GameEngine::init_config(Config& config) {
       std::cerr << "[WARN] Failed to get current display mode: " << Util::get_sdl_error() << '.'
           << std::endl;
       // Don't fail; fall back to Config.size.
-    } else {
-      // Check values so can fall back to Config.size if necessary.
-      if(display_mode.w > 0) {
-        width = static_cast<int>(std::round(static_cast<float>(display_mode.w) * config.scale_factor));
+    } else if(display_mode.w > 0 && display_mode.h > 0) {
+      float sw = static_cast<float>(display_mode.w) * config.scale_factor;
+      float sh = static_cast<float>(display_mode.h) * config.scale_factor;
+
+      // If target size set, preserve aspect ratio of target size.
+      if(config.target_size.w > 0 && config.target_size.h > 0) {
+        const float aspect_ratio = static_cast<float>(config.target_size.w)
+            / static_cast<float>(config.target_size.h);
+        const float ar_h = std::round(sw / aspect_ratio);
+
+        if(static_cast<int>(ar_h) <= display_mode.h) {
+          sh = ar_h; // Adjust height based on width.
+        } else {
+          sw = sh * aspect_ratio; // Adjust width based on height.
+        }
       }
-      if(display_mode.h > 0) {
-        height = static_cast<int>(std::round(static_cast<float>(display_mode.h) * config.scale_factor));
-      }
+
+      width = static_cast<int>(std::round(sw));
+      height = static_cast<int>(std::round(sh));
     }
   }
 
@@ -139,7 +150,7 @@ void GameEngine::init_gui(const Config& config) {
   if(config.vsync) { set_vsync(true); }
 }
 
-void GameEngine::init_renderer(const Config& config,SceneMan::SceneBuilder build_scene) {
+void GameEngine::init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene) {
   renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
   scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
 }
@@ -341,11 +352,11 @@ void GameEngine::stop_music() {
   Mix_HaltMusic();
 }
 
-void GameEngine::show_error(const std::string& error) {
-  show_error_global(title_,error,res_.window);
+void GameEngine::show_error(const std::string& error) const {
+  show_error(title_,error);
 }
 
-void GameEngine::show_error(const std::string& title,const std::string& error) {
+void GameEngine::show_error(const std::string& title,const std::string& error) const {
   show_error_global(title,error,res_.window);
 }
 

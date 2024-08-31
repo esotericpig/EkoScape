@@ -83,7 +83,7 @@ public:
   static const int kFallbackHeight = 900;
   static const int kFallbackFps = 60;
 
-  explicit GameEngine(Scene& main_scene,Config config,SceneMan::SceneBuilder build_scene);
+  explicit GameEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene);
   GameEngine(const GameEngine& other) = delete;
   GameEngine(GameEngine&& other) noexcept = delete;
   virtual ~GameEngine() noexcept = default;
@@ -102,8 +102,8 @@ public:
   void play_music(const Music& music);
   void stop_music();
 
-  void show_error(const std::string& error);
-  void show_error(const std::string& title,const std::string& error);
+  void show_error(const std::string& error) const;
+  void show_error(const std::string& title,const std::string& error) const;
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
   void set_title(const std::string& title);
@@ -139,7 +139,7 @@ private:
   void init_hints(const Config& config);
   void init_config(Config& config);
   void init_gui(const Config& config);
-  void init_renderer(const Config& config,SceneMan::SceneBuilder build_scene);
+  void init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene);
   void init_scene(Scene& scene);
   void init_music_player(const Config& config);
 
