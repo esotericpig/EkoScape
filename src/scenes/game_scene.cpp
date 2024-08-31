@@ -13,6 +13,10 @@ GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,
     : assets_(assets),dantares_dist_(dantares_dist) {
   load_map(map_file);
   generate_map();
+
+  // Extra delay to give some time for the player to orient/adjust.
+  const auto kExtraDelay = Duration::from_millis(5000);
+  robot_move_duration_ = map_.robot_delay() + kExtraDelay;
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {
@@ -79,9 +83,21 @@ void GameScene::generate_map() {
 }
 
 void GameScene::init_scene(Renderer& /*ren*/) {
-  // Delay by an additional second to give some time for the player to orient/adjust.
-  robot_move_duration_.set_from_millis(map_.robot_delay().round_millis() + 1000);
+  // If was paused, adjust robot_move_duration_ to be accurate.
+  // - For maps that depend on accurate time, like `60 Seconds`, this prevents cheating.
+  if(robot_move_timer_.duration().millis() > 0.0) {
+    robot_move_duration_ -= robot_move_timer_.duration();
+
+    if(robot_move_duration_.millis() < 0.0) {
+      robot_move_duration_.set_from_millis(0.0);
+    }
+  }
+
   robot_move_timer_.start();
+}
+
+void GameScene::on_scene_exit() {
+  robot_move_timer_.end();
 }
 
 void GameScene::on_key_down_event(SDL_Keycode /*key*/) {
@@ -173,7 +189,7 @@ void GameScene::update_robots(const FrameStep& step) {
 }
 
 void GameScene::move_robots(const FrameStep& step) {
-  // Time to move robots?
+  // Not time to move robots?
   if(robot_move_timer_.end().duration() < robot_move_duration_) { return; }
 
   // Move robots.
@@ -183,7 +199,7 @@ void GameScene::move_robots(const FrameStep& step) {
     robot->move(robot_move_data_);
   }
 
-  // Add new robots after the move loop, because we can't add new ones inside of its loop.
+  // Add new robots after the move loop, because we can't add new ones inside its loop.
   for(auto& new_robot: robot_move_data_.new_robots) {
     robots_.emplace_back(std::move(new_robot));
   }
