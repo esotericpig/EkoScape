@@ -2,7 +2,7 @@
 
 ![Screenshot of EkoScape](https://github.com/user-attachments/assets/5fb2cde1-719f-437f-a980-bbbf2cdd89bb)
 
-This is an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine (grid/tile-based movement): The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
+This is an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine: The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
 
 I originally made it for Windows only. In 2024, I re-wrote the code for it in SDL (tested on Linux) using modern C++20. However, it still uses The Dantares Engine and requires legacy OpenGL 2.0+.
 
