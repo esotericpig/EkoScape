@@ -10,17 +10,28 @@
 namespace ekoscape {
 
 const std::string EkoScapeGame::kTitle = "EkoScape v2.0";
+const int EkoScapeGame::kDantaresDist = 24;
 
-EkoScapeGame::EkoScapeGame(Config config) {
+EkoScapeGame::EkoScapeGame() {
+  CybelEngine::Config config{};
+
   config.title = kTitle;
-  dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
+  config.scale_factor = 0.8333f; // Arrival?
+  //config.size = {740,500}; // For GIFs/screenshots.
+  config.fps = 60;
+  config.vsync = true;
+
+  // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
+  // These are fixed values and should not be changed.
+  config.target_size = {1600,900};
 
   cybel_engine_ = std::make_unique<CybelEngine>(
-    *this,config
-    ,[&](int action) { return build_scene(action); }
+    *this,config,[&](int action) { return build_scene(action); }
   );
   scene_man_ = &cybel_engine_->scene_man();
-  assets_ = std::make_unique<Assets>(StyledGraphics::Style::kRealistic,cybel_engine_->has_music_player());
+  assets_ = std::make_unique<Assets>(
+    StyledGraphics::Style::kRealistic,cybel_engine_->has_music_player()
+  );
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
@@ -61,7 +72,7 @@ SceneBag EkoScapeGame::build_scene(int action) {
         cybel_engine_->show_error("No map was selected.");
       } else {
         try {
-          result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
+          result.scene = std::make_shared<GameScene>(*assets_,map_file_,kDantaresDist);
           result.persist = true; // Preserve game state when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
           cybel_engine_->show_error(e.what());

@@ -10,7 +10,7 @@
 namespace ekoscape {
 
 GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,int dantares_dist)
-    : assets_(assets),dantares_dist_(dantares_dist) {
+    : assets_(assets),dantares_dist_(std::max(dantares_dist,2)) {
   load_map(map_file);
   generate_map();
 

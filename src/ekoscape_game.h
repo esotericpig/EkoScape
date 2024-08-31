@@ -34,13 +34,9 @@ private:
   std::unique_ptr<CybelEngine> cybel_engine_{};
 
 public:
-  struct Config : CybelEngine::Config {
-    int dantares_dist = 24;
-  };
-
   static const std::string kTitle;
 
-  explicit EkoScapeGame(Config config);
+  explicit EkoScapeGame();
 
   void run();
 
@@ -54,13 +50,14 @@ public:
   static void show_error_global(const std::string& error);
 
 private:
+  static const int kDantaresDist;
+
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
 
   std::filesystem::path map_file_{};
   bool is_rand_map_ = false;
-  int dantares_dist_ = 0;
 
   SceneBag build_scene(int type);
   void pop_scene();

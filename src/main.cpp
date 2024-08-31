@@ -43,6 +43,7 @@
 
 // TODO: Make desktop entry with assets icon.
 // TODO: Try using emscripten to make web version.
+//       Break main loop into init_run()/run_frame() or w/e for emscripten.
 // TODO: Make flatpack/snap/appimage.
 // TODO: Publish on itch.io?
 // TODO: Can we put this on Roku?
@@ -67,18 +68,7 @@ int main(int /*argc*/,char** /*argv*/) {
   std::unique_ptr<EkoScapeGame> eko{};
 
   try {
-    EkoScapeGame::Config config{};
-
-    config.scale_factor = 0.8333f; // Arrival?
-    //config.size = {740,500}; // For GIFs/screenshots.
-    config.fps = 60;
-    config.vsync = true;
-
-    // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
-    // These are fixed values and should not be changed.
-    config.target_size = {1600,900};
-
-    eko = std::make_unique<EkoScapeGame>(config);
+    eko = std::make_unique<EkoScapeGame>();
   } catch(const CybelError& e) {
     EkoScapeGame::show_error_global(e.what());
     return -1;
