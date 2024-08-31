@@ -29,16 +29,6 @@ Thing& Thing::set_pos(int x,int y) {
   return *this;
 }
 
-Thing& Thing::set_x(int x) {
-  pos_.x = x;
-  return *this;
-}
-
-Thing& Thing::set_y(int y) {
-  pos_.y = y;
-  return *this;
-}
-
 int Thing::id() const { return id_; }
 
 SpaceType Thing::type() const { return type_; }

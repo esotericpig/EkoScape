@@ -31,8 +31,6 @@ public:
 
   Thing& set_type(SpaceType type);
   Thing& set_pos(int x,int y);
-  Thing& set_x(int x);
-  Thing& set_y(int y);
 
   int id() const;
   SpaceType type() const;
