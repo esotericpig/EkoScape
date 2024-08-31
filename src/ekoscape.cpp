@@ -31,13 +31,15 @@ SceneBag EkoScape::build_scene(int action) {
   SceneBag result{action};
 
   switch(action) {
+    case SceneAction::kNil: return result;
+
     case SceneAction::kQuit:
       game_engine_->request_stop();
-      break;
+      return result;
 
     case SceneAction::kGoBack:
       pop_scene();
-      break;
+      return result;
 
     case SceneAction::kGoToBoringWork:
       result.scene = std::make_shared<BoringWorkScene>(*game_engine_,*assets_);
@@ -60,8 +62,7 @@ SceneBag EkoScape::build_scene(int action) {
       } else {
         try {
           result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
-          result.persist = true; // Preserve game state when pausing (e.g., BoringWorkScene).
-          star_sys_.clear();
+          result.persist = true; // Preserve game state when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
           game_engine_->show_error(e.what());
           result.scene = nullptr;
@@ -72,10 +73,16 @@ SceneBag EkoScape::build_scene(int action) {
     default: break;
   }
 
-  if(action != SceneAction::kGoToBoringWork
-      && action != SceneAction::kGoToGame
-      && star_sys_.is_empty()) {
-    star_sys_.init(game_engine_->dimens());
+  switch(action) {
+    case SceneAction::kGoToMenu:
+    case SceneAction::kGoToMenuPlay:
+    case SceneAction::kGoToMenuCredits:
+      if(star_sys_.is_empty()) { star_sys_.init(game_engine_->dimens()); }
+      break;
+
+    default:
+      star_sys_.clear();
+      break;
   }
 
   return result;
