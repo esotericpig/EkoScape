@@ -63,7 +63,7 @@ public:
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
 
-    Dantares(float SquareSize, float FloorHeight, float CeilingHeight);
+    explicit Dantares(float SquareSize, float FloorHeight, float CeilingHeight);
     /*  Constructor takes three parameters to initialize the engine.
 
         Parameters:
@@ -76,7 +76,7 @@ public:
     /*  Copy constructor.
     */
 
-    Dantares(Dantares &&Other);
+    Dantares(Dantares &&Other) noexcept;
     /*  Move constructor.
     */
 
@@ -84,7 +84,7 @@ public:
     /*  = operator to handle transfers.
     */
 
-    Dantares &operator = (Dantares &&r);
+    Dantares &operator = (Dantares &&r) noexcept;
     /*  = operator to handle move transfers.
     */
 
@@ -514,9 +514,9 @@ private:
 
         explicit SpaceClass(int Type);
         SpaceClass(const SpaceClass &Copy) = delete;
-        SpaceClass(SpaceClass &&Other);
+        SpaceClass(SpaceClass &&Other) noexcept;
         SpaceClass &operator = (const SpaceClass &r) = delete;
-        SpaceClass &operator = (SpaceClass &&r);
+        SpaceClass &operator = (SpaceClass &&r) noexcept;
         virtual ~SpaceClass() noexcept;
         void ResetDisplayList();
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
@@ -528,7 +528,7 @@ private:
         int DisplayList = -1;            //Display list for the space.
 
     private:
-        void MoveFrom(SpaceClass &&Other);
+        void MoveFrom(SpaceClass &&Other) noexcept;
         void DeleteDisplayList() noexcept;
     };
 
@@ -536,11 +536,11 @@ private:
     class MapClass
     {
     public:
-        MapClass(int MaxX, int MaxY);                //Constructor sets map size.
+        explicit MapClass(int MaxX, int MaxY);       //Constructor sets map size.
         MapClass(const MapClass &Copy) = delete;
-        MapClass(MapClass &&Other);
+        MapClass(MapClass &&Other) noexcept;
         MapClass &operator = (const MapClass &r) = delete;
-        MapClass &operator = (MapClass &&r);
+        MapClass &operator = (MapClass &&r) noexcept;
         virtual ~MapClass() noexcept = default;      //Destructor for cleanup.
         bool SpaceDefined(int Space);
         void AddSpace(int Space);
@@ -554,10 +554,10 @@ private:
         int YSize;                                   //Map height.
 
     private:
-        void MoveFrom(MapClass &&Other);
+        void MoveFrom(MapClass &&Other) noexcept;
     };
 
-    void MoveFrom(Dantares &&Other);
+    void MoveFrom(Dantares &&Other) noexcept;
 
     int CurrentMap;
     //The ID number of the currently active map.

@@ -50,12 +50,12 @@ Dantares::Dantares(float SquareSize, float FloorHeight, float CeilingHeight)
     }
 }
 
-Dantares::Dantares(Dantares &&Other)
+Dantares::Dantares(Dantares &&Other) noexcept
 {
     MoveFrom(std::move(Other));
 }
 
-Dantares &Dantares::operator = (Dantares &&r)
+Dantares &Dantares::operator = (Dantares &&r) noexcept
 {
     if (this != &r)
     {
@@ -65,7 +65,7 @@ Dantares &Dantares::operator = (Dantares &&r)
     return *this;
 }
 
-void Dantares::MoveFrom(Dantares &&Other)
+void Dantares::MoveFrom(Dantares &&Other) noexcept
 {
     CurrentMap = std::exchange(Other.CurrentMap, -1);
     NextMapID = std::exchange(Other.NextMapID, 0);
@@ -1346,33 +1346,38 @@ bool Dantares::SpaceIsWalkable(int XCoord, int YCoord) const
 
 void Dantares::PrintDebugInfo(std::ostream &Out) const
 {
-    Out
-            << "{Dantares}"
-            << "\nCurrentMap:       " << CurrentMap
-            << "\nNextMapID:        " << NextMapID
-            << "\nSqSize:           " << SqSize
-            << "\nFloor:            " << Floor
-            << "\nCeiling:          " << Ceiling
-            << "\nCameraX:          " << CameraX
-            << "\nCameraY:          " << CameraY
-            << "\nCameraFacing:     " << CameraFacing
-            << "\nWalking:          " << Walking
-            << "\nTurning:          " << Turning
-            << "\nWalkSpeed:        " << WalkSpeed
-            << "\nTurnSpeed:        " << TurnSpeed
-            << "\nWalkOffset:       " << WalkOffset
-            << "\nTurnOffset:       " << TurnOffset
-            << "\nDegreesTurned:    " << DegreesTurned
-            ;
+    const int Indent = 4;
+
+    Out << "{Dantares}"
+        << "\nCurrentMap:       " << CurrentMap
+        << "\nNextMapID:        " << NextMapID
+        << "\nSqSize:           " << SqSize
+        << "\nFloor:            " << Floor
+        << "\nCeiling:          " << Ceiling
+        << "\nCameraX:          " << CameraX
+        << "\nCameraY:          " << CameraY
+        << "\nCameraFacing:     " << CameraFacing
+        << "\nWalking:          " << Walking
+        << "\nTurning:          " << Turning
+        << "\nWalkSpeed:        " << WalkSpeed
+        << "\nTurnSpeed:        " << TurnSpeed
+        << "\nWalkOffset:       " << WalkOffset
+        << "\nTurnOffset:       " << TurnOffset
+        << "\nDegreesTurned:    " << DegreesTurned
+        ;
+
+    std::string Indl = '\n' + std::string(Indent, ' ');
+
+    std::cout << "\nMaps:";
 
     for (int i = 0; i < MAXMAPS; i++)
     {
-        Out << "\n  {Map[" << i << "]} = ";
+        Out << Indl << "{Map[" << i << "]} = ";
 
         if(Maps[i])
         {
             Out << Maps[i].get() << '\n';
-            Maps[i]->PrintDebugInfo(Out, 2);
+            Maps[i]->PrintDebugInfo(Out, Indent);
         }
         else
         {
@@ -1380,7 +1385,7 @@ void Dantares::PrintDebugInfo(std::ostream &Out) const
         }
     }
 
-    Out.flush();
+    Out << std::endl;
 }
 
 Dantares::SpaceClass::SpaceClass(int Type)
@@ -1392,12 +1397,12 @@ Dantares::SpaceClass::SpaceClass(int Type)
     DisplayList = glGenLists(DISPLAY_LIST_RANGE);
 }
 
-Dantares::SpaceClass::SpaceClass(SpaceClass &&Other)
+Dantares::SpaceClass::SpaceClass(SpaceClass &&Other) noexcept
 {
     MoveFrom(std::move(Other));
 }
 
-Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r)
+Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r) noexcept
 {
     if (this != &r)
     {
@@ -1407,7 +1412,7 @@ Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r)
     return *this;
 }
 
-void Dantares::SpaceClass::MoveFrom(SpaceClass &&Other)
+void Dantares::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
 {
     DeleteDisplayList();
 
@@ -1443,12 +1448,12 @@ void Dantares::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     std::string Indl = '\n' + std::string(Indent, ' ');
 
     Out << std::string(Indent, ' ')
-                    << "SpaceType:         " << SpaceType
-            << Indl << "FloorTexture:      " << FloorTexture
-            << Indl << "CeilingTexture:    " << CeilingTexture
-            << Indl << "WallTexture:       " << WallTexture
-            << Indl << "DisplayList:       " << DisplayList
-            ;
+                << "SpaceType:         " << SpaceType
+        << Indl << "FloorTexture:      " << FloorTexture
+        << Indl << "CeilingTexture:    " << CeilingTexture
+        << Indl << "WallTexture:       " << WallTexture
+        << Indl << "DisplayList:       " << DisplayList
+        ;
     Out.flush();
 }
 
@@ -1463,12 +1468,12 @@ Dantares::MapClass::MapClass(int MaxX, int MaxY) :
     SpaceInfo.emplace_back(0);
 }
 
-Dantares::MapClass::MapClass(MapClass &&Other)
+Dantares::MapClass::MapClass(MapClass &&Other) noexcept
 {
     MoveFrom(std::move(Other));
 }
 
-Dantares::MapClass &Dantares::MapClass::operator = (MapClass &&r)
+Dantares::MapClass &Dantares::MapClass::operator = (MapClass &&r) noexcept
 {
     if (this != &r)
     {
@@ -1478,7 +1483,7 @@ Dantares::MapClass &Dantares::MapClass::operator = (MapClass &&r)
     return *this;
 }
 
-void Dantares::MapClass::MoveFrom(MapClass &&Other)
+void Dantares::MapClass::MoveFrom(MapClass &&Other) noexcept
 {
     MapArray = std::move(Other.MapArray);
     WalkArray = std::move(Other.WalkArray);
@@ -1523,9 +1528,9 @@ void Dantares::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     std::string Indl = '\n' + std::string(Indent, ' ');
 
     Out << std::string(Indent, ' ')
-                    << "XSize:    " << XSize
-            << Indl << "YSize:    " << YSize
-            ;
+                << "XSize:    " << XSize
+        << Indl << "YSize:    " << YSize
+        ;
 
     Indent *= 2;
     Indl = '\n' + std::string(Indent, ' ');
