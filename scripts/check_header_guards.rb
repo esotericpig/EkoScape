@@ -3,19 +3,20 @@
 # frozen_string_literal: true
 
 ###
-# @version 0.2.0
+# @version 0.2.1
 # @author Bradley Whited
 ###
 
 require 'pathname'
 
 def check_header_guards(proj_name,src_dir,exc_dirs: [])
+  src_path = Pathname.new(src_dir)
+  exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
+
   # Guess project name based on parent dir.
   proj_name = src_path.realdirpath.parent.basename.to_s if proj_name.nil?
   proj_name = proj_name.strip.upcase
 
-  src_path = Pathname.new(src_dir)
-  exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
   is_good = true
 
   puts
@@ -54,10 +55,10 @@ def check_header_guards(proj_name,src_dir,exc_dirs: [])
 end
 
 def check_multi_header_guards(*projs)
-  projs = projs.map do |proj|
-    proj[1] = Pathname.new(proj[1]).realdirpath.to_s
-    proj
+  projs = projs.map do |(name,src_dir)|
+    [name,Pathname.new(src_dir).realdirpath.to_s]
   end
+
   is_good = true
 
   projs.each do |(name,src_dir)|
