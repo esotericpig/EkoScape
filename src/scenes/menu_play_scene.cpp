@@ -12,23 +12,10 @@ namespace ekoscape {
 MenuPlayScene::MapOption::MapOption(const tiny_utf8::string& text)
     : text(text) {}
 
-MenuPlayScene::MenuPlayScene(GameEngine& game_engine,Assets& assets,const std::filesystem::path& map_file
+MenuPlayScene::MenuPlayScene(GameEngine& game_engine,Assets& assets,const std::filesystem::path& sel_map_file
     ,bool is_rand_map,const MapSelector& select_map)
     : game_engine_(game_engine),assets_(assets),select_map_(select_map) {
-  glob_maps();
-
-  if(!is_rand_map) {
-    const int opts_len = static_cast<int>(map_opts_.size());
-
-    for(int i = 0; i < opts_len; ++i) {
-      if(map_opts_[i].file == map_file) {
-        map_opt_index_ = i;
-        break;
-      }
-    }
-  }
-
-  select_map_opt();
+  refresh_maps(sel_map_file,is_rand_map);
 }
 
 void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
@@ -40,7 +27,7 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
         game_engine_.show_error("No map to select.");
         scene_action_ = SceneAction::kGoBack;
       } else {
-        select_map_opt(); // Justin Case.
+        select_map_opt(true); // Justin Case.
         scene_action_ = SceneAction::kGoToGame;
       }
       break;
@@ -75,8 +62,7 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
 
     // Refresh.
     case SDLK_r:
-      glob_maps();
-      select_map_opt();
+      refresh_maps();
       break;
   }
 }
@@ -129,6 +115,35 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
      .end_scale();
 }
 
+void MenuPlayScene::refresh_maps() {
+  std::filesystem::path sel_map_file{};
+  const bool is_rand_map = (map_opt_index_ == 0);
+
+  if(!is_rand_map) {
+    sel_map_file = map_opts_.at(map_opt_index_).file;
+  }
+
+  refresh_maps(sel_map_file,is_rand_map);
+}
+
+void MenuPlayScene::refresh_maps(const std::filesystem::path& sel_map_file,bool is_rand_map) {
+  glob_maps();
+  map_opt_index_ = 0; // Random map.
+
+  if(!is_rand_map) {
+    const int opts_len = static_cast<int>(map_opts_.size());
+
+    for(int i = 0; i < opts_len; ++i) {
+      if(map_opts_[i].file == sel_map_file) {
+        map_opt_index_ = i;
+        break;
+      }
+    }
+  }
+
+  select_map_opt(true);
+}
+
 void MenuPlayScene::glob_maps() {
   const int kMaxGroupLen = 15;
   const int kMaxTitleLen = 25;
@@ -158,9 +173,10 @@ void MenuPlayScene::glob_maps() {
         MapOption opt{};
         opt.group = group;
         opt.file = file;
+        opt.title = map.title();
 
         std::stringstream ss{};
-        ss << std::left << std::setw(kMaxTitleLen) << Util::ellips_str(map.title(),kMaxTitleLen)
+        ss << Util::pad_str(Util::ellips_str(opt.title,kMaxTitleLen),kMaxTitleLen)
            << " [" << opt.group << ']';
         opt.text = ss.str();
 
@@ -173,8 +189,11 @@ void MenuPlayScene::glob_maps() {
 
   std::sort(
     map_opts_.begin() + 1,map_opts_.end()
-    ,[&](const auto& opt1,const auto& opt2) {
-      return opt1.text < opt2.text;
+    ,[](const auto& opt1,const auto& opt2) {
+      const int group_cmp = Util::comparei_str(opt1.group,opt2.group);
+      if(group_cmp != 0) { return group_cmp < 0; }
+
+      return Util::comparei_str(opt1.title,opt2.title) < 0;
     }
   );
 }
@@ -185,18 +204,14 @@ void MenuPlayScene::jump_to_prev_map_opt_group() {
   }
 
   const auto& sel_opt = map_opts_.at(map_opt_index_);
+  int i = map_opt_index_;
 
-  for(; map_opt_index_ >= 0; --map_opt_index_) {
-    const auto& opt = map_opts_[map_opt_index_];
-
+  for(; i >= 0; --i) {
+    const auto& opt = map_opts_[i];
     if(opt.group != sel_opt.group) { break; }
   }
 
-  if(map_opt_index_ < 0) {
-    map_opt_index_ = 0;
-  }
-
-  select_map_opt();
+  select_map_opt(i);
 }
 
 void MenuPlayScene::jump_to_next_map_opt_group() {
@@ -207,26 +222,25 @@ void MenuPlayScene::jump_to_next_map_opt_group() {
   }
 
   const auto& sel_opt = map_opts_.at(map_opt_index_);
+  int i = map_opt_index_;
 
-  for(; map_opt_index_ < opts_len; ++map_opt_index_) {
-    const auto& opt = map_opts_[map_opt_index_];
-
+  for(; i < opts_len; ++i) {
+    const auto& opt = map_opts_[i];
     if(opt.group != sel_opt.group) { break; }
   }
 
-  if(map_opt_index_ >= opts_len) {
-    map_opt_index_ = opts_len - 1;
+  select_map_opt(i);
+}
+
+void MenuPlayScene::select_map_opt(bool force) {
+  select_map_opt(map_opt_index_,force);
+}
+
+void MenuPlayScene::select_map_opt(int index,bool force) {
+  if(map_opts_.empty()) {
+    if(force) { select_map_("",true); }
+    return;
   }
-
-  select_map_opt();
-}
-
-void MenuPlayScene::select_map_opt() {
-  select_map_opt(map_opt_index_);
-}
-
-void MenuPlayScene::select_map_opt(int index) {
-  if(map_opts_.empty()) { return; }
 
   const int opts_len = static_cast<int>(map_opts_.size());
 
@@ -235,8 +249,9 @@ void MenuPlayScene::select_map_opt(int index) {
   } else if(index >= opts_len) {
     index = opts_len - 1;
   }
-  map_opt_index_ = index;
+  if(!force && index == map_opt_index_) { return; }
 
+  map_opt_index_ = index;
   const bool is_rand_map = (map_opt_index_ == 0);
   std::filesystem::path map_file{};
 

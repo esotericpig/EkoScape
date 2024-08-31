@@ -20,7 +20,9 @@ namespace Util {
   std::string build_str(const Args&... args);
 
   std::string strip_str(const std::string& str);
-  std::string ellips_str(const std::string& str,std::size_t max_len);
+  tiny_utf8::string ellips_str(const tiny_utf8::string& str,std::size_t max_len);
+  tiny_utf8::string pad_str(const tiny_utf8::string& str,std::size_t len);
+  int comparei_str(const tiny_utf8::string& str1,const tiny_utf8::string& str2);
 
   template <typename... Args>
   std::size_t build_hash(const Args&... args);
