@@ -12,9 +12,9 @@ namespace ekoscape {
 MenuPlayScene::MapOption::MapOption(const tiny_utf8::string& text)
     : text(text) {}
 
-MenuPlayScene::MenuPlayScene(GameEngine& game_engine,Assets& assets,const std::filesystem::path& sel_map_file
-    ,bool is_rand_map,const MapSelector& select_map)
-    : game_engine_(game_engine),assets_(assets),select_map_(select_map) {
+MenuPlayScene::MenuPlayScene(CybelEngine& cybel_engine,Assets& assets
+    ,const std::filesystem::path& sel_map_file,bool is_rand_map,const MapSelector& select_map)
+    : cybel_engine_(cybel_engine),assets_(assets),select_map_(select_map) {
   refresh_maps(sel_map_file,is_rand_map);
 }
 
@@ -24,7 +24,7 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
       if(map_opts_.size() <= 1) {
-        game_engine_.show_error("No map to select.");
+        cybel_engine_.show_error("No map to select.");
         scene_action_ = SceneAction::kGoBack;
       } else {
         select_map_opt(true); // Justin Case.
@@ -184,7 +184,7 @@ void MenuPlayScene::glob_maps() {
       }
     }
   } catch(const std::filesystem::filesystem_error& e) {
-    game_engine_.show_error(e.what());
+    cybel_engine_.show_error(e.what());
   }
 
   std::sort(

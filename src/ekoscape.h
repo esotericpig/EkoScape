@@ -14,7 +14,7 @@
 #include "cybel/scene/scene_bag.h"
 #include "cybel/scene/scene_man.h"
 #include "cybel/util/cybel_error.h"
-#include "cybel/game_engine.h"
+#include "cybel/cybel_engine.h"
 
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
@@ -31,10 +31,10 @@ namespace ekoscape {
 class EkoScape : public Scene {
 private:
   // NOTE: This must be defined first so that its dtor is called last.
-  std::unique_ptr<GameEngine> game_engine_{};
+  std::unique_ptr<CybelEngine> cybel_engine_{};
 
 public:
-  struct Config : public GameEngine::Config {
+  struct Config : CybelEngine::Config {
     int dantares_dist = 24;
   };
 

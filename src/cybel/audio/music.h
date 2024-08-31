@@ -17,7 +17,7 @@
 
 namespace cybel {
 
-class GameEngine;
+class CybelEngine;
 
 class Music {
 public:
@@ -29,7 +29,7 @@ public:
   Music& operator=(const Music& other) = delete;
   Music& operator=(Music&& other) noexcept;
 
-  friend class GameEngine;
+  friend class CybelEngine;
 
 private:
   Mix_Music* music_ = NULL;

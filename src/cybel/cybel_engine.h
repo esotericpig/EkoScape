@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_GAME_ENGINE_H_
-#define CYBEL_GAME_ENGINE_H_
+#ifndef CYBEL_CYBEL_ENGINE_H_
+#define CYBEL_CYBEL_ENGINE_H_
 
 #include "common.h"
 
@@ -25,10 +25,10 @@
 
 namespace cybel {
 
-class GameEngine {
+class CybelEngine {
 private:
   /**
-   * This is necessary for RAII, since GameEngine() ctor can throw an exception.
+   * This is necessary for RAII, since CybelEngine() ctor can throw an exception.
    * I decided to do this over using `unique_ptr`s or individual wrappers.
    */
   // NOTE: This must be defined first so that its dtor is called last.
@@ -83,13 +83,13 @@ public:
   static const int kFallbackHeight = 900;
   static const int kFallbackFps = 60;
 
-  explicit GameEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene);
-  GameEngine(const GameEngine& other) = delete;
-  GameEngine(GameEngine&& other) noexcept = delete;
-  virtual ~GameEngine() noexcept = default;
+  explicit CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene);
+  CybelEngine(const CybelEngine& other) = delete;
+  CybelEngine(CybelEngine&& other) noexcept = delete;
+  virtual ~CybelEngine() noexcept = default;
 
-  GameEngine& operator=(const GameEngine& other) = delete;
-  GameEngine& operator=(GameEngine&& other) noexcept = delete;
+  CybelEngine& operator=(const CybelEngine& other) = delete;
+  CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
   void set_vsync(bool enable);
   void fetch_resize(bool force = true);

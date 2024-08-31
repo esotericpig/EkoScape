@@ -13,7 +13,7 @@
 #include "cybel/scene/scene.h"
 #include "cybel/util/rando.h"
 #include "cybel/util/util.h"
-#include "cybel/game_engine.h"
+#include "cybel/cybel_engine.h"
 
 #include "map/map.h"
 #include "assets.h"
@@ -31,7 +31,7 @@ class MenuPlayScene : public Scene {
 public:
   using MapSelector = std::function<void(const std::filesystem::path&,bool is_rand)>;
 
-  explicit MenuPlayScene(GameEngine& game_engine,Assets& assets,const std::filesystem::path& sel_map_file
+  explicit MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const std::filesystem::path& sel_map_file
       ,bool is_rand_map,const MapSelector& select_map);
 
   void on_key_down_event(SDL_Keycode key) override;
@@ -58,7 +58,7 @@ private:
   static const int kMapOptsHalf2 = kMaxMapOpts >> 1;
   static const int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
 
-  GameEngine& game_engine_;
+  CybelEngine& cybel_engine_;
   Assets& assets_;
   MapSelector select_map_{};
   int scene_action_ = SceneAction::kNil;

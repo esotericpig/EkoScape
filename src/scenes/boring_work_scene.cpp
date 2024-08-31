@@ -9,15 +9,15 @@
 
 namespace ekoscape {
 
-BoringWorkScene::BoringWorkScene(GameEngine& game_engine,Assets& assets)
-    : game_engine_(game_engine),assets_(assets) {}
+BoringWorkScene::BoringWorkScene(CybelEngine& cybel_engine,Assets& assets)
+    : cybel_engine_(cybel_engine),assets_(assets) {}
 
 void BoringWorkScene::init_scene(Renderer& /*ren*/) {
-  game_engine_.set_title("robots.xlsx - EkoOffice Calc");
+  cybel_engine_.set_title("robots.xlsx - EkoOffice Calc");
 }
 
 void BoringWorkScene::on_scene_exit() {
-  game_engine_.reset_title();
+  cybel_engine_.reset_title();
 }
 
 void BoringWorkScene::on_key_down_event(SDL_Keycode key) {

@@ -15,12 +15,12 @@ EkoScape::EkoScape(Config config) {
   config.title = kTitle;
   dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
 
-  game_engine_ = std::make_unique<GameEngine>(
+  cybel_engine_ = std::make_unique<CybelEngine>(
     *this,config
     ,[&](int action) { return build_scene(action); }
   );
-  scene_man_ = &game_engine_->scene_man();
-  assets_ = std::make_unique<Assets>(StyledGraphics::Style::kRealistic,game_engine_->has_music_player());
+  scene_man_ = &cybel_engine_->scene_man();
+  assets_ = std::make_unique<Assets>(StyledGraphics::Style::kRealistic,cybel_engine_->has_music_player());
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
@@ -34,7 +34,7 @@ SceneBag EkoScape::build_scene(int action) {
     case SceneAction::kNil: return result;
 
     case SceneAction::kQuit:
-      game_engine_->request_stop();
+      cybel_engine_->request_stop();
       return result;
 
     case SceneAction::kGoBack:
@@ -42,7 +42,7 @@ SceneBag EkoScape::build_scene(int action) {
       return result;
 
     case SceneAction::kGoToBoringWork:
-      result.scene = std::make_shared<BoringWorkScene>(*game_engine_,*assets_);
+      result.scene = std::make_shared<BoringWorkScene>(*cybel_engine_,*assets_);
       break;
 
     case SceneAction::kGoToMenu:
@@ -51,20 +51,20 @@ SceneBag EkoScape::build_scene(int action) {
 
     case SceneAction::kGoToMenuPlay:
       result.scene = std::make_shared<MenuPlayScene>(
-        *game_engine_,*assets_,map_file_,is_rand_map_
+        *cybel_engine_,*assets_,map_file_,is_rand_map_
         ,[&](const auto& file,bool is_rand) { select_map_file(file,is_rand); }
       );
       break;
 
     case SceneAction::kGoToGame:
       if(map_file_.empty()) {
-        game_engine_->show_error("No map was selected.");
+        cybel_engine_->show_error("No map was selected.");
       } else {
         try {
           result.scene = std::make_shared<GameScene>(*assets_,map_file_,dantares_dist_);
           result.persist = true; // Preserve game state when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
-          game_engine_->show_error(e.what());
+          cybel_engine_->show_error(e.what());
           result.scene = nullptr;
         }
       }
@@ -77,7 +77,7 @@ SceneBag EkoScape::build_scene(int action) {
     case SceneAction::kGoToMenu:
     case SceneAction::kGoToMenuPlay:
     case SceneAction::kGoToMenuCredits:
-      if(star_sys_.is_empty()) { star_sys_.init(game_engine_->dimens()); }
+      if(star_sys_.is_empty()) { star_sys_.init(cybel_engine_->dimens()); }
       break;
 
     default:
@@ -91,13 +91,13 @@ SceneBag EkoScape::build_scene(int action) {
 void EkoScape::pop_scene() {
   if(!scene_man_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
-    game_engine_->request_stop();
+    cybel_engine_->request_stop();
   }
 }
 
 void EkoScape::run() {
   play_music();
-  game_engine_->run(); // Game loop.
+  cybel_engine_->run(); // Game loop.
 }
 
 void EkoScape::on_key_down_event(SDL_Keycode key) {
@@ -107,13 +107,13 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
       break;
 
     case SDLK_AUDIOSTOP:
-      game_engine_->stop_music();
+      cybel_engine_->stop_music();
       break;
 
     // Toggle music.
     case SDLK_m:
-      if(game_engine_->is_music_playing()) {
-        game_engine_->stop_music();
+      if(cybel_engine_->is_music_playing()) {
+        cybel_engine_->stop_music();
       } else {
         play_music();
       }
@@ -154,8 +154,8 @@ void EkoScape::draw_scene(Renderer& ren) {
 }
 
 void EkoScape::play_music() {
-  if(game_engine_->has_music_player() && assets_->music() != nullptr) {
-    game_engine_->play_music(*assets_->music());
+  if(cybel_engine_->has_music_player() && assets_->music() != nullptr) {
+    cybel_engine_->play_music(*assets_->music());
   }
 }
 
@@ -165,7 +165,7 @@ void EkoScape::select_map_file(const std::filesystem::path& file,bool is_rand) {
 }
 
 void EkoScape::show_error_global(const std::string& error) {
-  GameEngine::show_error_global(kTitle,error);
+  CybelEngine::show_error_global(kTitle,error);
 }
 
 } // Namespace.

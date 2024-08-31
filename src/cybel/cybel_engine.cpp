@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "game_engine.h"
+#include "cybel_engine.h"
 
 namespace cybel {
 
-GameEngine::Resources::Resources() noexcept {}
+CybelEngine::Resources::Resources() noexcept {}
 
-GameEngine::Resources::~Resources() noexcept {
+CybelEngine::Resources::~Resources() noexcept {
   if(has_music_player) {
     has_music_player = false;
     // Mix_CloseAudio() is supposed to auto-stop audio, but found it not to work once,
@@ -35,7 +35,7 @@ GameEngine::Resources::~Resources() noexcept {
   SDL_Quit();
 }
 
-GameEngine::GameEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
+CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
     : main_scene_(main_scene) {
   init_hints(config);
 
@@ -52,7 +52,7 @@ GameEngine::GameEngine(Scene& main_scene,Config config,const SceneMan::SceneBuil
   init_music_player(config);
 }
 
-void GameEngine::init_hints(const Config& config) {
+void CybelEngine::init_hints(const Config& config) {
   // Not available in SDL v2.0.
   //SDL_SetHint(SDL_HINT_APP_NAME,config.title.c_str());
   SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,config.title.c_str());
@@ -61,7 +61,7 @@ void GameEngine::init_hints(const Config& config) {
   //SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
 }
 
-void GameEngine::init_config(Config& config) {
+void CybelEngine::init_config(Config& config) {
   int width = config.size.w;
   int height = config.size.h;
 
@@ -112,7 +112,7 @@ void GameEngine::init_config(Config& config) {
   }
 }
 
-void GameEngine::init_gui(const Config& config) {
+void CybelEngine::init_gui(const Config& config) {
   // Use a 2004-2008 version.
   // - Must be set before SDL_CreateWindow().
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
@@ -150,17 +150,17 @@ void GameEngine::init_gui(const Config& config) {
   if(config.vsync) { set_vsync(true); }
 }
 
-void GameEngine::init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene) {
+void CybelEngine::init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene) {
   renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
   scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
 }
 
-void GameEngine::init_scene(Scene& scene) {
+void CybelEngine::init_scene(Scene& scene) {
   scene.init_scene(*renderer_);
   scene.resize_scene(*renderer_,renderer_->dimens());
 }
 
-void GameEngine::init_music_player(const Config& config) {
+void CybelEngine::init_music_player(const Config& config) {
   if(Mix_Init(config.music_types) == 0) {
     std::cerr << "[WARN] Failed to init SDL_mixer: " << Util::get_sdl_mix_error() << '.' << std::endl;
     return; // Don't fail, since music is optional.
@@ -191,7 +191,7 @@ void GameEngine::init_music_player(const Config& config) {
   res_.has_music_player = true;
 }
 
-void GameEngine::set_vsync(bool enable) {
+void CybelEngine::set_vsync(bool enable) {
   if(enable) {
     SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
 
@@ -205,18 +205,18 @@ void GameEngine::set_vsync(bool enable) {
   }
 }
 
-void GameEngine::fetch_resize(bool force) {
+void CybelEngine::fetch_resize(bool force) {
   Size2i size{};
 
   SDL_GL_GetDrawableSize(res_.window,&size.w,&size.h);
   resize(size,force);
 }
 
-void GameEngine::resize() {
+void CybelEngine::resize() {
   resize(renderer_->dimens().size,true);
 }
 
-void GameEngine::resize(const Size2i& size,bool force) {
+void CybelEngine::resize(const Size2i& size,bool force) {
   if(!force && size.w == renderer_->dimens().size.w && size.h == renderer_->dimens().size.h) {
     return; // Size didn't change.
   }
@@ -226,7 +226,7 @@ void GameEngine::resize(const Size2i& size,bool force) {
   scene_man_->curr_scene().resize_scene(*renderer_,renderer_->dimens());
 }
 
-void GameEngine::run() {
+void CybelEngine::run() {
   is_running_ = true;
 
   // No need to init the current scene in scene_man_,
@@ -267,13 +267,13 @@ void GameEngine::run() {
   std::cerr << "[INFO] Stopping gracefully." << std::endl;
 }
 
-void GameEngine::request_stop() { is_running_ = false; }
+void CybelEngine::request_stop() { is_running_ = false; }
 
-void GameEngine::start_frame_timer() {
+void CybelEngine::start_frame_timer() {
   frame_timer_.start();
 }
 
-void GameEngine::end_frame_timer() {
+void CybelEngine::end_frame_timer() {
   frame_timer_.end();
   dpf_ = frame_timer_.duration();
 
@@ -286,7 +286,7 @@ void GameEngine::end_frame_timer() {
   delta_time_ = dpf_.secs(); // Delta time should be in fractional seconds.
 }
 
-void GameEngine::handle_events() {
+void CybelEngine::handle_events() {
   SDL_Event event{};
   // Store in a var to prevent re-sizing a bunch of times in the loop (costly),
   //     while the user is still dragging the window corner/edge.
@@ -336,7 +336,7 @@ void GameEngine::handle_events() {
   if(should_resize) { fetch_resize(false); }
 }
 
-void GameEngine::play_music(const Music& music) {
+void CybelEngine::play_music(const Music& music) {
   if(!res_.has_music_player) { return; }
 
   // -1 to play indefinitely.
@@ -346,55 +346,55 @@ void GameEngine::play_music(const Music& music) {
   }
 }
 
-void GameEngine::stop_music() {
+void CybelEngine::stop_music() {
   if(!res_.has_music_player) { return; }
 
   Mix_HaltMusic();
 }
 
-void GameEngine::show_error(const std::string& error) const {
+void CybelEngine::show_error(const std::string& error) const {
   show_error(title_,error);
 }
 
-void GameEngine::show_error(const std::string& title,const std::string& error) const {
+void CybelEngine::show_error(const std::string& title,const std::string& error) const {
   show_error_global(title,error,res_.window);
 }
 
-void GameEngine::show_error_global(const std::string& title,const std::string& error,SDL_Window* window) {
+void CybelEngine::show_error_global(const std::string& title,const std::string& error,SDL_Window* window) {
   std::cerr << "[ERROR] " << error << std::endl;
 
   // This can be called before/after SDL_Init()/SDL_Quit().
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
 }
 
-void GameEngine::set_title(const std::string& title) { SDL_SetWindowTitle(res_.window,title.c_str()); }
+void CybelEngine::set_title(const std::string& title) { SDL_SetWindowTitle(res_.window,title.c_str()); }
 
-void GameEngine::reset_title() { set_title(title_); }
+void CybelEngine::reset_title() { set_title(title_); }
 
-bool GameEngine::has_music_player() const { return res_.has_music_player; }
+bool CybelEngine::has_music_player() const { return res_.has_music_player; }
 
-bool GameEngine::is_music_playing() const {
+bool CybelEngine::is_music_playing() const {
   return res_.has_music_player && Mix_PlayingMusic() == 1;
 }
 
-const Uint8* GameEngine::fetch_key_states() const { return SDL_GetKeyboardState(NULL); }
+const Uint8* CybelEngine::fetch_key_states() const { return SDL_GetKeyboardState(NULL); }
 
-Scene& GameEngine::main_scene() const { return main_scene_; }
+Scene& CybelEngine::main_scene() const { return main_scene_; }
 
-SceneMan& GameEngine::scene_man() const { return *scene_man_; }
+SceneMan& CybelEngine::scene_man() const { return *scene_man_; }
 
-const std::string& GameEngine::title() const { return title_; }
+const std::string& CybelEngine::title() const { return title_; }
 
-Renderer& GameEngine::renderer() const { return *renderer_; }
+Renderer& CybelEngine::renderer() const { return *renderer_; }
 
-const ViewDimens& GameEngine::dimens() const { return renderer_->dimens(); }
+const ViewDimens& CybelEngine::dimens() const { return renderer_->dimens(); }
 
-int GameEngine::target_fps() const { return target_fps_; }
+int CybelEngine::target_fps() const { return target_fps_; }
 
-const Duration& GameEngine::target_dpf() const { return target_dpf_; }
+const Duration& CybelEngine::target_dpf() const { return target_dpf_; }
 
-const Duration& GameEngine::dpf() const { return dpf_; }
+const Duration& CybelEngine::dpf() const { return dpf_; }
 
-double GameEngine::delta_time() const { return delta_time_; }
+double CybelEngine::delta_time() const { return delta_time_; }
 
 } // Namespace.

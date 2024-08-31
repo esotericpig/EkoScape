@@ -11,7 +11,7 @@
 #include "cybel/common.h"
 
 #include "cybel/scene/scene.h"
-#include "cybel/game_engine.h"
+#include "cybel/cybel_engine.h"
 
 #include "assets.h"
 #include "scene_action.h"
@@ -20,7 +20,7 @@ namespace ekoscape {
 
 class BoringWorkScene : public Scene {
 public:
-  explicit BoringWorkScene(GameEngine& game_engine,Assets& assets);
+  explicit BoringWorkScene(CybelEngine& cybel_engine,Assets& assets);
 
   void init_scene(Renderer& ren) override;
   void on_scene_exit() override;
@@ -29,7 +29,7 @@ public:
   void draw_scene(Renderer& ren) override;
 
 private:
-  GameEngine& game_engine_;
+  CybelEngine& cybel_engine_;
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;
 };
