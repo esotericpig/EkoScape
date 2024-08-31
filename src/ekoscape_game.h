@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_EKOSCAPE_H_
-#define EKOSCAPE_EKOSCAPE_H_
+#ifndef EKOSCAPE_EKOSCAPE_GAME_H_
+#define EKOSCAPE_EKOSCAPE_GAME_H_
 
 #include "cybel/common.h"
 
@@ -28,7 +28,7 @@
 
 namespace ekoscape {
 
-class EkoScape : public Scene {
+class EkoScapeGame : public Scene {
 private:
   // NOTE: This must be defined first so that its dtor is called last.
   std::unique_ptr<CybelEngine> cybel_engine_{};
@@ -40,7 +40,7 @@ public:
 
   static const std::string kTitle;
 
-  explicit EkoScape(Config config);
+  explicit EkoScapeGame(Config config);
 
   void run();
 

@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "ekoscape.h"
+#include "ekoscape_game.h"
 
 namespace ekoscape {
 
-const std::string EkoScape::kTitle = "EkoScape v2.0";
+const std::string EkoScapeGame::kTitle = "EkoScape v2.0";
 
-EkoScape::EkoScape(Config config) {
+EkoScapeGame::EkoScapeGame(Config config) {
   config.title = kTitle;
   dantares_dist_ = (config.dantares_dist >= 2) ? config.dantares_dist : 2;
 
@@ -27,7 +27,7 @@ EkoScape::EkoScape(Config config) {
   }
 }
 
-SceneBag EkoScape::build_scene(int action) {
+SceneBag EkoScapeGame::build_scene(int action) {
   SceneBag result{action};
 
   switch(action) {
@@ -88,19 +88,19 @@ SceneBag EkoScape::build_scene(int action) {
   return result;
 }
 
-void EkoScape::pop_scene() {
+void EkoScapeGame::pop_scene() {
   if(!scene_man_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
     cybel_engine_->request_stop();
   }
 }
 
-void EkoScape::run() {
+void EkoScapeGame::run() {
   play_music();
   cybel_engine_->run(); // Game loop.
 }
 
-void EkoScape::on_key_down_event(SDL_Keycode key) {
+void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
   switch(key) {
     case SDLK_AUDIOPLAY:
       play_music();
@@ -134,13 +134,13 @@ void EkoScape::on_key_down_event(SDL_Keycode key) {
   }
 }
 
-int EkoScape::update_scene_logic(const FrameStep& step) {
+int EkoScapeGame::update_scene_logic(const FrameStep& step) {
   star_sys_.update(step);
 
   return SceneAction::kNil;
 }
 
-void EkoScape::draw_scene(Renderer& ren) {
+void EkoScapeGame::draw_scene(Renderer& ren) {
   if(star_sys_.is_empty()) { return; }
 
   ren.begin_2d_scene()
@@ -153,18 +153,18 @@ void EkoScape::draw_scene(Renderer& ren) {
      .end_scale();
 }
 
-void EkoScape::play_music() {
+void EkoScapeGame::play_music() {
   if(cybel_engine_->has_music_player() && assets_->music() != nullptr) {
     cybel_engine_->play_music(*assets_->music());
   }
 }
 
-void EkoScape::select_map_file(const std::filesystem::path& file,bool is_rand) {
+void EkoScapeGame::select_map_file(const std::filesystem::path& file,bool is_rand) {
   map_file_ = file;
   is_rand_map_ = is_rand;
 }
 
-void EkoScape::show_error_global(const std::string& error) {
+void EkoScapeGame::show_error_global(const std::string& error) {
   CybelEngine::show_error_global(kTitle,error);
 }
 

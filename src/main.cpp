@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "ekoscape.h"
+#include "ekoscape_game.h"
 
 // TODO: implement 'r' to refresh assets.
 // TODO: credits in ReadMe and in game: Ryan, Monogram
@@ -14,9 +14,6 @@
 //       - And for stars too?
 //       If press 'f', make weird colors and also flip cell & robot (flips capture).
 //       Also use star2.png.
-// TODO: Implement MenuPlayScene.
-//       Need to walk assets/maps dir. Show as "classic / Title by Author" or something.
-//       'r' in MenuPlay should also re-crawl dirs.
 
 // TODO: Implement mini map in GameScene and include number of Ekos rescued out of total.
 //       Just do colors. If walkable, then nothing. If non-walkable or Entity/Thing, then color.
@@ -67,10 +64,10 @@
 int main(int /*argc*/,char** /*argv*/) {
   using namespace ekoscape;
 
-  std::unique_ptr<EkoScape> eko{};
+  std::unique_ptr<EkoScapeGame> eko{};
 
   try {
-    EkoScape::Config config{};
+    EkoScapeGame::Config config{};
 
     config.scale_factor = 0.8333f; // Arrival?
     //config.size = {740,500}; // For GIFs/screenshots.
@@ -81,12 +78,12 @@ int main(int /*argc*/,char** /*argv*/) {
     // These are fixed values and should not be changed.
     config.target_size = {1600,900};
 
-    eko = std::make_unique<EkoScape>(config);
+    eko = std::make_unique<EkoScapeGame>(config);
   } catch(const CybelError& e) {
-    EkoScape::show_error_global(e.what());
+    EkoScapeGame::show_error_global(e.what());
     return -1;
   } catch(const std::invalid_argument& e) {
-    EkoScape::show_error_global(Util::build_str("Invalid argument: ",e.what()));
+    EkoScapeGame::show_error_global(Util::build_str("Invalid argument: ",e.what()));
     return -1;
   }
 
