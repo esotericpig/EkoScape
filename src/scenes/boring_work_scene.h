@@ -31,6 +31,7 @@ public:
 private:
   GameEngine& game_engine_;
   Assets& assets_;
+  int scene_action_ = SceneAction::kNil;
 };
 
 } // Namespace.

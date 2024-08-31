@@ -20,10 +20,21 @@ void BoringWorkScene::on_scene_exit() {
   game_engine_.reset_title();
 }
 
-void BoringWorkScene::on_key_down_event(SDL_Keycode /*key*/) {}
+void BoringWorkScene::on_key_down_event(SDL_Keycode key) {
+  switch(key) {
+    case SDLK_RETURN:
+    case SDLK_SPACE:
+    case SDLK_KP_ENTER:
+      scene_action_ = SceneAction::kGoBack;
+      break;
+  }
+}
 
 int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/) {
-  return SceneAction::kNil;
+  const int action = scene_action_;
+  scene_action_ = SceneAction::kNil;
+
+  return action;
 }
 
 void BoringWorkScene::draw_scene(Renderer& ren) {
