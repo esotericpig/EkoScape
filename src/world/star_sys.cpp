@@ -55,6 +55,8 @@ void StarSys::birth_star(Particle& star) {
 }
 
 void StarSys::clear() {
+  if(stars_.empty()) { return; }
+
   stars_.clear();
   stars_.shrink_to_fit();
 }
