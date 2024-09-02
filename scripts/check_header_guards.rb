@@ -3,11 +3,20 @@
 # frozen_string_literal: true
 
 ###
-# @version 0.2.1
+# @version 0.2.2
 # @author Bradley Whited
 ###
 
 require 'pathname'
+
+def main
+  is_good = check_multi_header_guards(
+    ['Cybel'   ,'src/cybel'],
+    ['EkoScape','src'],
+  )
+
+  exit(1) unless is_good
+end
 
 def check_header_guards(proj_name,src_dir,exc_dirs: [])
   src_path = Pathname.new(src_dir)
@@ -71,9 +80,4 @@ def check_multi_header_guards(*projs)
   return is_good
 end
 
-is_good = check_multi_header_guards(
-  ['Cybel'   ,'src/cybel'],
-  ['EkoScape','src'],
-)
-
-exit(1) unless is_good
+main if __FILE__ == $PROGRAM_NAME
