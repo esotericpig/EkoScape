@@ -79,7 +79,7 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  assets_.font_renderer().wrap(ren,{25,10},0.75f,[&](auto& font,auto& menu) {
+  assets_.font_renderer().wrap(ren,{25,10},0.75f,[&](auto& font) {
     if(!map_opts_.empty()) {
       const int opts_len = static_cast<int>(map_opts_.size());
       const int first_i = map_opt_index_ - kMapOptsHalf1;
@@ -87,26 +87,26 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
 
       if(first_i > 0) { // More options hidden at top?
         font.print_blanks(kUpDownArrowIndent);
-        menu.draw_up_arrow();
+        font.draw_menu_up_arrow();
       } else {
         font.puts();
       }
       for(int i = first_i; i < map_opt_index_; ++i) {
         if(i >= 0) {
-          menu.draw_opt(map_opts_[i].text);
+          font.draw_menu_opt(map_opts_[i].text);
         } else {
           font.puts();
         }
       }
 
-      menu.draw_opt(map_opts_.at(map_opt_index_).text,FontRenderer::kStyleSelected);
+      font.draw_menu_opt(map_opts_.at(map_opt_index_).text,FontRenderer::kMenuStyleSelected);
 
       for(int i = map_opt_index_ + 1; i < max_len; ++i) {
-        menu.draw_opt(map_opts_[i].text);
+        font.draw_menu_opt(map_opts_[i].text);
       }
       if(max_len < opts_len) { // More options hidden at bottom?
         font.print_blanks(kUpDownArrowIndent);
-        menu.draw_down_arrow();
+        font.draw_menu_down_arrow();
       }
     }
   });
