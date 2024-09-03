@@ -42,18 +42,12 @@ SceneBag EkoScapeGame::build_scene(int action) {
   SceneBag result{action};
 
   switch(action) {
-    case SceneAction::kNil: return result;
-
     case SceneAction::kQuit:
       cybel_engine_->request_stop();
-      return result;
+      break;
 
     case SceneAction::kGoBack:
       pop_scene();
-      return result;
-
-    case SceneAction::kGoToBoringWork:
-      result.scene = std::make_shared<BoringWorkScene>(*cybel_engine_,*assets_);
       break;
 
     case SceneAction::kGoToMenu:
@@ -66,6 +60,10 @@ SceneBag EkoScapeGame::build_scene(int action) {
         ,[&](const auto& file,bool is_rand) { select_map_file(file,is_rand); }
       );
       break;
+
+    // case SceneAction::kGoToMenuCredits:
+    //   result.scene = std::make_shared<MenuCreditsScene>(*assets_);
+    //   break;
 
     case SceneAction::kGoToGame:
       if(map_file_.empty()) {
@@ -81,8 +79,16 @@ SceneBag EkoScapeGame::build_scene(int action) {
       }
       break;
 
-    default: break;
+    case SceneAction::kGoToBoringWork:
+      result.scene = std::make_shared<BoringWorkScene>(*cybel_engine_,*assets_);
+      break;
+
+    case SceneAction::kNil:
+    default:
+      break;
   }
+
+  if(!result.scene) { return result; }
 
   switch(action) {
     case SceneAction::kGoToMenu:

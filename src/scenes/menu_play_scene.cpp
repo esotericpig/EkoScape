@@ -44,12 +44,12 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
 
     case SDLK_LEFT:
     case SDLK_a:
-      jump_to_prev_map_opt_group();
+      prev_map_opt_group();
       break;
 
     case SDLK_RIGHT:
     case SDLK_d:
-      jump_to_next_map_opt_group();
+      next_map_opt_group();
       break;
 
     case SDLK_PAGEUP:
@@ -198,7 +198,7 @@ void MenuPlayScene::glob_maps() {
   );
 }
 
-void MenuPlayScene::jump_to_prev_map_opt_group() {
+void MenuPlayScene::prev_map_opt_group() {
   if(map_opts_.empty() || map_opt_index_ <= 0) {
     return;
   }
@@ -214,7 +214,7 @@ void MenuPlayScene::jump_to_prev_map_opt_group() {
   select_map_opt(i);
 }
 
-void MenuPlayScene::jump_to_next_map_opt_group() {
+void MenuPlayScene::next_map_opt_group() {
   const int opts_len = static_cast<int>(map_opts_.size());
 
   if(map_opts_.empty() || map_opt_index_ >= (opts_len - 1)) {

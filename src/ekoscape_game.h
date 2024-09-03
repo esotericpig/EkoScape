@@ -18,6 +18,7 @@
 
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
+#include "scenes/menu_credits_scene.h"
 #include "scenes/menu_play_scene.h"
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"

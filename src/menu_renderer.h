@@ -25,8 +25,9 @@ public:
   class Wrapper {
   public:
     Renderer::FontAtlasWrapper& font;
+    Color4f font_color;
 
-    explicit Wrapper(Renderer::FontAtlasWrapper& font);
+    explicit Wrapper(Renderer::FontAtlasWrapper& font,const Color4f& font_color);
 
     Wrapper& draw_opt(const tiny_utf8::string& text,int styles = 0);
     Wrapper& draw_up_arrow();
@@ -38,23 +39,23 @@ public:
   static const int kStyleSelected = 1 << 0;
   static const int kStyleCycle = 1 << 1;
 
-  static const Size2i kCharSize;
   static const Color4f kArrowColor;
   static const Color4f kCycleArrowColor;
-  static const Color4f kTextColor;
   static const tiny_utf8::string kUpArrowText;
   static const tiny_utf8::string kDownArrowText;
   static const tiny_utf8::string kLeftArrowText;
   static const tiny_utf8::string kRightArrowText;
   static const int kSmallSpaceSize;
 
-  explicit MenuRenderer(FontAtlas& font_atlas);
+  explicit MenuRenderer(FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color);
 
   void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
   void wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback);
 
 private:
   FontAtlas& font_atlas_;
+  Size2i font_size_{};
+  Color4f font_color_{};
 };
 
 } // Namespace.

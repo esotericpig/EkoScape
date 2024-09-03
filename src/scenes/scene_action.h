@@ -17,11 +17,11 @@ namespace SceneAction {
     kNil = 0,
     kQuit,
     kGoBack,
-    kGoToBoringWork,
     kGoToMenu,
     kGoToMenuPlay,
     kGoToMenuCredits,
     kGoToGame,
+    kGoToBoringWork,
   };
 }
 

@@ -69,8 +69,8 @@ private:
   void refresh_maps();
   void refresh_maps(const std::filesystem::path& sel_map_file,bool is_rand_map);
   void glob_maps();
-  void jump_to_prev_map_opt_group();
-  void jump_to_next_map_opt_group();
+  void prev_map_opt_group();
+  void next_map_opt_group();
   void select_map_opt(bool force = false);
   void select_map_opt(int index,bool force = false);
 };

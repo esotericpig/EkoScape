@@ -46,9 +46,9 @@ public:
     std::unique_ptr<Texture> white_texture{};
   };
 
-  explicit StyledGraphics(const std::filesystem::path& textures_dir,Style style);
+  explicit StyledGraphics(const std::filesystem::path& textures_dir,Style style,bool make_weird = false);
 
-  void reload();
+  void reload(bool make_weird);
 
   const std::string& prev_style();
   const std::string& next_style();
@@ -64,8 +64,8 @@ private:
   int graphics_bag_index_ = 0;
   Graphics* graphics_ = nullptr;
 
-  void reload(Style style);
-  Graphics load_style(Style style,const std::string& dirname);
+  void reload(Style style,bool make_weird);
+  Graphics load_style(Style style,const std::string& dirname,bool make_weird);
 };
 
 } // Namespace.
