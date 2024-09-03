@@ -18,7 +18,7 @@
 #include "cybel/util/cybel_error.h"
 #include "cybel/types.h"
 
-#include "menu_renderer.h"
+#include "font_renderer.h"
 #include "styled_graphics.h"
 
 #include <filesystem>
@@ -60,8 +60,7 @@ public:
   const Sprite& dantares_sprite() const;
   const Sprite& boring_work_sprite() const;
 
-  const FontAtlas& font_atlas() const;
-  MenuRenderer& menu_renderer() const;
+  FontRenderer& font_renderer() const;
 
   const Music* music() const;
 
@@ -85,7 +84,7 @@ private:
   Color4f* font_color_ = &font_color1_;
   Color4f font_color1_ = Color4f::bytes(214,214,214);
   Color4f font_color2_ = Color4f::bytes(255,192,203); // Pink.
-  std::unique_ptr<MenuRenderer> menu_renderer_{};
+  std::unique_ptr<FontRenderer> font_renderer_{};
 
   std::unique_ptr<Music> music_{};
 

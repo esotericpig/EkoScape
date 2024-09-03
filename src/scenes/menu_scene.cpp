@@ -102,16 +102,16 @@ void MenuScene::draw_scene(Renderer& ren) {
     s.draw_quad({150,10},{1300,300});
   });
 
-  assets_.menu_renderer().wrap(ren,{395,330},[&](auto& /*font*/,auto& menu) {
+  assets_.font_renderer().wrap(ren,{395,330},[&](auto& /*font*/,auto& menu) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
       auto& opt = opts_[i];
       int styles = 0;
 
       if(static_cast<int>(i) == opt_index_) {
         if(opt.type == OptionType::kGraphics) {
-          styles |= MenuRenderer::kStyleCycle;
+          styles |= FontRenderer::kStyleCycle;
         } else {
-          styles |= MenuRenderer::kStyleSelected;
+          styles |= FontRenderer::kStyleSelected;
         }
       }
 

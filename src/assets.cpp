@@ -58,7 +58,7 @@ void Assets::reload_graphics(bool make_weird) {
       .build()
   );
   font_color_ = is_weird_ ? &font_color2_ : &font_color1_;
-  menu_renderer_ = std::make_unique<MenuRenderer>(*font_atlas_,kFontSize,*font_color_);
+  font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,kFontSize,*font_color_);
 }
 
 void Assets::reload_music() {
@@ -106,9 +106,7 @@ const Sprite& Assets::dantares_sprite() const { return *dantares_sprite_; }
 
 const Sprite& Assets::boring_work_sprite() const { return *boring_work_sprite_; }
 
-const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
-
-MenuRenderer& Assets::menu_renderer() const { return *menu_renderer_; }
+FontRenderer& Assets::font_renderer() const { return *font_renderer_; }
 
 const Music* Assets::music() const { return music_.get(); }
 

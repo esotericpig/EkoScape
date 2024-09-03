@@ -79,7 +79,7 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  assets_.menu_renderer().wrap(ren,{25,10},0.75f,[&](auto& font,auto& menu) {
+  assets_.font_renderer().wrap(ren,{25,10},0.75f,[&](auto& font,auto& menu) {
     if(!map_opts_.empty()) {
       const int opts_len = static_cast<int>(map_opts_.size());
       const int first_i = map_opt_index_ - kMapOptsHalf1;
@@ -99,7 +99,7 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
         }
       }
 
-      menu.draw_opt(map_opts_.at(map_opt_index_).text,MenuRenderer::kStyleSelected);
+      menu.draw_opt(map_opts_.at(map_opt_index_).text,FontRenderer::kStyleSelected);
 
       for(int i = map_opt_index_ + 1; i < max_len; ++i) {
         menu.draw_opt(map_opts_[i].text);

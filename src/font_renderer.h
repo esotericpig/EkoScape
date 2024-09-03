@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_MENU_RENDERER_H_
-#define EKOSCAPE_MENU_RENDERER_H_
+#ifndef EKOSCAPE_FONT_RENDERER_H_
+#define EKOSCAPE_FONT_RENDERER_H_
 
 #include "cybel/common.h"
 
@@ -20,7 +20,7 @@ namespace ekoscape {
 
 using namespace cybel;
 
-class MenuRenderer {
+class FontRenderer {
 public:
   class Wrapper {
   public:
@@ -47,7 +47,7 @@ public:
   static const tiny_utf8::string kRightArrowText;
   static const int kSmallSpaceSize;
 
-  explicit MenuRenderer(FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color);
+  explicit FontRenderer(FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color);
 
   void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
   void wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback);
