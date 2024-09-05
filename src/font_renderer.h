@@ -55,6 +55,9 @@ public:
   void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
   void wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback);
 
+  const Size2i& font_size();
+  const Size2i& font_spacing();
+
 private:
   static const Color4f kArrowColor;
   static const Color4f kCycleArrowColor;

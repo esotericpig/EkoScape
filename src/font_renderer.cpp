@@ -127,4 +127,8 @@ void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCal
   });
 }
 
+const Size2i& FontRenderer::font_size() { return font_size_; }
+
+const Size2i& FontRenderer::font_spacing() { return font_atlas_.spacing(); }
+
 } // Namespace.
