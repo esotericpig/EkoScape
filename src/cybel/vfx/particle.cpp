@@ -11,6 +11,11 @@ namespace cybel {
 
 Particle& Particle::birth() { return age_by(0.0f); }
 
+Particle& Particle::die() {
+  age = 1.1f;
+  return *this;
+}
+
 Particle& Particle::age_by(float delta_time) {
   age += (delta_time / lifespan); // Divide by lifespan to normalize to [0,1].
 

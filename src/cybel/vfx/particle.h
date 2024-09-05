@@ -55,7 +55,9 @@ public:
   Color4f elder_color{1.0f};
 
   Particle& birth();
+  Particle& die();
   Particle& age_by(float delta_time);
+
   Particle& rebirth();
   Particle& recreate();
   Particle& fade();
