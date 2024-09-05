@@ -338,7 +338,7 @@ const Duration& Map::robot_delay() const { return robot_delay_; }
 const Size2i& Map::size() const { return size_; }
 
 const Space* Map::space(const Pos2i& pos) const {
-  if(!size_.in_bounds(pos.x,pos.y)) { return nullptr; }
+  if(pos.x < 0 || pos.x >= size_.w || pos.y < 0 || pos.y >= size_.h) { return nullptr; }
   return &raw_space(pos);
 }
 
@@ -376,7 +376,7 @@ void Map::set_raw_space(const Pos2i& pos,Space&& space) {
 }
 
 Space* Map::mutable_space(const Pos2i& pos) {
-  if(!size_.in_bounds(pos.x,pos.y)) { return nullptr; }
+  if(pos.x < 0 || pos.x >= size_.w || pos.y < 0 || pos.y >= size_.h) { return nullptr; }
   return &raw_space(pos);
 }
 

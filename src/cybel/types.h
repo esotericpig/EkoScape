@@ -37,15 +37,24 @@ public:
   Color4f& set_bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255);
 };
 
-struct Pos2f {
-  float x = 0.0f;
-  float y = 0.0f;
+template <typename T>
+class Pos3;
+
+template <typename T>
+class Pos2 {
+public:
+  T x{};
+  T y{};
+
+  template <typename T2>
+  Pos2<T2> to_pos2() const { return {static_cast<T2>(x),static_cast<T2>(y)}; }
+
+  template <typename T2>
+  Pos3<T2> to_pos3() const { return {static_cast<T2>(x),static_cast<T2>(y)}; }
 };
 
-struct Pos2i {
-  int x = 0;
-  int y = 0;
-};
+using Pos2f = Pos2<float>;
+using Pos2i = Pos2<int>;
 
 template <typename T>
 class Pos3 {
@@ -58,7 +67,10 @@ public:
   Pos3(T x,T y,T z = {}) : x(x),y(y),z(z) {}
 
   template <typename T2>
-  Pos3<T2> to_pos3() { return {static_cast<T2>(x),static_cast<T2>(y),static_cast<T2>(z)}; }
+  Pos2<T2> to_pos2() const { return {static_cast<T2>(x),static_cast<T2>(y)}; }
+
+  template <typename T2>
+  Pos3<T2> to_pos3() const { return {static_cast<T2>(x),static_cast<T2>(y),static_cast<T2>(z)}; }
 };
 
 using Pos3f = Pos3<float>;
@@ -97,10 +109,13 @@ public:
   Size2(T s) : w(s),h(s) {}
   Size2(T w,T h) : w(w),h(h) {}
 
-  bool in_bounds(T x,T y) const { return x >= 0 && x < w && y >= 0 && y < h; }
+  bool in_bounds(const Pos2<T>& pos,const Size2<T>& size) const {
+    return (pos.x + size.w) >= 0 && pos.x <= w
+        && (pos.y + size.h) >= 0 && pos.y <= h;
+  }
 
   template <typename T2>
-  Size2<T2> to_size2() { return {static_cast<T2>(w),static_cast<T2>(h)}; }
+  Size2<T2> to_size2() const { return {static_cast<T2>(w),static_cast<T2>(h)}; }
 };
 
 using Size2f = Size2<float>;
