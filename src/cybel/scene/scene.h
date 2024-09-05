@@ -43,7 +43,7 @@ public:
 
   virtual void on_key_down_event(SDL_Keycode /*key*/) {}
   virtual void handle_key_states(const Uint8* /*keys*/) {}
-  virtual int update_scene_logic(const FrameStep& /*step*/) { return kNilType; }
+  virtual int update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) { return kNilType; }
   virtual void draw_scene(Renderer& /*ren*/) {}
 };
 

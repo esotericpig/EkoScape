@@ -151,7 +151,7 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
   }
 }
 
-int EkoScapeGame::update_scene_logic(const FrameStep& step) {
+int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   star_sys_.update(step);
 
   return SceneAction::kNil;

@@ -67,7 +67,7 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
   }
 }
 
-int MenuPlayScene::update_scene_logic(const FrameStep& /*step*/) {
+int MenuPlayScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) {
   const int action = scene_action_;
   scene_action_ = SceneAction::kNil; // Avoid possible infinite loop.
 

@@ -246,8 +246,8 @@ void CybelEngine::run() {
     scene_man_->curr_scene().handle_key_states(keys);
 
     const FrameStep& step = {dpf_,delta_time_};
-    main_scene_.update_scene_logic(step);
-    int scene_result = scene_man_->curr_scene().update_scene_logic(step);
+    main_scene_.update_scene_logic(step,renderer_->dimens());
+    int scene_result = scene_man_->curr_scene().update_scene_logic(step,renderer_->dimens());
 
     if(scene_result != Scene::kNilType) {
       scene_man_->push_scene(scene_result);

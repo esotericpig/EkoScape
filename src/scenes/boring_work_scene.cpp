@@ -30,7 +30,7 @@ void BoringWorkScene::on_key_down_event(SDL_Keycode key) {
   }
 }
 
-int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/) {
+int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) {
   const int action = scene_action_;
   scene_action_ = SceneAction::kNil;
 

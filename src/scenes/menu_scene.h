@@ -36,7 +36,7 @@ public:
   explicit MenuScene(Assets& assets);
 
   void on_key_down_event(SDL_Keycode key) override;
-  int update_scene_logic(const FrameStep& step) override;
+  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren) override;
 
 private:

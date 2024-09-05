@@ -129,7 +129,7 @@ void GameScene::handle_key_states(const Uint8* keys) {
   }
 }
 
-int GameScene::update_scene_logic(const FrameStep& step) {
+int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   int action = update_player();
 
   if(action != SceneAction::kNil) { return action; }
