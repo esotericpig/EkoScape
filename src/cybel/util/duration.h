@@ -26,6 +26,8 @@ public:
   bool operator!=(const Duration& other) const;
   bool operator>(const Duration& other) const;
   bool operator>=(const Duration& other) const;
+  auto operator<=>(const Duration&) const;
+
   Duration operator+(const Duration& other) const;
   Duration& operator+=(const Duration& other);
   Duration operator-(const Duration& other) const;
@@ -34,6 +36,8 @@ public:
   Duration& operator*=(const Duration& other);
   Duration operator/(const Duration& other) const;
   Duration& operator/=(const Duration& other);
+  Duration operator%(const Duration& other) const;
+  Duration& operator%=(const Duration& other);
 
   Duration& set_from_millis(double millis);
   Duration& set_from_secs(double secs);

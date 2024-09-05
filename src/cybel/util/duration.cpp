@@ -30,6 +30,8 @@ bool Duration::operator>(const Duration& other) const { return value_ > other.va
 
 bool Duration::operator>=(const Duration& other) const { return value_ >= other.value_; }
 
+auto Duration::operator<=>(const Duration& other) const { return value_ <=> other.value_; }
+
 Duration Duration::operator+(const Duration& other) const { return Duration{value_ + other.value_}; }
 
 Duration& Duration::operator+=(const Duration& other) {
@@ -55,6 +57,15 @@ Duration Duration::operator/(const Duration& other) const { return Duration{valu
 
 Duration& Duration::operator/=(const Duration& other) {
   value_ /= other.value_;
+  return *this;
+}
+
+Duration Duration::operator%(const Duration& other) const {
+  return Duration{std::fmod(value_,other.value_)};
+}
+
+Duration& Duration::operator%=(const Duration& other) {
+  value_ = std::fmod(value_,other.value_);
   return *this;
 }
 
