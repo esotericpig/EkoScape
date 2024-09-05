@@ -12,6 +12,9 @@ namespace ekoscape {
 const Range2i Map::kSupportedVersions{1,1};
 const Duration Map::kMinRobotDelay = Duration::from_millis(110);
 
+const std::string Map::kHeaderFmt = "[EkoScape/v{}]";
+const std::regex Map::kHeaderRegex(R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase);
+
 bool Map::is_map_file(const std::filesystem::path& file) {
   try {
     TextReader reader{file,24}; // Buffer size based on: "[EkoScape/v1999]\r\n"
@@ -28,7 +31,7 @@ bool Map::is_map_file(const std::filesystem::path& file) {
   }
 }
 
-Map& Map::load_file(const std::filesystem::path& file,bool meta_only) {
+Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space,bool meta_only) {
   TextReader reader{file};
   std::string line{};
   char data_c = 0;
@@ -103,14 +106,14 @@ Map& Map::load_file(const std::filesystem::path& file,bool meta_only) {
   }
   size.h = static_cast<int>(lines.size());
 
-  return parse_grid(lines,size);
+  return parse_grid(lines,size,on_space);
 }
 
 Map& Map::load_file_meta(const std::filesystem::path& file) {
-  return load_file(file,true);
+  return load_file(file,nullptr,true);
 }
 
-Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
+Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space) {
   clear_spaces();
 
   if(size.w <= 0) {
@@ -157,6 +160,8 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size) {
 
       if(line != nullptr && pos.x < col_count) {
         SpaceType type = SpaceTypes::to_space_type(line->at(pos.x));
+
+        if(on_space) { type = on_space(dan_pos,type); }
 
         if(type == SpaceType::kCell) {
           empty_type = default_empty_;
@@ -318,7 +323,16 @@ bool Map::set_thing(const Pos2i& pos,SpaceType type) {
 }
 
 std::string Map::build_header() const {
-  return Util::build_str("[EkoScape/v",version_,']');
+  // FIXME: Temporary solution, because my compiler doesn't have <format>.
+  const std::string placeholder = "{}";
+  std::string header = kHeaderFmt;
+  std::size_t i = header.find(placeholder);
+
+  if(i == std::string::npos) {
+    throw CybelError{"Invalid kHeaderFmt: " + kHeaderFmt + "."};
+  }
+
+  return header.replace(i,placeholder.length(),std::to_string(version_));
 }
 
 int Map::version() const { return version_; }
@@ -351,10 +365,9 @@ const Pos2i& Map::player_init_pos() const { return player_init_pos_; }
 Facing Map::player_init_facing() const { return player_init_facing_; }
 
 bool Map::parse_header(const std::string& line,int& version,bool warn) {
-  std::regex re(R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase);
   std::smatch matches{};
 
-  if(!std::regex_match(line,matches,re) || matches.size() != 2) {
+  if(!std::regex_match(line,matches,kHeaderRegex) || matches.size() != 2) {
     return false;
   }
 

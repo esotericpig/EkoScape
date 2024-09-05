@@ -19,8 +19,6 @@
 #include "space.h"
 #include "space_type.h"
 
-#include <functional>
-
 namespace ekoscape {
 
 /**
@@ -43,13 +41,11 @@ namespace ekoscape {
  */
 class DantaresMap : public Map {
 public:
-  using SpaceCallback = std::function<void(const Pos2i&,Space&,SpaceType)>;
-
   explicit DantaresMap(Dantares& dantares);
 
   Map& clear_spaces() override;
 
-  DantaresMap& add_to_dantares(const SpaceCallback& on_space = nullptr);
+  DantaresMap& add_to_dantares();
   DantaresMap& delete_from_dantares();
 
   DantaresMap& make_current_in_dantares();

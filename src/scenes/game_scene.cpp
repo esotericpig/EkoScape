@@ -20,18 +20,30 @@ GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {
-  map_.load_file(file);
+  map_.load_file(file,[&](const Pos2i& pos,SpaceType type) {
+    return init_map_space(pos,type);
+  });
 
   std::cout << "[INFO] Map file: '" << file.string() << "'\n";
   std::cout << map_ << std::endl;
 
-  map_.add_to_dantares([&](const Pos2i& pos,Space& space,SpaceType type) {
-    init_map_space(pos,space,type);
-  });
+  map_.add_to_dantares();
   map_.make_current_in_dantares();
 }
 
-void GameScene::init_map_space(const Pos2i& pos,Space&,SpaceType type) {
+SpaceType GameScene::init_map_space(const Pos2i& pos,SpaceType type) {
+  // For weird, flip robots & cells.
+  if(assets_.is_weird()) {
+    if(SpaceTypes::is_robot(type)) {
+      type = SpaceType::kCell;
+    } else if(type == SpaceType::kCell) {
+      type = SpaceType::kRobot;
+      robots_.emplace_back(std::make_unique<RobotNormal>(type,pos));
+    }
+
+    return type;
+  }
+
   switch(type) {
     case SpaceType::kRobot:
       robots_.emplace_back(std::make_unique<RobotNormal>(type,pos));
@@ -55,6 +67,8 @@ void GameScene::init_map_space(const Pos2i& pos,Space&,SpaceType type) {
 
     default: break; // Ignore.
   }
+
+  return type;
 }
 
 void GameScene::generate_map() {

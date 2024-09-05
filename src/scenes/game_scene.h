@@ -52,7 +52,7 @@ private:
   Duration robot_move_duration_{};
 
   void load_map(const std::filesystem::path& file);
-  void init_map_space(const Pos2i& pos,Space&,SpaceType type);
+  SpaceType init_map_space(const Pos2i& pos,SpaceType type);
   void generate_map();
 
   int update_player();

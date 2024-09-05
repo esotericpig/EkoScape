@@ -21,6 +21,7 @@
 #include "space_type.h"
 
 #include <filesystem>
+#include <functional>
 #include <regex>
 #include <vector>
 
@@ -58,6 +59,8 @@ using namespace cybel;
  */
 class Map {
 public:
+  using SpaceCallback = std::function<SpaceType(const Pos2i&,SpaceType)>;
+
   static const Range2i kSupportedVersions;
   static const Duration kMinRobotDelay;
 
@@ -65,9 +68,11 @@ public:
 
   virtual ~Map() noexcept = default;
 
-  Map& load_file(const std::filesystem::path& file,bool meta_only = false);
+  Map& load_file(const std::filesystem::path& file,const SpaceCallback& on_space = nullptr
+      ,bool meta_only = false);
   Map& load_file_meta(const std::filesystem::path& file);
-  Map& parse_grid(const std::vector<std::string>& lines,Size2i size = {0,0});
+  Map& parse_grid(const std::vector<std::string>& lines,Size2i size = {0,0}
+      ,const SpaceCallback& on_space = nullptr);
   virtual Map& clear_spaces();
 
   virtual bool move_thing(const Pos2i& from_pos,const Pos2i& to_pos);
@@ -111,6 +116,9 @@ public:
   friend std::ostream& operator<<(std::ostream& out,const Map& map);
 
 protected:
+  static const std::string kHeaderFmt;
+  static const std::regex kHeaderRegex;
+
   int version_ = kSupportedVersions.max;
   std::string title_{};
   std::string author_{};

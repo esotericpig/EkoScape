@@ -19,7 +19,7 @@ Map& DantaresMap::clear_spaces() {
   return *this;
 }
 
-DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
+DantaresMap& DantaresMap::add_to_dantares() {
   std::vector int_spaces(size_.w * size_.h,0);
 
   // Explicitly casting to ensure that `const void*` overload is used.
@@ -44,11 +44,7 @@ DantaresMap& DantaresMap::add_to_dantares(const SpaceCallback& on_space) {
   for(Pos2i pos{0,0}; pos.y < size_.h; ++pos.y) {
     for(pos.x = 0; pos.x < size_.w; ++pos.x) {
       Space& space = raw_space(pos);
-      SpaceType type = space.type();
-
-      change_square(pos,type);
-
-      if(on_space) { on_space(pos,space,type); }
+      change_square(pos,space.type());
     }
   }
 
