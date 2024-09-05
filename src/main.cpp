@@ -7,14 +7,31 @@
 
 #include "ekoscape_game.h"
 
-// TODO: implement 'r' to refresh assets.
-// TODO: credits in ReadMe and in game: Ryan, Monogram
-//       - https://datagoblin.itch.io/monogram
-//       - https://www.piskelapp.com/
-//       - And for stars too?
-//       If press 'f', make weird colors and also flip cell & robot (flips capture).
-//       Also use star2.png.
+// SDL requires standard main().
+// - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_%2E%2E%2E
+int main(int /*argc*/,char** /*argv*/) {
+  using namespace ekoscape;
 
+  std::unique_ptr<EkoScapeGame> eko{};
+
+  try {
+    eko = std::make_unique<EkoScapeGame>();
+  } catch(const CybelError& e) {
+    EkoScapeGame::show_error_global(e.what());
+    return 1;
+  } catch(const std::invalid_argument& e) {
+    EkoScapeGame::show_error_global(Util::build_str("Invalid argument: ",e.what()));
+    return 2;
+  }
+
+  eko->run();
+
+  return 0;
+}
+
+// TODO: implement 'r' to refresh assets.
+
+// TODO: In GameScene, display text of author and title?
 // TODO: Implement mini map in GameScene and include number of Ekos rescued out of total.
 //       Just do colors. If walkable, then nothing. If non-walkable or Entity/Thing, then color.
 //       - Special color for non-walkable, Robot, Cell, and "fruit".
@@ -44,40 +61,12 @@
 // TODO: Make desktop entry with assets icon.
 // TODO: Try using emscripten to make web version.
 //       Break main loop into init_run()/run_frame() or w/e for emscripten.
-// TODO: Make flatpack/snap/appimage.
+// TODO: Make appimage/flatpack/snap.
 // TODO: Publish on itch.io?
 // TODO: Can we put this on Roku?
 //       - https://www.4waytechnologies.com/blog/roku-new-idk-complete-guide-2021
 
-// TODO: Use CMake & vcpkg. Maybe use CLion first and see what it uses.
+// TODO: Use CMake & Conan.
 //       - https://internalpointers.com/post/modern-cmake-beginner-introduction
 //       - https://github.com/gosu/gosu/blob/master/CMakeLists.txt
-//       Use Meson?
-//       - https://mesonbuild.com/Wrapdb-projects.html
-//       - https://mesonbuild.com/Wrap-dependency-system-manual.html
-//       - and just have ruby script to update source files
-//       - https://mesonbuild.com/FAQ.html#should-i-check-for-buildtype-or-individual-options-like-debug-in-my-build-files
-//       - mylib = library('mylib', 'mysource.c', c_args: ['-DFOO'])
 // TODO: Test pulling down project in clean Linux VM and building.
-
-// I believe SDL requires `int main(int,char*[])`.
-// - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_...
-int main(int /*argc*/,char** /*argv*/) {
-  using namespace ekoscape;
-
-  std::unique_ptr<EkoScapeGame> eko{};
-
-  try {
-    eko = std::make_unique<EkoScapeGame>();
-  } catch(const CybelError& e) {
-    EkoScapeGame::show_error_global(e.what());
-    return -1;
-  } catch(const std::invalid_argument& e) {
-    EkoScapeGame::show_error_global(Util::build_str("Invalid argument: ",e.what()));
-    return -1;
-  }
-
-  eko->run();
-
-  return 0;
-}
