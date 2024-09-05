@@ -9,6 +9,7 @@
 
 namespace ekoscape {
 
+// This cannot be empty!
 const std::vector<Color4f> StarSys::kColors = {
   Color4f::hex(0x0000ff), // Blue.
   Color4f::hex(0x00ffff), // Cyan.
@@ -16,6 +17,10 @@ const std::vector<Color4f> StarSys::kColors = {
   Color4f::hex(0xffffff), // White.
   Color4f::hex(0xffff00), // Yellow.
 };
+
+Color4f StarSys::rand_color() {
+  return kColors.at(Rando::it().rand_sizet(kColors.size()));
+}
 
 void StarSys::init(const ViewDimens& view_dimens) {
   view_dimens_ = view_dimens;
@@ -39,16 +44,16 @@ void StarSys::birth_star(Particle& star) {
   star.pos.y = static_cast<float>(r.rand_int(view_dimens_.target_size.h));
   star.pos_vel.x = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
   star.pos_vel.y = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
-  star.spin_angle = r.rand_float(360);
+  star.spin_angle = r.rand_float(360.0f);
   star.spin_vel = (r.rand_float() < 0.70f) ? r.rand_float_vel(60.0f) : 0.0f;
 
   star.baby_size.w = r.rand_float(10.0f,25.0f);
   star.baby_size.h = star.baby_size.w;
   star.elder_size.w = r.rand_float(75.0f,100.0f);
   star.elder_size.h = star.elder_size.w;
-  star.baby_color = kColors.at(r.rand_sizet(kColors.size()));
+  star.baby_color = rand_color();
   star.baby_color.a = 0.1f;
-  star.elder_color = kColors.at(r.rand_sizet(kColors.size()));
+  star.elder_color = rand_color();
   star.elder_color.a = 1.0f;
 
   star.birth();

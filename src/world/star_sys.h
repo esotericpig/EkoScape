@@ -26,6 +26,8 @@ using namespace cybel;
 
 class StarSys {
 public:
+  static Color4f rand_color();
+
   void init(const ViewDimens& view_dimens);
 
   /**
