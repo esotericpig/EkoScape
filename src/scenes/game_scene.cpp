@@ -38,7 +38,7 @@ SpaceType GameScene::init_map_space(const Pos2i& pos,SpaceType type) {
       type = SpaceType::kCell;
     } else if(type == SpaceType::kCell) {
       type = SpaceType::kRobot;
-      robots_.emplace_back(std::make_unique<RobotNormal>(type,pos));
+      robots_.emplace_back(Robot::build_normal(pos));
     }
 
     return type;
@@ -46,23 +46,23 @@ SpaceType GameScene::init_map_space(const Pos2i& pos,SpaceType type) {
 
   switch(type) {
     case SpaceType::kRobot:
-      robots_.emplace_back(std::make_unique<RobotNormal>(type,pos));
+      robots_.emplace_back(Robot::build_normal(pos));
       break;
 
     case SpaceType::kRobotGhost:
-      robots_.emplace_back(std::make_unique<RobotGhost>(type,pos));
+      robots_.emplace_back(Robot::build_ghost(pos));
       break;
 
     case SpaceType::kRobotSnake:
-      robots_.emplace_back(std::make_unique<RobotSnake>(type,pos));
+      robots_.emplace_back(Robot::build_snake(pos));
       break;
 
     case SpaceType::kRobotStatue:
-      robots_.emplace_back(std::make_unique<RobotStatue>(type,pos));
+      robots_.emplace_back(Robot::build_statue(pos));
       break;
 
     case SpaceType::kRobotWorm:
-      robots_.emplace_back(std::make_unique<RobotWorm>(type,pos));
+      robots_.emplace_back(Robot::build_worm(pos));
       break;
 
     default: break; // Ignore.
@@ -145,7 +145,6 @@ void GameScene::handle_key_states(const Uint8* keys) {
 
 int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   int action = update_player();
-
   if(action != SceneAction::kNil) { return action; }
 
   update_robots(step);
@@ -192,11 +191,11 @@ void GameScene::update_robots(const FrameStep& step) {
   for(auto it = robots_.begin(); it != robots_.end();) {
     auto& robot = *it;
 
-    if(robot->is_dead()) {
-      map_.remove_thing(robot->pos());
+    if(robot.is_dead()) {
+      map_.remove_thing(robot.pos());
       it = robots_.erase(it);
     } else {
-      robot->age(step.delta_time);
+      robot.age(step.delta_time);
       ++it;
     }
   }
@@ -210,12 +209,12 @@ void GameScene::move_robots(const FrameStep& step) {
   robot_move_data_.refresh();
 
   for(auto& robot: robots_) {
-    robot->move(robot_move_data_);
+    robot.move(robot_move_data_);
   }
 
   // Add new robots after the move loop, because we can't add new ones inside its loop.
   for(auto& new_robot: robot_move_data_.new_robots) {
-    robots_.emplace_back(std::move(new_robot));
+    robots_.emplace_back(new_robot);
   }
   robot_move_data_.new_robots.clear();
 

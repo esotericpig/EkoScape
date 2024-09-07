@@ -47,7 +47,7 @@ private:
 
   DantaresMap map_{dantares_};
   Robot::MoveData robot_move_data_{map_};
-  std::vector<std::unique_ptr<Robot>> robots_{};
+  std::vector<Robot> robots_{};
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
 
