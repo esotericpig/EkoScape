@@ -46,6 +46,12 @@ public:
   T x{};
   T y{};
 
+  Pos2& set(T x,T y) {
+    this->x = x;
+    this->y = y;
+    return *this;
+  }
+
   template <typename T2>
   Pos2<T2> to_pos2() const { return {static_cast<T2>(x),static_cast<T2>(y)}; }
 
@@ -65,6 +71,15 @@ public:
 
   Pos3() {}
   Pos3(T x,T y,T z = {}) : x(x),y(y),z(z) {}
+
+  Pos3& set(T x,T y) { return set(x,y,z); }
+
+  Pos3& set(T x,T y,T z) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
+    return *this;
+  }
 
   template <typename T2>
   Pos2<T2> to_pos2() const { return {static_cast<T2>(x),static_cast<T2>(y)}; }
@@ -97,6 +112,8 @@ public:
   int max = 0;
 
   bool in_range(int value) const;
+
+  Range2i& set(int min,int max);
 };
 
 template <typename T>
@@ -112,6 +129,12 @@ public:
   bool in_bounds(const Pos2<T>& pos,const Size2<T>& size) const {
     return (pos.x + size.w) >= 0 && pos.x <= w
         && (pos.y + size.h) >= 0 && pos.y <= h;
+  }
+
+  Size2& set(T w,T h) {
+    this->w = w;
+    this->h = h;
+    return *this;
   }
 
   template <typename T2>

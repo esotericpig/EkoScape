@@ -55,4 +55,10 @@ Color4f& Color4f::set_bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::ui
 
 bool Range2i::in_range(int value) const { return value >= min && value <= max; }
 
+Range2i& Range2i::set(int min,int max) {
+  this->min = min;
+  this->max = max;
+  return *this;
+}
+
 } // Namespace.
