@@ -15,8 +15,8 @@ GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,
   generate_map();
 
   // Extra delay to give some time for the player to orient/adjust.
-  const auto kExtraDelay = Duration::from_millis(5000);
-  robot_move_duration_ = map_.robot_delay() + kExtraDelay;
+  const auto extra_delay = Duration::from_millis(5000);
+  robot_move_duration_ = map_.robot_delay() + extra_delay;
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {

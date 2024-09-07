@@ -145,8 +145,8 @@ void MenuPlayScene::refresh_maps(const std::filesystem::path& sel_map_file,bool 
 }
 
 void MenuPlayScene::glob_maps() {
-  const int kMaxGroupLen = 15;
-  const int kMaxTitleLen = 25;
+  const int max_group_len = 15;
+  const int max_title_len = 25;
 
   map_opts_.clear();
   map_opts_.emplace_back("< Random Map >");
@@ -155,7 +155,7 @@ void MenuPlayScene::glob_maps() {
     for(const auto& top_dir: std::filesystem::directory_iterator(Assets::kMapsDir)) {
       if(!top_dir.is_directory()) { continue; }
 
-      const auto group = Util::ellips_str(top_dir.path().filename().string(),kMaxGroupLen);
+      const auto group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
 
       for(const auto& file: std::filesystem::directory_iterator(top_dir)) {
         if(!file.is_regular_file() || !Map::is_map_file(file)) {
@@ -176,7 +176,7 @@ void MenuPlayScene::glob_maps() {
         opt.title = map.title();
 
         std::stringstream ss{};
-        ss << Util::pad_str(Util::ellips_str(opt.title,kMaxTitleLen),kMaxTitleLen)
+        ss << Util::pad_str(Util::ellips_str(opt.title,max_title_len),max_title_len)
            << " [" << opt.group << ']';
         opt.text = ss.str();
 
