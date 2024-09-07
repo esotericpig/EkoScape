@@ -61,9 +61,9 @@ SceneBag EkoScapeGame::build_scene(int action) {
       );
       break;
 
-    // case SceneAction::kGoToMenuCredits:
-    //   result.scene = std::make_shared<MenuCreditsScene>(*assets_);
-    //   break;
+    case SceneAction::kGoToMenuCredits:
+      result.scene = std::make_shared<MenuCreditsScene>(*assets_);
+      break;
 
     case SceneAction::kGoToGame:
       if(map_file_.empty()) {
@@ -147,6 +147,11 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
       } else {
         scene_man_->push_scene(SceneAction::kGoToBoringWork);
       }
+      break;
+
+    // Refresh.
+    case SDLK_r:
+      assets_->reload_graphics();
       break;
   }
 }
