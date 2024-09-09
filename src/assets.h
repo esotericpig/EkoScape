@@ -66,6 +66,8 @@ public:
 
 private:
   static const Size2i kFontSize;
+  static const Color4f kFontColor1;
+  static const Color4f kFontColor2;
 
   bool is_weird_ = false;
   StyledGraphics styled_graphics_;
@@ -81,9 +83,7 @@ private:
   std::unique_ptr<Sprite> boring_work_sprite_{};
 
   std::unique_ptr<FontAtlas> font_atlas_{};
-  Color4f* font_color_ = &font_color1_;
-  Color4f font_color1_ = Color4f::bytes(214,214,214);
-  Color4f font_color2_ = Color4f::bytes(255,192,203); // Pink.
+  const Color4f* font_color_ = &kFontColor1;
   std::unique_ptr<FontRenderer> font_renderer_{};
 
   std::unique_ptr<Music> music_{};
