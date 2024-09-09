@@ -36,6 +36,9 @@ public:
   void draw_scene(Renderer& ren) override;
 
 private:
+  static const Duration kMapInfoDuration;
+  static const Duration kInitRobotDelay;
+
   const Assets& assets_;
 
   // Classic values: {0.125f,-0.04f,0.04f}.
@@ -46,6 +49,8 @@ private:
   int dantares_dist_ = 0;
 
   DantaresMap map_{dantares_};
+  bool show_map_info_ = true;
+  Timer map_info_timer_{};
   Robot::MoveData robot_move_data_{map_};
   std::vector<Robot> robots_{};
   Timer robot_move_timer_{};

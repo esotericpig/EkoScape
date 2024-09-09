@@ -9,14 +9,16 @@
 
 namespace ekoscape {
 
+const Duration GameScene::kMapInfoDuration = Duration::from_millis(3000);
+const Duration GameScene::kInitRobotDelay = Duration::from_millis(5000);
+
 GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,int dantares_dist)
     : assets_(assets),dantares_dist_(std::max(dantares_dist,2)) {
   load_map(map_file);
   generate_map();
 
-  // Extra delay to give some time for the player to orient/adjust.
-  const auto extra_delay = Duration::from_millis(5000);
-  robot_move_duration_ = map_.robot_delay() + extra_delay;
+  // Extra delay to give some time for player to orient/adjust.
+  robot_move_duration_ = map_.robot_delay() + kInitRobotDelay;
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {
@@ -107,6 +109,7 @@ void GameScene::init_scene(Renderer& /*ren*/) {
     }
   }
 
+  map_info_timer_.start();
   robot_move_timer_.start();
 }
 
@@ -144,6 +147,10 @@ void GameScene::handle_key_states(const Uint8* keys) {
 }
 
 int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
+  if(show_map_info_ && map_info_timer_.end().duration() >= kMapInfoDuration) {
+    show_map_info_ = false;
+  }
+
   int action = update_player();
   if(action != SceneAction::kNil) { return action; }
 
@@ -226,6 +233,22 @@ void GameScene::move_robots(const FrameStep& step) {
 void GameScene::draw_scene(Renderer& ren) {
   ren.begin_3d_scene();
   dantares_.Draw(dantares_dist_);
+
+  ren.begin_2d_scene()
+     .begin_auto_center_scale();
+
+  if(show_map_info_) {
+    assets_.font_renderer().wrap(ren,{395,395},[&](auto& font) {
+      const tiny_utf8::string title = map_.title();
+      const tiny_utf8::string author = "  by " + map_.author();
+
+      font.draw_bg({},{static_cast<int>(std::max(title.length(),author.length())),2},{15,10});
+      font.puts(title);
+      font.puts(author);
+    });
+  }
+
+  ren.end_scale();
 }
 
 void GameScene::set_space_textures(SpaceType type,const Texture* texture) {
