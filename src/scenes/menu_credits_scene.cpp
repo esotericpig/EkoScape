@@ -104,9 +104,10 @@ void MenuCreditsScene::init_wtfs() {
   const auto init_y = static_cast<float>(view_dimens_.target_size.h) / 2.0f;
   const auto init_w = static_cast<float>(assets_.font_renderer().font_size().w);
   const auto init_h = static_cast<float>(assets_.font_renderer().font_size().h);
+  const auto size = static_cast<int>(wtfs_.size());
 
-  for(auto& wtf: wtfs_) {
-    if(wtf.is_alive()) { continue; }
+  for(int i = active_wtf_count_; i < size; ++i,++active_wtf_count_) {
+    auto& wtf = wtfs_[i];
 
     wtf.lifespan = 3.0f;
     wtf.age = 0.0f;
@@ -138,8 +139,16 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step) {
   const auto font_spacing = assets_.font_renderer().font_spacing().to_size2<float>();
   const auto total_spacing_w = font_spacing.w * (text_len - 1);
 
-  for(auto& wtf: wtfs_) {
-    if(wtf.is_dead() && wtf.past_lives >= 1) { continue; }
+  for(int i = 0; i < active_wtf_count_; ++i) {
+    auto& wtf = wtfs_.at(i);
+
+    if(wtf.is_dead() && wtf.past_lives >= 1) {
+      // Set this index to last active element.
+      --active_wtf_count_;
+      wtfs_[i] = wtfs_.at(active_wtf_count_);
+      --i; // Reprocess this index, since now an active element.
+      continue;
+    }
 
     wtf.age_by(static_cast<float>(step.delta_time));
 
@@ -161,14 +170,15 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step) {
 
     if(!view_dimens_.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),{s,s})) {
       wtf.die().past_lives = 1;
+      --i; // Reprocess this index to actually remove it from active count.
     }
   }
 }
 
 void MenuCreditsScene::draw_wtfs(Renderer& ren) {
   assets_.font_renderer().wrap(ren,{},[&](auto& font) {
-    for(auto& wtf: wtfs_) {
-      if(wtf.is_dead()) { continue; }
+    for(int i = 0; i < active_wtf_count_; ++i) {
+      auto& wtf = wtfs_[i];
 
       font.font.pos = wtf.true_pos.to_pos3<int>();
       font.font.char_size = wtf.size.to_size2<int>();

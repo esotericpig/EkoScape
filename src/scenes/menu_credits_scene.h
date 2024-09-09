@@ -46,6 +46,7 @@ private:
   ViewDimens view_dimens_{};
   tiny_utf8::string wtf_text_{"WTF!?"};
   std::vector<WtfParticle> wtfs_{};
+  int active_wtf_count_ = 0;
 
   void init_wtfs();
   void update_wtfs(const FrameStep& step);
