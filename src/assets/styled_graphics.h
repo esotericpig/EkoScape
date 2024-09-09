@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_STYLED_GRAPHICS_H_
-#define EKOSCAPE_STYLED_GRAPHICS_H_
+#ifndef EKOSCAPE_ASSETS_STYLED_GRAPHICS_H_
+#define EKOSCAPE_ASSETS_STYLED_GRAPHICS_H_
 
 #include "cybel/common.h"
 

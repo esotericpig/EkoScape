@@ -12,7 +12,7 @@
 
 #include "cybel/scene/scene.h"
 
-#include "assets.h"
+#include "assets/assets.h"
 #include "scene_action.h"
 
 #include <vector>

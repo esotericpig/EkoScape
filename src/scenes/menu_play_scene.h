@@ -15,8 +15,8 @@
 #include "cybel/util/util.h"
 #include "cybel/cybel_engine.h"
 
+#include "assets/assets.h"
 #include "map/map.h"
-#include "assets.h"
 #include "scene_action.h"
 
 #include <algorithm>

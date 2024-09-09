@@ -13,7 +13,7 @@
 #include "cybel/scene/scene.h"
 #include "cybel/cybel_engine.h"
 
-#include "assets.h"
+#include "assets/assets.h"
 #include "scene_action.h"
 
 namespace ekoscape {

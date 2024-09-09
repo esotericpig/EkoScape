@@ -16,6 +16,7 @@
 #include "cybel/util/cybel_error.h"
 #include "cybel/cybel_engine.h"
 
+#include "assets/assets.h"
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_credits_scene.h"
@@ -23,7 +24,6 @@
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"
 #include "world/star_sys.h"
-#include "assets.h"
 
 #include <filesystem>
 

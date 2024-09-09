@@ -15,7 +15,7 @@
 #include "cybel/util/rando.h"
 #include "cybel/vfx/particle.h"
 
-#include "assets.h"
+#include "assets/assets.h"
 #include "scene_action.h"
 
 #include <vector>

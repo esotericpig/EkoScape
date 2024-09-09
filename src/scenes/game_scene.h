@@ -14,9 +14,9 @@
 #include "cybel/scene/scene.h"
 #include "cybel/util/timer.h"
 
+#include "assets/assets.h"
 #include "map/dantares_map.h"
 #include "world/robot.h"
-#include "assets.h"
 #include "scene_action.h"
 
 #include <filesystem>
