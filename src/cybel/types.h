@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// ReSharper disable CppNonExplicitConvertingConstructor
+
 #ifndef CYBEL_TYPES_H_
 #define CYBEL_TYPES_H_
 

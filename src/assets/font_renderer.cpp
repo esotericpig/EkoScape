@@ -20,6 +20,16 @@ const int FontRenderer::kSmallSpaceSize = 24;
 FontRenderer::Wrapper::Wrapper(Renderer::FontAtlasWrapper& font,const Color4f& font_color)
     : font(font),font_color(font_color) {}
 
+FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
+  font.draw_bg(color,str_size);
+  return *this;
+}
+
+FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding) {
+  font.draw_bg(color,str_size,padding);
+  return *this;
+}
+
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const tiny_utf8::string& text,int styles) {
   const bool is_selected = styles & kMenuStyleSelected;
   const bool is_cycle = styles & kMenuStyleCycle;
@@ -114,14 +124,7 @@ void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callb
 }
 
 void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback) {
-  Size2i char_size = font_size_;
-
-  if(scale != 1.0f) {
-    char_size.w = static_cast<int>(std::round(static_cast<float>(char_size.w) * scale));
-    char_size.h = static_cast<int>(std::round(static_cast<float>(char_size.h) * scale));
-  }
-
-  ren.wrap_font_atlas(font_atlas_,pos,char_size,[&](auto& font) {
+  ren.wrap_font_atlas(font_atlas_,pos,scale_size(scale),[&](auto& font) {
     Wrapper wrapper{font,font_color_};
     callback(wrapper);
   });
@@ -130,5 +133,16 @@ void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCal
 const Size2i& FontRenderer::font_size() { return font_size_; }
 
 const Size2i& FontRenderer::font_spacing() { return font_atlas_.spacing(); }
+
+Size2i FontRenderer::scale_size(float scale) const {
+  if(scale == 1.0f) { return font_size_; }
+
+  auto size = font_size_;
+
+  size.w = static_cast<int>(std::round(static_cast<float>(size.w) * scale));
+  size.h = static_cast<int>(std::round(static_cast<float>(size.h) * scale));
+
+  return size;
+}
 
 } // Namespace.

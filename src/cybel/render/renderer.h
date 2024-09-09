@@ -91,6 +91,9 @@ public:
     explicit FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
         ,const Size2i& spacing);
 
+    FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size);
+    FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
+
     FontAtlasWrapper& print();
     FontAtlasWrapper& print(char32_t c);
     FontAtlasWrapper& print(const tiny_utf8::string& str);

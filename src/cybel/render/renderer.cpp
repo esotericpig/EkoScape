@@ -66,6 +66,26 @@ Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font
     ,const Size2i& char_size,const Size2i& spacing)
     : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
 
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
+  return draw_bg(color,str_size,{});
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding) {
+  ren.end_texture();
+  ren.wrap_color(color,[&] {
+    ren.draw_quad(
+      {pos.x - padding.w,pos.y - padding.h},
+      {
+        (char_size.w * str_size.w) + (font.spacing().w * (str_size.w - 1)) + (padding.w << 1),
+        (char_size.h * str_size.h) + (font.spacing().h * (str_size.h - 1)) + (padding.h << 1)
+      }
+    );
+  });
+  ren.begin_texture(font.texture());
+
+  return *this;
+}
+
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() { return print_blanks(1); }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {

@@ -29,6 +29,8 @@ public:
 
     explicit Wrapper(Renderer::FontAtlasWrapper& font,const Color4f& font_color);
 
+    Wrapper& draw_bg(const Color4f& color,const Size2i& str_size);
+    Wrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
     Wrapper& draw_menu_opt(const tiny_utf8::string& text,int styles = 0); // Julia Stiles?
     Wrapper& draw_menu_up_arrow();
     Wrapper& draw_menu_down_arrow();
@@ -70,6 +72,8 @@ private:
   FontAtlas& font_atlas_;
   Size2i font_size_{};
   Color4f font_color_{};
+
+  Size2i scale_size(float scale) const;
 };
 
 } // Namespace.
