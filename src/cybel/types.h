@@ -32,11 +32,16 @@ public:
   Color4f(float rgb,float a = 1.0f);
   Color4f(float r,float g,float b,float a = 1.0f);
 
-  Color4f& set(float rgb,float a = 1.0f);
-  Color4f& set(float r,float g,float b,float a = 1.0f);
-  Color4f& set_hex(std::uint32_t rgb,std::uint8_t a = 255);
-  Color4f& set_bytes(std::uint8_t rgb,std::uint8_t a = 255);
-  Color4f& set_bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255);
+  Color4f& set(float rgb);
+  Color4f& set(float rgb,float a);
+  Color4f& set(float r,float g,float b);
+  Color4f& set(float r,float g,float b,float a);
+  Color4f& set_hex(std::uint32_t rgb);
+  Color4f& set_hex(std::uint32_t rgb,std::uint8_t a);
+  Color4f& set_bytes(std::uint8_t rgb);
+  Color4f& set_bytes(std::uint8_t rgb,std::uint8_t a);
+  Color4f& set_bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b);
+  Color4f& set_bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a);
 };
 
 template <typename T>
