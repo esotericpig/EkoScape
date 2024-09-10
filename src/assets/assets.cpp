@@ -110,6 +110,8 @@ const Sprite& Assets::boring_work_sprite() const { return *boring_work_sprite_; 
 
 FontRenderer& Assets::font_renderer() const { return *font_renderer_; }
 
+const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
+
 const Music* Assets::music() const { return music_.get(); }
 
 std::filesystem::path Assets::fetch_base_path() {

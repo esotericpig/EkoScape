@@ -116,7 +116,7 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts_blanks(int count) {
   return *this;
 }
 
-FontRenderer::FontRenderer(FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color)
+FontRenderer::FontRenderer(const FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color)
     : font_atlas_(font_atlas),font_size_(font_size),font_color_(font_color) {}
 
 void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback) {
@@ -130,9 +130,9 @@ void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCal
   });
 }
 
-const Size2i& FontRenderer::font_size() { return font_size_; }
+const Size2i& FontRenderer::font_size() const { return font_size_; }
 
-const Size2i& FontRenderer::font_spacing() { return font_atlas_.spacing(); }
+const Size2i& FontRenderer::font_spacing() const { return font_atlas_.spacing(); }
 
 Size2i FontRenderer::scale_size(float scale) const {
   if(scale == 1.0f) { return font_size_; }

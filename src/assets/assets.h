@@ -61,6 +61,7 @@ public:
   const Sprite& boring_work_sprite() const;
 
   FontRenderer& font_renderer() const;
+  const FontAtlas& font_atlas() const;
 
   const Music* music() const;
 

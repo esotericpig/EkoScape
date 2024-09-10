@@ -52,13 +52,13 @@ public:
   static const int kMenuStyleSelected = 1 << 0;
   static const int kMenuStyleCycle = 1 << 1;
 
-  explicit FontRenderer(FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color);
+  explicit FontRenderer(const FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color);
 
   void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
   void wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback);
 
-  const Size2i& font_size();
-  const Size2i& font_spacing();
+  const Size2i& font_size() const;
+  const Size2i& font_spacing() const;
 
 private:
   static const Color4f kArrowColor;
@@ -69,7 +69,7 @@ private:
   static const tiny_utf8::string kRightArrowText;
   static const int kSmallSpaceSize;
 
-  FontAtlas& font_atlas_;
+  const FontAtlas& font_atlas_;
   Size2i font_size_{};
   Color4f font_color_{};
 
