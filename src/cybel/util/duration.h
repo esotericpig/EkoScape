@@ -16,6 +16,8 @@ namespace cybel {
 
 class Duration {
 public:
+  static const Duration kZero;
+
   explicit Duration();
   static Duration from_millis(double millis);
   static Duration from_secs(double secs);

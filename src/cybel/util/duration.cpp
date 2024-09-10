@@ -9,6 +9,8 @@
 
 namespace cybel {
 
+const Duration Duration::kZero{0.0};
+
 Duration::Duration() {}
 
 Duration::Duration(double value)
