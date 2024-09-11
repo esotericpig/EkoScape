@@ -123,6 +123,7 @@ public:
   Renderer& begin_3d_scene();
 
   Renderer& begin_auto_center_scale();
+  Renderer& begin_auto_anchor_scale(const Pos2f& anchor);
   Renderer& begin_auto_scale();
   Renderer& end_scale();
 

@@ -236,6 +236,10 @@ Renderer& Renderer::begin_3d_scene() {
 }
 
 Renderer& Renderer::begin_auto_center_scale() {
+  return begin_auto_anchor_scale({0.5f,0.5f});
+}
+
+Renderer& Renderer::begin_auto_anchor_scale(const Pos2f& anchor) {
   const float w = static_cast<float>(dimens_.size.w);
   const float h = static_cast<float>(dimens_.size.h);
   const float tw = static_cast<float>(dimens_.target_size.w);
@@ -244,8 +248,8 @@ Renderer& Renderer::begin_auto_center_scale() {
   scale_.x = dimens_.aspect_scale;
   scale_.y = dimens_.aspect_scale;
   aspect_scale_ = dimens_.aspect_scale;
-  offset_.x = (w - (tw * scale_.x)) / 2.0f;
-  offset_.y = (h - (th * scale_.y)) / 2.0f;
+  offset_.x = (w - (tw * scale_.x)) * anchor.x;
+  offset_.y = (h - (th * scale_.y)) * anchor.y;
 
   return *this;
 }
