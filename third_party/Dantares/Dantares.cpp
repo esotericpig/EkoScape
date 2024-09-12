@@ -394,6 +394,11 @@ bool Dantares::MakeSpaceWalkable(int XCoord, int YCoord)
     return true;
 }
 
+bool Dantares::SetPlayerPosition(int XCoord, int YCoord)
+{
+    return SetPlayerPosition(XCoord, YCoord, CameraFacing);
+}
+
 bool Dantares::SetPlayerPosition(int XCoord, int YCoord, int Facing)
 {
     if (CurrentMap==-1)

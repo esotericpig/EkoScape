@@ -267,23 +267,42 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool SetPlayerPosition(int XCoord, int YCoord, int Facing=0);
+    bool SetPlayerPosition(int XCoord, int YCoord);
     /*  Places the camera in the center of the map space specified by XCoord and
-        YCoord, facing the direction specified by Facing.  If the player is currently
-        moving, this function will cancel the movement.
+        YCoord, facing the current direction.  If the player is currently moving,
+        this function will cancel the movement.
+
+        Space (0,0) is considered to be the bottom left corner of the map.
 
         Parameters:
         int XCoord - The X coordinate of the space to place the camera.  This
                      corresponds to the first index of the map array.
         int YCoord - The Y coordinate of the space to place the camera.  This
                      corresponds to the second index of the map array.
-        int Facing=0 - The direction the camera will be facing.  Space 0, 0 is
-                       considered to be the bottom left corner of the map.
+
+        Returns - Function returns true if successful, and false otherwise.  Reasons
+                  for failure may include an illegal direction, or a space outside
+                  the map dimensions.  Placing the camera in a non-walkable space
+                  is allowed.
+    */
+
+    bool SetPlayerPosition(int XCoord, int YCoord, int Facing);
+    /*  Places the camera in the center of the map space specified by XCoord and
+        YCoord, facing the direction specified by Facing.  If the player is currently
+        moving, this function will cancel the movement.
+
+        Space (0,0) is considered to be the bottom left corner of the map.
+
+        Parameters:
+        int XCoord - The X coordinate of the space to place the camera.  This
+                     corresponds to the first index of the map array.
+        int YCoord - The Y coordinate of the space to place the camera.  This
+                     corresponds to the second index of the map array.
+        int Facing=0 - The direction the camera will be facing.
                        0 represents north, facing up the Y axis.
                        1 represents east, facing up the X axis.
                        2 represents south, facing down the Y axis.
                        3 represents west, facing down the X axis.
-                       The direction is considered 0 unless otherwise specified.
 
         Returns - Function returns true if successful, and false otherwise.  Reasons
                   for failure may include an illegal direction, or a space outside
