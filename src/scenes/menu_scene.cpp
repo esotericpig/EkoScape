@@ -50,13 +50,19 @@ void MenuScene::on_key_down_event(SDL_Keycode key) {
 
     case SDLK_UP:
     case SDLK_w:
-      if(opt_index_ > 0) { --opt_index_; }
+      if(opt_index_ > 0) {
+        --opt_index_;
+      } else if(opts_.size() > 0) {
+        opt_index_ = static_cast<int>(opts_.size()) - 1; // Wrap to bottom.
+      }
       break;
 
     case SDLK_DOWN:
     case SDLK_s:
       if(opt_index_ < (static_cast<int>(opts_.size()) - 1)) {
         ++opt_index_;
+      } else {
+        opt_index_ = 0; // Wrap to top.
       }
       break;
 

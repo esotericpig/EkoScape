@@ -27,19 +27,19 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
         cybel_engine_.show_error("No map to select.");
         scene_action_ = SceneAction::kGoBack;
       } else {
-        select_map_opt(true); // Justin Case.
+        select_map_opt(); // Justin Case.
         scene_action_ = SceneAction::kGoToGame;
       }
       break;
 
     case SDLK_UP:
     case SDLK_w:
-      select_map_opt(map_opt_index_ - 1);
+      select_map_opt(map_opt_index_ - 1,true);
       break;
 
     case SDLK_DOWN:
     case SDLK_s:
-      select_map_opt(map_opt_index_ + 1);
+      select_map_opt(map_opt_index_ + 1,true);
       break;
 
     case SDLK_LEFT:
@@ -53,11 +53,11 @@ void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
       break;
 
     case SDLK_PAGEUP:
-      select_map_opt(map_opt_index_ - kMinMapOptsHalf);
+      select_map_opt(map_opt_index_ - kMinMapOptsHalf,false);
       break;
 
     case SDLK_PAGEDOWN:
-      select_map_opt(map_opt_index_ + kMinMapOptsHalf);
+      select_map_opt(map_opt_index_ + kMinMapOptsHalf,false);
       break;
 
     // Refresh.
@@ -130,7 +130,7 @@ void MenuPlayScene::refresh_maps() {
     }
   }
 
-  select_map_opt(true);
+  select_map_opt();
 }
 
 void MenuPlayScene::glob_maps() {
@@ -188,9 +188,7 @@ void MenuPlayScene::glob_maps() {
 }
 
 void MenuPlayScene::prev_map_opt_group() {
-  if(map_opts_.empty() || map_opt_index_ <= 0) {
-    return;
-  }
+  if(map_opts_.empty()) { return; }
 
   const auto& sel_opt = map_opts_.at(map_opt_index_);
   int i = map_opt_index_;
@@ -200,16 +198,13 @@ void MenuPlayScene::prev_map_opt_group() {
     if(opt.group != sel_opt.group) { break; }
   }
 
-  select_map_opt(i);
+  select_map_opt(i,true);
 }
 
 void MenuPlayScene::next_map_opt_group() {
+  if(map_opts_.empty()) { return; }
+
   const int opts_len = static_cast<int>(map_opts_.size());
-
-  if(map_opts_.empty() || map_opt_index_ >= (opts_len - 1)) {
-    return;
-  }
-
   const auto& sel_opt = map_opts_.at(map_opt_index_);
   int i = map_opt_index_;
 
@@ -218,14 +213,14 @@ void MenuPlayScene::next_map_opt_group() {
     if(opt.group != sel_opt.group) { break; }
   }
 
-  select_map_opt(i);
+  select_map_opt(i,true);
 }
 
-void MenuPlayScene::select_map_opt(bool force) {
-  select_map_opt(map_opt_index_,force);
+void MenuPlayScene::select_map_opt() {
+  select_map_opt(map_opt_index_,false,true);
 }
 
-void MenuPlayScene::select_map_opt(int index,bool force) {
+void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
   if(map_opts_.empty()) {
     if(force) {
       state_.map_file.clear();
@@ -238,9 +233,9 @@ void MenuPlayScene::select_map_opt(int index,bool force) {
   const int opts_len = static_cast<int>(map_opts_.size());
 
   if(index < 0) {
-    index = 0;
+    index = wrap ? (opts_len - 1) : 0;
   } else if(index >= opts_len) {
-    index = opts_len - 1;
+    index = wrap ? 0 : (opts_len - 1);
   }
   if(!force && index == map_opt_index_) { return; }
 

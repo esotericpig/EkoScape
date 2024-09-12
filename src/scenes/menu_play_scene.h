@@ -76,8 +76,8 @@ private:
   void glob_maps();
   void prev_map_opt_group();
   void next_map_opt_group();
-  void select_map_opt(bool force = false);
-  void select_map_opt(int index,bool force = false);
+  void select_map_opt();
+  void select_map_opt(int index,bool wrap,bool force = false);
 };
 
 } // Namespace.
