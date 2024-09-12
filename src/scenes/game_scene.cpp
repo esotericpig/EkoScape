@@ -9,6 +9,8 @@
 
 namespace ekoscape {
 
+const Color4f GameScene::kTextBgColor{0.0f,0.5f};
+const Size2i GameScene::kTextBgPadding{15,10};
 const Duration GameScene::kMapInfoDuration = Duration::from_millis(3'000);
 const Duration GameScene::kInitRobotDelay = Duration::from_millis(1'000);
 const Size2i GameScene::kMiniMapHoodRadius{4,3};
@@ -20,8 +22,8 @@ const Size2i GameScene::kMiniMapSize{
 };
 
 GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,const State& state
-    ,const StateCallback& on_state_change)
-    : assets_(assets),state_(state),on_state_change_(on_state_change) {
+    ,const StateCallback& on_state_changed)
+    : assets_(assets),state_(state),on_state_changed_(on_state_changed) {
   load_map(map_file);
   generate_map();
 
@@ -137,7 +139,7 @@ void GameScene::on_key_down_event(SDL_Keycode key) {
     // Toggle mini map.
     case SDLK_m:
       state_.show_mini_map = !state_.show_mini_map;
-      on_state_change_(state_);
+      on_state_changed_(state_);
       break;
 
     case SDLK_RETURN:
@@ -195,7 +197,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
 void GameScene::update_player() {
   if(game_phase_ == GamePhase::kGameOver) { return; }
 
-  SpaceType player_space_type = map_.player_space_type();
+  const SpaceType player_space_type = map_.player_space_type();
 
   switch(player_space_type) {
     case SpaceType::kCell:
@@ -220,6 +222,12 @@ void GameScene::update_player() {
         game_phase_ = GamePhase::kGameOver;
       }
       break;
+  }
+
+  if(game_phase_ == GamePhase::kGameOver) {
+    // Because of high speeds, we need to manually set the correct pos,
+    //     since the pos might be beyond End, etc.
+    map_.set_player_pos();
   }
 }
 
@@ -289,18 +297,17 @@ void GameScene::draw_map_info(Renderer& ren) {
   assets_.font_renderer().wrap(ren,{395,395},[&](auto& font) {
     const tiny_utf8::string title = map_.title();
     const tiny_utf8::string author = "  by " + map_.author();
+    const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
 
-    font.draw_bg({0.0f,0.5f},{static_cast<int>(std::max(title.length(),author.length())),2},{15,10});
+    font.draw_bg(kTextBgColor,{bg_w,2},kTextBgPadding);
     font.puts(title);
     font.puts(author);
   });
 }
 
 void GameScene::draw_mini_map(Renderer& ren) {
-  Pos3i pos{
-    10,
-    ren.dimens().target_size.h - 10 - kMiniMapBlockSize.h - (state_.show_mini_map ? kMiniMapSize.h : 0)
-  };
+  const int total_h = kMiniMapBlockSize.h + (state_.show_mini_map ? kMiniMapSize.h : 0);
+  Pos3i pos{10,ren.dimens().target_size.h - 10 - total_h};
 
   ren.wrap_color(mini_map_walkable_color_,[&]() {
     ren.draw_quad(pos,{kMiniMapSize.w,kMiniMapBlockSize.h});
@@ -320,35 +327,34 @@ void GameScene::draw_mini_map(Renderer& ren) {
 
   pos.y += kMiniMapBlockSize.h;
 
-  const int player_x = map_.player_x();
-  const int player_y = map_.player_y();
+  const Pos2i player_pos = map_.player_pos();
   Pos3i block_pos = pos;
 
   for(int y = -kMiniMapHoodRadius.h; y <= kMiniMapHoodRadius.h; ++y,block_pos.y += kMiniMapBlockSize.h) {
     for(int x = -kMiniMapHoodRadius.w; x <= kMiniMapHoodRadius.w; ++x,block_pos.x += kMiniMapBlockSize.w) {
-      Pos2i map_pos{};
+      Pos2i map_pos = player_pos;
 
       // "Rotate" the mini map according to the direction the player is facing.
       // - Remember that the grid is flipped vertically in Map for the Y calculations.
       switch(map_.player_facing()) {
         case Facing::kNorth:
-          map_pos.x = player_x + x;
-          map_pos.y = player_y - y;
+          map_pos.x += x;
+          map_pos.y -= y;
           break;
 
         case Facing::kSouth:
-          map_pos.x = player_x - x;
-          map_pos.y = player_y + y;
+          map_pos.x -= x;
+          map_pos.y += y;
           break;
 
         case Facing::kEast:
-          map_pos.x = player_x - y;
-          map_pos.y = player_y - x;
+          map_pos.x -= y;
+          map_pos.y -= x;
           break;
 
         case Facing::kWest:
-          map_pos.x = player_x + y;
-          map_pos.y = player_y + x;
+          map_pos.x += y;
+          map_pos.y += x;
           break;
       }
 
@@ -377,7 +383,7 @@ void GameScene::draw_mini_map(Renderer& ren) {
       ren.begin_color(*color);
       ren.draw_quad(block_pos,kMiniMapBlockSize);
 
-      if(map_pos.x == player_x && map_pos.y == player_y) {
+      if(x == 0 && y == 0) { // Player block?
         ren.begin_color(mini_map_eko_color_);
         ren.wrap_font_atlas(assets_.font_atlas(),block_pos,kMiniMapBlockSize,{},[&](auto& font) {
           font.print("↑");

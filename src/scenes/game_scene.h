@@ -35,7 +35,7 @@ public:
   using StateCallback = std::function<void(const State&)>;
 
   explicit GameScene(const Assets& assets,const std::filesystem::path& map_file,const State& state
-      ,const StateCallback& on_state_change);
+      ,const StateCallback& on_state_changed);
 
   void init_scene(Renderer& ren) override;
   void on_scene_exit() override;
@@ -51,6 +51,8 @@ private:
     kGameOver,
   };
 
+  static const Color4f kTextBgColor;
+  static const Size2i kTextBgPadding;
   static const Duration kMapInfoDuration;
   static const Duration kInitRobotDelay;
   static const int kDantaresDist = 24; // Must be 2+.
@@ -61,7 +63,7 @@ private:
 
   const Assets& assets_;
   State state_{};
-  StateCallback on_state_change_{};
+  StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;
 
   // Classic values: {0.125f,-0.04f,0.04f}.
