@@ -104,6 +104,7 @@ bool Robot::try_move(int x_vel,int y_vel,MoveData& data) {
   const Space* to_space = data.map.space(to_pos);
 
   if(to_space == nullptr || to_space->has_thing()) { return false; }
+  if(to_space->empty_type() == SpaceType::kEnd) { return false; }
   if(!(moves_like_ & kLikeGhost) && to_space->is_non_walkable()) { return false; }
 
   Pos2i from_pos = pos_; // Store origin for snake's tail.
