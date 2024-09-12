@@ -29,10 +29,15 @@ namespace ekoscape {
 
 class MenuPlayScene : public Scene {
 public:
-  using MapSelector = std::function<void(const std::filesystem::path&,bool is_rand)>;
+  struct State {
+    std::filesystem::path map_file{};
+    bool is_rand_map = true;
+  };
 
-  explicit MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const std::filesystem::path& sel_map_file
-      ,bool is_rand_map,const MapSelector& select_map);
+  using StateCallback = std::function<void(const State&)>;
+
+  explicit MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const State& state
+      ,const StateCallback& on_state_changed);
 
   void on_key_down_event(SDL_Keycode key) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
@@ -60,14 +65,14 @@ private:
 
   CybelEngine& cybel_engine_;
   Assets& assets_;
-  MapSelector select_map_{};
+  State state_{};
+  StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;
 
   int map_opt_index_ = 0;
   std::vector<MapOption> map_opts_{};
 
   void refresh_maps();
-  void refresh_maps(const std::filesystem::path& sel_map_file,bool is_rand_map);
   void glob_maps();
   void prev_map_opt_group();
   void next_map_opt_group();

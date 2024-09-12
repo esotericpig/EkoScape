@@ -46,7 +46,6 @@ public:
   void draw_scene(Renderer& ren) override;
 
   void play_music();
-  void select_map_file(const std::filesystem::path& file,bool is_rand);
 
   static void show_error_global(const std::string& error);
 
@@ -55,8 +54,7 @@ private:
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
 
-  std::filesystem::path map_file_{};
-  bool is_rand_map_ = false;
+  MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};
 
   SceneBag build_scene(int type);

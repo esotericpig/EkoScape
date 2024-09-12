@@ -12,10 +12,10 @@ namespace ekoscape {
 MenuPlayScene::MapOption::MapOption(const tiny_utf8::string& text)
     : text(text) {}
 
-MenuPlayScene::MenuPlayScene(CybelEngine& cybel_engine,Assets& assets
-    ,const std::filesystem::path& sel_map_file,bool is_rand_map,const MapSelector& select_map)
-    : cybel_engine_(cybel_engine),assets_(assets),select_map_(select_map) {
-  refresh_maps(sel_map_file,is_rand_map);
+MenuPlayScene::MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const State& state
+    ,const StateCallback& on_state_changed)
+    : cybel_engine_(cybel_engine),assets_(assets),state_(state),on_state_changed_(on_state_changed) {
+  refresh_maps();
 }
 
 void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
@@ -116,25 +116,14 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
 }
 
 void MenuPlayScene::refresh_maps() {
-  std::filesystem::path sel_map_file{};
-  const bool is_rand_map = (map_opt_index_ == 0);
-
-  if(!is_rand_map) {
-    sel_map_file = map_opts_.at(map_opt_index_).file;
-  }
-
-  refresh_maps(sel_map_file,is_rand_map);
-}
-
-void MenuPlayScene::refresh_maps(const std::filesystem::path& sel_map_file,bool is_rand_map) {
   glob_maps();
   map_opt_index_ = 0; // Random map.
 
-  if(!is_rand_map) {
+  if(!state_.is_rand_map) {
     const int opts_len = static_cast<int>(map_opts_.size());
 
     for(int i = 0; i < opts_len; ++i) {
-      if(map_opts_[i].file == sel_map_file) {
+      if(map_opts_[i].file == state_.map_file) {
         map_opt_index_ = i;
         break;
       }
@@ -238,7 +227,11 @@ void MenuPlayScene::select_map_opt(bool force) {
 
 void MenuPlayScene::select_map_opt(int index,bool force) {
   if(map_opts_.empty()) {
-    if(force) { select_map_("",true); }
+    if(force) {
+      state_.map_file.clear();
+      state_.is_rand_map = true;
+      on_state_changed_(state_);
+    }
     return;
   }
 
@@ -252,18 +245,19 @@ void MenuPlayScene::select_map_opt(int index,bool force) {
   if(!force && index == map_opt_index_) { return; }
 
   map_opt_index_ = index;
-  const bool is_rand_map = (map_opt_index_ == 0);
-  std::filesystem::path map_file{};
+  state_.is_rand_map = (map_opt_index_ == 0);
 
-  if(is_rand_map) {
+  if(state_.is_rand_map) {
     if(opts_len >= 2) {
-      map_file = map_opts_.at(Rando::it().rand_int(1,opts_len)).file;
-    } // Else, empty.
+      state_.map_file = map_opts_.at(Rando::it().rand_int(1,opts_len)).file;
+    } else {
+      state_.map_file.clear();
+    }
   } else {
-    map_file = map_opts_.at(map_opt_index_).file;
+    state_.map_file = map_opts_.at(map_opt_index_).file;
   }
 
-  select_map_(map_file,is_rand_map);
+  on_state_changed_(state_);
 }
 
 } // Namespace.

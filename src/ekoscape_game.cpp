@@ -55,8 +55,8 @@ SceneBag EkoScapeGame::build_scene(int action) {
 
     case SceneAction::kGoToMenuPlay:
       result.scene = std::make_shared<MenuPlayScene>(
-        *cybel_engine_,*assets_,map_file_,is_rand_map_
-        ,[&](const auto& file,bool is_rand) { select_map_file(file,is_rand); }
+        *cybel_engine_,*assets_,menu_play_scene_state_,
+        [&](const auto& state) { menu_play_scene_state_ = state; }
       );
       break;
 
@@ -65,15 +65,15 @@ SceneBag EkoScapeGame::build_scene(int action) {
       break;
 
     case SceneAction::kGoToGame:
-      if(map_file_.empty()) {
+      if(menu_play_scene_state_.map_file.empty()) {
         cybel_engine_->show_error("No map was selected.");
       } else {
         try {
           result.scene = std::make_shared<GameScene>(
-            *assets_,map_file_,game_scene_state_,
+            *assets_,menu_play_scene_state_.map_file,game_scene_state_,
             [&](const auto& state) { game_scene_state_ = state; }
           );
-          result.persist = true; // Preserve when pausing (e.g., for BoringWorkScene).
+          result.persist = true; // Preserve GameScene when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
           cybel_engine_->show_error(e.what());
           result.scene = nullptr;
@@ -181,11 +181,6 @@ void EkoScapeGame::play_music() {
   if(cybel_engine_->has_music_player() && assets_->music() != nullptr) {
     cybel_engine_->play_music(*assets_->music());
   }
-}
-
-void EkoScapeGame::select_map_file(const std::filesystem::path& file,bool is_rand) {
-  map_file_ = file;
-  is_rand_map_ = is_rand;
 }
 
 void EkoScapeGame::show_error_global(const std::string& error) {
