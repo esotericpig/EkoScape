@@ -10,7 +10,6 @@
 namespace ekoscape {
 
 const std::string EkoScapeGame::kTitle = "EkoScape v2.0";
-const int EkoScapeGame::kDantaresDist = 24;
 
 EkoScapeGame::EkoScapeGame() {
   CybelEngine::Config config{};
@@ -70,8 +69,11 @@ SceneBag EkoScapeGame::build_scene(int action) {
         cybel_engine_->show_error("No map was selected.");
       } else {
         try {
-          result.scene = std::make_shared<GameScene>(*assets_,map_file_,kDantaresDist);
-          result.persist = true; // Preserve game state when pausing (e.g., for BoringWorkScene).
+          result.scene = std::make_shared<GameScene>(
+            *assets_,map_file_,game_scene_state_,
+            [&](const auto& state) { game_scene_state_ = state; }
+          );
+          result.persist = true; // Preserve when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
           cybel_engine_->show_error(e.what());
           result.scene = nullptr;
@@ -128,7 +130,7 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
       break;
 
     // Toggle music.
-    case SDLK_m:
+    case SDLK_n:
       if(cybel_engine_->is_music_playing()) {
         cybel_engine_->stop_music();
       } else {

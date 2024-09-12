@@ -51,14 +51,13 @@ public:
   static void show_error_global(const std::string& error);
 
 private:
-  static const int kDantaresDist;
-
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
 
   std::filesystem::path map_file_{};
   bool is_rand_map_ = false;
+  GameScene::State game_scene_state_{};
 
   SceneBag build_scene(int type);
   void pop_scene();
