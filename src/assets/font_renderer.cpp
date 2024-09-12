@@ -9,23 +9,24 @@
 
 namespace ekoscape {
 
-const Color4f FontRenderer::kArrowColor = Color4f::bytes(0,252,0);
-const Color4f FontRenderer::kCycleArrowColor = Color4f::bytes(254,0,0);
+const Size2i FontRenderer::kFontSize{40,90};
 const tiny_utf8::string FontRenderer::kUpArrowText = "↑";
 const tiny_utf8::string FontRenderer::kDownArrowText = "↓";
 const tiny_utf8::string FontRenderer::kLeftArrowText = "←";
 const tiny_utf8::string FontRenderer::kRightArrowText = "→";
 const int FontRenderer::kSmallSpaceSize = 24;
 
-FontRenderer::Wrapper::Wrapper(Renderer::FontAtlasWrapper& font,const Color4f& font_color)
-    : font(font),font_color(font_color) {}
+FontRenderer::Wrapper::Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font
+    ,const Color4f& font_color)
+    : font_ren(font_ren),font(font),font_color(font_color) {}
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
   font.draw_bg(color,str_size);
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size
+    ,const Size2i& padding) {
   font.draw_bg(color,str_size,padding);
   return *this;
 }
@@ -36,9 +37,9 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const tiny_utf8::str
 
   // Check kMenuStyleCycle first, since it can be combined with kMenuStyleSelected.
   if(is_cycle) {
-    font.ren.wrap_color(kCycleArrowColor,[&]() { font.print(kLeftArrowText); });
+    font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.print(kLeftArrowText); });
   } else if(is_selected) {
-    font.ren.wrap_color(kArrowColor,[&]() { font.print(kRightArrowText); });
+    font.ren.wrap_color(font_ren.arrow_color_,[&]() { font.print(kRightArrowText); });
   } else {
     font.print(); // Space.
   }
@@ -48,7 +49,7 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const tiny_utf8::str
 
   if(is_cycle) {
     font.pos.x += kSmallSpaceSize;
-    font.ren.wrap_color(kCycleArrowColor,[&]() { font.print(kRightArrowText); });
+    font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.print(kRightArrowText); });
   }
 
   font.puts();
@@ -57,12 +58,12 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const tiny_utf8::str
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_up_arrow() {
-  font.ren.wrap_color(kCycleArrowColor,[&]() { font.puts(kUpArrowText); });
+  font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.puts(kUpArrowText); });
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_down_arrow() {
-  font.ren.wrap_color(kCycleArrowColor,[&]() { font.puts(kDownArrowText); });
+  font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.puts(kDownArrowText); });
   return *this;
 }
 
@@ -116,8 +117,12 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts_blanks(int count) {
   return *this;
 }
 
-FontRenderer::FontRenderer(const FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color)
-    : font_atlas_(font_atlas),font_size_(font_size),font_color_(font_color) {}
+FontRenderer::FontRenderer(const FontAtlas& font_atlas,bool make_weird)
+    : font_atlas_(font_atlas) {
+  font_color_ = make_weird ? Color4f::bytes(255,192,203) : Color4f::bytes(214,214,214);
+  arrow_color_ = make_weird ? Color4f::bytes(0,252,252) : Color4f::bytes(0,252,0);
+  cycle_arrow_color_ = make_weird ? Color4f::bytes(0,0,254) : Color4f::bytes(254,0,0);
+}
 
 void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback) {
   wrap(ren,pos,1.0f,callback);
@@ -125,19 +130,19 @@ void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callb
 
 void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback) {
   ren.wrap_font_atlas(font_atlas_,pos,scale_size(scale),[&](auto& font) {
-    Wrapper wrapper{font,font_color_};
+    Wrapper wrapper{*this,font,font_color_};
     callback(wrapper);
   });
 }
 
-const Size2i& FontRenderer::font_size() const { return font_size_; }
+const Size2i& FontRenderer::font_size() const { return kFontSize; }
 
 const Size2i& FontRenderer::font_spacing() const { return font_atlas_.spacing(); }
 
 Size2i FontRenderer::scale_size(float scale) const {
-  if(scale == 1.0f) { return font_size_; }
+  if(scale == 1.0f) { return kFontSize; }
 
-  auto size = font_size_;
+  auto size = kFontSize;
 
   size.w = static_cast<int>(std::round(static_cast<float>(size.w) * scale));
   size.h = static_cast<int>(std::round(static_cast<float>(size.h) * scale));

@@ -24,10 +24,11 @@ class FontRenderer {
 public:
   class Wrapper {
   public:
+    FontRenderer& font_ren;
     Renderer::FontAtlasWrapper& font;
     Color4f font_color;
 
-    explicit Wrapper(Renderer::FontAtlasWrapper& font,const Color4f& font_color);
+    explicit Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font,const Color4f& font_color);
 
     Wrapper& draw_bg(const Color4f& color,const Size2i& str_size);
     Wrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
@@ -52,7 +53,7 @@ public:
   static const int kMenuStyleSelected = 1 << 0;
   static const int kMenuStyleCycle = 1 << 1;
 
-  explicit FontRenderer(const FontAtlas& font_atlas,const Size2i& font_size,const Color4f& font_color);
+  explicit FontRenderer(const FontAtlas& font_atlas,bool make_weird = false);
 
   void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
   void wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback);
@@ -61,8 +62,7 @@ public:
   const Size2i& font_spacing() const;
 
 private:
-  static const Color4f kArrowColor;
-  static const Color4f kCycleArrowColor;
+  static const Size2i kFontSize;
   static const tiny_utf8::string kUpArrowText;
   static const tiny_utf8::string kDownArrowText;
   static const tiny_utf8::string kLeftArrowText;
@@ -70,8 +70,9 @@ private:
   static const int kSmallSpaceSize;
 
   const FontAtlas& font_atlas_;
-  Size2i font_size_{};
   Color4f font_color_{};
+  Color4f arrow_color_{};
+  Color4f cycle_arrow_color_{};
 
   Size2i scale_size(float scale) const;
 };

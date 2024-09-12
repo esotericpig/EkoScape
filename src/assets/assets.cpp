@@ -14,10 +14,6 @@ const std::filesystem::path Assets::kImagesDir{kAssetsDir / "images"};
 const std::filesystem::path Assets::kMapsDir{kAssetsDir / "maps"};
 const std::filesystem::path Assets::kTexturesDir{kAssetsDir / "textures"};
 
-const Size2i Assets::kFontSize{40,90};
-const Color4f Assets::kFontColor1 = Color4f::bytes(214,214,214);
-const Color4f Assets::kFontColor2 = Color4f::bytes(0,255,255);
-
 Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird)
     : styled_graphics_(kTexturesDir,graphics_style,make_weird),has_music_player_(has_music_player) {
   reload_graphics(make_weird);
@@ -59,8 +55,7 @@ void Assets::reload_graphics(bool make_weird) {
       })
       .build()
   );
-  font_color_ = is_weird_ ? &kFontColor2 : &kFontColor1;
-  font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,kFontSize,*font_color_);
+  font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,is_weird_);
 }
 
 void Assets::reload_music() {

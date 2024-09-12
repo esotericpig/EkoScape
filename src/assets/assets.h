@@ -66,10 +66,6 @@ public:
   const Music* music() const;
 
 private:
-  static const Size2i kFontSize;
-  static const Color4f kFontColor1;
-  static const Color4f kFontColor2;
-
   bool is_weird_ = false;
   StyledGraphics styled_graphics_;
   bool has_music_player_ = false;
@@ -84,7 +80,6 @@ private:
   std::unique_ptr<Sprite> boring_work_sprite_{};
 
   std::unique_ptr<FontAtlas> font_atlas_{};
-  const Color4f* font_color_ = &kFontColor1;
   std::unique_ptr<FontRenderer> font_renderer_{};
 
   std::unique_ptr<Music> music_{};
