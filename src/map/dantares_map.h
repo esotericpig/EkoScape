@@ -56,6 +56,8 @@ public:
   bool place_thing(SpaceType type,const Pos2i& pos) override;
   bool unlock_cell(const Pos2i& pos) override;
 
+  bool set_player_pos();
+  bool set_player_pos(const Pos2i& pos);
   bool set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) override;
   bool set_empty(const Pos2i& pos,SpaceType type) override;
   bool set_thing(const Pos2i& pos,SpaceType type) override;

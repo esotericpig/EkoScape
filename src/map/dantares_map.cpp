@@ -131,6 +131,12 @@ bool DantaresMap::unlock_cell(const Pos2i& pos) {
   return true;
 }
 
+bool DantaresMap::set_player_pos() {
+  return dantares_.SetPlayerPosition(dantares_.GetPlayerX(),dantares_.GetPlayerY());
+}
+
+bool DantaresMap::set_player_pos(const Pos2i& pos) { return dantares_.SetPlayerPosition(pos.x,pos.y); }
+
 bool DantaresMap::set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) {
   if(!Base::set_space(pos,empty_type,thing_type)) { return false; }
 
