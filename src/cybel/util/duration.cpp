@@ -81,6 +81,8 @@ Duration& Duration::set_from_secs(double secs) {
   return *this;
 }
 
+Duration& Duration::zero() { return set_from_millis(0.0); }
+
 double Duration::millis() const { return value_; }
 
 double Duration::secs() const { return value_ / 1000.0; }
