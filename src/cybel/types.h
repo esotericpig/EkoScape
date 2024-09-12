@@ -53,6 +53,8 @@ public:
   T x{};
   T y{};
 
+  bool operator==(const Pos2&) const = default;
+
   Pos2& set(T x,T y) {
     this->x = x;
     this->y = y;
@@ -78,6 +80,8 @@ public:
 
   Pos3() {}
   Pos3(T x,T y,T z = {}) : x(x),y(y),z(z) {}
+
+  bool operator==(const Pos3&) const = default;
 
   Pos3& set(T x,T y) { return set(x,y,z); }
 
