@@ -3,6 +3,9 @@
 # frozen_string_literal: true
 
 ###
+# Simply run it (only reads files):
+#   $ ./scripts/check_header_guards.rb
+#
 # @version 0.2.2
 # @author Bradley Whited
 ###
