@@ -81,7 +81,7 @@ class AssetsPkger
     # Need absolute path before cd().
     out_file = File.absolute_path(ASSETS_ZIP)
 
-    FileUtils.cd(ASSETS_DIR) do
+    FileUtils.cd(ASSETS_DIR,verbose: true) do
       run_cmd(*ZIP_CMD,out_file,'.',*ZIP_CMD_SUFFIX)
     end
   end
