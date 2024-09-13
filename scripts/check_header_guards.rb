@@ -21,6 +21,23 @@ def main
   exit(1) unless is_good
 end
 
+def check_multi_header_guards(*projs)
+  projs = projs.map do |(name,src_dir)|
+    [name,Pathname.new(src_dir).realdirpath.to_s]
+  end
+
+  is_good = true
+
+  projs.each do |(name,src_dir)|
+    exc_dirs = projs.map { |(_n,d)| d }
+                    .reject { |d| src_dir.start_with?(d) }
+
+    is_good &&= check_header_guards(name,src_dir,exc_dirs: exc_dirs)
+  end
+
+  return is_good
+end
+
 def check_header_guards(proj_name,src_dir,exc_dirs: [])
   src_path = Pathname.new(src_dir)
   exc_dirs = exc_dirs.map { |d| Pathname.new(d).realdirpath.to_s }
@@ -61,23 +78,6 @@ def check_header_guards(proj_name,src_dir,exc_dirs: [])
       guards.each { |g| puts g }
       puts
     end
-  end
-
-  return is_good
-end
-
-def check_multi_header_guards(*projs)
-  projs = projs.map do |(name,src_dir)|
-    [name,Pathname.new(src_dir).realdirpath.to_s]
-  end
-
-  is_good = true
-
-  projs.each do |(name,src_dir)|
-    exc_dirs = projs.map { |(_n,d)| d }
-                    .reject { |d| src_dir.start_with?(d) }
-
-    is_good &&= check_header_guards(name,src_dir,exc_dirs: exc_dirs)
   end
 
   return is_good
