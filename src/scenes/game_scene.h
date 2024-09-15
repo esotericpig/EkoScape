@@ -18,6 +18,7 @@
 #include "map/dantares_map.h"
 #include "world/robot.h"
 #include "game_hud.h"
+#include "game_overlay.h"
 #include "scene_action.h"
 
 #include <filesystem>
@@ -51,12 +52,8 @@ private:
     kGameOver,
   };
 
-  static const Color4f kTextBgColor;
-  static const Size2i kTextBgPadding;
-  static const Duration kMapInfoDuration;
   static const Duration kInitRobotDelay;
   static const int kDantaresDist = 24; // Must be 2+.
-  static const float kGameOverLifespan;
 
   const Assets& assets_;
   State state_{};
@@ -71,14 +68,14 @@ private:
   DantaresMap map_{dantares_};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
-  Timer map_info_timer_{};
   std::vector<Robot> robots_{};
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
   Robot::MoveData robot_move_data_{map_};
+
   GameHud hud_;
+  GameOverlay overlay_;
   bool player_hit_end_ = false;
-  float game_over_age_ = 0.0f;
 
   void load_map(const std::filesystem::path& file);
   SpaceType init_map_space(const Pos2i& pos,SpaceType type);
@@ -87,9 +84,6 @@ private:
   void update_player();
   void update_robots(const FrameStep& step);
   void move_robots(const FrameStep& step);
-
-  void draw_map_info(Renderer& ren);
-  void draw_game_over(Renderer& ren);
 
   void set_space_textures(SpaceType type,const Texture* texture);
   void set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);

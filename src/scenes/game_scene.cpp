@@ -9,15 +9,11 @@
 
 namespace ekoscape {
 
-const Color4f GameScene::kTextBgColor{0.0f,0.5f};
-const Size2i GameScene::kTextBgPadding{15,10};
-const Duration GameScene::kMapInfoDuration = Duration::from_millis(3'000);
 const Duration GameScene::kInitRobotDelay = Duration::from_millis(1'000);
-const float GameScene::kGameOverLifespan = 3.0f; // Seconds.
 
 GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,const State& state
     ,const StateCallback& on_state_changed)
-    : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets) {
+    : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets),overlay_(assets) {
   load_map(map_file);
   generate_map();
 
@@ -110,7 +106,7 @@ void GameScene::init_scene(Renderer& /*ren*/) {
     if(robot_move_duration_ < Duration::kZero) { robot_move_duration_.zero(); }
   }
 
-  map_info_timer_.start();
+  overlay_.init_scene();
   robot_move_timer_.start();
 }
 
@@ -167,7 +163,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
 
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
-      if(map_info_timer_.end().duration() < kMapInfoDuration) { return SceneAction::kNil; }
+      if(!overlay_.update_map_info()) { return SceneAction::kNil; }
 
       game_phase_ = GamePhase::kPlay;
       robot_move_timer_.start();
@@ -177,10 +173,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
       break;
 
     case GamePhase::kGameOver:
-      if(game_over_age_ < 1.0f) {
-        game_over_age_ += (static_cast<float>(step.delta_time) / kGameOverLifespan);
-        if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
-      }
+      overlay_.update_game_over(step);
       break;
   }
 
@@ -265,83 +258,16 @@ void GameScene::draw_scene(Renderer& ren) {
   ren.begin_auto_center_scale();
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
-      draw_map_info(ren);
+      overlay_.draw_map_info(ren,map_);
       break;
 
     case GamePhase::kGameOver:
-      draw_game_over(ren);
+      overlay_.draw_game_over(ren,map_,player_hit_end_);
       break;
 
     default: break;
   }
   ren.end_scale();
-}
-
-void GameScene::draw_map_info(Renderer& ren) {
-  assets_.font_renderer().wrap(ren,{395,395},[&](auto& font) {
-    const tiny_utf8::string title = map_.title();
-    const tiny_utf8::string author = "  by " + map_.author();
-    const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
-
-    font.draw_bg(kTextBgColor,{bg_w,2},kTextBgPadding);
-    font.puts(title);
-    font.puts(author);
-  });
-}
-
-void GameScene::draw_game_over(Renderer& ren) {
-  Color4f bg_color = kTextBgColor;
-  const int total_rescues = map_.total_rescues();
-  const int total_cells = map_.total_cells();
-  const bool freed_all = (total_rescues >= total_cells);
-
-  bg_color.a *= game_over_age_;
-
-  ren.wrap_sprite(player_hit_end_ ? assets_.corngrits_sprite() : assets_.goodnight_sprite(),[&](auto& s) {
-    ren.wrap_color({1.0f,game_over_age_},[&]() {
-      s.draw_quad({10,10},{1200,450});
-    });
-  });
-  assets_.font_renderer().wrap(ren,{460,460},0.60f,[&](auto& font) {
-    font.font_color.a *= game_over_age_;
-
-    const auto font_color = font.font_color;
-    const Color4f miss_color{1.0f,0.0f,0.0f,font_color.a};
-    const Color4f goal_color{0.0f,1.0f,0.0f,font_color.a};
-
-    font.draw_bg(bg_color,{37,5},kTextBgPadding);
-    font.puts(player_hit_end_ ? "Congrats!" : "You're dead!");
-
-    font.print("You freed ");
-    font.font_color = freed_all ? goal_color : miss_color;
-    font.print(std::to_string(total_rescues));
-    font.font_color = font_color;
-    font.print(" eko");
-    if(total_rescues != 1) { font.print('s'); }
-    font.print(" out of ");
-    font.font_color = goal_color;
-    font.print(std::to_string(total_cells));
-    font.font_color = font_color;
-    font.print(" eko");
-    if(total_cells != 1) { font.print('s'); }
-    font.print('.');
-
-    if(player_hit_end_ && freed_all) {
-      font.puts_blanks(2);
-      font.puts("You unlocked a secret!");
-      font.print("Press ");
-      font.font_color.set(1.0f,1.0f,0.0f,font_color.a);
-      font.print("F");
-      font.font_color = font_color;
-      font.print(" key in the Credits scene.");
-    }
-  });
-
-  assets_.font_renderer().wrap(ren,{580,790},[&](auto& font) {
-    font.draw_bg(bg_color,{9,1},kTextBgPadding);
-    font.font_color.a *= game_over_age_;
-    font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
-  });
 }
 
 void GameScene::set_space_textures(SpaceType type,const Texture* texture) {
