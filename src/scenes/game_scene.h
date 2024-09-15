@@ -17,7 +17,7 @@
 #include "assets/assets.h"
 #include "map/dantares_map.h"
 #include "world/robot.h"
-#include "hud.h"
+#include "game_hud.h"
 #include "scene_action.h"
 
 #include <filesystem>
@@ -76,7 +76,7 @@ private:
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
   Robot::MoveData robot_move_data_{map_};
-  Hud hud_;
+  GameHud hud_;
   bool player_hit_end_ = false;
   float game_over_age_ = 0.0f;
 

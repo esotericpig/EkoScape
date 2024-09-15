@@ -5,19 +5,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include "hud.h"
+#include "game_hud.h"
 
 namespace ekoscape {
 
-const Size2i Hud::kMiniMapHoodRadius{4,3};
-const Size2i Hud::kMiniMapBlockSize{30,30};
-const Size2i Hud::kMiniMapSize{
+const Size2i GameHud::kMiniMapHoodRadius{4,3};
+const Size2i GameHud::kMiniMapBlockSize{30,30};
+const Size2i GameHud::kMiniMapSize{
   // +1 for player.
   ((kMiniMapHoodRadius.w << 1) + 1) * kMiniMapBlockSize.w,
   ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
 };
 
-Hud::Hud(const Assets& assets)
+GameHud::GameHud(const Assets& assets)
     : assets_(assets) {
   mini_map_eko_color_ = assets.is_weird()
       ? Color4f::hex(0x0000ff,kAlpha)
@@ -30,7 +30,7 @@ Hud::Hud(const Assets& assets)
   mini_map_walkable_color_.set_bytes(0,kAlpha);
 }
 
-void Hud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map) {
+void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map) {
   ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor HUD to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (show_mini_map ? kMiniMapSize.h : 0);
