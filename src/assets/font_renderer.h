@@ -8,17 +8,14 @@
 #ifndef EKOSCAPE_ASSETS_FONT_RENDERER_H_
 #define EKOSCAPE_ASSETS_FONT_RENDERER_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/gfx/font_atlas.h"
 #include "cybel/render/renderer.h"
-#include "cybel/types.h"
 
 #include <functional>
 
 namespace ekoscape {
-
-using namespace cybel;
 
 class FontRenderer {
 public:

@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_MAP_SPACE_H_
 #define EKOSCAPE_MAP_SPACE_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "space_type.h"
 

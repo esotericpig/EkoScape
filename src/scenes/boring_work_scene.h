@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_SCENES_BORING_WORK_SCENE_H_
 #define EKOSCAPE_SCENES_BORING_WORK_SCENE_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/scene/scene.h"
 #include "cybel/cybel_engine.h"

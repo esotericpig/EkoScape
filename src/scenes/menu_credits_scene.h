@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_SCENES_MENU_CREDITS_SCENE_H_
 #define EKOSCAPE_SCENES_MENU_CREDITS_SCENE_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/render/render_types.h"
 #include "cybel/scene/scene.h"
@@ -44,7 +44,7 @@ private:
   int scene_action_ = SceneAction::kNil;
 
   ViewDimens view_dimens_{};
-  tiny_utf8::string wtf_text_{"WTF!?"};
+  tiny_utf8::string wtf_text_{"wtf!?"};
   std::vector<WtfParticle> wtfs_{};
   int active_wtf_count_ = 0;
 

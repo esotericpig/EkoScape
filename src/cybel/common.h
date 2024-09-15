@@ -40,6 +40,4 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
-#include "Dantares/Dantares.h"
-
 #endif

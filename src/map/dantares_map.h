@@ -8,11 +8,10 @@
 #ifndef EKOSCAPE_MAP_DANTARES_MAP_H_
 #define EKOSCAPE_MAP_DANTARES_MAP_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/util/cybel_error.h"
 #include "cybel/util/util.h"
-#include "cybel/types.h"
 
 #include "facing.h"
 #include "map.h"

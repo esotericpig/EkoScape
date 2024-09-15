@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_WORLD_STAR_SYS_H_
 #define EKOSCAPE_WORLD_STAR_SYS_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/gfx/texture.h"
 #include "cybel/render/render_types.h"
@@ -16,13 +16,10 @@
 #include "cybel/scene/scene_types.h"
 #include "cybel/util/rando.h"
 #include "cybel/vfx/particle.h"
-#include "cybel/types.h"
 
 #include <vector>
 
 namespace ekoscape {
-
-using namespace cybel;
 
 class StarSys {
 public:

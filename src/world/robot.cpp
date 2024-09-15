@@ -69,6 +69,8 @@ void Robot::move(MoveData& data) {
     y_vel = Rando::it().rand_bool() ? 1 : -1;
   }
 
+  // TODO: If player ate fruit (store in MoveData?), do: x_vel=-x_vel; y_vel=-y_vel;
+
   // We can't move diagonally, since the player can't either (it's only fair),
   //     so pick either X or Y (not both), von-Neumann style.
 

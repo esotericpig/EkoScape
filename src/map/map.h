@@ -8,13 +8,12 @@
 #ifndef EKOSCAPE_MAP_MAP_H_
 #define EKOSCAPE_MAP_MAP_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/io/text_reader.h"
 #include "cybel/util/cybel_error.h"
 #include "cybel/util/duration.h"
 #include "cybel/util/util.h"
-#include "cybel/types.h"
 
 #include "facing.h"
 #include "space.h"
@@ -26,8 +25,6 @@
 #include <vector>
 
 namespace ekoscape {
-
-using namespace cybel;
 
 /**
  * Dantares expects a map where the origin (0,0) is from the bottom left, instead of the top left.

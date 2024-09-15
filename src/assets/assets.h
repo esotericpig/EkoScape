@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_ASSETS_ASSETS_H_
 #define EKOSCAPE_ASSETS_ASSETS_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/audio/music.h"
 #include "cybel/gfx/font_atlas.h"
@@ -16,7 +16,6 @@
 #include "cybel/gfx/sprite.h"
 #include "cybel/gfx/texture.h"
 #include "cybel/util/cybel_error.h"
-#include "cybel/types.h"
 
 #include "font_renderer.h"
 #include "styled_graphics.h"

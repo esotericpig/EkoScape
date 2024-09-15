@@ -8,11 +8,10 @@
 #ifndef EKOSCAPE_SCENES_HUD_H_
 #define EKOSCAPE_SCENES_HUD_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/render/renderer.h"
 #include "cybel/util/util.h"
-#include "cybel/types.h"
 
 #include "assets/assets.h"
 #include "map/dantares_map.h"

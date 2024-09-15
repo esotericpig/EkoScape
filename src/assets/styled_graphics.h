@@ -8,19 +8,16 @@
 #ifndef EKOSCAPE_ASSETS_STYLED_GRAPHICS_H_
 #define EKOSCAPE_ASSETS_STYLED_GRAPHICS_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/gfx/texture.h"
 #include "cybel/util/cybel_error.h"
 #include "cybel/util/util.h"
-#include "cybel/types.h"
 
 #include <filesystem>
 #include <vector>
 
 namespace ekoscape {
-
-using namespace cybel;
 
 /**
  * This can contain Textures, Sprites, Fonts, etc.

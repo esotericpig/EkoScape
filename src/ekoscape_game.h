@@ -8,7 +8,7 @@
 #ifndef EKOSCAPE_EKOSCAPE_GAME_H_
 #define EKOSCAPE_EKOSCAPE_GAME_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"

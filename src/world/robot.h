@@ -8,10 +8,9 @@
 #ifndef EKOSCAPE_WORLD_ROBOT_H_
 #define EKOSCAPE_WORLD_ROBOT_H_
 
-#include "cybel/common.h"
+#include "common.h"
 
 #include "cybel/util/rando.h"
-#include "cybel/types.h"
 
 #include "map/dantares_map.h"
 
@@ -53,8 +52,8 @@ public:
 private:
   Pos2i pos_{};
   int moves_like_ = 0;
-  double lifespan_ = 0.0; // In seconds.
-  double age_ = 0.0; // Between 0 and 1.
+  double lifespan_ = 0.0; // Seconds.
+  double age_ = 0.0;
 
   explicit Robot(const Pos2i& pos,int moves_like,double lifespan = 0.0);
 
