@@ -59,6 +59,8 @@ public:
   const Sprite& keys_sprite() const;
   const Sprite& dantares_sprite() const;
   const Sprite& boring_work_sprite() const;
+  const Sprite& goodnight_sprite() const;
+  const Sprite& corngrits_sprite() const;
 
   FontRenderer& font_renderer() const;
   const FontAtlas& font_atlas() const;
@@ -78,6 +80,8 @@ private:
   std::unique_ptr<Sprite> keys_sprite_{};
   std::unique_ptr<Sprite> dantares_sprite_{};
   std::unique_ptr<Sprite> boring_work_sprite_{};
+  std::unique_ptr<Sprite> goodnight_sprite_{};
+  std::unique_ptr<Sprite> corngrits_sprite_{};
 
   std::unique_ptr<FontAtlas> font_atlas_{};
   std::unique_ptr<FontRenderer> font_renderer_{};

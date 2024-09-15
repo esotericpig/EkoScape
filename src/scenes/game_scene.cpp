@@ -13,32 +13,16 @@ const Color4f GameScene::kTextBgColor{0.0f,0.5f};
 const Size2i GameScene::kTextBgPadding{15,10};
 const Duration GameScene::kMapInfoDuration = Duration::from_millis(3'000);
 const Duration GameScene::kInitRobotDelay = Duration::from_millis(1'000);
-const Size2i GameScene::kMiniMapHoodRadius{4,3};
-const Size2i GameScene::kMiniMapBlockSize{30,30};
-const Size2i GameScene::kMiniMapSize{
-  // +1 for player.
-  ((kMiniMapHoodRadius.w << 1) + 1) * kMiniMapBlockSize.w,
-  ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
-};
+const float GameScene::kGameOverLifespan = 3.0f; // Seconds.
 
 GameScene::GameScene(const Assets& assets,const std::filesystem::path& map_file,const State& state
     ,const StateCallback& on_state_changed)
-    : assets_(assets),state_(state),on_state_changed_(on_state_changed) {
+    : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets) {
   load_map(map_file);
   generate_map();
 
   // Extra delay to give some time for the player to orient/adjust.
   robot_move_duration_ = map_.robot_delay() + kInitRobotDelay;
-
-  mini_map_eko_color_ = assets_.is_weird()
-      ? Color4f::hex(0x0000ff,kMiniMapAlpha)
-      : Color4f::hex(0xff0000,kMiniMapAlpha);
-  mini_map_end_color_ = assets_.is_weird()
-      ? Color4f::hex(0xffff00,kMiniMapAlpha) // Yellow.
-      : Color4f::hex(0x0000ff,kMiniMapAlpha);
-  mini_map_non_walkable_color_.set_hex(0x00ff00,kMiniMapAlpha);
-  mini_map_robot_color_.set_bytes(214,kMiniMapAlpha);
-  mini_map_walkable_color_.set_bytes(0,kMiniMapAlpha);
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {
@@ -180,11 +164,24 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
 
     return action;
   }
-  if(game_phase_ == GamePhase::kShowMapInfo) {
-    if(map_info_timer_.end().duration() < kMapInfoDuration) { return SceneAction::kNil; }
 
-    game_phase_ = GamePhase::kPlay;
-    robot_move_timer_.start();
+  switch(game_phase_) {
+    case GamePhase::kShowMapInfo:
+      if(map_info_timer_.end().duration() < kMapInfoDuration) { return SceneAction::kNil; }
+
+      game_phase_ = GamePhase::kPlay;
+      robot_move_timer_.start();
+      break;
+
+    case GamePhase::kPlay:
+      break;
+
+    case GamePhase::kGameOver:
+      if(game_over_age_ < 1.0f) {
+        game_over_age_ += (static_cast<float>(step.delta_time) / kGameOverLifespan);
+        if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
+      }
+      break;
   }
 
   update_player();
@@ -204,30 +201,18 @@ void GameScene::update_player() {
       map_.unlock_cell(map_.player_pos());
       break;
 
-    case SpaceType::kEnd:
-      // TODO: Implement Game Over scene.
-      printf("Congratulations!\nYou freed %d Eko(s) out of a total of %d Eko(s).\n\n"
-          ,map_.total_rescues(),map_.total_cells());
-      if(map_.total_rescues() == map_.total_cells()) {
-        std::cout << "You've unlocked a secret!\n";
-      }
-      game_phase_ = GamePhase::kGameOver;
-      break;
-
     default:
-      if(SpaceTypes::is_robot(player_space_type)) {
-        // TODO: Implement Game Over scene.
-        printf("You're dead!\nYou freed %d Eko(s) out of a total of %d Eko(s).\n\n"
-            ,map_.total_rescues(),map_.total_cells());
+      const bool hit_end = (player_space_type == SpaceType::kEnd);
+
+      if(hit_end || SpaceTypes::is_robot(player_space_type)) {
         game_phase_ = GamePhase::kGameOver;
+        player_hit_end_ = hit_end;
+
+        // Because of how high speeds are handled, we need to manually reset the correct player pos,
+        //     since the pos might be beyond End, etc. after fully moving.
+        map_.set_player_pos();
       }
       break;
-  }
-
-  if(game_phase_ == GamePhase::kGameOver) {
-    // Because of high speeds, we need to manually set the correct pos,
-    //     since the pos might be beyond End, etc.
-    map_.set_player_pos();
   }
 }
 
@@ -273,10 +258,9 @@ void GameScene::draw_scene(Renderer& ren) {
   dantares_.Draw(kDantaresDist);
 
   ren.begin_2d_scene();
+  hud_.draw(ren,map_,state_.show_mini_map);
 
-  ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor mini map to bottom left.
-  draw_mini_map(ren);
-  ren.end_scale();
+  if(game_phase_ == GamePhase::kPlay) { return; }
 
   ren.begin_auto_center_scale();
   switch(game_phase_) {
@@ -284,11 +268,11 @@ void GameScene::draw_scene(Renderer& ren) {
       draw_map_info(ren);
       break;
 
-    case GamePhase::kPlay:
+    case GamePhase::kGameOver:
+      draw_game_over(ren);
       break;
 
-    case GamePhase::kGameOver:
-      break;
+    default: break;
   }
   ren.end_scale();
 }
@@ -305,95 +289,59 @@ void GameScene::draw_map_info(Renderer& ren) {
   });
 }
 
-void GameScene::draw_mini_map(Renderer& ren) {
-  const int total_h = kMiniMapBlockSize.h + (state_.show_mini_map ? kMiniMapSize.h : 0);
-  Pos3i pos{10,ren.dimens().target_size.h - 10 - total_h};
+void GameScene::draw_game_over(Renderer& ren) {
+  Color4f bg_color = kTextBgColor;
+  const int total_rescues = map_.total_rescues();
+  const int total_cells = map_.total_cells();
+  const bool freed_all = (total_rescues >= total_cells);
 
-  ren.wrap_color(mini_map_walkable_color_,[&]() {
-    ren.draw_quad(pos,{kMiniMapSize.w,kMiniMapBlockSize.h});
+  bg_color.a *= game_over_age_;
+
+  ren.wrap_sprite(player_hit_end_ ? assets_.corngrits_sprite() : assets_.goodnight_sprite(),[&](auto& s) {
+    ren.wrap_color({1.0f,game_over_age_},[&]() {
+      s.draw_quad({10,10},{1200,450});
+    });
   });
-  assets_.font_renderer().wrap(ren,pos,0.33f,[&](auto& font) {
-    font.print();
+  assets_.font_renderer().wrap(ren,{460,460},0.60f,[&](auto& font) {
+    font.font_color.a *= game_over_age_;
 
-    auto orig_color = font.font_color;
-    font.font_color = (map_.total_rescues() < map_.total_cells()) ? mini_map_eko_color_ : mini_map_end_color_;
-    font.print(std::to_string(map_.total_rescues()));
+    const auto font_color = font.font_color;
+    const Color4f miss_color{1.0f,0.0f,0.0f,font_color.a};
+    const Color4f goal_color{0.0f,1.0f,0.0f,font_color.a};
 
-    font.font_color = orig_color;
-    font.print(Util::build_str('/',map_.total_cells()," ekos"));
-  });
+    font.draw_bg(bg_color,{37,5},kTextBgPadding);
+    font.puts(player_hit_end_ ? "Congrats!" : "You're dead!");
 
-  if(!state_.show_mini_map) { return; }
+    font.print("You freed ");
+    font.font_color = freed_all ? goal_color : miss_color;
+    font.print(std::to_string(total_rescues));
+    font.font_color = font_color;
+    font.print(" eko");
+    if(total_rescues != 1) { font.print('s'); }
+    font.print(" out of ");
+    font.font_color = goal_color;
+    font.print(std::to_string(total_cells));
+    font.font_color = font_color;
+    font.print(" eko");
+    if(total_cells != 1) { font.print('s'); }
+    font.print('.');
 
-  pos.y += kMiniMapBlockSize.h;
-
-  const Pos2i player_pos = map_.player_pos();
-  Pos3i block_pos = pos;
-
-  for(int y = -kMiniMapHoodRadius.h; y <= kMiniMapHoodRadius.h; ++y,block_pos.y += kMiniMapBlockSize.h) {
-    for(int x = -kMiniMapHoodRadius.w; x <= kMiniMapHoodRadius.w; ++x,block_pos.x += kMiniMapBlockSize.w) {
-      Pos2i map_pos = player_pos;
-
-      // "Rotate" the mini map according to the direction the player is facing.
-      // - Remember that the grid is flipped vertically in Map for the Y calculations.
-      switch(map_.player_facing()) {
-        case Facing::kNorth:
-          map_pos.x += x;
-          map_pos.y -= y;
-          break;
-
-        case Facing::kSouth:
-          map_pos.x -= x;
-          map_pos.y += y;
-          break;
-
-        case Facing::kEast:
-          map_pos.x -= y;
-          map_pos.y -= x;
-          break;
-
-        case Facing::kWest:
-          map_pos.x += y;
-          map_pos.y += x;
-          break;
-      }
-
-      const Space* space = map_.space(map_pos);
-      const SpaceType type = (space != nullptr) ? space->type() : SpaceType::kNil;
-      Color4f* color = &mini_map_walkable_color_;
-
-      switch(type) {
-        case SpaceType::kCell:
-          color = &mini_map_eko_color_;
-          break;
-
-        case SpaceType::kEnd:
-          color = &mini_map_end_color_;
-          break;
-
-        default:
-          if(SpaceTypes::is_robot(type)) {
-            color = &mini_map_robot_color_;
-          } else if(SpaceTypes::is_non_walkable(type)) {
-            color = &mini_map_non_walkable_color_;
-          }
-          break;
-      }
-
-      ren.begin_color(*color);
-      ren.draw_quad(block_pos,kMiniMapBlockSize);
-
-      if(x == 0 && y == 0) { // Player block?
-        ren.begin_color(mini_map_eko_color_);
-        ren.wrap_font_atlas(assets_.font_atlas(),block_pos,kMiniMapBlockSize,{},[&](auto& font) {
-          font.print("↑");
-        });
-      }
+    if(player_hit_end_ && freed_all) {
+      font.puts_blanks(2);
+      font.puts("You unlocked a secret!");
+      font.print("Press ");
+      font.font_color.set(1.0f,1.0f,0.0f,font_color.a);
+      font.print("F");
+      font.font_color = font_color;
+      font.print(" key in the Credits scene.");
     }
+  });
 
-    block_pos.x = pos.x;
-  }
-  ren.end_color();
+  assets_.font_renderer().wrap(ren,{580,790},[&](auto& font) {
+    font.draw_bg(bg_color,{9,1},kTextBgPadding);
+    font.font_color.a *= game_over_age_;
+    font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
+  });
 }
 
 void GameScene::set_space_textures(SpaceType type,const Texture* texture) {

@@ -13,11 +13,11 @@
 #include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
 #include "cybel/util/timer.h"
-#include "cybel/util/util.h"
 
 #include "assets/assets.h"
 #include "map/dantares_map.h"
 #include "world/robot.h"
+#include "hud.h"
 #include "scene_action.h"
 
 #include <filesystem>
@@ -56,10 +56,7 @@ private:
   static const Duration kMapInfoDuration;
   static const Duration kInitRobotDelay;
   static const int kDantaresDist = 24; // Must be 2+.
-  static const Size2i kMiniMapHoodRadius;
-  static const Size2i kMiniMapBlockSize;
-  static const Size2i kMiniMapSize;
-  static const std::uint8_t kMiniMapAlpha = 127;
+  static const float kGameOverLifespan;
 
   const Assets& assets_;
   State state_{};
@@ -79,12 +76,9 @@ private:
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
   Robot::MoveData robot_move_data_{map_};
-
-  Color4f mini_map_eko_color_{}; // Cell & Player.
-  Color4f mini_map_end_color_{};
-  Color4f mini_map_non_walkable_color_{};
-  Color4f mini_map_robot_color_{};
-  Color4f mini_map_walkable_color_{};
+  Hud hud_;
+  bool player_hit_end_ = false;
+  float game_over_age_ = 0.0f;
 
   void load_map(const std::filesystem::path& file);
   SpaceType init_map_space(const Pos2i& pos,SpaceType type);
@@ -95,7 +89,7 @@ private:
   void move_robots(const FrameStep& step);
 
   void draw_map_info(Renderer& ren);
-  void draw_mini_map(Renderer& ren);
+  void draw_game_over(Renderer& ren);
 
   void set_space_textures(SpaceType type,const Texture* texture);
   void set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);

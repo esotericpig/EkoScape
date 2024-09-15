@@ -35,6 +35,8 @@ void Assets::reload_graphics(bool make_weird) {
   keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"},is_weird_});
   dantares_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "dantares.png"},is_weird_});
   boring_work_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "boring_work.png"},is_weird_});
+  goodnight_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "goodnight.png"},is_weird_});
+  corngrits_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "corngrits.png"},is_weird_});
 
   font_atlas_ = std::make_unique<FontAtlas>(
     FontAtlas::Builder{Texture{Image{kImagesDir / "font_monogram.png"}}}
@@ -102,6 +104,10 @@ const Sprite& Assets::keys_sprite() const { return *keys_sprite_; }
 const Sprite& Assets::dantares_sprite() const { return *dantares_sprite_; }
 
 const Sprite& Assets::boring_work_sprite() const { return *boring_work_sprite_; }
+
+const Sprite& Assets::goodnight_sprite() const { return *goodnight_sprite_; }
+
+const Sprite& Assets::corngrits_sprite() const { return *corngrits_sprite_; }
 
 FontRenderer& Assets::font_renderer() const { return *font_renderer_; }
 
