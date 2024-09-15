@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_SCENES_MINI_MAP_H_
-#define EKOSCAPE_SCENES_MINI_MAP_H_
+#ifndef EKOSCAPE_SCENES_HUD_H_
+#define EKOSCAPE_SCENES_HUD_H_
 
 #include "cybel/common.h"
 
@@ -19,25 +19,25 @@
 
 namespace ekoscape {
 
-class MiniMap {
+class Hud {
 public:
- explicit MiniMap(const Assets& assets);
+ explicit Hud(const Assets& assets);
 
  void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map);
 
 private:
- static const Size2i kHoodRadius;
- static const Size2i kBlockSize;
- static const Size2i kSize;
+ static const Size2i kMiniMapHoodRadius;
+ static const Size2i kMiniMapBlockSize;
+ static const Size2i kMiniMapSize;
  static const std::uint8_t kAlpha = 127;
 
  const Assets& assets_;
 
- Color4f eko_color_{}; // Cell & Player.
- Color4f end_color_{};
- Color4f non_walkable_color_{};
- Color4f robot_color_{};
- Color4f walkable_color_{};
+ Color4f mini_map_eko_color_{}; // Cell & Player.
+ Color4f mini_map_end_color_{};
+ Color4f mini_map_non_walkable_color_{};
+ Color4f mini_map_robot_color_{};
+ Color4f mini_map_walkable_color_{};
 };
 
 } // Namespace.
