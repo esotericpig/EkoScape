@@ -17,6 +17,13 @@ Space::Space(SpaceType empty_type)
 Space::Space(SpaceType empty_type,SpaceType thing_type)
     : empty_type_(empty_type),thing_type_(thing_type) {}
 
+Space& Space::set(SpaceType empty_type,SpaceType thing_type) {
+  empty_type_ = empty_type;
+  thing_type_ = thing_type;
+
+  return *this;
+}
+
 SpaceType Space::set_empty(SpaceType type) {
   SpaceType old_empty = empty_type_;
   empty_type_ = type;
@@ -39,7 +46,7 @@ SpaceType Space::remove_thing() {
 }
 
 SpaceType Space::type() const {
-  return (thing_type_ != SpaceType::kNil) ? thing_type_ : empty_type_;
+  return has_thing() ? thing_type_ : empty_type_;
 }
 
 SpaceType Space::empty_type() const { return empty_type_; }
@@ -47,6 +54,8 @@ SpaceType Space::empty_type() const { return empty_type_; }
 SpaceType Space::thing_type() const { return thing_type_; }
 
 bool Space::has_thing() const { return thing_type_ != SpaceType::kNil; }
+
+bool Space::has_robot() const { return SpaceTypes::is_robot(thing_type_); }
 
 bool Space::is_walkable() const { return SpaceTypes::is_walkable(empty_type_); }
 

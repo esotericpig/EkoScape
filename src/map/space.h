@@ -20,6 +20,8 @@ public:
   explicit Space(SpaceType empty_type);
   explicit Space(SpaceType empty_type,SpaceType thing_type);
 
+  Space& set(SpaceType empty_type,SpaceType thing_type);
+
   /**
    * Returns previous empty, if there was one.
    */
@@ -40,6 +42,7 @@ public:
   SpaceType thing_type() const;
 
   bool has_thing() const;
+  bool has_robot() const;
   bool is_walkable() const;
   bool is_non_walkable() const;
 
