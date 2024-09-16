@@ -20,7 +20,7 @@ namespace ekoscape {
 
 class GameHud {
 public:
-  explicit GameHud(const Assets& assets);
+  explicit GameHud(Assets& assets);
 
   void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end);
 
@@ -30,7 +30,7 @@ private:
   static const Size2i kMiniMapSize;
   static const std::uint8_t kAlpha = 127;
 
-  const Assets& assets_;
+  Assets& assets_;
 
   Color4f mini_map_eko_color_{}; // Cell & Player.
   Color4f mini_map_end_color_{};

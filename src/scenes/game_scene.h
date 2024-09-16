@@ -35,7 +35,7 @@ public:
 
   using StateCallback = std::function<void(const State&)>;
 
-  explicit GameScene(const Assets& assets,const std::filesystem::path& map_file,const State& state
+  explicit GameScene(Assets& assets,const std::filesystem::path& map_file,const State& state
       ,const StateCallback& on_state_changed);
 
   void init_scene(Renderer& ren) override;
@@ -55,7 +55,7 @@ private:
   static const Duration kInitRobotDelay;
   static const int kDantaresDist = 24; // Must be 2+.
 
-  const Assets& assets_;
+  Assets& assets_;
   State state_{};
   StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;

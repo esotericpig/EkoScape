@@ -23,7 +23,7 @@ namespace ekoscape {
 
 class GameOverlay {
 public:
-  explicit GameOverlay(const Assets& assets);
+  explicit GameOverlay(Assets& assets);
 
   void init(const ViewDimens& dimens);
 
@@ -41,7 +41,7 @@ private:
   static const Duration kMapInfoDuration;
   static const float kGameOverLifespan;
 
-  const Assets& assets_;
+  Assets& assets_;
   ViewDimens view_dimens_{};
 
   Timer map_info_timer_{};

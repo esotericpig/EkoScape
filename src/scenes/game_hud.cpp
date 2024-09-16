@@ -17,7 +17,7 @@ const Size2i GameHud::kMiniMapSize{
   ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
 };
 
-GameHud::GameHud(const Assets& assets)
+GameHud::GameHud(Assets& assets)
     : assets_(assets) {
   mini_map_eko_color_ = assets.is_weird()
       ? Color4f::hex(0x0000ff,kAlpha)
