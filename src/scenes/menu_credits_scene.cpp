@@ -9,6 +9,8 @@
 
 namespace ekoscape {
 
+const tiny_utf8::string MenuCreditsScene::kWtfText{"wtf!?"};
+
 Color4f MenuCreditsScene::rand_color() {
   auto& r = Rando::it();
   return {r.rand_float(),r.rand_float(),r.rand_float()};
@@ -135,7 +137,7 @@ void MenuCreditsScene::init_wtfs() {
 }
 
 void MenuCreditsScene::update_wtfs(const FrameStep& step) {
-  const auto text_len = static_cast<float>(wtf_text_.length());
+  const auto text_len = static_cast<float>(kWtfText.length());
   const auto font_spacing = assets_.font_renderer().font_spacing().to_size2<float>();
   const auto total_spacing_w = font_spacing.w * (text_len - 1);
 
@@ -185,7 +187,7 @@ void MenuCreditsScene::draw_wtfs(Renderer& ren) {
       font.font_color = wtf.color;
 
       ren.wrap_rotate(wtf.pos.to_pos3<int>(),wtf.spin_angle,[&]() {
-        font.print(wtf_text_);
+        font.print(kWtfText);
       });
     }
   });

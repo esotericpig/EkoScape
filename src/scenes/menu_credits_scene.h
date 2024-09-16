@@ -40,11 +40,12 @@ private:
     Size2f true_size{};
   };
 
+  static const tiny_utf8::string kWtfText;
+
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;
 
   ViewDimens view_dimens_{};
-  tiny_utf8::string wtf_text_{"wtf!?"};
   std::vector<WtfParticle> wtfs_{};
   int active_wtf_count_ = 0;
 
