@@ -120,7 +120,7 @@ void CybelEngine::init_gui(const Config& config) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
 
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
-  //     we call fetch_resize() later, which we do in run().
+  //     we call sync_size() later, which we do in run().
   res_.window = SDL_CreateWindow(
     config.title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h
     ,SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
@@ -191,21 +191,7 @@ void CybelEngine::init_music_player(const Config& config) {
   res_.has_music_player = true;
 }
 
-void CybelEngine::set_vsync(bool enable) {
-  if(enable) {
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
-
-    // First, try with adaptive vsync.
-    if(SDL_GL_SetSwapInterval(-1) != 0) {
-      SDL_GL_SetSwapInterval(1);
-    }
-  } else {
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"0");
-    SDL_GL_SetSwapInterval(0);
-  }
-}
-
-void CybelEngine::fetch_resize(bool force) {
+void CybelEngine::sync_size(bool force) {
   Size2i size{};
 
   SDL_GL_GetDrawableSize(res_.window,&size.w,&size.h);
@@ -235,7 +221,7 @@ void CybelEngine::run() {
 
   // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
   //     and also need to call the scenes' resize() after init_scene().
-  fetch_resize();
+  sync_size();
 
   while(is_running_) {
     start_frame_timer();
@@ -333,7 +319,7 @@ void CybelEngine::handle_events() {
     }
   }
 
-  if(should_resize) { fetch_resize(false); }
+  if(should_resize) { sync_size(false); }
 }
 
 void CybelEngine::play_music(const Music& music) {
@@ -367,9 +353,25 @@ void CybelEngine::show_error_global(const std::string& title,const std::string& 
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
 }
 
+void CybelEngine::set_icon(const Image& image) { SDL_SetWindowIcon(res_.window,image.surface_); }
+
 void CybelEngine::set_title(const std::string& title) { SDL_SetWindowTitle(res_.window,title.c_str()); }
 
 void CybelEngine::reset_title() { set_title(title_); }
+
+void CybelEngine::set_vsync(bool enable) {
+  if(enable) {
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
+
+    // First, try with adaptive vsync.
+    if(SDL_GL_SetSwapInterval(-1) != 0) {
+      SDL_GL_SetSwapInterval(1);
+    }
+  } else {
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC,"0");
+    SDL_GL_SetSwapInterval(0);
+  }
+}
 
 bool CybelEngine::has_music_player() const { return res_.has_music_player; }
 

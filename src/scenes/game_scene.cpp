@@ -260,18 +260,17 @@ void GameScene::draw_scene(Renderer& ren) {
   ren.begin_2d_scene();
   hud_.draw(ren,map_,state_.show_mini_map,player_hit_end_);
 
-  if(game_phase_ == GamePhase::kPlay) { return; }
-
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
       overlay_.draw_map_info(ren,map_);
       break;
 
+    case GamePhase::kPlay:
+      break;
+
     case GamePhase::kGameOver:
       overlay_.draw_game_over(ren,map_,player_hit_end_);
       break;
-
-    default: break;
   }
 }
 

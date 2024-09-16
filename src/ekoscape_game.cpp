@@ -32,6 +32,8 @@ EkoScapeGame::EkoScapeGame() {
     StyledGraphics::Style::kRealistic,cybel_engine_->has_music_player()
   );
 
+  cybel_engine_->set_icon(assets_->icon_image());
+
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
   }

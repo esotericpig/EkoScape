@@ -10,6 +10,7 @@
 namespace ekoscape {
 
 const std::filesystem::path Assets::kAssetsDir{fetch_base_path() / "assets"};
+const std::filesystem::path Assets::kIconsDir{kAssetsDir / "icons"};
 const std::filesystem::path Assets::kImagesDir{kAssetsDir / "images"};
 const std::filesystem::path Assets::kMapsDir{kAssetsDir / "maps"};
 const std::filesystem::path Assets::kTexturesDir{kAssetsDir / "textures"};
@@ -31,6 +32,7 @@ void Assets::reload_graphics(bool make_weird) {
   star2_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star2.png"});
   star_texture_ = is_weird_ ? star2_texture_.get() : star1_texture_.get();
 
+  icon_image_ = std::make_unique<Image>(kIconsDir / "ekoscape.png");
   logo_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "ekoscape.png"},is_weird_});
   keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"},is_weird_});
   dantares_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "dantares.png"},is_weird_});
@@ -96,6 +98,8 @@ const Texture& Assets::wall_texture() const { return *styled_graphics_.graphics(
 const Texture& Assets::white_texture() const { return *styled_graphics_.graphics().white_texture; }
 
 const Texture& Assets::star_texture() const { return *star_texture_; }
+
+const Image& Assets::icon_image() const { return *icon_image_; }
 
 const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
 

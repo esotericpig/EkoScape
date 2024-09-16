@@ -11,6 +11,7 @@
 #include "common.h"
 
 #include "audio/music.h"
+#include "gfx/image.h"
 #include "render/render_types.h"
 #include "render/renderer.h"
 #include "scene/scene.h"
@@ -21,7 +22,6 @@
 #include "util/util.h"
 
 #include <cmath>
-#include <functional>
 
 namespace cybel {
 
@@ -91,8 +91,7 @@ public:
   CybelEngine& operator=(const CybelEngine& other) = delete;
   CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
-  void set_vsync(bool enable);
-  void fetch_resize(bool force = true);
+  void sync_size(bool force = true);
   void resize();
   void resize(const Size2i& size,bool force = true);
 
@@ -106,8 +105,10 @@ public:
   void show_error(const std::string& title,const std::string& error) const;
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
 
+  void set_icon(const Image& image);
   void set_title(const std::string& title);
   void reset_title();
+  void set_vsync(bool enable);
 
   bool has_music_player() const;
   bool is_music_playing() const;

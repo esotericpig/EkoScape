@@ -18,6 +18,8 @@
 
 namespace cybel {
 
+class CybelEngine;
+
 class Image {
 public:
   explicit Image(const std::filesystem::path& file);
@@ -37,6 +39,8 @@ public:
   bool is_red_first() const;
   const void* pixels() const;
   GLenum gl_type() const;
+
+  friend class CybelEngine;
 
 private:
   std::string id_{};

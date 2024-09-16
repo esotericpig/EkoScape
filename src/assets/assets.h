@@ -27,6 +27,7 @@ namespace ekoscape {
 class Assets {
 public:
   static const std::filesystem::path kAssetsDir;
+  static const std::filesystem::path kIconsDir;
   static const std::filesystem::path kImagesDir;
   static const std::filesystem::path kMapsDir;
   static const std::filesystem::path kTexturesDir;
@@ -51,9 +52,9 @@ public:
   const Texture& robot_texture() const;
   const Texture& wall_texture() const;
   const Texture& white_texture() const;
-
   const Texture& star_texture() const;
 
+  const Image& icon_image() const;
   const Sprite& logo_sprite() const;
   const Sprite& keys_sprite() const;
   const Sprite& dantares_sprite() const;
@@ -75,6 +76,7 @@ private:
   std::unique_ptr<Texture> star1_texture_{};
   std::unique_ptr<Texture> star2_texture_{};
 
+  std::unique_ptr<Image> icon_image_{};
   std::unique_ptr<Sprite> logo_sprite_{};
   std::unique_ptr<Sprite> keys_sprite_{};
   std::unique_ptr<Sprite> dantares_sprite_{};
