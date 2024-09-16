@@ -55,13 +55,13 @@ private:
     explicit MapOption(const tiny_utf8::string& text);
   };
 
-  static const int kUpDownArrowIndent = 2;
-  static const int kMaxMapOpts = 10;
+  static inline const int kUpDownArrowIndent = 2;
+  static inline const int kMaxMapOpts = 10;
   // If kMaxMapOpts is even, no exact middle; bias drawing of selected option towards top half,
   //     since this is easier on the eyes.
-  static const int kMapOptsHalf1 = std::max((kMaxMapOpts >> 1) - 1,1);
-  static const int kMapOptsHalf2 = kMaxMapOpts >> 1;
-  static const int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
+  static inline const int kMapOptsHalf1 = std::max((kMaxMapOpts >> 1) - 1,1);
+  static inline const int kMapOptsHalf2 = kMaxMapOpts >> 1;
+  static inline const int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
 
   CybelEngine& cybel_engine_;
   Assets& assets_;

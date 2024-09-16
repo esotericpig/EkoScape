@@ -52,8 +52,8 @@ private:
     kGameOver,
   };
 
-  static const Duration kInitRobotDelay;
-  static const int kDantaresDist = 24; // Must be 2+.
+  static inline const Duration kInitRobotDelay = Duration::from_millis(1'000);
+  static inline const int kDantaresDist = 24; // Must be 2+.
 
   Assets& assets_;
   State state_{};

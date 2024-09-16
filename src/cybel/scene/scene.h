@@ -22,7 +22,7 @@ public:
    * Return in update_scene_logic() to indicate no scene change (default).
    * Do not use this for your own scene types, else they'll be ignored.
    */
-  static const int kNilType = 0;
+  static inline const int kNilType = 0;
 
   virtual ~Scene() noexcept = default;
 

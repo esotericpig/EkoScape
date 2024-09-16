@@ -38,7 +38,14 @@ public:
   bool is_empty() const;
 
 private:
-  static const std::vector<Color4f> kColors;
+  // Cannot be empty!
+  static inline const std::vector<Color4f> kColors = {
+    Color4f::hex(0x0000ff), // Blue.
+    Color4f::hex(0x00ffff), // Cyan.
+    Color4f::hex(0xff00ff), // Purple.
+    Color4f::hex(0xffffff), // White.
+    Color4f::hex(0xffff00), // Yellow.
+  };
 
   ViewDimens view_dimens_{};
   bool is_flying_ = false;

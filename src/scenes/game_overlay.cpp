@@ -9,11 +9,6 @@
 
 namespace ekoscape {
 
-const Color4f GameOverlay::kTextBgColor{0.0f,0.5f};
-const Size2i GameOverlay::kTextBgPadding{15,10};
-const Duration GameOverlay::kMapInfoDuration = Duration::from_millis(3'000);
-const float GameOverlay::kGameOverLifespan = 3.0f; // Seconds.
-
 GameOverlay::GameOverlay(Assets& assets)
     : assets_(assets) {}
 

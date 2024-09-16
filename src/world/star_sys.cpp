@@ -9,15 +9,6 @@
 
 namespace ekoscape {
 
-// This cannot be empty!
-const std::vector<Color4f> StarSys::kColors = {
-  Color4f::hex(0x0000ff), // Blue.
-  Color4f::hex(0x00ffff), // Cyan.
-  Color4f::hex(0xff00ff), // Purple.
-  Color4f::hex(0xffffff), // White.
-  Color4f::hex(0xffff00), // Yellow.
-};
-
 Color4f StarSys::rand_color() {
   return kColors.at(Rando::it().rand_sizet(kColors.size()));
 }

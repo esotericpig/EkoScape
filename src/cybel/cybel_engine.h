@@ -79,9 +79,9 @@ public:
     int music_types = MIX_INIT_OGG;
   };
 
-  static const int kFallbackWidth = 1600;
-  static const int kFallbackHeight = 900;
-  static const int kFallbackFps = 60;
+  static inline const int kFallbackWidth = 1600;
+  static inline const int kFallbackHeight = 900;
+  static inline const int kFallbackFps = 60;
 
   explicit CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene);
   CybelEngine(const CybelEngine& other) = delete;

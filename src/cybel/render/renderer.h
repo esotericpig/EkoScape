@@ -112,7 +112,7 @@ public:
   using WrapSpriteAtlasCallback = std::function<void(SpriteAtlasWrapper&)>;
   using WrapFontAtlasCallback = std::function<void(FontAtlasWrapper&)>;
 
-  static const Pos4f kDefaultSrc;
+  static inline const Pos4f kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
 
   explicit Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 

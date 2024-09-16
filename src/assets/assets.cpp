@@ -9,11 +9,20 @@
 
 namespace ekoscape {
 
-const std::filesystem::path Assets::kAssetsDir{fetch_base_path() / "assets"};
-const std::filesystem::path Assets::kIconsDir{kAssetsDir / "icons"};
-const std::filesystem::path Assets::kImagesDir{kAssetsDir / "images"};
-const std::filesystem::path Assets::kMapsDir{kAssetsDir / "maps"};
-const std::filesystem::path Assets::kTexturesDir{kAssetsDir / "textures"};
+std::filesystem::path Assets::fetch_base_path() {
+  char* cpath = SDL_GetBasePath();
+
+  if(cpath == NULL) {
+    throw CybelError{"Failed to get base path of app: " + Util::get_sdl_error() + "."};
+  }
+
+  std::filesystem::path path{cpath};
+
+  SDL_free(cpath);
+  cpath = NULL;
+
+  return path;
+}
 
 Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird)
     : styled_graphics_(kTexturesDir,graphics_style,make_weird),has_music_player_(has_music_player) {
@@ -118,20 +127,5 @@ FontRenderer& Assets::font_renderer() const { return *font_renderer_; }
 const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
 
 const Music* Assets::music() const { return music_.get(); }
-
-std::filesystem::path Assets::fetch_base_path() {
-  char* cpath = SDL_GetBasePath();
-
-  if(cpath == NULL) {
-    throw CybelError{"Failed to get base path of app: " + Util::get_sdl_error() + "."};
-  }
-
-  std::filesystem::path path{cpath};
-
-  SDL_free(cpath);
-  cpath = NULL;
-
-  return path;
-}
 
 } // Namespace.

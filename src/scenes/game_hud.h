@@ -25,10 +25,14 @@ public:
   void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end);
 
 private:
-  static const Size2i kMiniMapHoodRadius;
-  static const Size2i kMiniMapBlockSize;
-  static const Size2i kMiniMapSize;
-  static const std::uint8_t kAlpha = 127;
+  static inline const Size2i kMiniMapHoodRadius{4,3};
+  static inline const Size2i kMiniMapBlockSize{30,30};
+  static inline const Size2i kMiniMapSize{
+    // +1 for player.
+    ((kMiniMapHoodRadius.w << 1) + 1) * kMiniMapBlockSize.w,
+    ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
+  };
+  static inline const std::uint8_t kAlpha = 127;
 
   Assets& assets_;
 

@@ -40,7 +40,7 @@ public:
   void draw_scene(Renderer& ren) override;
 
 private:
-  static const tiny_utf8::string kGraphicsText;
+  static inline const tiny_utf8::string kGraphicsText = "gfx: ";
 
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;

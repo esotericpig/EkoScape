@@ -40,7 +40,7 @@ private:
     Size2f true_size{};
   };
 
-  static const tiny_utf8::string kWtfText;
+  static inline const tiny_utf8::string kWtfText = "wtf!?";
 
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;

@@ -29,12 +29,12 @@ public:
     void refresh();
   };
 
-  static const int kLikeStatue = 1 << 0; // No movement.
-  static const int kLikeNormal = 1 << 1;
-  static const int kLikeGhost = 1 << 2; // Can go through walls.
-  static const int kLikeSnake = 1 << 3; // Leaves behind a "shadow"/tail of statues.
+  static inline const int kLikeStatue = 1 << 0; // No movement.
+  static inline const int kLikeNormal = 1 << 1;
+  static inline const int kLikeGhost = 1 << 2; // Can go through walls.
+  static inline const int kLikeSnake = 1 << 3; // Leaves behind a "shadow"/tail of statues.
 
-  static const double kSnakeTailLifespan;
+  static inline const double kSnakeTailLifespan = 9.0; // Seconds.
 
   static Robot build_statue(const Pos2i& pos,double lifespan = 0.0);
   static Robot build_normal(const Pos2i& pos,double lifespan = 0.0);

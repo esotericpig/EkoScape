@@ -36,7 +36,7 @@ public:
   /**
    * Default initial buffer size; only used on init.
    */
-  static const std::size_t kDefaultInitBufferSize = 1024;
+  static inline const std::size_t kDefaultInitBufferSize = 1024;
 
   explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = kDefaultInitBufferSize);
   TextReaderBuf(const TextReaderBuf& other) = delete;

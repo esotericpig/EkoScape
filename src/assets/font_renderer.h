@@ -47,8 +47,8 @@ public:
 
   using WrapCallback = std::function<void(Wrapper&)>;
 
-  static const int kMenuStyleSelected = 1 << 0;
-  static const int kMenuStyleCycle = 1 << 1;
+  static inline const int kMenuStyleSelected = 1 << 0;
+  static inline const int kMenuStyleCycle = 1 << 1;
 
   explicit FontRenderer(const FontAtlas& font_atlas,bool make_weird = false);
 
@@ -59,12 +59,12 @@ public:
   const Size2i& font_spacing() const;
 
 private:
-  static const Size2i kFontSize;
-  static const tiny_utf8::string kUpArrowText;
-  static const tiny_utf8::string kDownArrowText;
-  static const tiny_utf8::string kLeftArrowText;
-  static const tiny_utf8::string kRightArrowText;
-  static const int kSmallSpaceSize;
+  static inline const Size2i kFontSize{40,90};
+  static inline const tiny_utf8::string kUpArrowText = "↑";
+  static inline const tiny_utf8::string kDownArrowText = "↓";
+  static inline const tiny_utf8::string kLeftArrowText = "←";
+  static inline const tiny_utf8::string kRightArrowText = "→";
+  static inline const int kSmallSpaceSize = 24;
 
   const FontAtlas& font_atlas_;
   Color4f font_color_{};

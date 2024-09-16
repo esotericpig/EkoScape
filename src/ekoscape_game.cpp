@@ -9,8 +9,6 @@
 
 namespace ekoscape {
 
-const std::string EkoScapeGame::kTitle = "EkoScape v2.0";
-
 EkoScapeGame::EkoScapeGame() {
   CybelEngine::Config config{};
 

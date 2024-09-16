@@ -9,8 +9,6 @@
 
 namespace cybel {
 
-const Pos4f Renderer::kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
-
 Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src)
     : ren(ren),texture(texture),src(src) {}
 

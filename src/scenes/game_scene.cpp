@@ -9,8 +9,6 @@
 
 namespace ekoscape {
 
-const Duration GameScene::kInitRobotDelay = Duration::from_millis(1'000);
-
 GameScene::GameScene(Assets& assets,const std::filesystem::path& map_file,const State& state
     ,const StateCallback& on_state_changed)
     : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets),overlay_(assets) {

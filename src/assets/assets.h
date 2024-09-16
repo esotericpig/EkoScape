@@ -25,12 +25,20 @@
 namespace ekoscape {
 
 class Assets {
+private:
+  /**
+   * This is an expensive operation that should only be called once.
+   */
+  static std::filesystem::path fetch_base_path();
+
+  static inline const std::filesystem::path kBaseDir{fetch_base_path()};
+
 public:
-  static const std::filesystem::path kAssetsDir;
-  static const std::filesystem::path kIconsDir;
-  static const std::filesystem::path kImagesDir;
-  static const std::filesystem::path kMapsDir;
-  static const std::filesystem::path kTexturesDir;
+  static inline const std::filesystem::path kAssetsDir{kBaseDir / "assets"};
+  static inline const std::filesystem::path kIconsDir{kAssetsDir / "icons"};
+  static inline const std::filesystem::path kImagesDir{kAssetsDir / "images"};
+  static inline const std::filesystem::path kMapsDir{kAssetsDir / "maps"};
+  static inline const std::filesystem::path kTexturesDir{kAssetsDir / "textures"};
 
   explicit Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird = false);
 
@@ -88,8 +96,6 @@ private:
   std::unique_ptr<FontRenderer> font_renderer_{};
 
   std::unique_ptr<Music> music_{};
-
-  static std::filesystem::path fetch_base_path();
 };
 
 } // Namespace.

@@ -9,8 +9,6 @@
 
 namespace ekoscape {
 
-const tiny_utf8::string MenuCreditsScene::kWtfText{"wtf!?"};
-
 Color4f MenuCreditsScene::rand_color() {
   auto& r = Rando::it();
   return {r.rand_float(),r.rand_float(),r.rand_float()};

@@ -9,14 +9,6 @@
 
 namespace ekoscape {
 
-const Size2i GameHud::kMiniMapHoodRadius{4,3};
-const Size2i GameHud::kMiniMapBlockSize{30,30};
-const Size2i GameHud::kMiniMapSize{
-  // +1 for player.
-  ((kMiniMapHoodRadius.w << 1) + 1) * kMiniMapBlockSize.w,
-  ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
-};
-
 GameHud::GameHud(Assets& assets)
     : assets_(assets) {
   mini_map_eko_color_ = assets.is_weird()

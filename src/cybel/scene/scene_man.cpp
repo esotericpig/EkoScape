@@ -9,12 +9,6 @@
 
 namespace cybel {
 
-const SceneBag SceneMan::kEmptySceneBag{
-  Scene::kNilType,
-  std::make_shared<Scene>(), // Current scene should never be null.
-  false,
-};
-
 SceneMan::SceneMan(const SceneBuilder& build_scene,const SceneIniter& init_scene)
     : build_scene_(build_scene),init_scene_(init_scene) {}
 

@@ -9,13 +9,6 @@
 
 namespace ekoscape {
 
-const Size2i FontRenderer::kFontSize{40,90};
-const tiny_utf8::string FontRenderer::kUpArrowText = "↑";
-const tiny_utf8::string FontRenderer::kDownArrowText = "↓";
-const tiny_utf8::string FontRenderer::kLeftArrowText = "←";
-const tiny_utf8::string FontRenderer::kRightArrowText = "→";
-const int FontRenderer::kSmallSpaceSize = 24;
-
 FontRenderer::Wrapper::Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font
     ,const Color4f& font_color)
     : font_ren(font_ren),font(font),font_color(font_color) {}

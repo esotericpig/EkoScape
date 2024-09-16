@@ -9,8 +9,6 @@
 
 namespace ekoscape {
 
-const tiny_utf8::string MenuScene::kGraphicsText = "gfx: ";
-
 MenuScene::MenuScene(Assets& assets)
     : assets_(assets) {
   for(auto& opt: opts_) {

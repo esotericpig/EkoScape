@@ -9,8 +9,6 @@
 
 namespace ekoscape {
 
-const double Robot::kSnakeTailLifespan = 9.0; // In seconds.
-
 Robot::MoveData::MoveData(DantaresMap& map)
     : map(map) {
   refresh();

@@ -23,7 +23,11 @@ public:
   using SceneBuilder = std::function<SceneBag(int type)>;
   using SceneIniter = std::function<void(Scene&)>;
 
-  static const SceneBag kEmptySceneBag;
+  static inline const SceneBag kEmptySceneBag{
+    Scene::kNilType,
+    std::make_shared<Scene>(), // Current scene should never be null.
+    false,
+  };
 
   explicit SceneMan(const SceneBuilder& build_scene,const SceneIniter& init_scene);
 

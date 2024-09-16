@@ -36,10 +36,10 @@ public:
   float game_over_age() const;
 
 private:
-  static const Color4f kTextBgColor;
-  static const Size2i kTextBgPadding;
-  static const Duration kMapInfoDuration;
-  static const float kGameOverLifespan;
+  static inline const Color4f kTextBgColor{0.0f,0.5f};
+  static inline const Size2i kTextBgPadding{15,10};
+  static inline const Duration kMapInfoDuration = Duration::from_millis(3'000);
+  static inline const float kGameOverLifespan = 3.0f; // Seconds.
 
   Assets& assets_;
   ViewDimens view_dimens_{};

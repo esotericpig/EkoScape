@@ -59,7 +59,7 @@
 class Dantares
 {
 public:
-    static const int MAXMAPS = 10;
+    static inline const int MAXMAPS = 10;
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
 
@@ -529,7 +529,7 @@ private:
     class SpaceClass
     {
     public:
-        static const GLsizei DISPLAY_LIST_RANGE = 6;
+        static inline const GLsizei DISPLAY_LIST_RANGE = 6;
 
         explicit SpaceClass(int Type);
         SpaceClass(const SpaceClass &Copy) = delete;

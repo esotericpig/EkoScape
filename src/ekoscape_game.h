@@ -35,7 +35,7 @@ private:
   std::unique_ptr<CybelEngine> cybel_engine_{};
 
 public:
-  static const std::string kTitle;
+  static inline const std::string kTitle = "EkoScape v2.0";
 
   explicit EkoScapeGame();
 
