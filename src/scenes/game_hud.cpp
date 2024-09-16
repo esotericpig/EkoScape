@@ -30,7 +30,7 @@ GameHud::GameHud(const Assets& assets)
   mini_map_walkable_color_.set_bytes(0,kAlpha);
 }
 
-void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map) {
+void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end) {
   ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor HUD to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (show_mini_map ? kMiniMapSize.h : 0);
@@ -114,7 +114,7 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map) {
       ren.begin_color(*color);
       ren.draw_quad(block_pos,kMiniMapBlockSize);
 
-      if(x == 0 && y == 0) { // Player block?
+      if(!player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
         ren.wrap_font_atlas(assets_.font_atlas(),block_pos,kMiniMapBlockSize,{},[&](auto& font) {
           font.print("↑");

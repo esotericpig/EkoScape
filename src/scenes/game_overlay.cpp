@@ -17,7 +17,9 @@ const float GameOverlay::kGameOverLifespan = 3.0f; // Seconds.
 GameOverlay::GameOverlay(const Assets& assets)
     : assets_(assets) {}
 
-void GameOverlay::init_scene() {
+void GameOverlay::init(const ViewDimens& dimens) {
+  view_dimens_ = dimens;
+
   map_info_timer_.start();
 }
 
@@ -25,14 +27,21 @@ bool GameOverlay::update_map_info() {
   return (map_info_timer_.end().duration() >= kMapInfoDuration);
 }
 
-void GameOverlay::update_game_over(const FrameStep& step) {
-  if(game_over_age_ >= 1.0f) { return; }
+void GameOverlay::update_game_over(const FrameStep& step,bool player_hit_end) {
+  if(game_over_age_ < 1.0f) {
+    game_over_age_ += (static_cast<float>(step.delta_time) / kGameOverLifespan);
+    if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
+  }
 
-  game_over_age_ += (static_cast<float>(step.delta_time) / kGameOverLifespan);
-  if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
+  if(player_hit_end) {
+    if(star_sys_.is_empty()) { star_sys_.init(view_dimens_,true); }
+    star_sys_.update(step);
+  }
 }
 
 void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
+  ren.begin_auto_center_scale();
+
   assets_.font_renderer().wrap(ren,{395,395},[&](auto& font) {
     const tiny_utf8::string title = map.title();
     const tiny_utf8::string author = "  by " + map.author();
@@ -42,9 +51,13 @@ void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
     font.puts(title);
     font.puts(author);
   });
+
+  ren.end_scale();
 }
 
 void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool player_hit_end) {
+  ren.begin_auto_center_scale();
+
   Color4f bg_color = kTextBgColor;
   const int total_rescues = map.total_rescues();
   const int total_cells = map.total_cells();
@@ -83,12 +96,12 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
 
     if(player_hit_end && freed_all) {
       font.puts_blanks(2);
-      font.puts("You unlocked a secret!");
+      font.puts("You've unlocked a secret!");
       font.print("Press ");
       font.font_color.set(1.0f,1.0f,0.0f,font_color.a);
       font.print("F");
       font.font_color = font_color;
-      font.print(" key in the Credits scene.");
+      font.print(" in Credits to pay respects.");
     }
   });
 
@@ -97,6 +110,15 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
     font.font_color.a *= game_over_age_;
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
   });
+
+  ren.end_scale()
+     .begin_auto_scale()
+     .begin_add_blend();
+  star_sys_.draw(ren,assets_.star_texture());
+  ren.end_blend()
+     .end_scale();
 }
+
+float GameOverlay::game_over_age() const { return game_over_age_; }
 
 } // Namespace.

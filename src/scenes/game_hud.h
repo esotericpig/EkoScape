@@ -22,7 +22,7 @@ class GameHud {
 public:
   explicit GameHud(const Assets& assets);
 
-  void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map);
+  void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end);
 
 private:
   static const Size2i kMiniMapHoodRadius;

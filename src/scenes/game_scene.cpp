@@ -98,7 +98,7 @@ void GameScene::generate_map() {
   map_.generate_in_dantares(); // Must be called after setting the textures.
 }
 
-void GameScene::init_scene(Renderer& /*ren*/) {
+void GameScene::init_scene(Renderer& ren) {
   // If was paused, adjust robot_move_duration_ to be accurate.
   // - For maps that depend on accurate time, like `60 Seconds`, this prevents cheating.
   if(robot_move_timer_.duration() > Duration::kZero) {
@@ -106,7 +106,7 @@ void GameScene::init_scene(Renderer& /*ren*/) {
     if(robot_move_duration_ < Duration::kZero) { robot_move_duration_.zero(); }
   }
 
-  overlay_.init_scene();
+  overlay_.init(ren.dimens());
   robot_move_timer_.start();
 }
 
@@ -173,7 +173,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
       break;
 
     case GamePhase::kGameOver:
-      overlay_.update_game_over(step);
+      overlay_.update_game_over(step,player_hit_end_);
       break;
   }
 
@@ -248,14 +248,20 @@ void GameScene::move_robots(const FrameStep& step) {
 
 void GameScene::draw_scene(Renderer& ren) {
   ren.begin_3d_scene();
-  dantares_.Draw(kDantaresDist);
+
+  if(player_hit_end_) {
+    ren.begin_color({1.0f,1.0f - overlay_.game_over_age()});
+    dantares_.Draw(kDantaresDist);
+    ren.end_color();
+  } else {
+    dantares_.Draw(kDantaresDist);
+  }
 
   ren.begin_2d_scene();
-  hud_.draw(ren,map_,state_.show_mini_map);
+  hud_.draw(ren,map_,state_.show_mini_map,player_hit_end_);
 
   if(game_phase_ == GamePhase::kPlay) { return; }
 
-  ren.begin_auto_center_scale();
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
       overlay_.draw_map_info(ren,map_);
@@ -267,7 +273,6 @@ void GameScene::draw_scene(Renderer& ren) {
 
     default: break;
   }
-  ren.end_scale();
 }
 
 void GameScene::set_space_textures(SpaceType type,const Texture* texture) {

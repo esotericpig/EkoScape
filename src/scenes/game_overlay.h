@@ -17,6 +17,7 @@
 
 #include "assets/assets.h"
 #include "map/dantares_map.h"
+#include "world/star_sys.h"
 
 namespace ekoscape {
 
@@ -24,13 +25,15 @@ class GameOverlay {
 public:
   explicit GameOverlay(const Assets& assets);
 
-  void init_scene();
+  void init(const ViewDimens& dimens);
 
   bool update_map_info();
-  void update_game_over(const FrameStep& step);
+  void update_game_over(const FrameStep& step,bool player_hit_end);
 
   void draw_map_info(Renderer& ren,const DantaresMap& map);
   void draw_game_over(Renderer& ren,const DantaresMap& map,bool player_hit_end);
+
+  float game_over_age() const;
 
 private:
   static const Color4f kTextBgColor;
@@ -39,9 +42,11 @@ private:
   static const float kGameOverLifespan;
 
   const Assets& assets_;
+  ViewDimens view_dimens_{};
 
   Timer map_info_timer_{};
   float game_over_age_ = 0.0f;
+  StarSys star_sys_{};
 };
 
 } // Namespace.

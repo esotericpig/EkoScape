@@ -22,8 +22,10 @@ Color4f StarSys::rand_color() {
   return kColors.at(Rando::it().rand_sizet(kColors.size()));
 }
 
-void StarSys::init(const ViewDimens& view_dimens) {
+void StarSys::init(const ViewDimens& view_dimens,bool is_flying) {
   view_dimens_ = view_dimens;
+  is_flying_ = is_flying;
+
   stars_.resize(100);
 
   for(auto& star: stars_) {
@@ -38,12 +40,20 @@ void StarSys::init(const ViewDimens& view_dimens) {
 void StarSys::birth_star(Particle& star) {
   auto& r = Rando::it();
 
-  star.lifespan = r.rand_float(5.0f,10.0f);
+  if(is_flying_) {
+    star.lifespan = r.rand_float(0.0f,2.0f);
+    star.pos.x = static_cast<float>(view_dimens_.target_size.w) / 2.0f;
+    star.pos.y = static_cast<float>(view_dimens_.target_size.h) / 2.0f;
+    star.pos_vel.x = r.rand_float_vel(1.0f,10.0f) * 60.0f;
+    star.pos_vel.y = r.rand_float_vel(1.0f,10.0f) * 50.0f;
+  } else {
+    star.lifespan = r.rand_float(5.0f,10.0f);
+    star.pos.x = static_cast<float>(r.rand_int(view_dimens_.target_size.w));
+    star.pos.y = static_cast<float>(r.rand_int(view_dimens_.target_size.h));
+    star.pos_vel.x = (r.rand_float() < 0.40f) ? r.rand_float_vel(30.0f) : 0.0f;
+    star.pos_vel.y = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
+  }
 
-  star.pos.x = static_cast<float>(r.rand_int(view_dimens_.target_size.w));
-  star.pos.y = static_cast<float>(r.rand_int(view_dimens_.target_size.h));
-  star.pos_vel.x = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
-  star.pos_vel.y = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
   star.spin_angle = r.rand_float(360.0f);
   star.spin_vel = (r.rand_float() < 0.70f) ? r.rand_float_vel(60.0f) : 0.0f;
 
@@ -73,8 +83,10 @@ void StarSys::update(const FrameStep& step) {
     } else if(star.past_lives < 1) {
       star.fade();
 
-      if(Rando::it().rand_bool()) { star.pos_vel.x = -star.pos_vel.x; }
-      if(Rando::it().rand_bool()) { star.pos_vel.y = -star.pos_vel.y; }
+      if(!is_flying_) {
+        if(Rando::it().rand_bool()) { star.pos_vel.x = -star.pos_vel.x; }
+        if(Rando::it().rand_bool()) { star.pos_vel.y = -star.pos_vel.y; }
+      }
       if(Rando::it().rand_bool()) { star.spin_vel = -star.spin_vel; }
 
       star.rebirth();

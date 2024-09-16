@@ -25,7 +25,7 @@ class StarSys {
 public:
   static Color4f rand_color();
 
-  void init(const ViewDimens& view_dimens);
+  void init(const ViewDimens& view_dimens,bool is_flying = false);
 
   /**
    * Free up memory for scenes that don't need stars.
@@ -41,6 +41,7 @@ private:
   static const std::vector<Color4f> kColors;
 
   ViewDimens view_dimens_{};
+  bool is_flying_ = false;
   std::vector<Particle> stars_{};
 
   void birth_star(Particle& star);
