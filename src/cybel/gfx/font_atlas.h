@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+// ReSharper disable CppHidingFunction
+
 #ifndef CYBEL_GFX_FONT_ATLAS_H_
 #define CYBEL_GFX_FONT_ATLAS_H_
 

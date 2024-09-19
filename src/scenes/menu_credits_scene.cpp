@@ -107,7 +107,7 @@ void MenuCreditsScene::init_wtfs() {
   const auto size = static_cast<int>(wtfs_.size());
 
   for(int i = active_wtf_count_; i < size; ++i,++active_wtf_count_) {
-    auto& wtf = wtfs_[i];
+    WtfParticle& wtf = wtfs_[i];
 
     wtf.lifespan = 3.0f;
     wtf.age = 0.0f;
@@ -136,11 +136,11 @@ void MenuCreditsScene::init_wtfs() {
 
 void MenuCreditsScene::update_wtfs(const FrameStep& step) {
   const auto text_len = static_cast<float>(kWtfText.length());
-  const auto font_spacing = assets_.font_renderer().font_spacing().to_size2<float>();
-  const auto total_spacing_w = font_spacing.w * (text_len - 1);
+  const Size2f font_spacing = assets_.font_renderer().font_spacing().to_size2<float>();
+  const float total_spacing_w = font_spacing.w * (text_len - 1);
 
   for(int i = 0; i < active_wtf_count_; ++i) {
-    auto& wtf = wtfs_.at(i);
+    WtfParticle& wtf = wtfs_.at(i);
 
     if(wtf.is_dead() && wtf.past_lives >= 1) {
       // Set this index to last active element.
@@ -178,7 +178,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step) {
 void MenuCreditsScene::draw_wtfs(Renderer& ren) {
   assets_.font_renderer().wrap(ren,{},[&](auto& font) {
     for(int i = 0; i < active_wtf_count_; ++i) {
-      auto& wtf = wtfs_[i];
+      WtfParticle& wtf = wtfs_[i];
 
       font.font.pos = wtf.true_pos.to_pos3<int>();
       font.font.char_size = wtf.size.to_size2<int>();

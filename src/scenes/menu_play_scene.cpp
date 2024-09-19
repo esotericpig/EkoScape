@@ -144,7 +144,7 @@ void MenuPlayScene::glob_maps() {
     for(const auto& top_dir: std::filesystem::directory_iterator(Assets::kMapsDir)) {
       if(!top_dir.is_directory()) { continue; }
 
-      const auto group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
+      const tiny_utf8::string group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
 
       for(const auto& file: std::filesystem::directory_iterator(top_dir)) {
         if(!file.is_regular_file() || !Map::is_map_file(file)) {
@@ -190,11 +190,11 @@ void MenuPlayScene::glob_maps() {
 void MenuPlayScene::prev_map_opt_group() {
   if(map_opts_.empty()) { return; }
 
-  const auto& sel_opt = map_opts_.at(map_opt_index_);
+  const MapOption& sel_opt = map_opts_.at(map_opt_index_);
   int i = map_opt_index_;
 
   for(; i >= 0; --i) {
-    const auto& opt = map_opts_[i];
+    const MapOption& opt = map_opts_[i];
     if(opt.group != sel_opt.group) { break; }
   }
 
@@ -205,11 +205,11 @@ void MenuPlayScene::next_map_opt_group() {
   if(map_opts_.empty()) { return; }
 
   const int opts_len = static_cast<int>(map_opts_.size());
-  const auto& sel_opt = map_opts_.at(map_opt_index_);
+  const MapOption& sel_opt = map_opts_.at(map_opt_index_);
   int i = map_opt_index_;
 
   for(; i < opts_len; ++i) {
-    const auto& opt = map_opts_[i];
+    const MapOption& opt = map_opts_[i];
     if(opt.group != sel_opt.group) { break; }
   }
 

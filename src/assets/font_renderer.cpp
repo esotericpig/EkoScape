@@ -135,7 +135,7 @@ const Size2i& FontRenderer::font_spacing() const { return font_atlas_.spacing();
 Size2i FontRenderer::scale_size(float scale) const {
   if(scale == 1.0f) { return kFontSize; }
 
-  auto size = kFontSize;
+  Size2i size = kFontSize;
 
   size.w = static_cast<int>(std::round(static_cast<float>(size.w) * scale));
   size.h = static_cast<int>(std::round(static_cast<float>(size.h) * scale));

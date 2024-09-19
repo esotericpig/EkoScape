@@ -109,7 +109,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const tiny_utf8::s
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<tiny_utf8::string>& strs) {
-  for(auto& str: strs) {
+  for(const auto& str: strs) {
     print(str);
     print(); // Space.
   }
@@ -135,7 +135,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const tiny_utf8::st
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const std::vector<tiny_utf8::string>& lines) {
-  for(auto& line: lines) { puts(line); }
+  for(const auto& line: lines) { puts(line); }
   return *this;
 }
 

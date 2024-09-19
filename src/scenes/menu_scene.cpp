@@ -20,7 +20,7 @@ MenuScene::MenuScene(Assets& assets)
 }
 
 void MenuScene::on_key_down_event(SDL_Keycode key) {
-  auto& sel_opt = opts_.at(opt_index_);
+  Option& sel_opt = opts_.at(opt_index_);
 
   switch(key) {
     case SDLK_RETURN:
@@ -108,7 +108,7 @@ void MenuScene::draw_scene(Renderer& ren) {
 
   assets_.font_renderer().wrap(ren,{395,330},[&](auto& font) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
-      auto& opt = opts_[i];
+      Option& opt = opts_[i];
       int styles = 0;
 
       if(static_cast<int>(i) == opt_index_) {

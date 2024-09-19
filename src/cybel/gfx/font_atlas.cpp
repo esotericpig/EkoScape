@@ -72,7 +72,7 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<tiny_utf
   int index = 0;
   int col_count = 0;
 
-  for(auto& line: lines) {
+  for(const auto& line: lines) {
     int len = static_cast<int>(line.length());
     if(len > col_count) { col_count = len; }
 

@@ -68,7 +68,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
   assets_.font_renderer().wrap(ren,{460,460},0.60f,[&](auto& font) {
     font.font_color.a *= game_over_age_;
 
-    const auto font_color = font.font_color;
+    const Color4f font_color = font.font_color;
     const Color4f miss_color{1.0f,0.0f,0.0f,font_color.a};
     const Color4f goal_color{0.0f,1.0f,0.0f,font_color.a};
 
