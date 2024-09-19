@@ -35,7 +35,8 @@ public:
   bool get(char& data);
 
   bool seek_and_destroy(char target);
-  bool consume_lines_if_empty(int line_count);
+  bool consume_empty_lines();
+  bool consume_empty_lines(int max_line_count);
 
   bool eof() const;
 

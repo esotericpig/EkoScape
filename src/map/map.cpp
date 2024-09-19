@@ -9,12 +9,6 @@
 
 namespace ekoscape {
 
-const Range2i Map::kSupportedVersions{1,1};
-const Duration Map::kMinRobotDelay = Duration::from_millis(110);
-
-const std::string Map::kHeaderFmt = "[EkoScape/v{}]";
-const std::regex Map::kHeaderRegex(R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase);
-
 bool Map::is_map_file(const std::filesystem::path& file) {
   try {
     TextReader reader{file,24}; // Buffer size based on: "[EkoScape/v1999]\r\n"
@@ -29,6 +23,17 @@ bool Map::is_map_file(const std::filesystem::path& file) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     return false;
   }
+}
+
+Map& Map::clear_grids() {
+  grid_index_ = -1;
+  total_cells_ = 0;
+  total_rescues_ = 0;
+  player_init_pos_ = {};
+
+  grids_.clear();
+
+  return *this;
 }
 
 Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space,bool meta_only) {
@@ -83,41 +88,89 @@ Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_sp
 
   if(meta_only) { return *this; }
 
-  if(!reader.read_line(line) // Finish consuming previous line.
-      || !reader.consume_lines_if_empty(1)) {
-    throw CybelError{Util::build_str("Missing map grid in map [",file,"].")};
+  // Finish consuming previous line.
+  if(!reader.read_line(line)) {
+    throw CybelError{Util::build_str("Missing a grid in map [",file,"].")};
   }
 
-  std::vector<std::string> lines{};
-  Size2i size{};
+  bool has_player = false;
+  bool has_end = false;
 
-  while(reader.read_line(line)) {
-    // Ignore last blank line, if there is one.
-    if(reader.eof() && line.empty()) { break; }
+  clear_grids();
 
-    lines.emplace_back(line);
+  for(int i = 0; i < Dantares::MAXMAPS; ++i) {
+    if(!reader.consume_empty_lines()) { break; }
 
-    int len = static_cast<int>(line.length());
-    if(len > size.w) { size.w = len; }
+    std::vector<std::string> lines{};
+    Size2i size{};
+
+    while(reader.read_line(line) && !line.empty()) {
+      lines.emplace_back(line);
+
+      const int len = static_cast<int>(line.length());
+      if(len > size.w) { size.w = len; }
+    }
+
+    size.h = static_cast<int>(lines.size());
+    if(size.w <= 0 || size.h <= 0) { continue; }
+
+    parse_grid(lines,size,[&](const auto& pos,SpaceType type) {
+      if(on_space) { type = on_space(pos,type); }
+
+      if(type == SpaceType::kEnd) {
+        has_end = true;
+      } else if(SpaceTypes::is_player(type)) {
+        has_player = true;
+      }
+
+      return type;
+    },file);
   }
 
-  if(lines.empty() || size.w <= 0) {
-    throw CybelError{Util::build_str("Missing map grid in map [",file,"].")};
-  }
-  size.h = static_cast<int>(lines.size());
+  grids_.shrink_to_fit();
 
-  return parse_grid(lines,size,on_space);
+  if(grids_.empty()) {
+    throw CybelError{Util::build_str("Missing a grid in map [",file,"].")};
+  }
+  if(!has_player) {
+    throw CybelError{Util::build_str(
+      "Missing a Player space {"
+      ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
+      ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
+      ,',',SpaceTypes::value_of(SpaceType::kPlayerEast)
+      ,',',SpaceTypes::value_of(SpaceType::kPlayerWest)
+      ,"} in a grid of map [",file,"]."
+    )};
+  }
+  if(!has_end) {
+    throw CybelError{Util::build_str(
+      "Missing an End space ["
+      ,SpaceTypes::value_of(SpaceType::kEnd)
+      ,"] in a grid of map [",file,"]."
+    )};
+  }
+
+  return *this;
 }
 
 Map& Map::load_file_meta(const std::filesystem::path& file) {
   return load_file(file,nullptr,true);
 }
 
-Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space) {
-  clear_spaces();
+Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space) {
+  return parse_grid(lines,{},on_space);
+}
+
+Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space
+    ,std::string file) {
+  if(file.empty()) { file = title_; }
+
+  if(grids_.size() >= Dantares::MAXMAPS) {
+    throw CybelError{Util::build_str("Too many grids in map [",file,"]; max is ",Dantares::MAXMAPS,'.')};
+  }
 
   if(size.w <= 0) {
-    // Find max line length (width).
+    // Find max line length for width.
     size.w = 0;
 
     for(const auto& line: lines) {
@@ -126,39 +179,37 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
     }
   }
 
-  const int row_count = static_cast<int>(lines.size());
-  if(size.h <= 0) { size.h = row_count; }
+  const int line_count = static_cast<int>(lines.size());
+  if(size.h <= 0) { size.h = line_count; }
 
-  if(size.w <= 0 || size.h <= 0) { return *this; }
+  if(size.w <= 0 || size.h <= 0) {
+    throw CybelError{Util::build_str("Grid size [",size.w,'x',size.h,"] in map [",file
+        ,"] must at least be 1x1.")};
+  }
 
-  spaces_.resize(size.w * size.h);
-  size_ = size;
-
+  auto grid = std::make_unique<MapGrid>(size);
+  const int z = static_cast<int>(grids_.size());
   bool has_player = false;
-  bool has_end = false;
 
   // Dantares expects a map where the origin (0,0) is from the bottom left,
   //    instead of the top left, so we match this internally.
   // Therefore, we use `dan_pos` to flip it vertically.
-  for(Pos2i pos{0,0}; pos.y < size_.h; ++pos.y) {
-    Pos2i dan_pos{0,size_.h - 1 - pos.y};
-    const std::string* line;
-    int col_count;
+  for(Pos2i pos{0,0}; pos.y < size.h; ++pos.y) {
+    Pos3i dan_pos{0,size.h - 1 - pos.y,z};
+    const std::string* line = nullptr;
+    int line_len = 0;
 
-    if(pos.y < row_count) {
+    if(pos.y < line_count) {
       line = &lines.at(pos.y);
-      col_count = static_cast<int>(line->length());
-    } else {
-      line = nullptr;
-      col_count = 0;
+      line_len = static_cast<int>(line->length());
     }
 
-    for(pos.x = 0; pos.x < size_.w; ++pos.x) {
+    for(pos.x = 0; pos.x < size.w; ++pos.x) {
       dan_pos.x = pos.x;
-      auto empty_type = SpaceType::kDeadSpace;
-      auto thing_type = SpaceType::kNil;
+      SpaceType empty_type = SpaceType::kDeadSpace;
+      SpaceType thing_type = SpaceType::kNil;
 
-      if(line != nullptr && pos.x < col_count) {
+      if(line != nullptr && pos.x < line_len) {
         SpaceType type = SpaceTypes::to_space_type(line->at(pos.x));
 
         if(on_space) { type = on_space(dan_pos,type); }
@@ -176,56 +227,37 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
           empty_type = default_empty_;
           thing_type = type;
         } else {
-          if(type == SpaceType::kEnd) { has_end = true; }
-
           empty_type = type;
         }
       }
 
-      set_raw_space(dan_pos,Space{empty_type,thing_type});
+      grid->raw_space(dan_pos.to_pos2<int>()).set(empty_type,thing_type);
     }
   }
 
-  if(!has_player) {
-    throw CybelError{Util::build_str(
-        "Missing a Player space {"
-        ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
-        ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
-        ,',',SpaceTypes::value_of(SpaceType::kPlayerEast)
-        ,',',SpaceTypes::value_of(SpaceType::kPlayerWest)
-        ,"} in the grid of map [",title_,"]."
-    )};
-  }
-  if(!has_end) {
-    throw CybelError{Util::build_str(
-        "Missing an End space ["
-        ,SpaceTypes::value_of(SpaceType::kEnd)
-        ,"] in the grid of map [",title_,"]."
-    )};
+  grids_.emplace_back(std::move(grid));
+
+  if(has_player) {
+    grid_index_ = z;
+  } else if(grid_index_ < 0) {
+    grid_index_ = 0;
   }
 
   return *this;
 }
 
-Map& Map::clear_spaces() {
-  size_.w = 0;
-  size_.h = 0;
-  spaces_.clear();
-  total_cells_ = 0;
-  total_rescues_ = 0;
-  player_init_pos_.x = 0;
-  player_init_pos_.y = 0;
+bool Map::change_grid(int z) {
+  if(z < 0 || z >= static_cast<int>(grids_.size())) { return false; }
 
-  return *this;
+  grid_index_ = z;
+  return true;
 }
 
-bool Map::move_thing(const Pos2i& from_pos,const Pos2i& to_pos) {
-  Space* from_space = mutable_space(from_pos);
-
+bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
+  Space* from_space = this->mutable_space(from_pos);
   if(from_space == nullptr || !from_space->has_thing()) { return false; }
 
-  Space* to_space = mutable_space(to_pos);
-
+  Space* to_space = this->mutable_space(to_pos);
   if(to_space == nullptr || to_space->has_thing()) { return false; }
 
   SpaceType thing_type = from_space->remove_thing();
@@ -233,8 +265,8 @@ bool Map::move_thing(const Pos2i& from_pos,const Pos2i& to_pos) {
   return true;
 }
 
-bool Map::remove_thing(const Pos2i& pos) {
-  Space* space = mutable_space(pos);
+bool Map::remove_thing(const Pos3i& pos) {
+  Space* space = this->mutable_space(pos);
 
   if(space == nullptr) { return false; }
   if(!space->has_thing()) { return true; } // This is why move_thing() can't use this method.
@@ -243,18 +275,16 @@ bool Map::remove_thing(const Pos2i& pos) {
   return true;
 }
 
-bool Map::place_thing(SpaceType type,const Pos2i& pos) {
-  Space* space = mutable_space(pos);
-
+bool Map::place_thing(SpaceType type,const Pos3i& pos) {
+  Space* space = this->mutable_space(pos);
   if(space == nullptr || space->has_thing()) { return false; }
 
   space->set_thing(type);
   return true;
 }
 
-bool Map::unlock_cell(const Pos2i& pos) {
-  Space* space = mutable_space(pos);
-
+bool Map::unlock_cell(const Pos3i& pos) {
+  Space* space = this->mutable_space(pos);
   if(space == nullptr || space->thing_type() != SpaceType::kCell) { return false; }
 
   space->remove_thing();
@@ -273,19 +303,27 @@ Map& Map::set_author(const std::string& author) {
 }
 
 Map& Map::set_turning_speed(float speed) {
-  // 0 uses Dantares' default.
+  // 0 uses Dantares' default value.
   turning_speed_ = (speed >= 0.0f) ? speed : 0.0f;
   return *this;
 }
 
 Map& Map::set_walking_speed(float speed) {
-  // 0 uses Dantares' default.
+  // 0 uses Dantares' default value.
   walking_speed_ = (speed >= 0.0f) ? speed : 0.0f;
   return *this;
 }
 
 Map& Map::set_default_empty(SpaceType type) {
-  default_empty_ = (type != SpaceType::kNil) ? type : SpaceType::kEmpty;
+  // Currently, setting the default empty type to these is not supported,
+  //     which would require heavily changing the parse_grid() & game logic.
+  if(type == SpaceType::kNil || type == SpaceType::kCell
+      || SpaceTypes::is_player(type) || SpaceTypes::is_robot(type) || SpaceTypes::is_portal(type)) {
+    default_empty_ = SpaceType::kEmpty;
+  } else {
+    default_empty_ = type;
+  }
+
   return *this;
 }
 
@@ -294,9 +332,8 @@ Map& Map::set_robot_delay(Duration duration) {
   return *this;
 }
 
-bool Map::set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) {
-  Space* space = mutable_space(pos);
-
+bool Map::set_space(const Pos3i& pos,SpaceType empty_type,SpaceType thing_type) {
+  Space* space = this->mutable_space(pos);
   if(space == nullptr) { return false; }
 
   space->set_empty(empty_type);
@@ -304,18 +341,16 @@ bool Map::set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type) 
   return true;
 }
 
-bool Map::set_empty(const Pos2i& pos,SpaceType type) {
-  Space* space = mutable_space(pos);
-
+bool Map::set_empty(const Pos3i& pos,SpaceType type) {
+  Space* space = this->mutable_space(pos);
   if(space == nullptr) { return false; }
 
   space->set_empty(type);
   return true;
 }
 
-bool Map::set_thing(const Pos2i& pos,SpaceType type) {
-  Space* space = mutable_space(pos);
-
+bool Map::set_thing(const Pos3i& pos,SpaceType type) {
+  Space* space = this->mutable_space(pos);
   if(space == nullptr) { return false; }
 
   space->set_thing(type);
@@ -349,18 +384,25 @@ SpaceType Map::default_empty() const { return default_empty_; }
 
 const Duration& Map::robot_delay() const { return robot_delay_; }
 
-const Size2i& Map::size() const { return size_; }
+int Map::grid_z() const { return grid_index_; }
 
-const Space* Map::space(const Pos2i& pos) const {
-  if(pos.x < 0 || pos.x >= size_.w || pos.y < 0 || pos.y >= size_.h) { return nullptr; }
-  return &raw_space(pos);
+Size2i Map::size() const { return size(grid_index_); }
+
+Size2i Map::size(int z) const {
+  if(z < 0 || z >= static_cast<int>(grids_.size())) { return {}; }
+  return grids_[z]->size();
+}
+
+const Space* Map::space(const Pos3i& pos) const {
+  if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
+  return grids_[pos.z]->space(pos.to_pos2<int>());
 }
 
 int Map::total_cells() const { return total_cells_; }
 
 int Map::total_rescues() const { return total_rescues_; }
 
-const Pos2i& Map::player_init_pos() const { return player_init_pos_; }
+const Pos3i& Map::player_init_pos() const { return player_init_pos_; }
 
 Facing Map::player_init_facing() const { return player_init_facing_; }
 
@@ -384,64 +426,73 @@ bool Map::parse_header(const std::string& line,int& version,bool warn) {
   return true;
 }
 
-void Map::set_raw_space(const Pos2i& pos,Space&& space) {
-  spaces_.at(pos.x + (pos.y * size_.w)) = std::move(space);
+Space* Map::mutable_space(const Pos3i& pos) {
+  if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
+  return grids_[pos.z]->space(pos.to_pos2<int>());
 }
 
-Space* Map::mutable_space(const Pos2i& pos) {
-  if(pos.x < 0 || pos.x >= size_.w || pos.y < 0 || pos.y >= size_.h) { return nullptr; }
-  return &raw_space(pos);
+Space& Map::raw_space(const Pos3i& pos) { return grids_.at(pos.z)->raw_space(pos.to_pos2<int>()); }
+
+const Space& Map::raw_space(const Pos3i& pos) const {
+  return grids_.at(pos.z)->raw_space(pos.to_pos2<int>());
 }
 
-Space& Map::raw_space(const Pos2i& pos) { return spaces_.at(pos.x + (pos.y * size_.w)); }
+std::ostream& Map::print(bool rstrip_dead_spaces) const { return print(std::cout,rstrip_dead_spaces); }
 
-const Space& Map::raw_space(const Pos2i& pos) const { return spaces_.at(pos.x + (pos.y * size_.w)); }
-
-std::ostream& operator<<(std::ostream& out,const Map& map) {
-  out << map.build_header() << '\n'
-      << map.title_  << '\n'
-      << map.author_ << '\n'
+std::ostream& Map::print(std::ostream& out,bool rstrip_dead_spaces) const {
+  out << build_header() << '\n'
+      << title_  << '\n'
+      << author_ << '\n'
       << '\n'
-      << map.turning_speed_ << ' ' << map.walking_speed_ << '\n'
+      << turning_speed_ << ' ' << walking_speed_ << '\n'
       << '\n'
-      <<  "'" << SpaceTypes::value_of(map.default_empty_) << "'\n"
-      << map.robot_delay_.round_millis() << '\n';
+      <<  "'" << SpaceTypes::value_of(default_empty_) << "'\n"
+      << robot_delay_.round_millis();
 
-  // Flip vertically, since internally, we match Dantares where
-  //     the origin (0,0) is from the bottom left, instead of the top left.
-  for(Pos2i pos{0,map.size_.h - 1}; pos.y >= 0; --pos.y) {
+  for(int z = 0; z < static_cast<int>(grids_.size()); ++z) {
     out << '\n';
 
-    // Find the last non-dead space, so can avoid printing a bunch of trailing x's,
-    //     which is how the map files are usually written.
-    int width = map.size_.w;
+    const auto& grid = grids_[z];
 
-    for(pos.x = width - 1; pos.x >= 0; --pos.x) {
-      SpaceType type = map.raw_space(pos).type();
+    // Flip vertically, since internally, we match Dantares where
+    //     the origin (0,0) is from the bottom left, instead of the top left.
+    for(Pos2i pos{0,grid->size().h - 1}; pos.y >= 0; --pos.y) {
+      out << '\n';
 
-      if(type != SpaceType::kDeadSpace) {
-        width = pos.x + 1;
-        break;
-      }
-    }
+      int width = grid->size().w;
 
-    // Avoid a completely blank line.
-    if(width <= 0 && map.size_.w > 0) { width = 1; }
+      if(rstrip_dead_spaces) {
+        // Find the last non-dead space to avoid printing trailing x's.
+        for(pos.x = width - 1; pos.x >= 0; --pos.x) {
+          SpaceType type = grid->raw_space(pos).type();
 
-    for(pos.x = 0; pos.x < width; ++pos.x) {
-      SpaceType type;
-
-      if(pos.x == map.player_init_pos_.x && pos.y == map.player_init_pos_.y) {
-        type = SpaceTypes::to_player(map.player_init_facing_);
-      } else {
-        type = map.raw_space(pos).type();
+          if(type != SpaceType::kDeadSpace) {
+            width = pos.x + 1;
+            break;
+          }
+        }
       }
 
-      out << SpaceTypes::value_of(type);
+      // Avoid a completely blank line, which would indicate the end of this grid.
+      if(width <= 0) { width = 1; }
+
+      for(pos.x = 0; pos.x < width; ++pos.x) {
+        SpaceType type = SpaceType::kDeadSpace;
+
+        if(z == player_init_pos_.z && pos.x == player_init_pos_.x && pos.y == player_init_pos_.y) {
+          type = SpaceTypes::to_player(player_init_facing_);
+        } else if(pos.x < grid->size().w) { // True width might be 0, but our adjusted width is 1.
+          type = grid->raw_space(pos).type();
+        }
+
+        out << SpaceTypes::value_of(type);
+      }
     }
   }
 
   return out;
 }
+
+std::ostream& operator<<(std::ostream& out,const Map& map) { return map.print(out); }
 
 } // Namespace.

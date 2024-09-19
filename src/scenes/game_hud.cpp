@@ -34,7 +34,7 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool 
   assets_.font_renderer().wrap(ren,pos,0.33f,[&](auto& font) {
     font.print();
 
-    const auto font_color = font.font_color;
+    const Color4f font_color = font.font_color;
 
     font.font_color = (map.total_rescues() < map.total_cells()) ? mini_map_eko_color_ : mini_map_end_color_;
     font.print(std::to_string(map.total_rescues()));
@@ -50,12 +50,12 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool 
 
   pos.y += kMiniMapBlockSize.h;
 
-  const Pos2i player_pos = map.player_pos();
+  const Pos3i player_pos = map.player_pos();
   Pos3i block_pos = pos;
 
   for(int y = -kMiniMapHoodRadius.h; y <= kMiniMapHoodRadius.h; ++y,block_pos.y += kMiniMapBlockSize.h) {
     for(int x = -kMiniMapHoodRadius.w; x <= kMiniMapHoodRadius.w; ++x,block_pos.x += kMiniMapBlockSize.w) {
-      Pos2i map_pos = player_pos;
+      Pos3i map_pos = player_pos;
 
       // "Rotate" the mini map according to the direction the player is facing.
       // - Remember that the grid is flipped vertically in Map for the Y calculations.

@@ -33,6 +33,16 @@ enum class SpaceType : char {
   kPlayerNorth = '^',
   kPlayerSouth = 'v',
   kPlayerWest  = '<',
+  kPortal0     = '0',
+  kPortal1     = '1',
+  kPortal2     = '2',
+  kPortal3     = '3',
+  kPortal4     = '4',
+  kPortal5     = '5',
+  kPortal6     = '6',
+  kPortal7     = '7',
+  kPortal8     = '8',
+  kPortal9     = '9',
   kRobot       = '!',
   kRobotGhost  = '|',
   kRobotSnake  = 'Q',
@@ -50,6 +60,7 @@ namespace SpaceTypes {
 
   bool is_player(SpaceType type);
   bool is_robot(SpaceType type);
+  bool is_portal(SpaceType type);
   bool is_walkable(SpaceType type);
   bool is_non_walkable(SpaceType type);
 

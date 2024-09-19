@@ -34,6 +34,24 @@ bool SpaceTypes::is_robot(SpaceType type) {
   }
 }
 
+bool SpaceTypes::is_portal(SpaceType type) {
+  switch(type) {
+    case SpaceType::kPortal0:
+    case SpaceType::kPortal1:
+    case SpaceType::kPortal2:
+    case SpaceType::kPortal3:
+    case SpaceType::kPortal4:
+    case SpaceType::kPortal5:
+    case SpaceType::kPortal6:
+    case SpaceType::kPortal7:
+    case SpaceType::kPortal8:
+    case SpaceType::kPortal9:
+      return true;
+
+    default: return false;
+  }
+}
+
 bool SpaceTypes::is_walkable(SpaceType type) { return !is_non_walkable(type); }
 
 bool SpaceTypes::is_non_walkable(SpaceType type) {
@@ -87,6 +105,16 @@ SpaceType SpaceTypes::to_space_type(char value) {
     case SpaceType::kPlayerNorth:
     case SpaceType::kPlayerSouth:
     case SpaceType::kPlayerWest:
+    case SpaceType::kPortal0:
+    case SpaceType::kPortal1:
+    case SpaceType::kPortal2:
+    case SpaceType::kPortal3:
+    case SpaceType::kPortal4:
+    case SpaceType::kPortal5:
+    case SpaceType::kPortal6:
+    case SpaceType::kPortal7:
+    case SpaceType::kPortal8:
+    case SpaceType::kPortal9:
     case SpaceType::kRobot:
     case SpaceType::kRobotGhost:
     case SpaceType::kRobotSnake:
@@ -110,7 +138,7 @@ SpaceType SpaceTypes::to_space_type(int value) { return to_space_type(static_cas
 char SpaceTypes::value_of(SpaceType type) {
   char value = static_cast<char>(type);
 
-  // If 0, probably wasn't initialized:
+  // If 0, probably wasn't initialized, for example:
   //   SpaceType example1{};
   //   SpaceType example2 = SpaceType::kNil;
   if(value == 0) { value = static_cast<char>(kDefault); }

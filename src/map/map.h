@@ -16,6 +16,7 @@
 #include "cybel/util/util.h"
 
 #include "facing.h"
+#include "map_grid.h"
 #include "space.h"
 #include "space_type.h"
 
@@ -28,7 +29,7 @@ namespace ekoscape {
 
 /**
  * Dantares expects a map where the origin (0,0) is from the bottom left, instead of the top left.
- * Because of this, the internal Spaces, Xs, and Ys, are stored like this as well.
+ * Because of this, the internal Spaces (Xs & Ys) are stored like this as well.
  * When parsing a Map Grid (and on output), the lines are flipped vertically to accommodate this.
  *
  * Besides loading & parsing a Map file, this class can also be used for creating a Map file:
@@ -56,92 +57,89 @@ namespace ekoscape {
  */
 class Map {
 public:
-  using SpaceCallback = std::function<SpaceType(const Pos2i&,SpaceType)>;
+  using SpaceCallback = std::function<SpaceType(const Pos3i&,SpaceType)>;
 
-  static const Range2i kSupportedVersions;
-  static const Duration kMinRobotDelay;
+  static inline const Range2i kSupportedVersions{1,1};
+  static inline const Duration kMinRobotDelay = Duration::from_millis(110);
 
   static bool is_map_file(const std::filesystem::path& file);
 
   virtual ~Map() noexcept = default;
+  virtual Map& clear_grids();
 
   Map& load_file(const std::filesystem::path& file,const SpaceCallback& on_space = nullptr
       ,bool meta_only = false);
   Map& load_file_meta(const std::filesystem::path& file);
-  Map& parse_grid(const std::vector<std::string>& lines,Size2i size = {0,0}
-      ,const SpaceCallback& on_space = nullptr);
-  virtual Map& clear_spaces();
+  Map& parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space = nullptr);
+  Map& parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space = nullptr
+      ,std::string file = "");
 
-  virtual bool move_thing(const Pos2i& from_pos,const Pos2i& to_pos);
-  virtual bool remove_thing(const Pos2i& pos);
-  virtual bool place_thing(SpaceType type,const Pos2i& pos);
-  virtual bool unlock_cell(const Pos2i& pos);
+  virtual bool change_grid(int z);
+  virtual bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
+  virtual bool remove_thing(const Pos3i& pos);
+  virtual bool place_thing(SpaceType type,const Pos3i& pos);
+  virtual bool unlock_cell(const Pos3i& pos);
 
   Map& set_title(const std::string& title);
   Map& set_author(const std::string& author);
-
   Map& set_turning_speed(float speed);
   Map& set_walking_speed(float speed);
-
   Map& set_default_empty(SpaceType type);
   Map& set_robot_delay(Duration duration);
 
-  virtual bool set_space(const Pos2i& pos,SpaceType empty_type,SpaceType thing_type);
-  virtual bool set_empty(const Pos2i& pos,SpaceType type);
-  virtual bool set_thing(const Pos2i& pos,SpaceType type);
+  virtual bool set_space(const Pos3i& pos,SpaceType empty_type,SpaceType thing_type);
+  virtual bool set_empty(const Pos3i& pos,SpaceType type);
+  virtual bool set_thing(const Pos3i& pos,SpaceType type);
 
   std::string build_header() const;
   int version() const;
   const std::string& title() const;
   const std::string& author() const;
-
   float turning_speed() const;
   float walking_speed() const;
-
   SpaceType default_empty() const;
   const Duration& robot_delay() const;
 
-  const Size2i& size() const;
-  const Space* space(const Pos2i& pos) const;
+  int grid_z() const;
+  Size2i size() const;
+  Size2i size(int z) const;
+  const Space* space(const Pos3i& pos) const;
 
   int total_cells() const;
   int total_rescues() const;
-
-  const Pos2i& player_init_pos() const;
+  const Pos3i& player_init_pos() const;
   Facing player_init_facing() const;
 
+  std::ostream& print(bool rstrip_dead_spaces = false) const;
+  std::ostream& print(std::ostream& out,bool rstrip_dead_spaces = false) const;
   friend std::ostream& operator<<(std::ostream& out,const Map& map);
 
 protected:
-  static const std::string kHeaderFmt;
-  static const std::regex kHeaderRegex;
+  static inline const std::string kHeaderFmt = "[EkoScape/v{}]";
+  static inline const std::regex kHeaderRegex{R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase};
 
   int version_ = kSupportedVersions.max;
   std::string title_{};
   std::string author_{};
-
   float turning_speed_ = 10.0f;
   float walking_speed_ = 5.0f;
-
   SpaceType default_empty_ = SpaceType::kEmpty;
   Duration robot_delay_ = Duration::from_millis(900);
 
-  Size2i size_{};
-  std::vector<Space> spaces_{};
+  std::vector<std::unique_ptr<MapGrid>> grids_{};
+  int grid_index_ = -1;
 
   int total_cells_ = 0;
   int total_rescues_ = 0;
-
-  Pos2i player_init_pos_{};
+  Pos3i player_init_pos_{};
   Facing player_init_facing_ = Facing::kSouth;
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 
-  void set_raw_space(const Pos2i& pos,Space&& space);
+  Space* mutable_space(const Pos3i& pos); // Can't use name `space`, unfortunately.
+  Space& raw_space(const Pos3i& pos);
 
-  Space* mutable_space(const Pos2i& pos);
-  Space& raw_space(const Pos2i& pos);
-  const Space& raw_space(const Pos2i& pos) const;
+  const Space& raw_space(const Pos3i& pos) const;
 };
 
 } // Namespace.

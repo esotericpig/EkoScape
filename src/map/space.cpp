@@ -57,6 +57,8 @@ bool Space::has_thing() const { return thing_type_ != SpaceType::kNil; }
 
 bool Space::has_robot() const { return SpaceTypes::is_robot(thing_type_); }
 
+bool Space::is_portal() const { return SpaceTypes::is_portal(empty_type_); }
+
 bool Space::is_walkable() const { return SpaceTypes::is_walkable(empty_type_); }
 
 bool Space::is_non_walkable() const { return SpaceTypes::is_non_walkable(empty_type_); }

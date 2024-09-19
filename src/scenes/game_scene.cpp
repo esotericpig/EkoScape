@@ -13,35 +13,32 @@ GameScene::GameScene(Assets& assets,const std::filesystem::path& map_file,const 
     ,const StateCallback& on_state_changed)
     : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets),overlay_(assets) {
   load_map(map_file);
-  generate_map();
 
   // Extra delay to give some time for the player to orient/adjust.
   robot_move_duration_ = map_.robot_delay() + kInitRobotDelay;
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {
-  map_.load_file(file,[&](const Pos2i& pos,SpaceType type) {
+  map_.load_file(file,[&](const auto& pos,SpaceType type) {
     return init_map_space(pos,type);
   });
 
   std::cout << "[INFO] Map file: '" << file.string() << "'\n"
             << map_ << std::endl;
 
-  map_.add_to_dantares();
-  map_.make_current_in_dantares();
+  map_.add_to_dantares([&](auto& /*dan*/,int /*z*/,int /*id*/) {
+    init_map_textures();
+  });
 }
 
-SpaceType GameScene::init_map_space(const Pos2i& pos,SpaceType type) {
+SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
   // For weird, flip robots & cells.
   if(assets_.is_weird()) {
-    if(SpaceTypes::is_robot(type)) {
-      type = SpaceType::kCell;
-    } else if(type == SpaceType::kCell) {
+    if(type == SpaceType::kCell) {
       type = SpaceType::kRobot;
-      robots_.emplace_back(Robot::build_normal(pos));
+    } else if(SpaceTypes::is_robot(type)) {
+      type = SpaceType::kCell;
     }
-
-    return type;
   }
 
   switch(type) {
@@ -65,13 +62,17 @@ SpaceType GameScene::init_map_space(const Pos2i& pos,SpaceType type) {
       robots_.emplace_back(Robot::build_worm(pos));
       break;
 
-    default: break; // Ignore.
+    default:
+      if(SpaceTypes::is_portal(type)) {
+        portal_to_pos_bag_[type].emplace_back(pos);
+      }
+      break;
   }
 
   return type;
 }
 
-void GameScene::generate_map() {
+void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kCell,&assets_.ceiling_texture(),&assets_.cell_texture()
       ,&assets_.floor_texture());
   // SpaceType::kDeadSpace - No textures.
@@ -80,6 +81,7 @@ void GameScene::generate_map() {
   set_space_textures(SpaceType::kEndWall,&assets_.end_texture());
   // SpaceType::kLivingSpace - No textures.
   // SpaceType::kPlayer* - No textures.
+  // TODO: Add SpaceType::kPortal* textures.
   set_space_textures(SpaceType::kRobot,&assets_.robot_texture());
   set_space_textures(SpaceType::kRobotGhost,&assets_.robot_texture());
   set_space_textures(SpaceType::kRobotSnake,&assets_.robot_texture());
@@ -92,8 +94,6 @@ void GameScene::generate_map() {
   set_space_textures(SpaceType::kWhite,&assets_.white_texture());
   set_space_textures(SpaceType::kWhiteFloor,&assets_.white_texture(),nullptr,&assets_.white_texture());
   set_space_textures(SpaceType::kWhiteGhost,&assets_.white_texture());
-
-  map_.generate_in_dantares(); // Must be called after setting the textures.
 }
 
 void GameScene::init_scene(Renderer& ren) {
@@ -185,32 +185,62 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
 void GameScene::update_player() {
   if(game_phase_ == GamePhase::kGameOver) { return; }
 
+  const Space* player_space = map_.player_space();
+
+  if(player_space == nullptr) {
+    std::cerr << "[ERROR] Player space is null for some reason." << std::endl;
+  }
+
+  const Pos3i player_pos = map_.player_pos();
+  const SpaceType player_empty_type = (player_space != nullptr)
+      ? player_space->empty_type() : SpaceType::kEmpty;
   const SpaceType player_space_type = map_.player_space_type();
+  const bool player_prev_hit_portal = player_hit_portal_;
+
+  player_hit_portal_ = SpaceTypes::is_portal(player_empty_type);
 
   switch(player_space_type) {
     case SpaceType::kCell:
-      map_.unlock_cell(map_.player_pos());
+      map_.unlock_cell(player_pos);
+      break;
+
+    // Check for the End before Robots.
+    case SpaceType::kEnd:
+      game_over(true);
       break;
 
     default:
-      const bool hit_end = (player_space_type == SpaceType::kEnd);
+      // Portals are like safe zones, so if the Player & a Robot are on a portal, the player shouldn't die.
+      //     Therefore, we check for Portals first.
+      if(player_hit_portal_) {
+        if(!player_prev_hit_portal) {
+          const Pos3i* portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
+            const Space* space = map_.space(pos);
+            return space != nullptr && !space->has_thing();
+          });
 
-      if(hit_end || SpaceTypes::is_robot(player_space_type)) {
-        game_phase_ = GamePhase::kGameOver;
-        player_hit_end_ = hit_end;
-
-        // Because of how high speeds are handled, we need to manually reset the correct player pos,
-        //     since the pos might be beyond End, etc. after fully moving.
-        map_.set_player_pos();
+          if(portal_bro != nullptr) { map_.set_player_pos(*portal_bro); }
+        }
+      } else if(SpaceTypes::is_robot(player_space_type)) {
+        game_over(false);
       }
       break;
   }
 }
 
+void GameScene::game_over(bool hit_end) {
+  game_phase_ = GamePhase::kGameOver;
+  player_hit_end_ = hit_end;
+
+  // Because of how high speeds are handled, we need to manually sync the correct player pos,
+  //     since the pos might be beyond End, etc. after fully moving.
+  map_.set_player_pos();
+}
+
 void GameScene::update_robots(const FrameStep& step) {
   // Remove dead robots and age living robots (only if lifespan was set).
   for(auto it = robots_.begin(); it != robots_.end();) {
-    auto& robot = *it;
+    Robot& robot = *it;
 
     if(robot.is_dead()) {
       map_.remove_thing(robot.pos());
@@ -230,7 +260,19 @@ void GameScene::move_robots(const FrameStep& step) {
   robot_move_data_.refresh();
 
   for(auto& robot: robots_) {
-    robot.move(robot_move_data_);
+    const SpaceType prev_portal = robot.portal_type();
+
+    if(!robot.move(robot_move_data_)) { continue; }
+
+    const SpaceType portal = robot.portal_type();
+
+    if(prev_portal == SpaceType::kNil && portal != SpaceType::kNil) {
+      const Pos3i* portal_bro = fetch_portal_bro(robot.pos(),portal,[&](const auto& pos) {
+        return robot.can_move_to(map_.space(pos));
+      });
+
+      if(portal_bro != nullptr) { robot.warp_to(*portal_bro,robot_move_data_); }
+    }
   }
 
   // Add new robots after the move loop, because we can't add new ones inside its loop.
@@ -242,6 +284,24 @@ void GameScene::move_robots(const FrameStep& step) {
   // Reset the move timer.
   robot_move_duration_ = map_.robot_delay() + step.dpf;
   robot_move_timer_.start();
+}
+
+const Pos3i* GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to) {
+  auto it = portal_to_pos_bag_.find(portal);
+  if(it == portal_to_pos_bag_.end()) { return nullptr; }
+
+  auto& bros = it->second;
+  if(bros.size() <= 1) { return nullptr; } // No bros. :(
+
+  if(bros.size() > 2) { // More than 1 bro?
+    Rando::it().shuffle(bros.begin(),bros.end());
+  }
+
+  for(auto& bro_pos: bros) { // Find Luigi.
+    if(bro_pos != pos && can_move_to(bro_pos)) { return &bro_pos; }
+  }
+
+  return nullptr;
 }
 
 void GameScene::draw_scene(Renderer& ren) {
@@ -278,7 +338,7 @@ void GameScene::set_space_textures(SpaceType type,const Texture* texture) {
 
 void GameScene::set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall
     ,const Texture* floor) {
-  int space_id = SpaceTypes::value_of(type);
+  const int space_id = SpaceTypes::value_of(type);
 
   // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
   if(ceiling != nullptr) { dantares_.SetFloorTexture(space_id,ceiling->gl_id()); }

@@ -49,8 +49,10 @@ bool TextReader::seek_and_destroy(char target) {
   return false;
 }
 
-bool TextReader::consume_lines_if_empty(int line_count) {
-  for(; line_count >= 1; --line_count) {
+bool TextReader::consume_empty_lines() { return consume_empty_lines(-1); }
+
+bool TextReader::consume_empty_lines(int max_line_count) {
+  while(max_line_count == -1 || max_line_count >= 1) {
     if(in_.eof()) { return false; }
 
     char c = static_cast<char>(in_.peek());
@@ -63,9 +65,11 @@ bool TextReader::consume_lines_if_empty(int line_count) {
     } else {
       break;
     }
+
+    if(max_line_count != -1) { --max_line_count; }
   }
 
-  return true;
+  return !in_.eof();
 }
 
 bool TextReader::eof() const { return in_.eof(); }

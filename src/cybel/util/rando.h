@@ -72,18 +72,24 @@ public:
   std::size_t rand_sizet(std::size_t max);
   std::size_t rand_sizet(std::size_t min,std::size_t max);
 
+  template <class RandIt>
+  void shuffle(RandIt first,RandIt last);
+
 private:
   std::random_device dev_{};
   std::mt19937 gen_{dev_()};
 
   std::bernoulli_distribution bool_distr_{0.5};
-  std::uniform_real_distribution<double> double_distr_{0.0,1.0};
+  std::uniform_real_distribution<> double_distr_{0.0,1.0};
   std::uniform_real_distribution<float> float_distr_{0.0f,1.0f};
-  std::uniform_int_distribution<int> int_distr_{0,99}; // I don't have 99 problems.
+  std::uniform_int_distribution<> int_distr_{0,99}; // I don't have 99 problems.
   std::uniform_int_distribution<std::size_t> sizet_distr_{};
 
   explicit Rando();
 };
+
+template <class RandIt>
+void Rando::shuffle(RandIt first,RandIt last) { std::shuffle(first,last,gen_); }
 
 } // Namespace.
 #endif

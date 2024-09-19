@@ -23,6 +23,7 @@
 
 #include <filesystem>
 #include <functional>
+#include <unordered_map>
 #include <vector>
 
 namespace ekoscape {
@@ -52,6 +53,8 @@ private:
     kGameOver,
   };
 
+  using MoveChecker = std::function<bool(const Pos3i&)>;
+
   static inline const Duration kInitRobotDelay = Duration::from_millis(1'000);
   static inline const int kDantaresDist = 24; // Must be 2+.
 
@@ -68,22 +71,26 @@ private:
   DantaresMap map_{dantares_};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
+  bool player_hit_portal_ = false;
+  bool player_hit_end_ = false;
   std::vector<Robot> robots_{};
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
   Robot::MoveData robot_move_data_{map_};
+  std::unordered_map<SpaceType,std::vector<Pos3i>> portal_to_pos_bag_{};
 
   GameHud hud_;
   GameOverlay overlay_;
-  bool player_hit_end_ = false;
 
   void load_map(const std::filesystem::path& file);
-  SpaceType init_map_space(const Pos2i& pos,SpaceType type);
-  void generate_map();
+  SpaceType init_map_space(const Pos3i& pos,SpaceType type);
+  void init_map_textures();
 
   void update_player();
+  void game_over(bool hit_end);
   void update_robots(const FrameStep& step);
   void move_robots(const FrameStep& step);
+  const Pos3i* fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
   void set_space_textures(SpaceType type,const Texture* texture);
   void set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);

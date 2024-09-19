@@ -13,6 +13,8 @@
 #include "cybel/util/rando.h"
 
 #include "map/dantares_map.h"
+#include "map/space.h"
+#include "map/space_type.h"
 
 namespace ekoscape {
 
@@ -21,7 +23,7 @@ public:
   class MoveData {
   public:
     DantaresMap& map;
-    Pos2i player_pos{};
+    Pos3i player_pos{};
     std::vector<Robot> new_robots{};
 
     explicit MoveData(DantaresMap& map);
@@ -36,27 +38,40 @@ public:
 
   static inline const double kSnakeTailLifespan = 9.0; // Seconds.
 
-  static Robot build_statue(const Pos2i& pos,double lifespan = 0.0);
-  static Robot build_normal(const Pos2i& pos,double lifespan = 0.0);
-  static Robot build_ghost(const Pos2i& pos,double lifespan = 0.0);
-  static Robot build_snake(const Pos2i& pos,double lifespan = 0.0);
-  static Robot build_worm(const Pos2i& pos,double lifespan = 0.0);
+  static Robot build_statue(const Pos3i& pos,double lifespan = 0.0);
+  static Robot build_normal(const Pos3i& pos,double lifespan = 0.0);
+  static Robot build_ghost(const Pos3i& pos,double lifespan = 0.0);
+  static Robot build_snake(const Pos3i& pos,double lifespan = 0.0);
+  static Robot build_worm(const Pos3i& pos,double lifespan = 0.0);
 
-  void move(MoveData& data);
+  bool move(MoveData& data);
+  bool warp_to(const Pos3i& pos,MoveData& data);
   void age(double delta_time);
 
   bool is_alive() const;
   bool is_dead() const;
-  const Pos2i& pos() const;
+  const Pos3i& pos() const;
+  SpaceType portal_type() const;
+  bool can_move_to(const Space* space) const;
 
 private:
-  Pos2i pos_{};
+  static inline std::vector<Pos2i> rand_move_vels_{
+    { 0,-1}, // North.
+    { 0, 1}, // South.
+    { 1, 0}, // East.
+    {-1, 0}, // West.
+  };
+
+  Pos3i pos_{};
   int moves_like_ = 0;
   double lifespan_ = 0.0; // Seconds.
   double age_ = 0.0;
+  SpaceType portal_type_ = SpaceType::kNil;
 
-  explicit Robot(const Pos2i& pos,int moves_like,double lifespan = 0.0);
+  explicit Robot(const Pos3i& pos,int moves_like,double lifespan);
 
+  bool move_smart(MoveData& data);
+  bool move_rand(MoveData& data);
   bool try_move(int x_vel,int y_vel,MoveData& data);
 };
 
