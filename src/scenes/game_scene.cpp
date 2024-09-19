@@ -81,7 +81,16 @@ void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kEndWall,&assets_.end_texture());
   // SpaceType::kLivingSpace - No textures.
   // SpaceType::kPlayer* - No textures.
-  // TODO: Add SpaceType::kPortal* textures.
+  set_space_textures(SpaceType::kPortal0,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal1,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal2,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal3,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal4,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal5,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal6,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal7,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal8,&assets_.portal_texture());
+  set_space_textures(SpaceType::kPortal9,&assets_.portal_texture());
   set_space_textures(SpaceType::kRobot,&assets_.robot_texture());
   set_space_textures(SpaceType::kRobotGhost,&assets_.robot_texture());
   set_space_textures(SpaceType::kRobotSnake,&assets_.robot_texture());

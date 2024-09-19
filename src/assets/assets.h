@@ -57,6 +57,7 @@ public:
   const Texture& cell_texture() const;
   const Texture& end_texture() const;
   const Texture& floor_texture() const;
+  const Texture& portal_texture() const;
   const Texture& robot_texture() const;
   const Texture& wall_texture() const;
   const Texture& white_texture() const;

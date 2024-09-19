@@ -11,15 +11,18 @@ namespace ekoscape {
 
 GameHud::GameHud(Assets& assets)
     : assets_(assets) {
-  mini_map_eko_color_ = assets.is_weird()
-      ? Color4f::hex(0x0000ff,kAlpha)
-      : Color4f::hex(0xff0000,kAlpha);
-  mini_map_end_color_ = assets.is_weird()
-      ? Color4f::hex(0xffff00,kAlpha) // Yellow.
-      : Color4f::hex(0x0000ff,kAlpha);
+  mini_map_eko_color_.set_hex(0xff0000,kAlpha);
+  mini_map_end_color_.set_hex(0xb87333,kAlpha); // Copper.
   mini_map_non_walkable_color_.set_hex(0x00ff00,kAlpha);
+  mini_map_portal_color_.set_hex(0x00ffff,kAlpha); // Cyan.
   mini_map_robot_color_.set_bytes(214,kAlpha);
   mini_map_walkable_color_.set_bytes(0,kAlpha);
+
+  if(assets.is_weird()) {
+    std::swap(mini_map_eko_color_.r,mini_map_eko_color_.b);
+    std::swap(mini_map_end_color_.r,mini_map_end_color_.b);
+    std::swap(mini_map_portal_color_.r,mini_map_portal_color_.b);
+  }
 }
 
 void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end) {
@@ -97,6 +100,8 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool 
         default:
           if(SpaceTypes::is_robot(type)) {
             color = &mini_map_robot_color_;
+          } else if(SpaceTypes::is_portal(type)) {
+            color = &mini_map_portal_color_;
           } else if(SpaceTypes::is_non_walkable(type)) {
             color = &mini_map_non_walkable_color_;
           }
