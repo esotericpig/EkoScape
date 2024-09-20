@@ -13,6 +13,7 @@ GameHud::GameHud(Assets& assets)
     : assets_(assets) {
   mini_map_eko_color_.set_hex(0xff0000,kAlpha);
   mini_map_end_color_.set_hex(0xb87333,kAlpha); // Copper.
+  mini_map_fruit_color_.set_hex(0xffc0cb,kAlpha); // Pink.
   mini_map_non_walkable_color_.set_hex(0x00ff00,kAlpha);
   mini_map_portal_color_.set_hex(0x00ffff,kAlpha); // Cyan.
   mini_map_robot_color_.set_bytes(214,kAlpha);
@@ -21,6 +22,7 @@ GameHud::GameHud(Assets& assets)
   if(assets.is_weird()) {
     std::swap(mini_map_eko_color_.r,mini_map_eko_color_.b);
     std::swap(mini_map_end_color_.r,mini_map_end_color_.b);
+    std::swap(mini_map_fruit_color_.r,mini_map_fruit_color_.b);
     std::swap(mini_map_portal_color_.r,mini_map_portal_color_.b);
   }
 }
@@ -95,6 +97,10 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool 
 
         case SpaceType::kEnd:
           color = &mini_map_end_color_;
+          break;
+
+        case SpaceType::kFruit:
+          color = &mini_map_fruit_color_;
           break;
 
         default:

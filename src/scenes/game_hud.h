@@ -38,6 +38,7 @@ private:
 
   Color4f mini_map_eko_color_{}; // Cell & Player.
   Color4f mini_map_end_color_{};
+  Color4f mini_map_fruit_color_{};
   Color4f mini_map_non_walkable_color_{};
   Color4f mini_map_portal_color_{};
   Color4f mini_map_robot_color_{};
