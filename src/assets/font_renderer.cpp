@@ -112,9 +112,15 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts_blanks(int count) {
 
 FontRenderer::FontRenderer(const FontAtlas& font_atlas,bool make_weird)
     : font_atlas_(font_atlas) {
-  font_color_ = make_weird ? Color4f::bytes(255,192,203) : Color4f::bytes(214,214,214);
-  arrow_color_ = make_weird ? Color4f::bytes(0,252,252) : Color4f::bytes(0,252,0);
-  cycle_arrow_color_ = make_weird ? Color4f::bytes(0,0,254) : Color4f::bytes(254,0,0);
+  if(make_weird) {
+    font_color_.set_bytes(255,192,203);
+    arrow_color_.set_bytes(0,252,252);
+    cycle_arrow_color_.set_bytes(0,0,254);
+  } else {
+    font_color_.set_bytes(214);
+    arrow_color_.set_bytes(0,252,0);
+    cycle_arrow_color_.set_bytes(254,0,0);
+  }
 }
 
 void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback) {
