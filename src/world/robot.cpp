@@ -10,12 +10,11 @@
 namespace ekoscape {
 
 Robot::MoveData::MoveData(DantaresMap& map)
-    : map(map) {
-  refresh();
-}
+    : map(map) {}
 
-void Robot::MoveData::refresh() {
+void Robot::MoveData::refresh(bool player_ate_fruit) {
   player_pos = map.player_pos();
+  this->player_ate_fruit = player_ate_fruit;
 }
 
 Robot Robot::build_statue(const Pos3i& pos,double lifespan) {
@@ -44,34 +43,51 @@ Robot::Robot(const Pos3i& pos,int moves_like,double lifespan)
 bool Robot::move(MoveData& data) {
   if(moves_like_ & kLikeStatue) { return false; }
 
-  return (pos_.z == data.player_pos.z) ? move_smart(data) : move_rand(data);
+  if(pos_.z == data.player_pos.z) {
+    last_seen_player_pos_ = data.player_pos;
+    return move_smart(data);
+  }
+  // Go towards the pos where we last saw the Player on our Z/grid.
+  if(last_seen_player_pos_.z >= 0) {
+    return move_smart(data);
+  }
+
+  return move_rand(data); // We've never seen the Player on our Z/grid.
 }
 
 bool Robot::move_smart(MoveData& data) {
-  bool on_player_x = (pos_.x == data.player_pos.x);
-  bool on_player_y = (pos_.y == data.player_pos.y);
+  bool on_player_x = (pos_.x == last_seen_player_pos_.x);
+  bool on_player_y = (pos_.y == last_seen_player_pos_.y);
 
-  if(on_player_x && on_player_y) { return false; } // No need to move.
+  if(on_player_x && on_player_y) {
+    // Move randomly again, to try to hit a Portal nearby if the last seen pos is off.
+    last_seen_player_pos_.z = -1;
+    return false;
+  }
 
   int x_vel;
   int y_vel;
 
-  if(pos_.x < data.player_pos.x) {
+  if(pos_.x < last_seen_player_pos_.x) {
     x_vel = 1;
-  } else if(pos_.x > data.player_pos.x) {
+  } else if(pos_.x > last_seen_player_pos_.x) {
     x_vel = -1;
   } else {
     x_vel = Rando::it().rand_bool() ? 1 : -1;
   }
-  if(pos_.y < data.player_pos.y) {
+  if(pos_.y < last_seen_player_pos_.y) {
     y_vel = 1;
-  } else if(pos_.y > data.player_pos.y) {
+  } else if(pos_.y > last_seen_player_pos_.y) {
     y_vel = -1;
   } else {
     y_vel = Rando::it().rand_bool() ? 1 : -1;
   }
 
-  // TODO: If player ate fruit (store in MoveData?), do: x_vel=-x_vel; y_vel=-y_vel;
+  if(data.player_ate_fruit) {
+    // Try to get away.
+    x_vel = -x_vel;
+    y_vel = -y_vel;
+  }
 
   // We can't move diagonally, since the player can't either (it's only fair),
   //     so pick either X or Y (not both), von-Neumann style.
@@ -82,24 +98,24 @@ bool Robot::move_smart(MoveData& data) {
 
   // Try normally.
   if(try_x_first) {
-    if(!on_player_x && try_move(x_vel,0,data)) { return true; }
-    if(!on_player_y && try_move(0,y_vel,data)) { return true; }
+    if(!on_player_x && try_move(data,x_vel,0)) { return true; }
+    if(!on_player_y && try_move(data,0,y_vel)) { return true; }
   } else {
-    if(!on_player_y && try_move(0,y_vel,data)) { return true; }
-    if(!on_player_x && try_move(x_vel,0,data)) { return true; }
+    if(!on_player_y && try_move(data,0,y_vel)) { return true; }
+    if(!on_player_x && try_move(data,x_vel,0)) { return true; }
   }
 
   // Just make a move (if not stuck), so try the opposites.
   if(try_x_first) {
-    if(on_player_x && try_move(x_vel,0,data)) { return true; }
-    if(on_player_y && try_move(0,y_vel,data)) { return true; }
-    if(try_move(-x_vel,0,data)) { return true; }
-    if(try_move(0,-y_vel,data)) { return true; }
+    if(on_player_x && try_move(data,x_vel,0)) { return true; }
+    if(on_player_y && try_move(data,0,y_vel)) { return true; }
+    if(try_move(data,-x_vel,0)) { return true; }
+    if(try_move(data,0,-y_vel)) { return true; }
   } else {
-    if(on_player_y && try_move(0,y_vel,data)) { return true; }
-    if(on_player_x && try_move(x_vel,0,data)) { return true; }
-    if(try_move(0,-y_vel,data)) { return true; }
-    if(try_move(-x_vel,0,data)) { return true; }
+    if(on_player_y && try_move(data,0,y_vel)) { return true; }
+    if(on_player_x && try_move(data,x_vel,0)) { return true; }
+    if(try_move(data,0,-y_vel)) { return true; }
+    if(try_move(data,-x_vel,0)) { return true; }
   }
 
   return false;
@@ -109,13 +125,13 @@ bool Robot::move_rand(MoveData& data) {
   Rando::it().shuffle(rand_move_vels_.begin(),rand_move_vels_.end());
 
   for(const auto& move_vel: rand_move_vels_) {
-    if(try_move(move_vel.x,move_vel.y,data)) { return true; }
+    if(try_move(data,move_vel.x,move_vel.y)) { return true; }
   }
 
   return false;
 }
 
-bool Robot::try_move(int x_vel,int y_vel,MoveData& data) {
+bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
   const Pos3i to_pos{pos_.x + x_vel,pos_.y + y_vel,pos_.z};
   const Space* to_space = data.map.space(to_pos);
 
@@ -127,8 +143,10 @@ bool Robot::try_move(int x_vel,int y_vel,MoveData& data) {
   pos_ = to_pos;
   portal_type_ = to_space->is_portal() ? to_space->empty_type() : SpaceType::kNil;
 
-  if(portal_type_ == SpaceType::kNil && (moves_like_ & kLikeSnake)) {
-    if(data.map.place_thing(SpaceType::kRobotStatue,from_pos)) {
+  if(portal_type_ == SpaceType::kNil) {
+    warped_ = false;
+
+    if((moves_like_ & kLikeSnake) && data.map.place_thing(SpaceType::kRobotStatue,from_pos)) {
       data.new_robots.emplace_back(build_statue(from_pos,kSnakeTailLifespan));
     }
   }
@@ -136,12 +154,18 @@ bool Robot::try_move(int x_vel,int y_vel,MoveData& data) {
   return true;
 }
 
-bool Robot::warp_to(const Pos3i& pos,MoveData& data) {
-  if(pos == pos_) { return true; }
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+bool Robot::warp_to(MoveData& data,const Pos3i& pos) {
+  if(pos == pos_) {
+    warped_ = true;
+    return true;
+  }
   if(!can_move_to(data.map.space(pos))) { return false; }
-
   if(!data.map.move_thing(pos_,pos)) { return false; }
+
   pos_ = pos;
+  warped_ = true;
+  last_seen_player_pos_.z = -1; // Move randomly again, in case the Player isn't on this new Z/grid.
 
   return true;
 }
@@ -161,9 +185,10 @@ const Pos3i& Robot::pos() const { return pos_; }
 
 SpaceType Robot::portal_type() const { return portal_type_; }
 
+bool Robot::warped() const { return warped_; }
+
 bool Robot::can_move_to(const Space* space) const {
   if(space == nullptr || space->has_thing()) { return false; }
-  if(space->empty_type() == SpaceType::kEnd) { return false; }
   if(!(moves_like_ & kLikeGhost) && space->is_non_walkable()) { return false; }
 
   return true;

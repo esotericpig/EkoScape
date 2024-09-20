@@ -21,6 +21,17 @@ bool SpaceTypes::is_player(SpaceType type) {
   }
 }
 
+bool SpaceTypes::is_thing(SpaceType type) {
+  switch(type) {
+    case SpaceType::kCell:
+    case SpaceType::kEnd:
+    case SpaceType::kFruit:
+      return true;
+
+    default: return is_robot(type);
+  }
+}
+
 bool SpaceTypes::is_robot(SpaceType type) {
   switch(type) {
     case SpaceType::kRobot:
@@ -100,6 +111,7 @@ SpaceType SpaceTypes::to_space_type(char value) {
     case SpaceType::kEmpty:
     case SpaceType::kEnd:
     case SpaceType::kEndWall:
+    case SpaceType::kFruit:
     case SpaceType::kLivingSpace:
     case SpaceType::kPlayerEast:
     case SpaceType::kPlayerNorth:

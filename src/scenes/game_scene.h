@@ -23,6 +23,7 @@
 
 #include <filesystem>
 #include <functional>
+#include <ranges>
 #include <unordered_map>
 #include <vector>
 
@@ -55,7 +56,7 @@ private:
 
   using MoveChecker = std::function<bool(const Pos3i&)>;
 
-  static inline const Duration kInitRobotDelay = Duration::from_millis(1'000);
+  static inline const Duration kInitExtraRobotDelay = Duration::from_millis(1'000);
   static inline const int kDantaresDist = 24; // Must be 2+.
 
   Assets& assets_;
@@ -63,33 +64,41 @@ private:
   StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;
 
-  // Classic values: {0.125f,-0.04f,0.04f}.
-  //
-  // The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
-  // See set_space_textures(), which relies on this logic.
+  // - Classic values: {0.125f,-0.04f,0.04f}.
+  // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
+  //   - See set_space_textures(), which relies on this logic.
   Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
   DantaresMap map_{dantares_};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
-  bool player_hit_portal_ = false;
   bool player_hit_end_ = false;
+  bool player_warped_ = false;
+  bool player_ate_fruit_ = false;
+
   std::vector<Robot> robots_{};
   Timer robot_move_timer_{};
   Duration robot_move_duration_{};
   Robot::MoveData robot_move_data_{map_};
+
   std::unordered_map<SpaceType,std::vector<Pos3i>> portal_to_pos_bag_{};
+  Timer fruit_timer_{};
+  Duration fruit_duration_{};
 
   GameHud hud_;
   GameOverlay overlay_;
 
   void load_map(const std::filesystem::path& file);
   SpaceType init_map_space(const Pos3i& pos,SpaceType type);
+  void init_map_default_empty(const Pos3i& pos,SpaceType type);
   void init_map_textures();
 
-  void update_player();
+  void update_player(const FrameStep& step);
   void game_over(bool hit_end);
+
   void update_robots(const FrameStep& step);
   void move_robots(const FrameStep& step);
+  void remove_robots_at(const Pos3i& pos);
+
   const Pos3i* fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
   void set_space_textures(SpaceType type,const Texture* texture);

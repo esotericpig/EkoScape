@@ -15,7 +15,7 @@ GameOverlay::GameOverlay(Assets& assets)
 void GameOverlay::init(const ViewDimens& dimens) {
   view_dimens_ = dimens;
 
-  map_info_timer_.start();
+  map_info_timer_.resume();
 }
 
 bool GameOverlay::update_map_info() {

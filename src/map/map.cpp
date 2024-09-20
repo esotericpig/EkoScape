@@ -36,7 +36,8 @@ Map& Map::clear_grids() {
   return *this;
 }
 
-Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space,bool meta_only) {
+Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space
+    ,const DefaultEmptyCallback& on_def_empty,bool meta_only) {
   TextReader reader{file};
   std::string line{};
   char data_c = 0;
@@ -124,7 +125,7 @@ Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_sp
       }
 
       return type;
-    },file);
+    },on_def_empty,file);
   }
 
   grids_.shrink_to_fit();
@@ -154,15 +155,16 @@ Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_sp
 }
 
 Map& Map::load_file_meta(const std::filesystem::path& file) {
-  return load_file(file,nullptr,true);
+  return load_file(file,nullptr,nullptr,true);
 }
 
-Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space) {
-  return parse_grid(lines,{},on_space);
+Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space
+    ,const DefaultEmptyCallback& on_def_empty) {
+  return parse_grid(lines,{},on_space,on_def_empty);
 }
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space
-    ,std::string file) {
+    ,const DefaultEmptyCallback& on_def_empty,std::string file) {
   if(file.empty()) { file = title_; }
 
   if(grids_.size() >= Dantares::MAXMAPS) {
@@ -214,20 +216,28 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
 
         if(on_space) { type = on_space(dan_pos,type); }
 
-        if(type == SpaceType::kCell) {
-          empty_type = default_empty_;
-          thing_type = type;
-          ++total_cells_;
-        } else if(SpaceTypes::is_player(type)) {
+        if(SpaceTypes::is_player(type)) {
           empty_type = default_empty_;
           player_init_pos_ = dan_pos;
           player_init_facing_ = SpaceTypes::to_player_facing(type);
           has_player = true;
-        } else if(SpaceTypes::is_robot(type)) {
+
+          if(on_def_empty) { on_def_empty(dan_pos,empty_type); }
+        } else if(SpaceTypes::is_thing(type)) {
           empty_type = default_empty_;
           thing_type = type;
+
+          if(on_def_empty) { on_def_empty(dan_pos,empty_type); }
         } else {
           empty_type = type;
+        }
+
+        switch(type) {
+          case SpaceType::kCell:
+            ++total_cells_;
+            break;
+
+          default: break;
         }
       }
 
@@ -269,9 +279,11 @@ bool Map::remove_thing(const Pos3i& pos) {
   Space* space = this->mutable_space(pos);
 
   if(space == nullptr) { return false; }
-  if(!space->has_thing()) { return true; } // This is why move_thing() can't use this method.
+  if(!space->has_thing()) { return true; } // Unlike move_thing(), this returns true.
 
+  if(space->thing_type() == SpaceType::kCell) { ++total_rescues_; }
   space->remove_thing();
+
   return true;
 }
 
@@ -280,15 +292,6 @@ bool Map::place_thing(SpaceType type,const Pos3i& pos) {
   if(space == nullptr || space->has_thing()) { return false; }
 
   space->set_thing(type);
-  return true;
-}
-
-bool Map::unlock_cell(const Pos3i& pos) {
-  Space* space = this->mutable_space(pos);
-  if(space == nullptr || space->thing_type() != SpaceType::kCell) { return false; }
-
-  space->remove_thing();
-  ++total_rescues_;
   return true;
 }
 
@@ -315,10 +318,8 @@ Map& Map::set_walking_speed(float speed) {
 }
 
 Map& Map::set_default_empty(SpaceType type) {
-  // Currently, setting the default empty type to these is not supported,
-  //     which would require heavily changing the parse_grid() & game logic.
-  if(type == SpaceType::kNil || type == SpaceType::kCell
-      || SpaceTypes::is_player(type) || SpaceTypes::is_robot(type) || SpaceTypes::is_portal(type)) {
+  // Cannot have 2+ things on a single space.
+  if(type == SpaceType::kNil || SpaceTypes::is_player(type) || SpaceTypes::is_thing(type)) {
     default_empty_ = SpaceType::kEmpty;
   } else {
     default_empty_ = type;

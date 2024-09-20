@@ -58,6 +58,7 @@ namespace ekoscape {
 class Map {
 public:
   using SpaceCallback = std::function<SpaceType(const Pos3i&,SpaceType)>;
+  using DefaultEmptyCallback = std::function<void(const Pos3i&,SpaceType)>;
 
   static inline const Range2i kSupportedVersions{1,1};
   static inline const Duration kMinRobotDelay = Duration::from_millis(110);
@@ -68,17 +69,17 @@ public:
   virtual Map& clear_grids();
 
   Map& load_file(const std::filesystem::path& file,const SpaceCallback& on_space = nullptr
-      ,bool meta_only = false);
+      ,const DefaultEmptyCallback& on_def_empty = nullptr,bool meta_only = false);
   Map& load_file_meta(const std::filesystem::path& file);
-  Map& parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space = nullptr);
+  Map& parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space = nullptr
+      ,const DefaultEmptyCallback& on_def_empty = nullptr);
   Map& parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space = nullptr
-      ,std::string file = "");
+      ,const DefaultEmptyCallback& on_def_empty = nullptr,std::string file = "");
 
   virtual bool change_grid(int z);
   virtual bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
   virtual bool remove_thing(const Pos3i& pos);
   virtual bool place_thing(SpaceType type,const Pos3i& pos);
-  virtual bool unlock_cell(const Pos3i& pos);
 
   Map& set_title(const std::string& title);
   Map& set_author(const std::string& author);

@@ -28,6 +28,7 @@ enum class SpaceType : char {
   kEmpty       = ' ',
   kEnd         = '$',
   kEndWall     = '&',
+  kFruit       = ':',
   kLivingSpace = '*',
   kPlayerEast  = '>',
   kPlayerNorth = '^',
@@ -59,6 +60,7 @@ namespace SpaceTypes {
   inline const SpaceType kDefault = SpaceType::kDeadSpace;
 
   bool is_player(SpaceType type);
+  bool is_thing(SpaceType type);
   bool is_robot(SpaceType type);
   bool is_portal(SpaceType type);
   bool is_walkable(SpaceType type);

@@ -19,10 +19,9 @@ public:
   explicit Timer(bool start = false);
 
   Timer& start();
+  Timer& resume();
   Timer& end();
 
-  std::uint32_t start_time() const;
-  std::uint32_t end_time() const;
   const Duration& duration() const;
 
 private:

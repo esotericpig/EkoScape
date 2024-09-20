@@ -52,7 +52,6 @@ public:
   bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos) override;
   bool remove_thing(const Pos3i& pos) override;
   bool place_thing(SpaceType type,const Pos3i& pos) override;
-  bool unlock_cell(const Pos3i& pos) override;
 
   bool set_player_pos();
   bool set_player_pos(const Pos3i& pos);

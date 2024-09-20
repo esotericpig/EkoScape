@@ -15,13 +15,14 @@ GameScene::GameScene(Assets& assets,const std::filesystem::path& map_file,const 
   load_map(map_file);
 
   // Extra delay to give some time for the player to orient/adjust.
-  robot_move_duration_ = map_.robot_delay() + kInitRobotDelay;
+  robot_move_duration_ = map_.robot_delay() + kInitExtraRobotDelay;
 }
 
 void GameScene::load_map(const std::filesystem::path& file) {
-  map_.load_file(file,[&](const auto& pos,SpaceType type) {
-    return init_map_space(pos,type);
-  });
+  map_.load_file(file
+    ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type); }
+    ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
+  );
 
   std::cout << "[INFO] Map file: '" << file.string() << "'\n"
             << map_ << std::endl;
@@ -32,7 +33,7 @@ void GameScene::load_map(const std::filesystem::path& file) {
 }
 
 SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
-  // For weird, flip robots & cells.
+  // For weird, flip Robots & Cells.
   if(assets_.is_weird()) {
     if(type == SpaceType::kCell) {
       type = SpaceType::kRobot;
@@ -72,6 +73,12 @@ SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
   return type;
 }
 
+void GameScene::init_map_default_empty(const Pos3i& pos,SpaceType type) {
+  if(SpaceTypes::is_portal(type)) {
+    portal_to_pos_bag_[type].emplace_back(pos);
+  }
+}
+
 void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kCell,&assets_.ceiling_texture(),&assets_.cell_texture()
       ,&assets_.floor_texture());
@@ -106,19 +113,17 @@ void GameScene::init_map_textures() {
 }
 
 void GameScene::init_scene(Renderer& ren) {
-  // If was paused, adjust robot_move_duration_ to be accurate.
+  // For timers, use resume() so that it's adjusted correctly after being paused.
   // - For maps that depend on accurate time, like `60 Seconds`, this prevents cheating.
-  if(robot_move_timer_.duration() > Duration::kZero) {
-    robot_move_duration_ -= robot_move_timer_.duration();
-    if(robot_move_duration_ < Duration::kZero) { robot_move_duration_.zero(); }
-  }
 
   overlay_.init(ren.dimens());
-  robot_move_timer_.start();
+  robot_move_timer_.resume();
+  fruit_timer_.resume();
 }
 
 void GameScene::on_scene_exit() {
   robot_move_timer_.end();
+  fruit_timer_.end();
 }
 
 void GameScene::on_key_down_event(SDL_Keycode key) {
@@ -144,6 +149,7 @@ void GameScene::handle_key_states(const Uint8* keys) {
   bool is_right = (keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
 
   // TODO: Wild idea. If pressing Left&Right at same time, step left & right? Need a bool flag?
+  // TODO: Fix left/right not being more responsive.
 
   // Must check Left/Right first, so that the player can turn while holding down Up/Down,
   //     which is an important mechanic for the game.
@@ -173,6 +179,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
       if(!overlay_.update_map_info()) { return SceneAction::kNil; }
 
       game_phase_ = GamePhase::kPlay;
+      robot_move_duration_ += step.dpf;
       robot_move_timer_.start();
       break;
 
@@ -184,56 +191,81 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
       break;
   }
 
-  update_player();
+  update_player(step);
   update_robots(step);
   move_robots(step);
 
   return SceneAction::kNil;
 }
 
-void GameScene::update_player() {
+void GameScene::update_player(const FrameStep& step) {
   if(game_phase_ == GamePhase::kGameOver) { return; }
 
-  const Space* player_space = map_.player_space();
-
-  if(player_space == nullptr) {
-    std::cerr << "[ERROR] Player space is null for some reason." << std::endl;
+  if(player_ate_fruit_ && fruit_timer_.end().duration() > fruit_duration_) {
+    player_ate_fruit_ = false;
   }
 
   const Pos3i player_pos = map_.player_pos();
-  const SpaceType player_empty_type = (player_space != nullptr)
-      ? player_space->empty_type() : SpaceType::kEmpty;
-  const SpaceType player_space_type = map_.player_space_type();
-  const bool player_prev_hit_portal = player_hit_portal_;
-
-  player_hit_portal_ = SpaceTypes::is_portal(player_empty_type);
+  SpaceType player_space_type = map_.player_space_type();
 
   switch(player_space_type) {
     case SpaceType::kCell:
-      map_.unlock_cell(player_pos);
+      map_.remove_thing(player_pos);
       break;
 
-    // Check for the End before Robots.
+    // Check for End before Robots & Portals.
     case SpaceType::kEnd:
       game_over(true);
+      return;
+
+    // Check for Fruit before Robots.
+    case SpaceType::kFruit:
+      map_.remove_thing(player_pos);
+      player_ate_fruit_ = true;
+      fruit_duration_ = Duration::from_millis(7'000) + step.dpf;
+      fruit_timer_.start();
       break;
 
-    default:
-      // Portals are like safe zones, so if the Player & a Robot are on a portal, the player shouldn't die.
-      //     Therefore, we check for Portals first.
-      if(player_hit_portal_) {
-        if(!player_prev_hit_portal) {
-          const Pos3i* portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
-            const Space* space = map_.space(pos);
-            return space != nullptr && !space->has_thing();
-          });
+    default: break;
+  }
 
-          if(portal_bro != nullptr) { map_.set_player_pos(*portal_bro); }
-        }
-      } else if(SpaceTypes::is_robot(player_space_type)) {
-        game_over(false);
+  // The previous logic above might have updated the type/empty, so check/recheck here.
+  const Space* player_space = map_.player_space();
+  SpaceType player_empty_type = SpaceType::kEmpty;
+  player_space_type = map_.player_space_type();
+
+  if(player_space == nullptr) {
+    std::cerr << "[ERROR] Player space is null for some reason." << std::endl;
+  } else {
+    player_empty_type = player_space->empty_type();
+  }
+
+  // Portals are like safe zones, so if the Player & a Robot are on a portal, the Player shouldn't die.
+  //     Therefore, we check for Portals first.
+  if(SpaceTypes::is_portal(player_empty_type)) {
+    if(!player_warped_) {
+      const Pos3i* portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
+        const Space* space = map_.space(pos);
+        return space != nullptr && !space->has_thing();
+      });
+
+      if(portal_bro != nullptr) {
+        map_.set_player_pos(*portal_bro);
+        player_warped_ = true;
       }
-      break;
+    }
+
+    return;
+  }
+
+  player_warped_ = false;
+
+  if(SpaceTypes::is_robot(player_space_type)) {
+    if(player_ate_fruit_) {
+      remove_robots_at(player_pos);
+    } else {
+      game_over(false);
+    }
   }
 }
 
@@ -247,7 +279,7 @@ void GameScene::game_over(bool hit_end) {
 }
 
 void GameScene::update_robots(const FrameStep& step) {
-  // Remove dead robots and age living robots (only if lifespan was set).
+  // Remove dead Robots and age living Robots (only if lifespan was set).
   for(auto it = robots_.begin(); it != robots_.end();) {
     Robot& robot = *it;
 
@@ -262,29 +294,26 @@ void GameScene::update_robots(const FrameStep& step) {
 }
 
 void GameScene::move_robots(const FrameStep& step) {
-  // Not time to move robots?
+  // Not time to move Robots?
   if(robot_move_timer_.end().duration() < robot_move_duration_) { return; }
 
-  // Move robots.
-  robot_move_data_.refresh();
+  // Move Robots.
+  robot_move_data_.refresh(player_ate_fruit_);
 
   for(auto& robot: robots_) {
-    const SpaceType prev_portal = robot.portal_type();
+    robot.move(robot_move_data_);
 
-    if(!robot.move(robot_move_data_)) { continue; }
-
-    const SpaceType portal = robot.portal_type();
-
-    if(prev_portal == SpaceType::kNil && portal != SpaceType::kNil) {
-      const Pos3i* portal_bro = fetch_portal_bro(robot.pos(),portal,[&](const auto& pos) {
+    // Warp Robots on portals.
+    if(robot.portal_type() != SpaceType::kNil && !robot.warped()) {
+      const Pos3i* portal_bro = fetch_portal_bro(robot.pos(),robot.portal_type(),[&](const auto& pos) {
         return robot.can_move_to(map_.space(pos));
       });
 
-      if(portal_bro != nullptr) { robot.warp_to(*portal_bro,robot_move_data_); }
+      if(portal_bro != nullptr) { robot.warp_to(robot_move_data_,*portal_bro); }
     }
   }
 
-  // Add new robots after the move loop, because we can't add new ones inside its loop.
+  // Add new Robots after the move loop, because we can't add new ones inside its loop.
   for(auto& new_robot: robot_move_data_.new_robots) {
     robots_.emplace_back(new_robot);
   }
@@ -293,6 +322,15 @@ void GameScene::move_robots(const FrameStep& step) {
   // Reset the move timer.
   robot_move_duration_ = map_.robot_delay() + step.dpf;
   robot_move_timer_.start();
+}
+
+void GameScene::remove_robots_at(const Pos3i& pos) {
+  map_.remove_thing(pos);
+
+  auto result = std::ranges::remove_if(robots_,[&](const auto& robot) {
+    return robot.pos() == pos;
+  });
+  robots_.erase(result.begin(),result.end());
 }
 
 const Pos3i* GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to) {

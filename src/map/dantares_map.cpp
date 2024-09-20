@@ -149,13 +149,6 @@ bool DantaresMap::place_thing(SpaceType type,const Pos3i& pos) {
   return true;
 }
 
-bool DantaresMap::unlock_cell(const Pos3i& pos) {
-  if(!Base::unlock_cell(pos)) { return false; }
-
-  change_square(pos,raw_space(pos).empty_type());
-  return true;
-}
-
 bool DantaresMap::set_player_pos() {
   const Pos3i player_pos = this->player_pos();
   return dantares_.SetPlayerPosition(player_pos.x,player_pos.y);

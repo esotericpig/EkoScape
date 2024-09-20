@@ -24,11 +24,12 @@ public:
   public:
     DantaresMap& map;
     Pos3i player_pos{};
+    bool player_ate_fruit = false;
     std::vector<Robot> new_robots{};
 
     explicit MoveData(DantaresMap& map);
 
-    void refresh();
+    void refresh(bool player_ate_fruit);
   };
 
   static inline const int kLikeStatue = 1 << 0; // No movement.
@@ -45,13 +46,14 @@ public:
   static Robot build_worm(const Pos3i& pos,double lifespan = 0.0);
 
   bool move(MoveData& data);
-  bool warp_to(const Pos3i& pos,MoveData& data);
+  bool warp_to(MoveData& data,const Pos3i& pos);
   void age(double delta_time);
 
   bool is_alive() const;
   bool is_dead() const;
   const Pos3i& pos() const;
   SpaceType portal_type() const;
+  bool warped() const;
   bool can_move_to(const Space* space) const;
 
 private:
@@ -66,13 +68,16 @@ private:
   int moves_like_ = 0;
   double lifespan_ = 0.0; // Seconds.
   double age_ = 0.0;
+
+  Pos3i last_seen_player_pos_{0,0,-1};
   SpaceType portal_type_ = SpaceType::kNil;
+  bool warped_ = false;
 
   explicit Robot(const Pos3i& pos,int moves_like,double lifespan);
 
   bool move_smart(MoveData& data);
   bool move_rand(MoveData& data);
-  bool try_move(int x_vel,int y_vel,MoveData& data);
+  bool try_move(MoveData& data,int x_vel,int y_vel);
 };
 
 } // Namespace.
