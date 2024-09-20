@@ -20,11 +20,10 @@ class MapGrid {
 public:
   explicit MapGrid(const Size2i& size);
 
-  Space* space(const Pos2i& pos);
-  Space& raw_space(const Pos2i& pos);
-
   const Size2i& size() const;
+  Space* space(const Pos2i& pos);
   const Space* space(const Pos2i& pos) const;
+  Space& raw_space(const Pos2i& pos);
   const Space& raw_space(const Pos2i& pos) const;
 
 private:

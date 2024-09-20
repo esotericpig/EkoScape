@@ -33,27 +33,36 @@ namespace ekoscape {
  * When parsing a Map Grid (and on output), the lines are flipped vertically to accommodate this.
  *
  * Besides loading & parsing a Map file, this class can also be used for creating a Map file:
- *   std::vector<std::string> lines = {
- *      "xxxxxxxxxxxx",
- *      "x>         x",
- *      "x#####@### x",
- *      "x          x",
- *      "x ####@####x",
- *      "x     !   $x",
- *      "xxxxxxxxxxxx"
- *    };
+ *   std::vector<std::string> grid1 = {
+ *     "xxxxxxxxxxxx",
+ *     "x>         x",
+ *     "x#####@### x",
+ *     "x          x",
+ *     "x ####@####x",
+ *     "x     !   0x",
+ *     "xxxxxxxxxxxx"
+ *   };
+ *   std::vector<std::string> grid2 = {
+ *     "xxxxxx",
+ *     "x0  $x",
+ *     "xxxxxx"
+ *   };
  *
- *    Map map{};
- *    map.set_title("EZ")
- *       .set_author("Bradz")
- *       .set_turning_speed(5.0f)
- *       .set_walking_speed(15.0f)
- *       .set_default_empty(SpaceType::kWhiteFloor)
- *       .set_robot_delay(Duration::from_millis(2000))
- *       // Do this last! Else, the default empty will be wrong.
- *       .parse_grid(lines);
+ *   Map map{};
+ *   map.set_title("EZ")
+ *      .set_author("Bradz")
+ *      .set_turning_speed(5.0f)
+ *      .set_walking_speed(15.0f)
+ *      .set_default_empty(SpaceType::kWhiteFloor)
+ *      .set_robot_delay(Duration::from_millis(2000))
+ *      // Parse the grids last! Else, the default empty will be wrong.
+ *      .parse_grid(grid1)
+ *      .parse_grid(grid2);
  *
- *    std::cout << map << std::endl;
+ *   std::cout << map << std::endl;
+ *
+ * Note that set_space(), set_empty(), & set_thing() should only be used before calling parse_grid(),
+ * as these are considered "raw" functions and will not update the number of Cells, etc.
  */
 class Map {
 public:
@@ -75,6 +84,7 @@ public:
       ,const DefaultEmptyCallback& on_def_empty = nullptr);
   Map& parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space = nullptr
       ,const DefaultEmptyCallback& on_def_empty = nullptr,std::string file = "");
+  Map& shrink_grids_to_fit();
 
   virtual bool change_grid(int z);
   virtual bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
@@ -137,9 +147,12 @@ protected:
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 
+  void load_metadata(TextReader& reader,const std::string& file);
+  void load_grids(TextReader& reader,const SpaceCallback& on_space,const DefaultEmptyCallback& on_def_empty
+      ,const std::string& file);
+
   Space* mutable_space(const Pos3i& pos); // Can't use name `space`, unfortunately.
   Space& raw_space(const Pos3i& pos);
-
   const Space& raw_space(const Pos3i& pos) const;
 };
 

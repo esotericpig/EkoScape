@@ -52,7 +52,7 @@ bool Robot::move(MoveData& data) {
     return move_smart(data);
   }
 
-  return move_rand(data); // We've never seen the Player on our Z/grid.
+  return move_rand(data); // We haven't seen the Player on our Z/grid (recently).
 }
 
 bool Robot::move_smart(MoveData& data) {
@@ -155,15 +155,13 @@ bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
 }
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-bool Robot::warp_to(MoveData& data,const Pos3i& pos) {
-  if(pos == pos_) {
-    warped_ = true;
-    return true;
+bool Robot::warp_to(MoveData& data,const Pos3i& to_pos) {
+  if(pos_ != to_pos) {
+    if(!can_move_to(data.map.space(to_pos))) { return false; }
+    if(!data.map.move_thing(pos_,to_pos)) { return false; }
   }
-  if(!can_move_to(data.map.space(pos))) { return false; }
-  if(!data.map.move_thing(pos_,pos)) { return false; }
 
-  pos_ = pos;
+  pos_ = to_pos;
   warped_ = true;
   last_seen_player_pos_.z = -1; // Move randomly again, in case the Player isn't on this new Z/grid.
 

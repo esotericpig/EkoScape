@@ -32,21 +32,14 @@ public:
     void refresh(bool player_ate_fruit);
   };
 
-  static inline const int kLikeStatue = 1 << 0; // No movement.
-  static inline const int kLikeNormal = 1 << 1;
-  static inline const int kLikeGhost = 1 << 2; // Can go through walls.
-  static inline const int kLikeSnake = 1 << 3; // Leaves behind a "shadow"/tail of statues.
-
-  static inline const double kSnakeTailLifespan = 9.0; // Seconds.
-
-  static Robot build_statue(const Pos3i& pos,double lifespan = 0.0);
-  static Robot build_normal(const Pos3i& pos,double lifespan = 0.0);
-  static Robot build_ghost(const Pos3i& pos,double lifespan = 0.0);
-  static Robot build_snake(const Pos3i& pos,double lifespan = 0.0);
-  static Robot build_worm(const Pos3i& pos,double lifespan = 0.0);
+  static Robot build_statue(const Pos3i& pos,double lifespan = kDefaultLifespan);
+  static Robot build_normal(const Pos3i& pos,double lifespan = kDefaultLifespan);
+  static Robot build_ghost(const Pos3i& pos,double lifespan = kDefaultLifespan);
+  static Robot build_snake(const Pos3i& pos,double lifespan = kDefaultLifespan);
+  static Robot build_worm(const Pos3i& pos,double lifespan = kDefaultLifespan);
 
   bool move(MoveData& data);
-  bool warp_to(MoveData& data,const Pos3i& pos);
+  bool warp_to(MoveData& data,const Pos3i& to_pos);
   void age(double delta_time);
 
   bool is_alive() const;
@@ -57,6 +50,13 @@ public:
   bool can_move_to(const Space* space) const;
 
 private:
+  static inline const int kLikeStatue = 1 << 0; // No movement.
+  static inline const int kLikeNormal = 1 << 1;
+  static inline const int kLikeGhost = 1 << 2; // Can go through walls.
+  static inline const int kLikeSnake = 1 << 3; // Leaves behind a "shadow"/tail of statues.
+
+  static inline const double kDefaultLifespan = 0.0;
+  static inline const double kSnakeTailLifespan = 9.0; // Seconds.
   static inline std::vector<Pos2i> rand_move_vels_{
     { 0,-1}, // North.
     { 0, 1}, // South.
