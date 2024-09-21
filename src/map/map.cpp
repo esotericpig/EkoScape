@@ -272,7 +272,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
         }
       }
 
-      grid->raw_space(dan_pos.to_pos2<int>()).set(empty_type,thing_type);
+      grid->raw_space(dan_pos).set(empty_type,thing_type);
     }
   }
 
@@ -437,19 +437,17 @@ Size2i Map::size(int z) const {
 
 Space* Map::mutable_space(const Pos3i& pos) {
   if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
-  return grids_[pos.z]->space(pos.to_pos2<int>());
+  return grids_[pos.z]->space(pos);
 }
 
 const Space* Map::space(const Pos3i& pos) const {
   if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
-  return grids_[pos.z]->space(pos.to_pos2<int>());
+  return grids_[pos.z]->space(pos);
 }
 
-Space& Map::raw_space(const Pos3i& pos) { return grids_.at(pos.z)->raw_space(pos.to_pos2<int>()); }
+Space& Map::raw_space(const Pos3i& pos) { return grids_.at(pos.z)->raw_space(pos); }
 
-const Space& Map::raw_space(const Pos3i& pos) const {
-  return grids_.at(pos.z)->raw_space(pos.to_pos2<int>());
-}
+const Space& Map::raw_space(const Pos3i& pos) const { return grids_.at(pos.z)->raw_space(pos); }
 
 int Map::total_cells() const { return total_cells_; }
 
