@@ -38,6 +38,7 @@ public:
     std::unique_ptr<Texture> cell_texture{};
     std::unique_ptr<Texture> end_texture{};
     std::unique_ptr<Texture> floor_texture{};
+    std::unique_ptr<Texture> fruit_texture{};
     std::unique_ptr<Texture> portal_texture{};
     std::unique_ptr<Texture> robot_texture{};
     std::unique_ptr<Texture> wall_texture{};

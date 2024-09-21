@@ -54,6 +54,7 @@ StyledGraphics::Graphics StyledGraphics::load_style(Style style,const std::strin
   graphics.cell_texture = std::make_unique<Texture>(Image{tex_dir / "cell.png"},make_weird);
   graphics.end_texture = std::make_unique<Texture>(Image{tex_dir / "end.png"},make_weird);
   graphics.floor_texture = std::make_unique<Texture>(Image{tex_dir / "floor.png"},make_weird);
+  graphics.fruit_texture = std::make_unique<Texture>(Image{tex_dir / "fruit.png"},make_weird);
   graphics.portal_texture = std::make_unique<Texture>(Image{tex_dir / "portal.png"},make_weird);
   graphics.robot_texture = std::make_unique<Texture>(Image{tex_dir / "robot.png"},make_weird);
   graphics.wall_texture = std::make_unique<Texture>(Image{tex_dir / "wall.png"},make_weird);

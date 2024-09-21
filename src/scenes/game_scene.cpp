@@ -86,6 +86,7 @@ void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kEmpty,&assets_.ceiling_texture(),nullptr,&assets_.floor_texture());
   set_space_textures(SpaceType::kEnd,&assets_.end_texture());
   set_space_textures(SpaceType::kEndWall,&assets_.end_texture());
+  set_space_textures(SpaceType::kFruit,&assets_.fruit_texture());
   // SpaceType::kLivingSpace - No textures.
   // SpaceType::kPlayer* - No textures.
   set_space_textures(SpaceType::kPortal0,&assets_.portal_texture());

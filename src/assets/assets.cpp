@@ -100,6 +100,8 @@ const Texture& Assets::end_texture() const { return *styled_graphics_.graphics()
 
 const Texture& Assets::floor_texture() const { return *styled_graphics_.graphics().floor_texture; }
 
+const Texture& Assets::fruit_texture() const { return *styled_graphics_.graphics().fruit_texture; }
+
 const Texture& Assets::portal_texture() const { return *styled_graphics_.graphics().portal_texture; }
 
 const Texture& Assets::robot_texture() const { return *styled_graphics_.graphics().robot_texture; }
