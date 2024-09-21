@@ -900,9 +900,9 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
     return true;
 }
 
-bool Dantares::StepForward(bool Force)
+bool Dantares::StepForward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
     {
         return false;
     }
@@ -974,9 +974,9 @@ bool Dantares::StepForward(bool Force)
     return false;
 }
 
-bool Dantares::StepBackward(bool Force)
+bool Dantares::StepBackward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
     {
         return false;
     }
@@ -1048,9 +1048,9 @@ bool Dantares::StepBackward(bool Force)
     return false;
 }
 
-bool Dantares::StepLeft(bool Force)
+bool Dantares::StepLeft(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
     {
         return false;
     }
@@ -1122,9 +1122,9 @@ bool Dantares::StepLeft(bool Force)
     return false;
 }
 
-bool Dantares::StepRight(bool Force)
+bool Dantares::StepRight(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
     {
         return false;
     }
@@ -1196,9 +1196,9 @@ bool Dantares::StepRight(bool Force)
     return false;
 }
 
-bool Dantares::TurnLeft()
+bool Dantares::TurnLeft(bool AllowIfWalking, bool AllowIfTurning)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
     {
         return false;
     }
@@ -1209,9 +1209,9 @@ bool Dantares::TurnLeft()
     return true;
 }
 
-bool Dantares::TurnRight()
+bool Dantares::TurnRight(bool AllowIfWalking, bool AllowIfTurning)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
     {
         return false;
     }

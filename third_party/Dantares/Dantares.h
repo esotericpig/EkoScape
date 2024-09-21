@@ -16,12 +16,28 @@
  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/*  The Dantares Engine v1.1
+/*  The Dantares Engine v1.2
     All code written by Ryan Witmer in Apple Xcode
     ryan@averagesoftware.com
     www.averagesoftware.com
     www.averagesoftware.com/dantares.html
     https://phasercat.com
+
+    Changelog
+    - v1.2
+        - Changed SetPlayerPosition(int,int) to reuse the current CameraFacing.
+        - Added AllowIfWalking and AllowIfTurning to the movement functions.
+            - Without this, my game's controls felt unresponsive when trying to turn while walking.
+    - v1.1
+        - Changed MAXMAPS to be inside Dantares.
+        - Changed to use smart pointers and vector.
+        - Added DANTARES_* platform macros for the includes.
+        - Added move constructors and deleted copy constructors (Rule of 5).
+            - Cannot copy OpenGL display lists.
+        - Added destructor to SpaceClass() to auto-delete OpenGL display lists.
+        - Added PrintDebugInfo().
+        - Fixed AddMap(const int**) to be AddMap(const int* const*).
+            - https://isocpp.org/wiki/faq/const-correctness#constptrptr-conversion
 */
 
 #ifndef DANTARES_H
@@ -340,7 +356,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepForward(bool Force=false);
+    bool StepForward(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
     /*  Moves the player forward one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -352,7 +368,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepBackward(bool Force=false);
+    bool StepBackward(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
     /*  Moves the player backward one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -364,7 +380,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepLeft(bool Force=false);
+    bool StepLeft(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
     /*  Sidesteps the player left one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -376,7 +392,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepRight(bool Force=false);
+    bool StepRight(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
     /*  Sidesteps the player right one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -388,13 +404,13 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool TurnLeft();
+    bool TurnLeft(bool AllowIfWalking=false, bool AllowIfTurning=false);
     /*  Turns the player 90 degrees to the left.
 
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool TurnRight();
+    bool TurnRight(bool AllowIfWalking=false, bool AllowIfTurning=false);
     /*  Turns the player 90 degrees to the right.
 
         Returns - Function returns true if successful, and false otherwise.
@@ -568,7 +584,7 @@ private:
 
         std::vector<std::vector<int>> MapArray;      //Array for the map.
         std::vector<std::vector<bool>> WalkArray;    //Array for walkability.
-        std::vector<SpaceClass> SpaceInfo;           //List of space information.
+        std::vector<SpaceClass> SpaceInfo;           //Array of space information.
         int XSize;                                   //Map width.
         int YSize;                                   //Map height.
 
