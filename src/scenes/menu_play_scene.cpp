@@ -79,7 +79,7 @@ void MenuPlayScene::draw_scene(Renderer& ren) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  assets_.font_renderer().wrap(ren,{25,10},0.75f,[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{25,10,0},0.75f,[&](auto& font) {
     if(!map_opts_.empty()) {
       const int opts_len = static_cast<int>(map_opts_.size());
       const int first_i = map_opt_index_ - kMapOptsHalf1;

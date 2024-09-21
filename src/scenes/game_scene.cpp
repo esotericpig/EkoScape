@@ -144,21 +144,20 @@ void GameScene::on_key_down_event(SDL_Keycode key) {
 }
 
 void GameScene::handle_key_states(const Uint8* keys) {
-  // bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
+  bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
   bool is_down = (keys[SDL_SCANCODE_DOWN] == 1 || keys[SDL_SCANCODE_S] == 1);
   bool is_left = (keys[SDL_SCANCODE_LEFT] == 1 || keys[SDL_SCANCODE_A] == 1);
   bool is_right = (keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
 
-  // TODO: Wild idea. If pressing Left&Right at same time, step left & right? Need a bool flag?
-  // TODO: Fix left/right not being more responsive.
-
-  // Must check Left/Right first, so that the player can turn while holding down Up/Down,
+  // Must check Left/Right first, so that the Player can turn while walking forward/backward,
   //     which is an important mechanic for the game.
   if(is_left) {
-    if(!is_right) { dantares_.TurnLeft(); }
+    if(!is_right) { dantares_.TurnLeft(true); }
   } else if(is_right) {
-    dantares_.TurnRight();
-  } else if(game_phase_ == GamePhase::kPlay) {
+    dantares_.TurnRight(true);
+  }
+  // Unfortunately, can't use xor, because always want to move forward even if Up isn't pressed.
+  else if(game_phase_ == GamePhase::kPlay && !(is_up && is_down)) {
     if(is_down) {
       dantares_.StepBackward();
     } else {
@@ -232,7 +231,7 @@ void GameScene::update_player(const FrameStep& step) {
 
   // The previous logic above might have updated the type/empty, so check/recheck here.
   const Space* player_space = map_.player_space();
-  SpaceType player_empty_type = SpaceType::kEmpty;
+  auto player_empty_type = SpaceType::kEmpty;
   player_space_type = map_.player_space_type();
 
   if(player_space == nullptr) {

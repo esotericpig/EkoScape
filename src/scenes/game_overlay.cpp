@@ -37,7 +37,7 @@ void GameOverlay::update_game_over(const FrameStep& step,bool player_hit_end) {
 void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
   ren.begin_auto_center_scale();
 
-  assets_.font_renderer().wrap(ren,{395,395},[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{395,395,0},[&](auto& font) {
     const tiny_utf8::string title = map.title();
     const tiny_utf8::string author = "  by " + map.author();
     const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
@@ -62,10 +62,10 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
 
   ren.wrap_sprite(player_hit_end ? assets_.corngrits_sprite() : assets_.goodnight_sprite(),[&](auto& s) {
     ren.wrap_color({1.0f,game_over_age_},[&]() {
-      s.draw_quad({10,10},{1200,450});
+      s.draw_quad({10,10,0},{1200,450});
     });
   });
-  assets_.font_renderer().wrap(ren,{460,460},0.60f,[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{460,460,0},0.60f,[&](auto& font) {
     font.font_color.a *= game_over_age_;
 
     const Color4f font_color = font.font_color;
@@ -100,7 +100,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
     }
   });
 
-  assets_.font_renderer().wrap(ren,{580,790},[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{580,790,0},[&](auto& font) {
     font.draw_bg(bg_color,{9,1},kTextBgPadding);
     font.font_color.a *= game_over_age_;
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);

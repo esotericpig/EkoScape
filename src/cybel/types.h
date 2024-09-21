@@ -53,6 +53,9 @@ public:
   T x{};
   T y{};
 
+  Pos2() {}
+  Pos2(T x,T y) : x(x),y(y) {}
+
   bool operator==(const Pos2&) const = default;
 
   Pos2& set(T x,T y) {
@@ -79,7 +82,7 @@ public:
   T z{};
 
   Pos3() {}
-  Pos3(T x,T y,T z = {}) : x(x),y(y),z(z) {}
+  Pos3(T x,T y,T z) : x(x),y(y),z(z) {}
 
   bool operator==(const Pos3&) const = default;
 
@@ -122,6 +125,9 @@ public:
   int min = 0;
   int max = 0;
 
+  Range2i() {}
+  Range2i(int min,int max) : min(min),max(max) {}
+
   bool in_range(int value) const;
 
   Range2i& set(int min,int max);
@@ -134,7 +140,6 @@ public:
   T h{};
 
   Size2() {}
-  Size2(T s) : w(s),h(s) {}
   Size2(T w,T h) : w(w),h(h) {}
 
   bool in_bounds(const Pos2<T>& pos,const Size2<T>& size) const {

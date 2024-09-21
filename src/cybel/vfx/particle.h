@@ -48,8 +48,8 @@ public:
   float spin_vel = 0.0f;
 
   Size2f size{};
-  Size2f baby_size{110.0f};
-  Size2f elder_size{110.0f};
+  Size2f baby_size{110.0f,110.0f};
+  Size2f elder_size{110.0f,110.0f};
   Color4f color{};
   Color4f baby_color{1.0f};
   Color4f elder_color{1.0f};

@@ -103,10 +103,10 @@ void MenuScene::draw_scene(Renderer& ren) {
      .begin_add_blend();
 
   ren.wrap_sprite(assets_.logo_sprite(),[&](auto& s) {
-    s.draw_quad({150,10},{1300,300});
+    s.draw_quad({150,10,0},{1300,300});
   });
 
-  assets_.font_renderer().wrap(ren,{395,330},[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{395,330,0},[&](auto& font) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
       Option& opt = opts_[i];
       int styles = 0;
@@ -124,13 +124,13 @@ void MenuScene::draw_scene(Renderer& ren) {
   });
 
   ren.wrap_texture(assets_.robot_texture(),[&](auto& tex) {
-    tex.draw_quad({10,368},{300,256});
+    tex.draw_quad({10,368,0},{300,256});
   });
   ren.wrap_texture(assets_.cell_texture(),[&](auto& tex) {
-    tex.draw_quad({10,634},{300,256});
+    tex.draw_quad({10,634,0},{300,256});
   });
   ren.wrap_sprite(assets_.keys_sprite(),[&](auto& s) {
-    s.draw_quad({849,670},{741,220}); // 1482x440.
+    s.draw_quad({849,670,0},{741,220}); // 1482x440.
   });
 
   ren.end_blend()

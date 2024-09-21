@@ -55,15 +55,15 @@ void MenuCreditsScene::draw_scene(Renderer& ren) {
   int right_x = x + 800;
 
   ren.wrap_sprite(assets_.logo_sprite(),[&](auto& s) {
-    s.draw_quad({x,y},{780,180}); // 1300x300.
+    s.draw_quad({x,y,0},{780,180}); // 1300x300.
   });
   ren.wrap_sprite(assets_.dantares_sprite(),[&](auto& s) {
-    s.draw_quad({right_x,y},{780,156}); // 600x120.
+    s.draw_quad({right_x,y,0},{780,156}); // 600x120.
   });
   x += 35;
   y += 190;
 
-  assets_.font_renderer().wrap(ren,{x,y},0.75f,[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{x,y,0},0.75f,[&](auto& font) {
     font.print("by Bradley Whited");
     font.font.pos.x = right_x;
     font.print("by Ryan Witmer");
@@ -71,7 +71,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren) {
     font.puts();
     y = font.font.pos.y;
   });
-  assets_.font_renderer().wrap(ren,{x,y},0.45f,[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{x,y,0},0.45f,[&](auto& font) {
     font.print("github.com/esotericpig/EkoScape");
     font.font.pos.x = right_x;
     font.print("https://phasercat.com");
@@ -80,12 +80,12 @@ void MenuCreditsScene::draw_scene(Renderer& ren) {
     y = font.font.pos.y;
   });
 
-  assets_.font_renderer().wrap(ren,{x,y},0.60f,[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{x,y,0},0.60f,[&](auto& font) {
     font.puts("Monogram font by DataGoblin.itch.io");
     font.puts("Star textures by KronBits.itch.io");
   });
 
-  assets_.font_renderer().wrap(ren,{395,615},[&](auto& font) {
+  assets_.font_renderer().wrap(ren,{395,615,0},[&](auto& font) {
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
   });
 

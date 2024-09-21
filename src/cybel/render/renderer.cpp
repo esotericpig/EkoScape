@@ -72,7 +72,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& c
   ren.end_texture();
   ren.wrap_color(color,[&] {
     ren.draw_quad(
-      {pos.x - padding.w,pos.y - padding.h},
+      {pos.x - padding.w,pos.y - padding.h,pos.z},
       {
         (char_size.w * str_size.w) + (font.spacing().w * (str_size.w - 1)) + (padding.w << 1),
         (char_size.h * str_size.h) + (font.spacing().h * (str_size.h - 1)) + (padding.h << 1)

@@ -31,16 +31,15 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool 
   ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor HUD to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (show_mini_map ? kMiniMapSize.h : 0);
-  Pos3i pos{10,ren.dimens().target_size.h - 10 - total_h};
+  Pos3i pos{10,ren.dimens().target_size.h - 10 - total_h,0};
 
   ren.wrap_color(mini_map_walkable_color_,[&]() {
     ren.draw_quad(pos,{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
   assets_.font_renderer().wrap(ren,pos,0.33f,[&](auto& font) {
-    font.print();
-
     const Color4f font_color = font.font_color;
 
+    font.print();
     font.font_color = (map.total_rescues() < map.total_cells()) ? mini_map_eko_color_ : mini_map_end_color_;
     font.print(std::to_string(map.total_rescues()));
 
