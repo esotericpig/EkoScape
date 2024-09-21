@@ -139,7 +139,7 @@ void Map::load_grids(TextReader& reader,const SpaceCallback& on_space
     size.set(0,0);
 
     while(reader.read_line(line) && !line.empty()) {
-      lines.emplace_back(line);
+      lines.push_back(line);
 
       const int len = static_cast<int>(line.length());
       if(len > size.w) { size.w = len; }
@@ -276,7 +276,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
     }
   }
 
-  grids_.emplace_back(std::move(grid));
+  grids_.push_back(std::move(grid));
 
   if(has_player) {
     grid_index_ = z;

@@ -22,8 +22,8 @@ void StyledGraphics::reload(bool make_weird) {
 
 void StyledGraphics::reload(Style style,bool make_weird) {
   graphics_bag_.clear();
-  graphics_bag_.emplace_back(load_style(Style::kClassic,"classic",make_weird));
-  graphics_bag_.emplace_back(load_style(Style::kRealistic,"realistic",make_weird));
+  graphics_bag_.push_back(load_style(Style::kClassic,"classic",make_weird));
+  graphics_bag_.push_back(load_style(Style::kRealistic,"realistic",make_weird));
   graphics_bag_.shrink_to_fit();
 
   graphics_bag_index_ = -1;

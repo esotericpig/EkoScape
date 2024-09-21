@@ -44,28 +44,28 @@ SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
 
   switch(type) {
     case SpaceType::kRobot:
-      robots_.emplace_back(Robot::build_normal(pos));
+      robots_.push_back(Robot::build_normal(pos));
       break;
 
     case SpaceType::kRobotGhost:
-      robots_.emplace_back(Robot::build_ghost(pos));
+      robots_.push_back(Robot::build_ghost(pos));
       break;
 
     case SpaceType::kRobotSnake:
-      robots_.emplace_back(Robot::build_snake(pos));
+      robots_.push_back(Robot::build_snake(pos));
       break;
 
     case SpaceType::kRobotStatue:
-      robots_.emplace_back(Robot::build_statue(pos));
+      robots_.push_back(Robot::build_statue(pos));
       break;
 
     case SpaceType::kRobotWorm:
-      robots_.emplace_back(Robot::build_worm(pos));
+      robots_.push_back(Robot::build_worm(pos));
       break;
 
     default:
       if(SpaceTypes::is_portal(type)) {
-        portal_to_pos_bag_[type].emplace_back(pos);
+        portal_to_pos_bag_[type].push_back(pos);
       }
       break;
   }
@@ -75,7 +75,7 @@ SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
 
 void GameScene::init_map_default_empty(const Pos3i& pos,SpaceType type) {
   if(SpaceTypes::is_portal(type)) {
-    portal_to_pos_bag_[type].emplace_back(pos);
+    portal_to_pos_bag_[type].push_back(pos);
   }
 }
 
@@ -315,7 +315,7 @@ void GameScene::move_robots(const FrameStep& step) {
 
   // Add new Robots after the move loop, because we can't add new ones inside its loop.
   for(auto& new_robot: robot_move_data_.new_robots) {
-    robots_.emplace_back(new_robot);
+    robots_.push_back(new_robot);
   }
   robot_move_data_.new_robots.clear();
 

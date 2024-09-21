@@ -169,7 +169,7 @@ void MenuPlayScene::glob_maps() {
            << " [" << opt.group << ']';
         opt.text = ss.str();
 
-        map_opts_.emplace_back(opt);
+        map_opts_.push_back(opt);
       }
     }
   } catch(const std::filesystem::filesystem_error& e) {

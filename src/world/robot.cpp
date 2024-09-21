@@ -147,7 +147,7 @@ bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
     warped_ = false;
 
     if((moves_like_ & kLikeSnake) && data.map.place_thing(SpaceType::kRobotStatue,from_pos)) {
-      data.new_robots.emplace_back(build_statue(from_pos,kSnakeTailLifespan));
+      data.new_robots.push_back(build_statue(from_pos,kSnakeTailLifespan));
     }
   }
 

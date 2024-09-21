@@ -20,7 +20,7 @@ bool SceneMan::push_scene(int type) {
   set_scene(scene_bag);
 
   if(!prev.persist) { prev.scene = nullptr; }
-  prev_scene_bags_.emplace_back(prev);
+  prev_scene_bags_.push_back(prev);
 
   return true;
 }
