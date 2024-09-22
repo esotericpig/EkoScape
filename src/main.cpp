@@ -29,44 +29,27 @@ int main(int /*argc*/,char** /*argv*/) {
   return 0;
 }
 
-// TODO: implement 'r' to refresh assets.
+/*
+TODO: Use own Ogg music from iPad.
+TODO: Experiment with different tex for dead/living spaces.
+      probably have living space look slightly different in some way.
+      use marble for white tex.
 
-// TODO: In GameScene, display text of author and title?
-// TODO: Implement mini map in GameScene and include number of Ekos rescued out of total.
-//       Just do colors. If walkable, then nothing. If non-walkable or Entity/Thing, then color.
-//       - Special color for non-walkable, Robot, Cell, and "fruit".
-//       Moore neighborhood of 4 spaces out or whatever (param). Can implement in Map.
-// TODO: Implement Game Over in GameScene to show message and to press Enter.
-//       After enter, kGoBack.
-//       Continue to have update/draw, but ignore user input.
+TODO: Set target_fps to 40 (or 30) to see what original time should be and adjust delay/speeds.
+TODO: Make all maps easier to play. I think fruit will solve this.
 
-// TODO: Use own Ogg music from iPad.
-// TODO: Cruise control button? So continuously presses up. Can turn on or off.
-//       Maybe always on?
-// TODO: Implement "fruit" in Game so can eat robots -- pacman: if eat, they go back to origin?
-// TODO: Implement portals and multiple layers/floors? -- pacman: 0-9 are matching portals; 0<=>0, 1<=>1
-// TODO: Any other pacman stuff?
+TODO: Update all READMEs.
+      - Add to README that you can make a pull request to submit a new game,
+        or can create an issue, or comment in discussion tab.
 
-// TODO: Experiment with different tex for dead/living spaces.
-//       probably have living space look slightly different in some way.
-//       use marble for white tex.
+TODO: Use CMake & Conan.
+      - https://internalpointers.com/post/modern-cmake-beginner-introduction
+      - https://github.com/gosu/gosu/blob/master/CMakeLists.txt
+TODO: Test pulling down project in clean Linux VM and building.
 
-// TODO: Set target_fps to 40 (or 30) to see what original time should be and adjust delay/speeds.
-// TODO: Make all maps easier to play.
-
-// TODO: Add to README that you can make a pull request to submit a new game,
-//       or can create an issue, or comment in discussion tab.
-// TODO: Update all READMEs.
-
-// TODO: Make desktop entry with assets icon.
-// TODO: Try using emscripten to make web version.
-//       Break main loop into init_run()/run_frame() or w/e for emscripten.
-// TODO: Make appimage/flatpack/snap.
-// TODO: Publish on itch.io?
-// TODO: Can we put this on Roku?
-//       - https://www.4waytechnologies.com/blog/roku-new-idk-complete-guide-2021
-
-// TODO: Use CMake & Conan.
-//       - https://internalpointers.com/post/modern-cmake-beginner-introduction
-//       - https://github.com/gosu/gosu/blob/master/CMakeLists.txt
-// TODO: Test pulling down project in clean Linux VM and building.
+TODO: Try using emscripten to make web version.
+      - Break main loop into init_run()/run_frame() or w/e for emscripten.
+TODO: Make appimage/flatpack/snap.
+      - Make desktop entry with assets icon.
+TODO: Publish on itch.io?
+*/
