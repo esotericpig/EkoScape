@@ -34,7 +34,7 @@
         - Added DANTARES_* platform macros for the includes.
         - Added move constructors and deleted copy constructors (Rule of 5).
             - Cannot copy OpenGL display lists.
-        - Added destructor to SpaceClass() to auto-delete OpenGL display lists.
+        - Added destructor to SpaceClass to auto-delete OpenGL display lists.
         - Added PrintDebugInfo().
         - Fixed AddMap(const int**) to be AddMap(const int* const*).
             - https://isocpp.org/wiki/faq/const-correctness#constptrptr-conversion
