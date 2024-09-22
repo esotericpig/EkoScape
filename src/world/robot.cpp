@@ -136,10 +136,9 @@ bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
   const Space* to_space = data.map.space(to_pos);
 
   if(!can_move_to(to_space)) { return false; }
+  if(!data.map.move_thing(pos_,to_pos)) { return false; }
 
   const Pos3i from_pos = pos_; // Store origin for snake's tail.
-  if(!data.map.move_thing(from_pos,to_pos)) { return false; }
-
   pos_ = to_pos;
   portal_type_ = to_space->is_portal() ? to_space->empty_type() : SpaceType::kNil;
 
