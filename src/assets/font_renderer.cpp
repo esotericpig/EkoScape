@@ -138,6 +138,10 @@ const Size2i& FontRenderer::font_size() const { return kFontSize; }
 
 const Size2i& FontRenderer::font_spacing() const { return font_atlas_.spacing(); }
 
+const Color4f& FontRenderer::arrow_color() const { return arrow_color_; }
+
+const Color4f& FontRenderer::cycle_arrow_color() const { return cycle_arrow_color_; }
+
 Size2i FontRenderer::scale_size(float scale) const {
   if(scale == 1.0f) { return kFontSize; }
 

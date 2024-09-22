@@ -22,7 +22,8 @@ class GameHud {
 public:
   explicit GameHud(Assets& assets);
 
-  void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end);
+  void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,const Duration& player_fruit_time
+      ,bool player_hit_end);
 
 private:
   static inline const Size2i kMiniMapHoodRadius{4,3};
@@ -32,7 +33,7 @@ private:
     ((kMiniMapHoodRadius.w << 1) + 1) * kMiniMapBlockSize.w,
     ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
   };
-  static inline const std::uint8_t kAlpha = 127;
+  static inline const float kAlpha = 0.50f;
 
   Assets& assets_;
 

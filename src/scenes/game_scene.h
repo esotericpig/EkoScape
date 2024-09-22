@@ -58,6 +58,8 @@ private:
 
   static inline const Duration kInitExtraRobotDelay = Duration::from_millis(1'000);
   static inline const int kDantaresDist = 24; // Must be 2+.
+  static inline const Duration kWarpDuration = Duration::from_millis(750);
+  static inline const Duration kFruitDuration = Duration::from_millis(7'000);
 
   Assets& assets_;
   State state_{};
@@ -73,16 +75,14 @@ private:
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
   bool player_hit_end_ = false;
   bool player_warped_ = false;
-  bool player_ate_fruit_ = false;
+  Duration player_warp_time_{};
+  Duration player_fruit_time_{};
 
   std::vector<Robot> robots_{};
-  Timer robot_move_timer_{};
-  Duration robot_move_duration_{};
+  Duration robot_move_time_{};
   Robot::MoveData robot_move_data_{map_};
 
   std::unordered_map<SpaceType,std::vector<Pos3i>> portal_to_pos_bag_{};
-  Timer fruit_timer_{};
-  Duration fruit_duration_{};
 
   GameHud hud_;
   GameOverlay overlay_;

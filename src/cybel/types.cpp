@@ -75,6 +75,22 @@ Color4f& Color4f::set_bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::ui
   );
 }
 
+Color4f Color4f::with_r(float r) const { return {r,g,b,a}; }
+
+Color4f Color4f::with_g(float g) const { return {r,g,b,a}; }
+
+Color4f Color4f::with_b(float b) const { return {r,g,b,a}; }
+
+Color4f Color4f::with_a(float a) const { return {r,g,b,a}; }
+
+Color4f Color4f::with_byte_r(std::uint8_t r) const { return {r / 255.0f,g,b,a}; }
+
+Color4f Color4f::with_byte_g(std::uint8_t g) const { return {r,g / 255.0f,b,a}; }
+
+Color4f Color4f::with_byte_b(std::uint8_t b) const { return {r,g,b / 255.0f,a}; }
+
+Color4f Color4f::with_byte_a(std::uint8_t a) const { return {r,g,b,a / 255.0f}; }
+
 bool Range2i::in_range(int value) const { return value >= min && value <= max; }
 
 Range2i& Range2i::set(int min,int max) {

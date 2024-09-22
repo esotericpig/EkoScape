@@ -18,13 +18,42 @@ void GameOverlay::init(const ViewDimens& dimens) {
   map_info_timer_.resume();
 }
 
+void GameOverlay::flash(const Color4f& color) {
+  flash_color_ = color;
+  flash_age_ = 0.0f;
+  flash_age_dir_ = 1.0f;
+}
+
+void GameOverlay::fade_to(const Color4f& color) {
+  fade_color_ = color;
+  fade_age_ = 0.0f;
+}
+
+void GameOverlay::update(const FrameStep& step) {
+  if(flash_age_ >= 0.0f) {
+    flash_age_ += (static_cast<float>(step.delta_time / kFlashDuration.secs()) * flash_age_dir_);
+
+    if(flash_age_ > 1.0f) {
+      flash_age_ = 1.0f;
+      flash_age_dir_ = -flash_age_dir_;
+    } else if(flash_age_ < 0.0f) {
+      flash_age_ = -1.0f;
+      flash_age_dir_ = 0.0f;
+    }
+  }
+  if(fade_age_ >= 0.0f && fade_age_ < 1.0f) {
+    fade_age_ += static_cast<float>(step.delta_time / kFadeDuration.secs());
+    if(fade_age_ > 1.0f) { fade_age_ = 1.0f; }
+  }
+}
+
 bool GameOverlay::update_map_info() {
   return (map_info_timer_.end().duration() >= kMapInfoDuration);
 }
 
 void GameOverlay::update_game_over(const FrameStep& step,bool player_hit_end) {
   if(game_over_age_ < 1.0f) {
-    game_over_age_ += (static_cast<float>(step.delta_time) / kGameOverLifespan);
+    game_over_age_ += static_cast<float>(step.delta_time / kGameOverDuration.secs());
     if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
   }
 
@@ -32,6 +61,27 @@ void GameOverlay::update_game_over(const FrameStep& step,bool player_hit_end) {
     if(star_sys_.is_empty()) { star_sys_.init(view_dimens_,true); }
     star_sys_.update(step);
   }
+}
+
+void GameOverlay::draw(Renderer& ren) {
+  ren.begin_auto_scale();
+
+  if(flash_age_ >= 0.0f) {
+    flash_color_.a = kAlpha * flash_age_;
+
+    ren.wrap_color(flash_color_,[&]() {
+      ren.draw_quad({0,0,0},ren.dimens().target_size);
+    });
+  }
+  if(fade_age_ >= 0.0f) {
+    fade_color_.a = kAlpha * fade_age_;
+
+    ren.wrap_color(fade_color_,[&]() {
+      ren.draw_quad({0,0,0},ren.dimens().target_size);
+    });
+  }
+
+  ren.end_scale();
 }
 
 void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
@@ -69,8 +119,8 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
     font.font_color.a *= game_over_age_;
 
     const Color4f font_color = font.font_color;
-    const Color4f miss_color{1.0f,0.0f,0.0f,font_color.a};
-    const Color4f goal_color{0.0f,1.0f,0.0f,font_color.a};
+    const Color4f miss_color = assets_.font_renderer().cycle_arrow_color().with_a(font_color.a);
+    const Color4f goal_color = assets_.font_renderer().arrow_color().with_a(font_color.a);
 
     font.draw_bg(bg_color,{37,5},kTextBgPadding);
     font.puts(player_hit_end ? "Congrats!" : "You're dead!");

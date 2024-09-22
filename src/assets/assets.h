@@ -75,6 +75,13 @@ public:
   FontRenderer& font_renderer() const;
   const FontAtlas& font_atlas() const;
 
+  const Color4f& eko_color() const;
+  const Color4f& end_color() const;
+  const Color4f& fruit_color() const;
+  const Color4f& portal_color() const;
+  const Color4f& robot_color() const;
+  const Color4f& wall_color() const;
+
   const Music* music() const;
 
 private:
@@ -96,6 +103,13 @@ private:
 
   std::unique_ptr<FontAtlas> font_atlas_{};
   std::unique_ptr<FontRenderer> font_renderer_{};
+
+  Color4f eko_color_{}; // Cell & Player.
+  Color4f end_color_{};
+  Color4f fruit_color_{};
+  Color4f portal_color_{};
+  Color4f robot_color_{};
+  Color4f wall_color_{};
 
   std::unique_ptr<Music> music_{};
 };

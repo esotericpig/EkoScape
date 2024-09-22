@@ -11,41 +11,47 @@ namespace ekoscape {
 
 GameHud::GameHud(Assets& assets)
     : assets_(assets) {
-  mini_map_eko_color_.set_hex(0xff0000,kAlpha);
-  mini_map_end_color_.set_hex(0xb87333,kAlpha); // Copper.
-  mini_map_fruit_color_.set_hex(0xffc0cb,kAlpha); // Pink.
-  mini_map_non_walkable_color_.set_hex(0x00ff00,kAlpha);
-  mini_map_portal_color_.set_hex(0x00ffff,kAlpha); // Cyan.
-  mini_map_robot_color_.set_bytes(214,kAlpha);
-  mini_map_walkable_color_.set_bytes(0,kAlpha);
-
-  if(assets.is_weird()) {
-    std::swap(mini_map_eko_color_.r,mini_map_eko_color_.b);
-    std::swap(mini_map_end_color_.r,mini_map_end_color_.b);
-    std::swap(mini_map_fruit_color_.r,mini_map_fruit_color_.b);
-    std::swap(mini_map_portal_color_.r,mini_map_portal_color_.b);
-  }
+  mini_map_eko_color_ = assets_.eko_color().with_a(kAlpha);
+  mini_map_end_color_ = assets_.end_color().with_a(kAlpha);
+  mini_map_fruit_color_ = assets_.fruit_color().with_a(kAlpha);
+  mini_map_non_walkable_color_ = assets_.wall_color().with_a(kAlpha);
+  mini_map_portal_color_ = assets_.portal_color().with_a(kAlpha);
+  mini_map_robot_color_ = assets_.robot_color().with_a(kAlpha);
+  mini_map_walkable_color_.set(0.0f,kAlpha);
 }
 
-void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,bool player_hit_end) {
+void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,const Duration& player_fruit_time
+    ,bool player_hit_end) {
   ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor HUD to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (show_mini_map ? kMiniMapSize.h : 0);
-  Pos3i pos{10,ren.dimens().target_size.h - 10 - total_h,0};
+  Pos3i pos{0,ren.dimens().target_size.h - total_h,0};
+  const float text_scale = 0.33f;
 
   ren.wrap_color(mini_map_walkable_color_,[&]() {
     ren.draw_quad(pos,{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
-  assets_.font_renderer().wrap(ren,pos,0.33f,[&](auto& font) {
+  assets_.font_renderer().wrap(ren,pos,text_scale,[&](auto& font) {
     const Color4f font_color = font.font_color;
 
     font.print();
     font.font_color = (map.total_rescues() < map.total_cells()) ? mini_map_eko_color_ : mini_map_end_color_;
     font.print(std::to_string(map.total_rescues()));
-
     font.font_color = font_color;
     font.print(Util::build_str('/',map.total_cells()," ekos"));
   });
+  if(player_fruit_time > Duration::kZero) {
+    const int fruit_padding_w = 5;
+    const Pos3i fruit_pos{pos.x + kMiniMapSize.w + fruit_padding_w,pos.y,pos.z};
+
+    assets_.font_renderer().wrap(ren,fruit_pos,text_scale,[&](auto& font) {
+      const tiny_utf8::string fruit_text = std::to_string(player_fruit_time.round_secs());
+
+      font.draw_bg(mini_map_walkable_color_,{static_cast<int>(fruit_text.length()),1},{fruit_padding_w,0});
+      font.font_color = mini_map_fruit_color_.with_a(1.0f);
+      font.print(fruit_text);
+    });
+  }
 
   if(!show_mini_map) {
     ren.end_scale();

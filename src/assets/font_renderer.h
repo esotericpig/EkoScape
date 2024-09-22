@@ -57,6 +57,8 @@ public:
 
   const Size2i& font_size() const;
   const Size2i& font_spacing() const;
+  const Color4f& arrow_color() const;
+  const Color4f& cycle_arrow_color() const;
 
 private:
   static inline const Size2i kFontSize{40,90};

@@ -69,6 +69,22 @@ void Assets::reload_graphics(bool make_weird) {
       .build()
   );
   font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,is_weird_);
+
+  eko_color_.set_hex(0xff0000);
+  end_color_.set_hex(0xb87333); // Copper.
+  fruit_color_.set_hex(0xffc0cb); // Pink.
+  portal_color_.set_hex(0x00ffff); // Cyan.
+  robot_color_.set_bytes(214);
+  wall_color_.set_hex(0x00ff00);
+
+  if(is_weird_) {
+    std::swap(eko_color_.r,eko_color_.b);
+    std::swap(end_color_.r,end_color_.b);
+    std::swap(fruit_color_.r,fruit_color_.b);
+    std::swap(portal_color_.r,portal_color_.b);
+    std::swap(robot_color_.r,robot_color_.b);
+    std::swap(wall_color_.r,wall_color_.b);
+  }
 }
 
 void Assets::reload_music() {
@@ -129,6 +145,18 @@ const Sprite& Assets::corngrits_sprite() const { return *corngrits_sprite_; }
 FontRenderer& Assets::font_renderer() const { return *font_renderer_; }
 
 const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
+
+const Color4f& Assets::eko_color() const { return eko_color_; }
+
+const Color4f& Assets::end_color() const { return end_color_; }
+
+const Color4f& Assets::fruit_color() const { return fruit_color_; }
+
+const Color4f& Assets::portal_color() const { return portal_color_; }
+
+const Color4f& Assets::robot_color() const { return robot_color_; }
+
+const Color4f& Assets::wall_color() const { return wall_color_; }
 
 const Music* Assets::music() const { return music_.get(); }
 
