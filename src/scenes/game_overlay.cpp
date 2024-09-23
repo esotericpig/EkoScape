@@ -29,6 +29,54 @@ void GameOverlay::fade_to(const Color4f& color) {
   fade_age_ = 0.0f;
 }
 
+void GameOverlay::game_over(const DantaresMap& map,bool player_hit_end) {
+  if(game_over_age_ >= 0.0f) { return; }
+
+  const bool perfect = (map.total_rescues() >= map.total_cells()) && player_hit_end;
+
+  game_over_age_ = 0.0f;
+
+  if(!perfect) { game_over_opts_.emplace_back(OptionType::kPlayAgain,"play again"); }
+  game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
+}
+
+int GameOverlay::on_key_down_event(SDL_Keycode key) {
+  if(game_over_age_ < 0.0f) { return SceneAction::kNil; }
+
+  const Option sel_opt = game_over_opts_.at(game_over_opt_index_);
+
+  switch(key) {
+    case SDLK_RETURN:
+    case SDLK_SPACE:
+    case SDLK_KP_ENTER:
+      switch(sel_opt.type) {
+        case OptionType::kPlayAgain: return SceneAction::kRestart;
+        case OptionType::kGoBack: return SceneAction::kGoBack;
+      }
+      break;
+
+    case SDLK_UP:
+    case SDLK_w:
+      if(game_over_opt_index_ > 0) {
+        --game_over_opt_index_;
+      } else if(game_over_opts_.size() > 0) {
+        game_over_opt_index_ = static_cast<int>(game_over_opts_.size()) - 1; // Wrap to bottom.
+      }
+      break;
+
+    case SDLK_DOWN:
+    case SDLK_s:
+      if(game_over_opt_index_ < (static_cast<int>(game_over_opts_.size()) - 1)) {
+        ++game_over_opt_index_;
+      } else {
+        game_over_opt_index_ = 0; // Wrap to top.
+      }
+      break;
+  }
+
+  return SceneAction::kNil;
+}
+
 void GameOverlay::update(const FrameStep& step) {
   if(flash_age_ >= 0.0f) {
     flash_age_ += (static_cast<float>(step.delta_time / kFlashDuration.secs()) * flash_age_dir_);
@@ -64,24 +112,20 @@ void GameOverlay::update_game_over(const FrameStep& step,bool player_hit_end) {
 }
 
 void GameOverlay::draw(Renderer& ren) {
-  ren.begin_auto_scale();
-
   if(flash_age_ >= 0.0f) {
     flash_color_.a = kAlpha * flash_age_;
 
     ren.wrap_color(flash_color_,[&]() {
-      ren.draw_quad({0,0,0},ren.dimens().target_size);
+      ren.draw_quad({0,0,0},ren.dimens().size);
     });
   }
   if(fade_age_ >= 0.0f) {
     fade_color_.a = kAlpha * fade_age_;
 
     ren.wrap_color(fade_color_,[&]() {
-      ren.draw_quad({0,0,0},ren.dimens().target_size);
+      ren.draw_quad({0,0,0},ren.dimens().size);
     });
   }
-
-  ren.end_scale();
 }
 
 void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
@@ -103,12 +147,11 @@ void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
 void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool player_hit_end) {
   ren.begin_auto_center_scale();
 
-  Color4f bg_color = kTextBgColor;
+  const Color4f bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);
   const int total_rescues = map.total_rescues();
   const int total_cells = map.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
-
-  bg_color.a *= game_over_age_;
+  const bool perfect = freed_all && player_hit_end;
 
   ren.wrap_sprite(player_hit_end ? assets_.corngrits_sprite() : assets_.goodnight_sprite(),[&](auto& s) {
     ren.wrap_color({1.0f,game_over_age_},[&]() {
@@ -122,7 +165,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
     const Color4f miss_color = assets_.font_renderer().cycle_arrow_color().with_a(font_color.a);
     const Color4f goal_color = assets_.font_renderer().arrow_color().with_a(font_color.a);
 
-    font.draw_bg(bg_color,{37,5},kTextBgPadding);
+    font.draw_bg(bg_color,{37,perfect ? 5 : 2},kTextBgPadding);
     font.puts(player_hit_end ? "Congrats!" : "You're dead!");
 
     font.print("You freed ");
@@ -139,7 +182,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
     if(total_cells != 1) { font.print('s'); }
     font.print('.');
 
-    if(player_hit_end && freed_all) {
+    if(perfect) {
       font.puts_blanks(2);
       font.puts("You've unlocked a secret!");
       font.print("Press ");
@@ -150,10 +193,20 @@ void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool playe
     }
   });
 
-  assets_.font_renderer().wrap(ren,{580,790,0},[&](auto& font) {
-    font.draw_bg(bg_color,{9,1},kTextBgPadding);
+  assets_.font_renderer().wrap(ren,{580,perfect ? 790 : 690,0},[&](auto& font) {
+    const int opt_count = static_cast<int>(game_over_opts_.size());
+
+    font.draw_bg(bg_color,{12,opt_count},kTextBgPadding);
     font.font_color.a *= game_over_age_;
-    font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
+
+    for(int i = 0; i < opt_count; ++i) {
+      Option& opt = game_over_opts_[i];
+      int styles = 0;
+
+      if(i == game_over_opt_index_) { styles |= FontRenderer::kMenuStyleSelected; }
+
+      font.draw_menu_opt(opt.text,styles);
+    }
   });
 
   ren.end_scale()

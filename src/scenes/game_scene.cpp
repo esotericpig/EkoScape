@@ -127,10 +127,8 @@ void GameScene::on_key_down_event(SDL_Keycode key) {
       on_state_changed_(state_);
       break;
 
-    case SDLK_RETURN:
-    case SDLK_SPACE:
-    case SDLK_KP_ENTER:
-      if(game_phase_ == GamePhase::kGameOver) { scene_action_ = SceneAction::kGoBack; }
+    default:
+      scene_action_ = overlay_.on_key_down_event(key);
       break;
   }
 }
@@ -273,7 +271,6 @@ void GameScene::update_player(const FrameStep& step) {
     if(player_fruit_time_ > Duration::kZero) {
       remove_robots_at(player_pos);
     } else {
-      overlay_.fade_to(assets_.eko_color());
       game_over(false);
     }
   }
@@ -283,9 +280,12 @@ void GameScene::game_over(bool hit_end) {
   game_phase_ = GamePhase::kGameOver;
   player_hit_end_ = hit_end;
 
-  // Because of how high speeds are handled, we need to manually sync the correct player pos,
+  // Because of how high speeds are handled, we need to manually sync the correct Player pos,
   //     since the pos might be beyond End, etc. after fully moving.
   map_.set_player_pos();
+
+  if(!player_hit_end_) { overlay_.fade_to(assets_.eko_color()); }
+  overlay_.game_over(map_,player_hit_end_);
 }
 
 void GameScene::update_robots(const FrameStep& step) {

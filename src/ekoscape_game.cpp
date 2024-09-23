@@ -49,6 +49,10 @@ SceneBag EkoScapeGame::build_scene(int action) {
       pop_scene();
       break;
 
+    case SceneAction::kRestart:
+      scene_man_->restart_scene();
+      break;
+
     case SceneAction::kGoToMenu:
       result.scene = std::make_shared<MenuScene>(*assets_);
       break;
@@ -144,7 +148,7 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
 
     // Toggle BoringWorkScene.
     case SDLK_b:
-      if(scene_man_->curr_scene_type() == SceneAction::kGoToBoringWork) {
+      if(scene_man_->scene_type() == SceneAction::kGoToBoringWork) {
         pop_scene();
       } else {
         scene_man_->push_scene(SceneAction::kGoToBoringWork);

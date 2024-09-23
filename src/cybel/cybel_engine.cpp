@@ -209,7 +209,7 @@ void CybelEngine::resize(const Size2i& size,bool force) {
 
   renderer_->resize(size);
   main_scene_.resize_scene(*renderer_,renderer_->dimens());
-  scene_man_->curr_scene().resize_scene(*renderer_,renderer_->dimens());
+  scene_man_->scene().resize_scene(*renderer_,renderer_->dimens());
 }
 
 void CybelEngine::run() {
@@ -229,11 +229,11 @@ void CybelEngine::run() {
 
     const Uint8* keys = fetch_key_states();
     main_scene_.handle_key_states(keys);
-    scene_man_->curr_scene().handle_key_states(keys);
+    scene_man_->scene().handle_key_states(keys);
 
     const FrameStep& step = {dpf_,delta_time_};
     main_scene_.update_scene_logic(step,renderer_->dimens());
-    int scene_result = scene_man_->curr_scene().update_scene_logic(step,renderer_->dimens());
+    int scene_result = scene_man_->scene().update_scene_logic(step,renderer_->dimens());
 
     if(scene_result != Scene::kNilType) {
       scene_man_->push_scene(scene_result);
@@ -244,7 +244,7 @@ void CybelEngine::run() {
 
     renderer_->clear_view();
     main_scene_.draw_scene(*renderer_);
-    scene_man_->curr_scene().draw_scene(*renderer_);
+    scene_man_->scene().draw_scene(*renderer_);
 
     SDL_GL_SwapWindow(res_.window);
     end_frame_timer();
@@ -295,7 +295,7 @@ void CybelEngine::handle_events() {
         }
 
         main_scene_.on_key_down_event(key);
-        scene_man_->curr_scene().on_key_down_event(key);
+        scene_man_->scene().on_key_down_event(key);
       } break;
 
       case SDL_KEYUP: {

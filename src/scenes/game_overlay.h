@@ -18,17 +18,20 @@
 #include "assets/assets.h"
 #include "map/dantares_map.h"
 #include "world/star_sys.h"
+#include "scene_action.h"
 
 namespace ekoscape {
 
 class GameOverlay {
 public:
   explicit GameOverlay(Assets& assets);
-
   void init(const ViewDimens& dimens);
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
+  void game_over(const DantaresMap& map,bool player_hit_end);
+
+  int on_key_down_event(SDL_Keycode key);
 
   void update(const FrameStep& step);
   bool update_map_info();
@@ -41,6 +44,16 @@ public:
   float game_over_age() const;
 
 private:
+  enum class OptionType {
+    kPlayAgain,
+    kGoBack,
+  };
+
+  struct Option {
+    OptionType type{};
+    tiny_utf8::string text{};
+  };
+
   static inline const Color4f kTextBgColor{0.0f,0.5f};
   static inline const Size2i kTextBgPadding{15,10};
   static inline const Duration kMapInfoDuration = Duration::from_millis(3'000);
@@ -58,7 +71,9 @@ private:
   float flash_age_dir_ = 0.0f;
   Color4f fade_color_{};
   float fade_age_ = -1.0f;
-  float game_over_age_ = 0.0f;
+  float game_over_age_ = -1.0f;
+  std::vector<Option> game_over_opts_{};
+  int game_over_opt_index_ = 0;
   StarSys star_sys_{};
 };
 

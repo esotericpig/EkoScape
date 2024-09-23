@@ -17,6 +17,7 @@ namespace SceneAction {
     kNil = 0,
     kQuit,
     kGoBack,
+    kRestart,
     kGoToMenu,
     kGoToMenuPlay,
     kGoToMenuCredits,
