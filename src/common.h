@@ -8,6 +8,14 @@
 #ifndef EKOSCAPE_COMMON_H_
 #define EKOSCAPE_COMMON_H_
 
+#if defined(CYBEL_MACOS)
+  #define DANTARES_MACOS
+#elif defined(CYBEL_WINDOWS)
+  #define DANTARES_WINDOWS
+#else
+  #define DANTARES_LINUX
+#endif
+
 #include "cybel/common.h"
 
 #include "cybel/types.h"

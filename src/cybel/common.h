@@ -8,20 +8,13 @@
 #ifndef CYBEL_COMMON_H_
 #define CYBEL_COMMON_H_
 
-// TODO: Define in build.
 #if defined(CYBEL_MACOS)
-  #define DANTARES_MACOS
-
   #include <OpenGL/glew.h>
   #include <OpenGL/glu.h>
 #elif defined(CYBEL_WINDOWS)
-  #define DANTARES_WINDOWS
-
   #include <GL/glew.h>
   #include <GL/glu.h>
 #else
-  #define DANTARES_LINUX
-
   #include <GL/glew.h>
   #include <GL/glu.h>
 #endif
