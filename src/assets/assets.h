@@ -38,6 +38,7 @@ public:
   const std::filesystem::path kIconsDir{kAssetsDir / "icons"};
   const std::filesystem::path kImagesDir{kAssetsDir / "images"};
   const std::filesystem::path kMapsDir{kAssetsDir / "maps"};
+  const std::filesystem::path kMusicDir{kAssetsDir / "music"};
   const std::filesystem::path kTexturesDir{kAssetsDir / "textures"};
 
   explicit Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird = false);

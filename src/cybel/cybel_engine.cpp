@@ -39,7 +39,8 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
     : main_scene_(main_scene) {
   init_hints(config);
 
-  if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
+  // Don't use SDL_INIT_AUDIO here, since audio is optional.
+  if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
     throw CybelError{Util::build_str("Failed to init SDL: ",Util::get_sdl_error(),'.')};
   }
   if(IMG_Init(config.image_types) == 0) {

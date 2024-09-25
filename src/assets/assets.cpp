@@ -100,7 +100,7 @@ void Assets::reload_music() {
   if(!has_music_player_) { return; }
 
   try {
-    //music_ = std::make_unique<Music>(kAssetsDir / "music/matrix.mid");
+    music_ = std::make_unique<Music>(kMusicDir / "music.ogg");
   } catch(const CybelError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     // Don't fail, since music is optional.
