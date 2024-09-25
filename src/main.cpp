@@ -42,11 +42,6 @@ TODO: Update all READMEs.
       - Add to README that you can make a pull request to submit a new game,
         or can create an issue, or comment in discussion tab.
 
-TODO: Use CMake & Conan.
-      - https://internalpointers.com/post/modern-cmake-beginner-introduction
-      - https://github.com/gosu/gosu/blob/master/CMakeLists.txt
-TODO: Test pulling down project in clean Linux VM and building.
-
 TODO: Try using emscripten to make web version.
       - Break main loop into init_run()/run_frame() or w/e for emscripten.
 TODO: Make appimage/flatpack/snap.

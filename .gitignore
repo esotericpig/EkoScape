@@ -1,3 +1,5 @@
+CMakeUserPresets.json
+
 *.a
 *.app
 *.bmp
@@ -24,6 +26,7 @@
 *.smod
 *.so
 
+/.idea/
 /bin/
 /build/
 /stock/

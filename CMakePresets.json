@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "default",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "TRUE",
+        "CMAKE_CXX_EXTENSIONS": "FALSE"
+      },
+      "warnings": {
+        "dev": true,
+        "deprecated": true,
+        "uninitialized": false
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "jobs": 5,
+      "nativeToolOptions": []
+    }
+  ]
+}
