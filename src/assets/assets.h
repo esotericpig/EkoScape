@@ -26,19 +26,19 @@ namespace ekoscape {
 
 class Assets {
 private:
+  static inline const std::string kAssetsDirname = "assets";
+
   /**
    * This is an expensive operation that should only be called once.
    */
-  static std::filesystem::path fetch_base_path();
-
-  static inline const std::filesystem::path kBaseDir{fetch_base_path()};
+  static std::filesystem::path fetch_assets_path();
 
 public:
-  static inline const std::filesystem::path kAssetsDir{kBaseDir / "assets"};
-  static inline const std::filesystem::path kIconsDir{kAssetsDir / "icons"};
-  static inline const std::filesystem::path kImagesDir{kAssetsDir / "images"};
-  static inline const std::filesystem::path kMapsDir{kAssetsDir / "maps"};
-  static inline const std::filesystem::path kTexturesDir{kAssetsDir / "textures"};
+  const std::filesystem::path kAssetsDir{fetch_assets_path()};
+  const std::filesystem::path kIconsDir{kAssetsDir / "icons"};
+  const std::filesystem::path kImagesDir{kAssetsDir / "images"};
+  const std::filesystem::path kMapsDir{kAssetsDir / "maps"};
+  const std::filesystem::path kTexturesDir{kAssetsDir / "textures"};
 
   explicit Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird = false);
 

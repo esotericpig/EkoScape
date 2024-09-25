@@ -9,19 +9,28 @@
 
 namespace ekoscape {
 
-std::filesystem::path Assets::fetch_base_path() {
-  char* cpath = SDL_GetBasePath();
+std::filesystem::path Assets::fetch_assets_path() {
+  std::filesystem::path assets_path{};
+  char* base_path = SDL_GetBasePath();
 
-  if(cpath == NULL) {
-    throw CybelError{"Failed to get base path of app: " + Util::get_sdl_error() + "."};
+  if(base_path != NULL) {
+    assets_path = base_path;
+
+    SDL_free(base_path);
+    base_path = NULL;
+
+    assets_path /= kAssetsDirname;
+    if(is_directory(assets_path)) { return assets_path; }
   }
 
-  std::filesystem::path path{cpath};
+  assets_path = ".";
+  assets_path /= kAssetsDirname;
 
-  SDL_free(cpath);
-  cpath = NULL;
+  if(!is_directory(assets_path)) {
+    throw CybelError{"Failed to get base assets path of app: " + Util::get_sdl_error() + "."};
+  }
 
-  return path;
+  return assets_path;
 }
 
 Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird)

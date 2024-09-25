@@ -141,7 +141,7 @@ void MenuPlayScene::glob_maps() {
   map_opts_.emplace_back("< Random Map >");
 
   try {
-    for(const auto& top_dir: std::filesystem::directory_iterator(Assets::kMapsDir)) {
+    for(const auto& top_dir: std::filesystem::directory_iterator(assets_.kMapsDir)) {
       if(!top_dir.is_directory()) { continue; }
 
       const tiny_utf8::string group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
