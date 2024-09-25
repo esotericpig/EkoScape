@@ -205,7 +205,7 @@ void GameScene::update_player(const FrameStep& step) {
     } else {
       const auto fruit_secs = player_fruit_time_.round_secs();
 
-      if(fruit_secs != prev_fruit_secs && fruit_secs <= 3) {
+      if(fruit_secs != prev_fruit_secs && fruit_secs <= kFruitWarnSecs) {
         overlay_.flash(assets_.fruit_color());
       }
     }

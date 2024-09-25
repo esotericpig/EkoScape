@@ -60,6 +60,7 @@ private:
   static inline const int kDantaresDist = 24; // Must be 2+.
   static inline const Duration kWarpDuration = Duration::from_millis(750);
   static inline const Duration kFruitDuration = Duration::from_millis(7'000);
+  static inline const int kFruitWarnSecs = 2;
 
   Assets& assets_;
   State state_{};
