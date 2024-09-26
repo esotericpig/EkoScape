@@ -35,13 +35,22 @@ void GameOverlay::game_over(const DantaresMap& map,bool player_hit_end) {
   const bool perfect = (map.total_rescues() >= map.total_cells()) && player_hit_end;
 
   game_over_age_ = 0.0f;
+  game_over_opt_index_ = 0;
 
-  if(!perfect) { game_over_opts_.emplace_back(OptionType::kPlayAgain,"play again"); }
+  if(!perfect) {
+    game_over_opts_.emplace_back(OptionType::kPlayAgain,"play again");
+    if(player_hit_end) { game_over_opt_index_ = 1; } // Auto-select 'go back'.
+  }
+
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
 int GameOverlay::on_key_down_event(SDL_Keycode key) {
-  if(game_over_age_ < 0.0f) { return SceneAction::kNil; }
+  const int game_over_opt_count = static_cast<int>(game_over_opts_.size());
+
+  if(game_over_opt_index_ < 0 || game_over_opt_index_ >= game_over_opt_count) {
+    return SceneAction::kNil;
+  }
 
   const Option sel_opt = game_over_opts_.at(game_over_opt_index_);
 
@@ -59,14 +68,14 @@ int GameOverlay::on_key_down_event(SDL_Keycode key) {
     case SDLK_w:
       if(game_over_opt_index_ > 0) {
         --game_over_opt_index_;
-      } else if(game_over_opts_.size() > 0) {
-        game_over_opt_index_ = static_cast<int>(game_over_opts_.size()) - 1; // Wrap to bottom.
+      } else if(game_over_opt_count > 0) {
+        game_over_opt_index_ = game_over_opt_count - 1; // Wrap to bottom.
       }
       break;
 
     case SDLK_DOWN:
     case SDLK_s:
-      if(game_over_opt_index_ < (static_cast<int>(game_over_opts_.size()) - 1)) {
+      if(game_over_opt_index_ < (game_over_opt_count - 1)) {
         ++game_over_opt_index_;
       } else {
         game_over_opt_index_ = 0; // Wrap to top.
