@@ -17,6 +17,9 @@ cmake_minimum_required(VERSION 3.20)
 #   ## Or directly:
 #   $ ./bin/Release/EkoScape
 #   $ ./bin/Debug/EkoScape
+#
+# Checking Code Quality:
+#   $ cmake --build --preset=default -t check
 ###
 
 set(PROJ_NAME "EkoScape")
@@ -80,7 +83,6 @@ target_include_directories("${BIN_NAME}" PRIVATE
     "${TP_DIR}"
     "${SRC_DIR}"
 )
-
 target_sources("${BIN_NAME}" PRIVATE
     ${TP_DIR}/Dantares/Dantares.cpp
 
@@ -135,5 +137,21 @@ add_custom_target(run
     DEPENDS "${BIN_NAME}"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     USES_TERMINAL # For terminal output during testing.
+    VERBATIM
+)
+add_custom_target(check
+    COMMAND cppcheck --quiet --enable=all
+              --language=c++ "--std=c++${CMAKE_CXX_STANDARD}"
+              "--relative-paths=${CMAKE_SOURCE_DIR}"
+
+              --suppress=missingInclude
+              "--suppress=noExplicitConstructor:src/cybel/types.h"
+              --suppress=unusedFunction
+              --suppress=unusedPrivateFunction
+
+              "${TP_DIR}"
+              "${SRC_DIR}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    USES_TERMINAL
     VERBATIM
 )
