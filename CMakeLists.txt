@@ -84,52 +84,52 @@ target_include_directories("${BIN_NAME}" PRIVATE
     "${SRC_DIR}"
 )
 target_sources("${BIN_NAME}" PRIVATE
-    ${TP_DIR}/Dantares/Dantares.cpp
+    "${TP_DIR}/Dantares/Dantares.cpp"
 
-    ${SRC_DIR}/cybel/audio/music.cpp
-    ${SRC_DIR}/cybel/gfx/font_atlas.cpp
-    ${SRC_DIR}/cybel/gfx/image.cpp
-    ${SRC_DIR}/cybel/gfx/sprite.cpp
-    ${SRC_DIR}/cybel/gfx/sprite_atlas.cpp
-    ${SRC_DIR}/cybel/gfx/texture.cpp
-    ${SRC_DIR}/cybel/io/text_reader.cpp
-    ${SRC_DIR}/cybel/io/text_reader_buf.cpp
-    ${SRC_DIR}/cybel/render/renderer.cpp
-    ${SRC_DIR}/cybel/scene/scene_bag.cpp
-    ${SRC_DIR}/cybel/scene/scene_man.cpp
-    ${SRC_DIR}/cybel/util/cybel_error.cpp
-    ${SRC_DIR}/cybel/util/duration.cpp
-    ${SRC_DIR}/cybel/util/rando.cpp
-    ${SRC_DIR}/cybel/util/timer.cpp
-    ${SRC_DIR}/cybel/util/util.cpp
-    ${SRC_DIR}/cybel/vfx/particle.cpp
-    ${SRC_DIR}/cybel/cybel_engine.cpp
-    ${SRC_DIR}/cybel/types.cpp
+    "${SRC_DIR}/cybel/audio/music.cpp"
+    "${SRC_DIR}/cybel/gfx/font_atlas.cpp"
+    "${SRC_DIR}/cybel/gfx/image.cpp"
+    "${SRC_DIR}/cybel/gfx/sprite.cpp"
+    "${SRC_DIR}/cybel/gfx/sprite_atlas.cpp"
+    "${SRC_DIR}/cybel/gfx/texture.cpp"
+    "${SRC_DIR}/cybel/io/text_reader.cpp"
+    "${SRC_DIR}/cybel/io/text_reader_buf.cpp"
+    "${SRC_DIR}/cybel/render/renderer.cpp"
+    "${SRC_DIR}/cybel/scene/scene_bag.cpp"
+    "${SRC_DIR}/cybel/scene/scene_man.cpp"
+    "${SRC_DIR}/cybel/util/cybel_error.cpp"
+    "${SRC_DIR}/cybel/util/duration.cpp"
+    "${SRC_DIR}/cybel/util/rando.cpp"
+    "${SRC_DIR}/cybel/util/timer.cpp"
+    "${SRC_DIR}/cybel/util/util.cpp"
+    "${SRC_DIR}/cybel/vfx/particle.cpp"
+    "${SRC_DIR}/cybel/cybel_engine.cpp"
+    "${SRC_DIR}/cybel/types.cpp"
 
-    ${SRC_DIR}/assets/assets.cpp
-    ${SRC_DIR}/assets/font_renderer.cpp
-    ${SRC_DIR}/assets/styled_graphics.cpp
+    "${SRC_DIR}/assets/assets.cpp"
+    "${SRC_DIR}/assets/font_renderer.cpp"
+    "${SRC_DIR}/assets/styled_graphics.cpp"
 
-    ${SRC_DIR}/map/dantares_map.cpp
-    ${SRC_DIR}/map/facing.cpp
-    ${SRC_DIR}/map/map.cpp
-    ${SRC_DIR}/map/map_grid.cpp
-    ${SRC_DIR}/map/space.cpp
-    ${SRC_DIR}/map/space_type.cpp
+    "${SRC_DIR}/map/dantares_map.cpp"
+    "${SRC_DIR}/map/facing.cpp"
+    "${SRC_DIR}/map/map.cpp"
+    "${SRC_DIR}/map/map_grid.cpp"
+    "${SRC_DIR}/map/space.cpp"
+    "${SRC_DIR}/map/space_type.cpp"
 
-    ${SRC_DIR}/scenes/boring_work_scene.cpp
-    ${SRC_DIR}/scenes/game_hud.cpp
-    ${SRC_DIR}/scenes/game_overlay.cpp
-    ${SRC_DIR}/scenes/game_scene.cpp
-    ${SRC_DIR}/scenes/menu_credits_scene.cpp
-    ${SRC_DIR}/scenes/menu_play_scene.cpp
-    ${SRC_DIR}/scenes/menu_scene.cpp
+    "${SRC_DIR}/scenes/boring_work_scene.cpp"
+    "${SRC_DIR}/scenes/game_hud.cpp"
+    "${SRC_DIR}/scenes/game_overlay.cpp"
+    "${SRC_DIR}/scenes/game_scene.cpp"
+    "${SRC_DIR}/scenes/menu_credits_scene.cpp"
+    "${SRC_DIR}/scenes/menu_play_scene.cpp"
+    "${SRC_DIR}/scenes/menu_scene.cpp"
 
-    ${SRC_DIR}/world/robot.cpp
-    ${SRC_DIR}/world/star_sys.cpp
+    "${SRC_DIR}/world/robot.cpp"
+    "${SRC_DIR}/world/star_sys.cpp"
 
-    ${SRC_DIR}/ekoscape_game.cpp
-    ${SRC_DIR}/main.cpp
+    "${SRC_DIR}/ekoscape_game.cpp"
+    "${SRC_DIR}/main.cpp"
 )
 
 add_custom_target(run
