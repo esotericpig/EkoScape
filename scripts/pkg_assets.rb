@@ -9,6 +9,7 @@
 # Clean, package, & upload 'assets/' to GitHub as 'assets.zip':
 #   $ ./scripts/pkg_assets.rb -c -p -g
 #
+# @version 0.1.0
 # @author Bradley Whited
 ###
 
