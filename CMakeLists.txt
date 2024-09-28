@@ -3,24 +3,12 @@
 cmake_minimum_required(VERSION 3.20)
 
 ###
-# Setup:
-#   ## Install deps w/ vcpkg (super slow the first time as it downloads deps).
-#   $ cmake --preset=default
+# Check out the `Hacking` section in 'README.md' for how to build, etc.
 #
-# Building:
-#   $ cmake --build --preset=default --config Release
-#   $ cmake --build --preset=default --config Debug
-#
-# Running:
-#   $ cmake --build --preset=default --config Release -t run
-#   $ cmake --build --preset=default --config Debug -t run
-#   ## Or directly:
-#   $ ./bin/Release/EkoScape
-#   $ ./bin/Debug/EkoScape
-#
-# Checking Code Quality:
-#   $ cmake --build --preset=default -t check
+# @author Bradley Whited
 ###
+
+#include(FetchContent)
 
 set(PROJ_NAME "EkoScape")
 set(BIN_NAME "${PROJ_NAME}")
@@ -28,7 +16,16 @@ set(BIN_DIRNAME "bin")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
 
+set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
+set(ASSETS_NAME "assets")
+set(ASSETS_FILENAME "${ASSETS_NAME}.zip")
+set(ASSETS_URL "https://github.com/esotericpig/EkoScape/releases/download/v1.99/${ASSETS_FILENAME}")
+set(ASSETS_DEST_FILE "${DOWNLOADS_DIR}/${ASSETS_FILENAME}")
+set(ASSETS_DEST_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
+set(FETCHCONTENT_QUIET FALSE)
+#set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
 
 project("${PROJ_NAME}" LANGUAGES CXX)
 add_executable("${BIN_NAME}")
@@ -57,8 +54,29 @@ else() #elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX)
 endif()
 
-# Might be needed if get warnings.
-#set(OpenGL_GL_PREFERENCE LEGACY)
+if(NOT EXISTS "${ASSETS_DEST_DIR}/images/ekoscape.png")
+  if(NOT EXISTS "${ASSETS_DEST_FILE}")
+    message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DEST_FILE}'...")
+    file(DOWNLOAD
+        "${ASSETS_URL}"
+        "${ASSETS_DEST_FILE}"
+
+        #EXPECTED_HASH SHA256=
+        TLS_VERIFY ON
+        SHOW_PROGRESS
+    )
+  endif()
+
+  message(STATUS "Extracting '${ASSETS_DEST_FILE}' to '${ASSETS_DEST_DIR}'...")
+  file(ARCHIVE_EXTRACT
+      INPUT "${ASSETS_DEST_FILE}"
+      DESTINATION "${ASSETS_DEST_DIR}"
+
+      PATTERNS "icons" "images" "music" "textures"
+      #LIST_ONLY # For testing.
+      VERBOSE
+  )
+endif()
 
 # See 'vcpkg.json' & output of CMake for usage.
 find_package(GLEW REQUIRED)
@@ -83,6 +101,7 @@ target_include_directories("${BIN_NAME}" PRIVATE
     "${TP_DIR}"
     "${SRC_DIR}"
 )
+# Run `./scripts/glob_src.rb -u` to auto-update list of source files here.
 target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares.cpp"
 
