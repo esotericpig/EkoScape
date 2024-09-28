@@ -28,23 +28,3 @@ int main(int /*argc*/,char** /*argv*/) {
 
   return 0;
 }
-
-/*
-TODO: Use own Ogg music from iPad.
-TODO: Experiment with different tex for dead/living spaces.
-      probably have living space look slightly different in some way.
-      use marble for white tex.
-
-TODO: Set target_fps to 40 (or 30) to see what original time should be and adjust delay/speeds.
-TODO: Make all maps easier to play. I think fruit will solve this.
-
-TODO: Update all READMEs.
-      - Add to README that you can make a pull request to submit a new game,
-        or can create an issue, or comment in discussion tab.
-
-TODO: Try using emscripten to make web version.
-      - Break main loop into init_run()/run_frame() or w/e for emscripten.
-TODO: Make appimage/flatpack/snap.
-      - Make desktop entry with assets icon.
-TODO: Publish on itch.io?
-*/
