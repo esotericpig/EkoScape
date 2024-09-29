@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+- https://docs.appimage.org/packaging-guide/optional/appstream.html
+- https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
+- https://www.freedesktop.org/software/appstream/docs/chap-Validation.html
+-->
+<component type="desktop-application">
+	<id>com.github.esotericpig.EkoScape</id>
+	<metadata_license>FSFAP</metadata_license>
+	<project_license>GPL-3.0-or-later</project_license>
+	<name>EkoScape</name>
+	<summary>Simple 3D step-based game, like a 3D Pac-Man</summary>
+	<icon type="stock">com.github.esotericpig.EkoScape</icon>
+	<!-- <icon type="cached">com.github.esotericpig.EkoScape.png</icon> -->
+	<description>
+		<p>
+		Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.0.
+		The <em>assets</em> folder should have been provided with this game, and in it,
+		you can edit the map files in <em>assets/maps/</em> or make your own!
+		<em>Enjoy!</em>
+		</p>
+	</description>
+
+	<categories>
+		<category>Game</category>
+		<category>ArcadeGame</category>
+	</categories>
+	<keywords>
+		<keyword>3D</keyword>
+		<keyword>game</keyword>
+		<keyword>games</keyword>
+		<keyword>arcade</keyword>
+	</keywords>
+
+	<url type="homepage">https://github.com/esotericpig/EkoScape</url>
+	<url type="bugtracker">https://github.com/esotericpig/EkoScape/issues</url>
+	<!-- <url type="vcs-browser">https://github.com/esotericpig/EkoScape</url> -->
+	<launchable type="desktop-id">com.github.esotericpig.EkoScape.desktop</launchable>
+	<provides>
+		<id>com.github.esotericpig.EkoScape.desktop</id>
+	</provides>
+
+	<!--
+	<requires>
+		<internet>offline-only</internet>
+	</requires>
+	-->
+	<!--
+	<developer id="com.github.esotericpig">
+		<name>Bradley Whited</name>
+	</developer>
+	-->
+
+	<!-- TODO: screenshot urls -->
+	<!-- Must be PNG! -->
+	<!--
+	<screenshots>
+		<screenshot type="default">
+			<caption>Playing the EkoScape game.</caption>
+			<image type="source" width="1600" height="900"></image>
+		</screenshot>
+	</screenshots>
+	-->
+
+	<!-- https://hughsie.github.io/oars/generate.html -->
+	<content_rating type="oars-1.0">
+		<content_attribute id="violence-cartoon">mild</content_attribute>
+		<content_attribute id="violence-fantasy">mild</content_attribute>
+		<content_attribute id="language-profanity">mild</content_attribute>
+		<content_attribute id="language-humor">mild</content_attribute>
+	</content_rating>
+</component>

@@ -1,0 +1,20 @@
+[Desktop Entry]
+# - https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html
+Type=Application
+Name=EkoScape
+GenericName=3D Game
+Comment=Simple 3D step-based game, like a 3D Pac-Man
+
+Icon=com.github.esotericpig.EkoScape
+TryExec=EkoScape
+Exec=EkoScape
+#Path=
+Terminal=false
+
+# - https://specifications.freedesktop.org/menu-spec/latest/category-registry.html
+# - https://specifications.freedesktop.org/menu-spec/latest/additional-category-registry.html
+Categories=Game;ArcadeGame;
+Keywords=3D;game;games;arcade;
+
+StartupWMClass=EkoScape
+PrefersNonDefaultGPU=true
