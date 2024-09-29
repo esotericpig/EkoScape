@@ -10,11 +10,15 @@ cmake_minimum_required(VERSION 3.20)
 
 #include(FetchContent)
 
+message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
+
 set(PROJ_NAME "EkoScape")
+set(RDNS_NAME "com.github.esotericpig.${PROJ_NAME}")
 set(BIN_NAME "${PROJ_NAME}")
 set(BIN_DIRNAME "bin")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
+set(DIST_DIR "${CMAKE_SOURCE_DIR}/dist")
 
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(ASSETS_NAME "assets")
@@ -36,12 +40,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS FALSE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "/O3 /DNDEBUG")
 
   # For Windows, don't really care about warnings.
   #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
 else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
   target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
 endif()
@@ -54,7 +58,7 @@ else() #elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX)
 endif()
 
-if(NOT EXISTS "${ASSETS_DEST_DIR}/images/ekoscape.png")
+if(NOT EXISTS "${ASSETS_DEST_DIR}/images/EkoScape.png")
   if(NOT EXISTS "${ASSETS_DEST_FILE}")
     message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DEST_FILE}'...")
     file(DOWNLOAD
@@ -173,4 +177,18 @@ add_custom_target(check
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     USES_TERMINAL
     VERBATIM
+)
+
+install(TARGETS "${BIN_NAME}"
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib  # For shared libs.
+    ARCHIVE DESTINATION lib  # For static libs.
+)
+install(
+    FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
+    DESTINATION "share/applications"
+)
+install(
+    FILES "${DIST_DIR}/${RDNS_NAME}.appdata.xml"
+    DESTINATION "share/metainfo"
 )

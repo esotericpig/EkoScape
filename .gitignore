@@ -2,6 +2,7 @@ CMakeUserPresets.json
 
 *.a
 *.app
+*.AppImage
 *.bmp
 *.d
 *.dll
@@ -27,6 +28,7 @@ CMakeUserPresets.json
 *.so
 
 /.idea/
+/AppDir/
 /bin/
 /build/
 /stock/
