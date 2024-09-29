@@ -23,6 +23,7 @@
 #include <filesystem>
 #include <functional>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 namespace ekoscape {

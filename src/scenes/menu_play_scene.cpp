@@ -176,9 +176,25 @@ void MenuPlayScene::glob_maps() {
     cybel_engine_.show_error(e.what());
   }
 
+  int order = 0;
+  std::unordered_map<tiny_utf8::string,int> core_groups{
+    {"user",order++},
+    {"fanmade",order++},
+    {"neo",order++},
+    {"classic",order++},
+  };
+
   std::sort(
     map_opts_.begin() + 1,map_opts_.end()
-    ,[](const auto& opt1,const auto& opt2) {
+    ,[&](const auto& opt1,const auto& opt2) {
+      const bool is_core_group1 = core_groups.contains(opt1.group);
+      const bool is_core_group2 = core_groups.contains(opt2.group);
+
+      // Bubble non-core groups to top.
+      if(is_core_group1 && !is_core_group2) { return false; } // 1.
+      if(!is_core_group1 && is_core_group2) { return true; } // -1.
+      if(is_core_group1 && is_core_group2) { return core_groups[opt1.group] < core_groups[opt2.group]; }
+
       const int group_cmp = Util::comparei_str(opt1.group,opt2.group);
       if(group_cmp != 0) { return group_cmp < 0; }
 
