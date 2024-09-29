@@ -232,16 +232,13 @@ void CybelEngine::run() {
     main_scene_.handle_key_states(keys);
     scene_man_->scene().handle_key_states(keys);
 
-    const FrameStep& step = {dpf_,delta_time_};
+    const FrameStep step{dpf_,delta_time_};
     main_scene_.update_scene_logic(step,renderer_->dimens());
     int scene_result = scene_man_->scene().update_scene_logic(step,renderer_->dimens());
 
     if(scene_result != Scene::kNilType) {
       scene_man_->push_scene(scene_result);
     }
-
-    // Check if event/scene requested to stop.
-    if(!is_running_) { break; }
 
     renderer_->clear_view();
     main_scene_.draw_scene(*renderer_);
