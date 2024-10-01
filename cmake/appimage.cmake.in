@@ -2,7 +2,6 @@
 # @author Bradley Whited
 ###
 
-set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
 set(RDNS_NAME "@RDNS_NAME@")
 set(DOWNLOADS_DIR "@DOWNLOADS_DIR@")
 set(ASSETS_DIR "@ASSETS_DIR@")
@@ -13,7 +12,8 @@ set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
 
 set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
 set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
-set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/${LINUXDEPLOY_FILENAME}")
+set(LINUXDEPLOY_URL
+    "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/${LINUXDEPLOY_FILENAME}")
 set(LINUXDEPLOY_BIN "${DOWNLOADS_DIR}/${LINUXDEPLOY_FILENAME}")
 
 if(NOT EXISTS "${LINUXDEPLOY_BIN}")
@@ -44,8 +44,7 @@ foreach(OLD_APPIMAGE ${OLD_APPIMAGE_FILES})
 endforeach()
 
 execute_process(
-    COMMAND "${CMAKE_COMMAND}" --install "${CMAKE_BINARY_DIR}" --config "${CMAKE_BUILD_TYPE}"
-              --prefix "${APPDIR_PREFIX}"
+    COMMAND "${CMAKE_COMMAND}" --install "${CMAKE_BINARY_DIR}" --config Release --prefix "${APPDIR_PREFIX}"
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
