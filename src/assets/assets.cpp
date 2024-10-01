@@ -10,24 +10,37 @@
 namespace ekoscape {
 
 std::filesystem::path Assets::fetch_assets_path() {
-  std::filesystem::path assets_path{};
-  char* base_path = SDL_GetBasePath();
+  // First, try current dir, so that the user can easily overwrite the assets (and it's fast).
+  std::filesystem::path assets_path = ".";
+  assets_path /= kAssetsDirname;
 
-  if(base_path != NULL) {
-    assets_path = base_path;
+  if(is_directory(assets_path)) { return assets_path; }
 
-    SDL_free(base_path);
-    base_path = NULL;
+  // Try our AppImage's path.
+  const char* appimg_path = std::getenv("APPIMAGE");
 
-    assets_path /= kAssetsDirname;
+  if(appimg_path != nullptr) {
+    assets_path = appimg_path;
+    assets_path = assets_path.parent_path() / kAssetsDirname;
+
     if(is_directory(assets_path)) { return assets_path; }
   }
 
-  assets_path = ".";
+  // Lastly, try our app's base dir (slowest).
+  char* base_path = SDL_GetBasePath();
+
+  if(base_path == NULL) {
+    throw CybelError{"Failed to get base path of app: " + Util::get_sdl_error() + "."};
+  }
+
+  assets_path = base_path;
   assets_path /= kAssetsDirname;
 
+  SDL_free(base_path);
+  base_path = NULL;
+
   if(!is_directory(assets_path)) {
-    throw CybelError{"Failed to get base assets path of app: " + Util::get_sdl_error() + "."};
+    throw CybelError{"Failed to find [" + kAssetsDirname + "] folder."};
   }
 
   return assets_path;

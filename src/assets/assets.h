@@ -20,6 +20,7 @@
 #include "font_renderer.h"
 #include "styled_graphics.h"
 
+#include <cstdlib>
 #include <filesystem>
 
 namespace ekoscape {
