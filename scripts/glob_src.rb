@@ -9,7 +9,7 @@
 # Show source files to copy & paste (only crawls dirs):
 #   $ ./scripts/glob_src.rb -p
 #
-# Update 'CMakeLists.txt' with source files (overwrites file):
+# Update source files in 'CMakeLists.txt' (overwrites file):
 #   $ ./scripts/glob_src.rb -u
 #
 # @version 0.1.0
@@ -46,9 +46,12 @@ class SrcGlobber
 
       op.separator ''
       op.separator 'Options'
-      op.on('-n',nil,'[no-clob] no-clobber dry run')
       op.on('-p',nil,'[print] print source files')
       op.on('-u',nil,"[update] update '#{CMAKE_FILE}'; overwrites lines in #{CMAKE_FUNC}()")
+
+      op.separator ''
+      op.separator 'Basic Options'
+      op.on('-n',nil,'[no-clob] no-clobber dry run')
     end
 
     opts = {}

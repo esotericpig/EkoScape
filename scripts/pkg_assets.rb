@@ -49,12 +49,15 @@ class AssetsPkger
 
       op.separator ''
       op.separator 'Options'
-      op.on('-n',nil,'[no-clob] no-clobber dry run')
       op.on('-c',nil,"[clean] delete '#{ASSETS_ZIP}'")
       op.on('-p',nil,"[pkg] package up '#{ASSETS_DIR}/' into '#{ASSETS_ZIP}'" \
             "\n#{oi}       -- must have `#{ZIP_CMD[0]}` installed")
       op.on('-g',nil,'[gh] upload package to GitHub release (overwrites package)' \
             "\n#{oi}      -- must have `#{GH_CMD[0]}` installed")
+
+      op.separator ''
+      op.separator 'Basic Options'
+      op.on('-n',nil,'[no-clob] no-clobber dry run')
     end
 
     opts = {}
