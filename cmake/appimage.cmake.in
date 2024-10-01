@@ -1,0 +1,59 @@
+###
+# @author Bradley Whited
+###
+
+set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
+set(RDNS_NAME "@RDNS_NAME@")
+set(DOWNLOADS_DIR "@DOWNLOADS_DIR@")
+set(ASSETS_DIR "@ASSETS_DIR@")
+
+set(APPDIR_DIR "${CMAKE_BINARY_DIR}/AppDir")
+set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
+#cmake_path(RELATIVE_PATH APPDIR_PREFIX)
+
+set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
+set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
+set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/${LINUXDEPLOY_FILENAME}")
+set(LINUXDEPLOY_BIN "${DOWNLOADS_DIR}/${LINUXDEPLOY_FILENAME}")
+
+if(NOT EXISTS "${LINUXDEPLOY_BIN}")
+  message(STATUS "Downloading '${LINUXDEPLOY_URL}' to '${LINUXDEPLOY_BIN}'...")
+  file(DOWNLOAD
+      "${LINUXDEPLOY_URL}"
+      "${LINUXDEPLOY_BIN}"
+
+      TLS_VERIFY ON
+      SHOW_PROGRESS
+  )
+  file(CHMOD "${LINUXDEPLOY_BIN}"
+      FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                       GROUP_READ GROUP_WRITE GROUP_EXECUTE
+                       WORLD_READ WORLD_EXECUTE
+  )
+endif()
+
+if(EXISTS "${APPDIR_DIR}")
+  message(STATUS "Deleting old AppDir '${APPDIR_DIR}'...")
+  file(REMOVE_RECURSE "${APPDIR_DIR}")
+endif()
+
+file(GLOB OLD_APPIMAGE_FILES "*.AppImage")
+foreach(OLD_APPIMAGE ${OLD_APPIMAGE_FILES})
+  message(STATUS "Deleting old AppImage '${OLD_APPIMAGE}'...")
+  file(REMOVE "${OLD_APPIMAGE}")
+endforeach()
+
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" --install "${CMAKE_BINARY_DIR}" --config "${CMAKE_BUILD_TYPE}"
+              --prefix "${APPDIR_PREFIX}"
+    COMMAND_ECHO STDOUT
+    COMMAND_ERROR_IS_FATAL ANY
+)
+execute_process(
+    COMMAND "${LINUXDEPLOY_BIN}" --appdir "${APPDIR_DIR}"
+              --icon-file "${ASSETS_DIR}/icons/${RDNS_NAME}.png"
+              --output appimage
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMAND_ECHO STDOUT
+    COMMAND_ERROR_IS_FATAL ANY
+)

@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.20)
 
 #include(FetchContent)
 
-message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
+#message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
 
 set(PROJ_NAME "EkoScape")
 set(RDNS_NAME "com.github.esotericpig.${PROJ_NAME}")
@@ -18,14 +18,18 @@ set(BIN_NAME "${PROJ_NAME}")
 set(BIN_DIRNAME "bin")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
+set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(DIST_DIR "${CMAKE_SOURCE_DIR}/dist")
 
-set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(ASSETS_NAME "assets")
 set(ASSETS_FILENAME "${ASSETS_NAME}.zip")
 set(ASSETS_URL "https://github.com/esotericpig/EkoScape/releases/download/v1.99/${ASSETS_FILENAME}")
-set(ASSETS_DEST_FILE "${DOWNLOADS_DIR}/${ASSETS_FILENAME}")
-set(ASSETS_DEST_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
+set(ASSETS_DOWN_FILE "${DOWNLOADS_DIR}/${ASSETS_FILENAME}")
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
+
+set(TEMPL_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
+set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
 set(FETCHCONTENT_QUIET FALSE)
@@ -40,12 +44,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS FALSE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  set(CMAKE_CXX_FLAGS_RELEASE "/O3 /DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O3 /DNDEBUG")
 
   # For Windows, don't really care about warnings.
   #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
 else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 
   target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
 endif()
@@ -58,12 +62,12 @@ else() #elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX)
 endif()
 
-if(NOT EXISTS "${ASSETS_DEST_DIR}/images/EkoScape.png")
-  if(NOT EXISTS "${ASSETS_DEST_FILE}")
-    message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DEST_FILE}'...")
+if(NOT EXISTS "${ASSETS_DIR}/images/EkoScape.png")
+  if(NOT EXISTS "${ASSETS_DOWN_FILE}")
+    message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DOWN_FILE}'...")
     file(DOWNLOAD
         "${ASSETS_URL}"
-        "${ASSETS_DEST_FILE}"
+        "${ASSETS_DOWN_FILE}"
 
         #EXPECTED_HASH SHA256=
         TLS_VERIFY ON
@@ -71,10 +75,10 @@ if(NOT EXISTS "${ASSETS_DEST_DIR}/images/EkoScape.png")
     )
   endif()
 
-  message(STATUS "Extracting '${ASSETS_DEST_FILE}' to '${ASSETS_DEST_DIR}'...")
+  message(STATUS "Extracting '${ASSETS_DOWN_FILE}' to '${ASSETS_DIR}'...")
   file(ARCHIVE_EXTRACT
-      INPUT "${ASSETS_DEST_FILE}"
-      DESTINATION "${ASSETS_DEST_DIR}"
+      INPUT "${ASSETS_DOWN_FILE}"
+      DESTINATION "${ASSETS_DIR}"
 
       PATTERNS "icons" "images" "music" "textures"
       #LIST_ONLY # For testing.
@@ -179,16 +183,28 @@ add_custom_target(check
     VERBATIM
 )
 
+file(GLOB TEMPL_CMAKE_FILES "${TEMPL_CMAKE_DIR}/*.cmake.in")
+foreach(TEMPL_FILE ${TEMPL_CMAKE_FILES})
+  cmake_path(GET TEMPL_FILE STEM TEMPL_NAME)
+  configure_file("${TEMPL_FILE}" "${TEMPL_DIR}/${TEMPL_NAME}.cmake" @ONLY)
+
+  add_custom_target("${TEMPL_NAME}"
+      COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/${TEMPL_NAME}.cmake"
+      DEPENDS "${BIN_NAME}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+      USES_TERMINAL
+      VERBATIM
+  )
+endforeach()
+
 install(TARGETS "${BIN_NAME}"
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib  # For shared libs.
     ARCHIVE DESTINATION lib  # For static libs.
 )
-install(
-    FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
+install(FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
     DESTINATION "share/applications"
 )
-install(
-    FILES "${DIST_DIR}/${RDNS_NAME}.appdata.xml"
+install(FILES "${DIST_DIR}/${RDNS_NAME}.appdata.xml"
     DESTINATION "share/metainfo"
 )
