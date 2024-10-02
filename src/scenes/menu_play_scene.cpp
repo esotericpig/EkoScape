@@ -193,11 +193,16 @@ void MenuPlayScene::glob_maps() {
       // Bubble non-core groups to top.
       if(is_core_group1 && !is_core_group2) { return false; } // 1.
       if(!is_core_group1 && is_core_group2) { return true; } // -1.
-      if(is_core_group1 && is_core_group2) { return core_groups[opt1.group] < core_groups[opt2.group]; }
 
-      const int group_cmp = Util::comparei_str(opt1.group,opt2.group);
+      int group_cmp = 0;
+
+      if(is_core_group1 && is_core_group2) {
+        group_cmp = core_groups[opt1.group] - core_groups[opt2.group];
+      } else {
+        group_cmp = Util::comparei_str(opt1.group,opt2.group);
+      }
+
       if(group_cmp != 0) { return group_cmp < 0; }
-
       return Util::comparei_str(opt1.title,opt2.title) < 0;
     }
   );
