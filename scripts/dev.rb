@@ -8,7 +8,7 @@
 # Show usage:
 #   $ ./scripts/dev.rb
 #
-# @version 0.1.0
+# @version 0.1.1
 # @author Bradley Whited
 ###
 
@@ -27,12 +27,13 @@ class DevApp
     @preset = 'default'
     @config = 'Release'
     @extra_args = []
+    @extra_build_args = []
   end
 
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.0'
+      op.version = '0.1.1'
       op.summary_width = 14
 
       si = op.summary_indent
@@ -52,6 +53,12 @@ class DevApp
       op.separator ''
       op.on('-p <preset>','[preset] use <preset> for the preset') { |p| p.to_s.strip }
       op.on('-d',nil,"[debug] use 'Debug' config")
+      op.on('-j [jobs]','[jobs] set number of jobs; if no number, uses 1') do |j|
+        j = j.to_s.strip
+        j = j.empty? ? 1 : j.to_i
+        @extra_build_args.push('-j',j)
+        j
+      end
 
       op.separator ''
       op.separator 'Basic Options'
@@ -105,8 +112,8 @@ class DevApp
   end
 
   def build(target: nil)
-    cmd = CMAKE_CMD + ['--build','--preset',@preset,'--config',@config]
-    cmd.append('--target',target) unless target.nil?
+    cmd = [CMAKE_CMD,'--build','--preset',@preset,'--config',@config,@extra_build_args]
+    cmd.push('--target',target) unless target.nil?
 
     run_cmd(cmd)
   end
@@ -120,8 +127,8 @@ class DevApp
   end
 
   def run_cmd(*cmd)
-    cmd = cmd.flatten.compact
-    cmd.concat(@extra_args.flatten)
+    cmd += @extra_args
+    cmd = cmd.flatten.compact.map(&:to_s)
 
     puts cmd.map(&Shellwords.method(:escape)).join(' ')
     system(*cmd) unless @dry_run

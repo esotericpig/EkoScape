@@ -24,6 +24,11 @@
       "configurePreset": "default",
       "jobs": 5,
       "nativeToolOptions": []
+    },
+    {
+      "name": "no-jobs",
+      "configurePreset": "default",
+      "nativeToolOptions": []
     }
   ]
 }
