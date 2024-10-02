@@ -52,13 +52,19 @@ StyledGraphics::Graphics StyledGraphics::load_style(Style style,const std::strin
 
   graphics.ceiling_texture = std::make_unique<Texture>(Image{tex_dir / "ceiling.png"},make_weird);
   graphics.cell_texture = std::make_unique<Texture>(Image{tex_dir / "cell.png"},make_weird);
+  graphics.dead_space_texture = std::make_unique<Texture>(Image{tex_dir / "dead_space.png"},make_weird);
+  graphics.dead_space_ghost_texture = std::make_unique<Texture>(
+      Image{tex_dir / "dead_space_ghost.png"},make_weird);
   graphics.end_texture = std::make_unique<Texture>(Image{tex_dir / "end.png"},make_weird);
+  graphics.end_wall_texture = std::make_unique<Texture>(Image{tex_dir / "end_wall.png"},make_weird);
   graphics.floor_texture = std::make_unique<Texture>(Image{tex_dir / "floor.png"},make_weird);
   graphics.fruit_texture = std::make_unique<Texture>(Image{tex_dir / "fruit.png"},make_weird);
   graphics.portal_texture = std::make_unique<Texture>(Image{tex_dir / "portal.png"},make_weird);
   graphics.robot_texture = std::make_unique<Texture>(Image{tex_dir / "robot.png"},make_weird);
   graphics.wall_texture = std::make_unique<Texture>(Image{tex_dir / "wall.png"},make_weird);
-  graphics.white_texture = std::make_unique<Texture>(Color4f::bytes(255,255,255,200),make_weird);
+  graphics.wall_ghost_texture = std::make_unique<Texture>(Image{tex_dir / "wall_ghost.png"},make_weird);
+  graphics.white_texture = std::make_unique<Texture>(Image{tex_dir / "white.png"},make_weird);
+  graphics.white_ghost_texture = std::make_unique<Texture>(Image{tex_dir / "white_ghost.png"},make_weird);
 
   return graphics;
 }

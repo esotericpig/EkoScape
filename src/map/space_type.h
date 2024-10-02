@@ -14,46 +14,43 @@
 
 namespace ekoscape {
 
-// If change a value, need to update:
-// - assets/maps/README.md
-//
 // If add a new type, need to update:
-// - to_space_type(char)
+// - SpaceTypes.to_space_type(char)
 // - [maybe] Map.parse_grid()
-// - GameScene.generate_map()
+// - GameScene.init_map_textures()
 enum class SpaceType : char {
-  kNil         = 0, // Not for game users.
-  kCell        = '@',
-  kDeadSpace   = 'x',
-  kEmpty       = ' ',
-  kEnd         = '$',
-  kEndWall     = '&',
-  kFruit       = ':',
-  kLivingSpace = '*',
-  kPlayerEast  = '>',
-  kPlayerNorth = '^',
-  kPlayerSouth = 'v',
-  kPlayerWest  = '<',
-  kPortal0     = '0',
-  kPortal1     = '1',
-  kPortal2     = '2',
-  kPortal3     = '3',
-  kPortal4     = '4',
-  kPortal5     = '5',
-  kPortal6     = '6',
-  kPortal7     = '7',
-  kPortal8     = '8',
-  kPortal9     = '9',
-  kRobot       = '!',
-  kRobotGhost  = '|',
-  kRobotSnake  = '?',
-  kRobotStatue = '=',
-  kRobotWorm   = 'Q',
-  kWall        = '#',
-  kWallGhost   = '%',
-  kWhite       = 'W',
-  kWhiteFloor  = 'w',
-  kWhiteGhost  = '+',
+  kNil            =   0, // Not for game users.
+  kCell           = '@',
+  kDeadSpace      = 'x',
+  kDeadSpaceGhost = '*', // LivingSpace. Space Ghost Coast to Coast!
+  kEmpty          = ' ',
+  kEnd            = '$',
+  kEndWall        = '&',
+  kFruit          = ':',
+  kPlayerEast     = '>',
+  kPlayerNorth    = '^',
+  kPlayerSouth    = 'v',
+  kPlayerWest     = '<',
+  kPortal0        = '0',
+  kPortal1        = '1',
+  kPortal2        = '2',
+  kPortal3        = '3',
+  kPortal4        = '4',
+  kPortal5        = '5',
+  kPortal6        = '6',
+  kPortal7        = '7',
+  kPortal8        = '8',
+  kPortal9        = '9',
+  kRobot          = '!',
+  kRobotGhost     = '|',
+  kRobotSnake     = '?',
+  kRobotStatue    = '=',
+  kRobotWorm      = 'Q',
+  kWall           = '#',
+  kWallGhost      = '%',
+  kWhite          = 'W',
+  kWhiteFloor     = 'w',
+  kWhiteGhost     = '+',
 };
 
 namespace SpaceTypes {

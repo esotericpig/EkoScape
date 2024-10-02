@@ -36,13 +36,18 @@ public:
 
     std::unique_ptr<Texture> ceiling_texture{};
     std::unique_ptr<Texture> cell_texture{};
+    std::unique_ptr<Texture> dead_space_texture{};
+    std::unique_ptr<Texture> dead_space_ghost_texture{};
     std::unique_ptr<Texture> end_texture{};
+    std::unique_ptr<Texture> end_wall_texture{};
     std::unique_ptr<Texture> floor_texture{};
     std::unique_ptr<Texture> fruit_texture{};
     std::unique_ptr<Texture> portal_texture{};
     std::unique_ptr<Texture> robot_texture{};
     std::unique_ptr<Texture> wall_texture{};
+    std::unique_ptr<Texture> wall_ghost_texture{};
     std::unique_ptr<Texture> white_texture{};
+    std::unique_ptr<Texture> white_ghost_texture{};
   };
 
   explicit StyledGraphics(const std::filesystem::path& textures_dir,Style style,bool make_weird = false);

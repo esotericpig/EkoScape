@@ -134,7 +134,15 @@ const Texture& Assets::ceiling_texture() const { return *styled_graphics_.graphi
 
 const Texture& Assets::cell_texture() const { return *styled_graphics_.graphics().cell_texture; }
 
+const Texture& Assets::dead_space_texture() const { return *styled_graphics_.graphics().dead_space_texture; }
+
+const Texture& Assets::dead_space_ghost_texture() const {
+  return *styled_graphics_.graphics().dead_space_ghost_texture;
+}
+
 const Texture& Assets::end_texture() const { return *styled_graphics_.graphics().end_texture; }
+
+const Texture& Assets::end_wall_texture() const { return *styled_graphics_.graphics().end_wall_texture; }
 
 const Texture& Assets::floor_texture() const { return *styled_graphics_.graphics().floor_texture; }
 
@@ -146,7 +154,13 @@ const Texture& Assets::robot_texture() const { return *styled_graphics_.graphics
 
 const Texture& Assets::wall_texture() const { return *styled_graphics_.graphics().wall_texture; }
 
+const Texture& Assets::wall_ghost_texture() const { return *styled_graphics_.graphics().wall_ghost_texture; }
+
 const Texture& Assets::white_texture() const { return *styled_graphics_.graphics().white_texture; }
+
+const Texture& Assets::white_ghost_texture() const {
+  return *styled_graphics_.graphics().white_ghost_texture;
+}
 
 const Texture& Assets::star_texture() const { return *star_texture_; }
 

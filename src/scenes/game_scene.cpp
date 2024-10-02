@@ -82,12 +82,14 @@ void GameScene::init_map_default_empty(const Pos3i& pos,SpaceType type) {
 void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kCell,&assets_.ceiling_texture(),&assets_.cell_texture()
       ,&assets_.floor_texture());
-  // SpaceType::kDeadSpace - No textures.
+  set_space_textures(SpaceType::kDeadSpace,&assets_.dead_space_texture(),nullptr
+      ,&assets_.dead_space_texture());
+  set_space_textures(SpaceType::kDeadSpaceGhost,&assets_.dead_space_ghost_texture(),nullptr
+      ,&assets_.dead_space_ghost_texture());
   set_space_textures(SpaceType::kEmpty,&assets_.ceiling_texture(),nullptr,&assets_.floor_texture());
   set_space_textures(SpaceType::kEnd,&assets_.end_texture());
-  set_space_textures(SpaceType::kEndWall,&assets_.end_texture());
+  set_space_textures(SpaceType::kEndWall,&assets_.end_wall_texture());
   set_space_textures(SpaceType::kFruit,&assets_.fruit_texture());
-  // SpaceType::kLivingSpace - No textures.
   // SpaceType::kPlayer* - No textures.
   set_space_textures(SpaceType::kPortal0,&assets_.portal_texture());
   set_space_textures(SpaceType::kPortal1,&assets_.portal_texture());
@@ -106,11 +108,11 @@ void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kRobotWorm,&assets_.robot_texture());
   set_space_textures(SpaceType::kWall,&assets_.ceiling_texture(),&assets_.wall_texture()
       ,&assets_.floor_texture());
-  set_space_textures(SpaceType::kWallGhost,&assets_.ceiling_texture(),&assets_.wall_texture()
+  set_space_textures(SpaceType::kWallGhost,&assets_.ceiling_texture(),&assets_.wall_ghost_texture()
       ,&assets_.floor_texture());
   set_space_textures(SpaceType::kWhite,&assets_.white_texture());
   set_space_textures(SpaceType::kWhiteFloor,&assets_.white_texture(),nullptr,&assets_.white_texture());
-  set_space_textures(SpaceType::kWhiteGhost,&assets_.white_texture());
+  set_space_textures(SpaceType::kWhiteGhost,&assets_.white_ghost_texture());
 }
 
 void GameScene::init_scene(Renderer& ren) {

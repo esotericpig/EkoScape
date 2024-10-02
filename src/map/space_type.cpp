@@ -108,11 +108,11 @@ SpaceType SpaceTypes::to_space_type(char value) {
 
     case SpaceType::kCell:
     case SpaceType::kDeadSpace:
+    case SpaceType::kDeadSpaceGhost:
     case SpaceType::kEmpty:
     case SpaceType::kEnd:
     case SpaceType::kEndWall:
     case SpaceType::kFruit:
-    case SpaceType::kLivingSpace:
     case SpaceType::kPlayerEast:
     case SpaceType::kPlayerNorth:
     case SpaceType::kPlayerSouth:
