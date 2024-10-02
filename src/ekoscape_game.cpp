@@ -96,16 +96,10 @@ SceneBag EkoScapeGame::build_scene(int action) {
 
   if(!result.scene) { return result; }
 
-  switch(action) {
-    case SceneAction::kGoToMenu:
-    case SceneAction::kGoToMenuPlay:
-    case SceneAction::kGoToMenuCredits:
-      if(star_sys_.is_empty()) { star_sys_.init(cybel_engine_->dimens()); }
-      break;
-
-    default:
-      star_sys_.clear();
-      break;
+  if(SceneActions::is_menu(action)) {
+    if(star_sys_.is_empty()) { star_sys_.init(cybel_engine_->dimens()); }
+  } else {
+    star_sys_.clear(); // Free memory, for GameScene in particular.
   }
 
   return result;
@@ -142,6 +136,7 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
       }
       break;
 
+    // Go back a scene.
     case SDLK_BACKSPACE:
       pop_scene();
       break;
@@ -157,7 +152,9 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
 
     // Refresh.
     case SDLK_r:
-      assets_->reload_graphics();
+      // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
+      //     else it'll be all white due to not re-generating the map.
+      if(SceneActions::is_menu(scene_man_->scene_type())) { assets_->reload_graphics(); }
       break;
   }
 }

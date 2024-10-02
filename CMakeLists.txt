@@ -151,6 +151,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/scenes/menu_credits_scene.cpp"
     "${SRC_DIR}/scenes/menu_play_scene.cpp"
     "${SRC_DIR}/scenes/menu_scene.cpp"
+    "${SRC_DIR}/scenes/scene_action.cpp"
 
     "${SRC_DIR}/world/robot.cpp"
     "${SRC_DIR}/world/star_sys.cpp"

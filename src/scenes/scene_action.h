@@ -26,5 +26,9 @@ namespace SceneAction {
   };
 }
 
+namespace SceneActions {
+  bool is_menu(int action);
+}
+
 } // Namespace.
 #endif
