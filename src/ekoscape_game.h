@@ -53,16 +53,15 @@ private:
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
+  float update_avg_fps_timer_ = 0.0f;
+  float avg_fps_ = -1.0f;
+  int avg_fps_to_show_ = -1;
 
   MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};
 
   SceneBag build_scene(int type);
   void pop_scene();
-
-  float update_avg_fps_timer_ = 0.0f;
-  float avg_fps_ = -1.0f;
-  int avg_fps_to_show_ = -1;
 };
 
 } // Namespace.
