@@ -1,12 +1,6 @@
 [Desktop Entry]
 ###
-# If you want to manually install this for your system,
-# you need to change these to be absolute paths:
-#   Icon=/home/<username>/Applications/com.github.esotericpig.EkoScape
-#   Exec=/home/<username>/Applications/EkoScape-x86_64.AppImage
-#
-# Finally, run this:
-#   $ xdg-desktop-menu install --novendor com.github.esotericpig.EkoScape.desktop
+# Read 'README.md' for how to install this manually.
 ###
 
 # - https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html
@@ -15,8 +9,10 @@ Name=EkoScape
 GenericName=3D Game
 Comment=Simple 3D step-based game, like a 3D Pac-Man
 
+#Icon=/home/<username>/Applications/EkoScape/assets/icons/com.github.esotericpig.EkoScape.png
 Icon=com.github.esotericpig.EkoScape
 #TryExec=EkoScape
+#Exec=/home/<username>/Applications/EkoScape/EkoScape-x86_64.AppImage
 Exec=EkoScape
 #Path=
 Terminal=false
