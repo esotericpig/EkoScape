@@ -156,26 +156,73 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
       //     else it'll be all white due to not re-generating the map.
       if(SceneActions::is_menu(scene_man_->scene_type())) { assets_->reload_graphics(); }
       break;
+
+    // Toggle FPS.
+    case SDLK_F3:
+      if(avg_fps_to_show_ < 0) {
+        update_avg_fps_timer_ = 1.0f;
+        avg_fps_ = -1.0f;
+        avg_fps_to_show_ = 0;
+      } else {
+        avg_fps_to_show_ = -1;
+      }
+      break;
   }
 }
 
 int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   star_sys_.update(step);
 
+  if(avg_fps_to_show_ >= 0) {
+    const double mpf = step.dpf.millis(); // Milliseconds per frame.
+    const float fps = (mpf > 0.0) ? static_cast<float>(1000.0 / mpf) : 0.0f;
+
+    if(avg_fps_ < 0.0f) {
+      avg_fps_ = fps;
+    } else {
+      const float smoothing_factor = 0.3f; // Usually 0.1 to 0.3.
+
+      // Exponential Moving Average (EMA) to reduce the effects of hiccups,
+      //     instead of a typical average: avg = (avg + fps) / 2.0f.
+      avg_fps_ = (avg_fps_ * (1.0f - smoothing_factor)) + (fps * smoothing_factor);
+    }
+
+    // Only update the shown FPS at an interval, else the digits change too fast to read.
+    if((update_avg_fps_timer_ += static_cast<float>(step.delta_time)) >= 1.0f) {
+      avg_fps_to_show_ = static_cast<int>(std::round(avg_fps_));
+      update_avg_fps_timer_ = 0.0f;
+    }
+  }
+
   return SceneAction::kNil;
 }
 
 void EkoScapeGame::draw_scene(Renderer& ren) {
-  if(star_sys_.is_empty()) { return; }
+  if(!star_sys_.is_empty()) {
+    ren.begin_2d_scene()
+       .begin_auto_scale()
+       .begin_add_blend();
 
-  ren.begin_2d_scene()
-     .begin_auto_scale()
-     .begin_add_blend();
+    star_sys_.draw(ren,assets_->star_texture());
 
-  star_sys_.draw(ren,assets_->star_texture());
+    ren.end_blend()
+       .end_scale();
+  }
 
-  ren.end_blend()
-     .end_scale();
+  if(avg_fps_to_show_ >= 0) {
+    ren.begin_2d_scene()
+       .begin_auto_anchor_scale({0.0f,0.0f}); // Top left.
+
+    const Size2i padding{5,5};
+    const tiny_utf8::string fps = std::to_string(avg_fps_to_show_);
+
+    assets_->font_renderer().wrap(ren,{padding.w,padding.h,0},0.33f,[&](auto& font) {
+      font.draw_bg({0.0f,0.5f},{static_cast<int>(fps.length()),1},padding);
+      font.print(fps);
+    });
+
+    ren.end_scale();
+  }
 }
 
 void EkoScapeGame::play_music() {
