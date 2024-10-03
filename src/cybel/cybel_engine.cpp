@@ -258,13 +258,12 @@ void CybelEngine::start_frame_timer() {
 }
 
 void CybelEngine::end_frame_timer() {
-  frame_timer_.end();
-  dpf_ = frame_timer_.duration();
+  dpf_ = frame_timer_.end().duration();
 
   // If target FPS/DPF is 0, then will use delta time only (no delay).
   if(dpf_ < target_dpf_) {
     SDL_Delay((target_dpf_ - dpf_).round_millis());
-    dpf_ = target_dpf_;
+    dpf_ = frame_timer_.end().duration();
   }
 
   delta_time_ = dpf_.secs(); // Delta time should be in fractional seconds.
