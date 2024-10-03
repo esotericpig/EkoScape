@@ -8,14 +8,16 @@ cmake_minimum_required(VERSION 3.20)
 # @author Bradley Whited
 ###
 
-#include(FetchContent)
-
 #message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
 
-set(PROJ_NAME "EkoScape")
-set(RDNS_NAME "com.github.esotericpig.${PROJ_NAME}")
-set(BIN_NAME "${PROJ_NAME}")
+project("EkoScape"
+    LANGUAGES C CXX
+)
+
+set(RDNS_NAME "com.github.esotericpig.${PROJECT_NAME}")
+set(BIN_NAME "${PROJECT_NAME}")
 set(BIN_DIRNAME "bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
@@ -31,17 +33,25 @@ set(TEMPL_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
 set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
-set(FETCHCONTENT_QUIET FALSE)
-#set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
+set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
+set(CPACK_PACKAGE_CHECKSUM "SHA256")
+set(CPACK_VERBATIM_VARIABLES ON)
+set(CPACK_MONOLITHIC_INSTALL OFF)
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_ALL "cpack")
+set(CPACK_COMPONENTS_GROUPING "ALL_COMPONENTS_IN_ONE")
 
-project("${PROJ_NAME}" LANGUAGES CXX)
-add_executable("${BIN_NAME}")
+set(FETCHCONTENT_QUIET OFF)
+#set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
 
 # Also defined in 'CMakePresets.json' because sometimes doesn't work otherwise (for some reason).
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-set(CMAKE_CXX_EXTENSIONS FALSE)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+#include(FetchContent)
+
+add_executable("${BIN_NAME}")
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O3 /DNDEBUG")
@@ -200,12 +210,74 @@ endforeach()
 
 install(TARGETS "${BIN_NAME}"
     RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib  # For shared libs.
+            COMPONENT appimage
+            EXCLUDE_FROM_ALL
     ARCHIVE DESTINATION lib  # For static libs.
+            COMPONENT appimage
+            EXCLUDE_FROM_ALL
+    LIBRARY DESTINATION lib  # For shared libs.
+            COMPONENT appimage
+            EXCLUDE_FROM_ALL
 )
 install(FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
     DESTINATION "share/applications"
+    COMPONENT appimage
+    EXCLUDE_FROM_ALL
 )
 install(FILES "${DIST_DIR}/${RDNS_NAME}.appdata.xml"
     DESTINATION "share/metainfo"
+    COMPONENT appimage
+    EXCLUDE_FROM_ALL
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-linux")
+  set(CPACK_GENERATOR "TGZ")
+
+  file(GLOB APPIMAGE_FILES "${CMAKE_BINARY_DIR}/*.AppImage")
+  install(PROGRAMS ${APPIMAGE_FILES}
+      DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+  install(FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
+      DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
+  set(CPACK_GENERATOR "ZIP")
+
+  install(TARGETS "${BIN_NAME}"
+      RUNTIME DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-windows")
+  set(CPACK_GENERATOR "ZIP")
+
+  install(TARGETS "${BIN_NAME}"
+      RUNTIME DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+endif()
+
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${PKG_SUFFIX}")
+
+install(DIRECTORY "${ASSETS_DIR}"
+    DESTINATION "."
+    COMPONENT cpack
+    EXCLUDE_FROM_ALL
+)
+install(FILES
+    "${CMAKE_SOURCE_DIR}/README.md"
+    "${CMAKE_SOURCE_DIR}/LICENSE"
+    DESTINATION "."
+    COMPONENT cpack
+    EXCLUDE_FROM_ALL
+)
+
+include(CPack)
