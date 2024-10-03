@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 ###
-# Check out the `Hacking` section in 'README.md' for how to build, etc.
+# Read the `Hacking` section in 'README.md' for how to build, etc.
 #
 # @author Bradley Whited
 ###
@@ -29,7 +29,7 @@ set(ASSETS_URL "https://github.com/esotericpig/EkoScape/releases/download/v1.99/
 set(ASSETS_DOWN_FILE "${DOWNLOADS_DIR}/${ASSETS_FILENAME}")
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
 
-set(TEMPL_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(TEMPL_CMAKE_IN_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
 set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
@@ -193,22 +193,17 @@ add_custom_target(check
     USES_TERMINAL
     VERBATIM
 )
-
-file(GLOB TEMPL_CMAKE_FILES "${TEMPL_CMAKE_DIR}/*.cmake.in")
-foreach(TEMPL_FILE ${TEMPL_CMAKE_FILES})
-  cmake_path(GET TEMPL_FILE STEM TEMPL_NAME)
-  configure_file("${TEMPL_FILE}" "${TEMPL_DIR}/${TEMPL_NAME}.cmake" @ONLY)
-
-  add_custom_target("${TEMPL_NAME}"
-      COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/${TEMPL_NAME}.cmake"
-      DEPENDS "${BIN_NAME}"
-      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-      USES_TERMINAL
-      VERBATIM
-  )
-endforeach()
+configure_file("${TEMPL_CMAKE_IN_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
+add_custom_target(appimage
+    COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/appimage.cmake"
+    DEPENDS "${BIN_NAME}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    USES_TERMINAL
+    VERBATIM
+)
 
 install(TARGETS "${BIN_NAME}"
+    # For AppImage, must use 'bin', cannot use 'games'.
     RUNTIME DESTINATION bin
             COMPONENT appimage
             EXCLUDE_FROM_ALL
@@ -234,13 +229,18 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-linux")
   set(CPACK_GENERATOR "TGZ")
 
-  file(GLOB APPIMAGE_FILES "${CMAKE_BINARY_DIR}/*.AppImage")
-  install(PROGRAMS ${APPIMAGE_FILES}
+  # Must have a trailing slash! So that `appimage` dir is not created in the package.
+  install(DIRECTORY "${CMAKE_BINARY_DIR}/appimage/"
       DESTINATION "."
+      FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                       GROUP_READ GROUP_EXECUTE
+                       WORLD_READ WORLD_EXECUTE
       COMPONENT cpack
       EXCLUDE_FROM_ALL
+      FILES_MATCHING PATTERN "*.AppImage"
   )
-  install(FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
+  # `PROGRAMS` because Desktop Entry files should be executable.
+  install(PROGRAMS "${DIST_DIR}/${RDNS_NAME}.desktop"
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL

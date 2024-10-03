@@ -9,6 +9,7 @@ set(ASSETS_DIR "@ASSETS_DIR@")
 set(APPDIR_DIR "${CMAKE_BINARY_DIR}/AppDir")
 set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
 #cmake_path(RELATIVE_PATH APPDIR_PREFIX)
+set(APPIMG_DIR "${CMAKE_BINARY_DIR}/appimage")
 
 set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
 set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
@@ -49,11 +50,13 @@ execute_process(
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
+
+file(MAKE_DIRECTORY "${APPIMG_DIR}")
 execute_process(
     COMMAND "${LINUXDEPLOY_BIN}" --appdir "${APPDIR_DIR}"
               --icon-file "${ASSETS_DIR}/icons/${RDNS_NAME}.png"
               --output appimage
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    WORKING_DIRECTORY "${APPIMG_DIR}"
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )

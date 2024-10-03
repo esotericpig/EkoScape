@@ -8,7 +8,7 @@
 # Show usage:
 #   $ ./scripts/dev.rb
 #
-# @version 0.1.1
+# @version 0.1.2
 # @author Bradley Whited
 ###
 
@@ -33,7 +33,7 @@ class DevApp
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.1'
+      op.version = '0.1.2'
       op.summary_width = 14
 
       si = op.summary_indent
@@ -50,6 +50,7 @@ class DevApp
       op.separator ''
       op.on('-k',nil,'[check] check code quality (`cppcheck`)')
       op.on('-A',nil,"[AppImage] build AppImage w/ '#{@config}'")
+      op.on('-P',nil,'[pkg] package up AppImage & files using CPack')
       op.separator ''
       op.on('-p <preset>','[preset] use <preset> for the preset') { |p| p.to_s.strip }
       op.on('-d',nil,"[debug] use 'Debug' config")
@@ -96,6 +97,7 @@ class DevApp
     clean_build if opts[:C]
     build if opts[:b]
     build_appimage if opts[:A]
+    pkg_up if opts[:P]
     run_app if opts[:r]
   end
 
@@ -120,6 +122,10 @@ class DevApp
 
   def build_appimage
     build(target: 'appimage')
+  end
+
+  def pkg_up
+    build(target: 'package')
   end
 
   def run_app
