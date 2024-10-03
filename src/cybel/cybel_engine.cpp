@@ -148,7 +148,7 @@ void CybelEngine::init_gui(const Config& config) {
         ,Util::get_glew_error(error),'.')};
   }
 
-  if(config.vsync) { set_vsync(true); }
+  set_vsync(config.vsync);
 }
 
 void CybelEngine::init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene) {
