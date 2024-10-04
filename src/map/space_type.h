@@ -15,6 +15,7 @@
 namespace ekoscape {
 
 // If add a new type, need to update:
+// - assets/maps/README.md
 // - SpaceTypes.to_space_type(char)
 // - [maybe] Map.parse_grid()
 // - GameScene.init_map_textures()
@@ -54,7 +55,7 @@ enum class SpaceType : char {
 };
 
 namespace SpaceTypes {
-  inline const SpaceType kDefault = SpaceType::kDeadSpace;
+  inline const auto kDefault = SpaceType::kDeadSpace;
 
   bool is_player(SpaceType type);
   bool is_thing(SpaceType type);
