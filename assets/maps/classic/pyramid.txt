@@ -2,12 +2,13 @@
 Pyramid
 Bradley
 
-10 5
+9 6
 
 'W'
-1000
+900
 
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xWWWxxxxxxxxxxxxxxxxxxxxxxxxxxxWWWx
+xW0Wwwwwww###############wwwwwwW1Wx
 xwwwwwwwww###############wwwwwwwwwx
 xwwwwwwwww#******^******#wwwwwwwwwx
 xwwwwwwwww#|***********|#wwwwwwwwwx
@@ -30,16 +31,16 @@ xwwwwwwwwwwww#       #wwwwwwwwwwwwx
 xwwwwwwwwwww#         #wwwwwwwwwwwx
 xwwwwwwwwww#           #wwwwwwwwwwx
 xwwwwwwwww#             #wwwwwwwwwx
-xwwwwwwww#     #   #     #wwwwwwwwx
+xwwwwwwww#     # : #     #wwwwwwwwx
 xwwwwwww#     #     #     #wwwwwwwx
-xwwwwww#     #       #     #wwwwwwx
-xwwwww#     #         #     #wwwwwx
+xwwwwWw#     #       #     #wWwwwwx
+xwwww1#     #         #     #0wwwwx
 xwwww#     #           #     #wwwwx
 xwww#     #@#         # #     #wwwx
 xww#     #   #       #   #     #wwx
 x@#     #     #     #     #      wx
-x#     #       ##@##       #     #x
-x#     #       #####       #     #x
+x#     #:      ##@##       #     #x
+x#     ##      #####       #     #x
 x#     #                   #     #x
 x#     #         ###       #     #x
 x#     #       ##   #      #     #x

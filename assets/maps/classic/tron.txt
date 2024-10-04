@@ -2,13 +2,13 @@
 Tron
 Bradley
 
-10 4
+8 6
 
 'w'
 400
 
 #########################################
-#*************xx                       &#
+#*************xx                      0&#
 #***************xx   xx                 #
 #*****************xx                    #
 #x**********xx*   *****        &        #
@@ -20,11 +20,11 @@ Bradley
 #                                       #
 #                           w           #
 #                            w  WW      #
-#                   ^        wWW       &#
+#?                  ^        wWW       &#
 #########                   wwwwWW   WWW#
-#                             wwWW  WW@W#
+#                             wwWW? WW@W#
 #    # #                  wwwwwwwwWWwwwW#
-# ## # #   #            ww wwwwwwwwwwwwW#
+# ## #0#   #            ww wwwwwwwwwwwwW#
 # @# # # # #              w  wwwwwwwwwwW#
 #          #                   WWWWWWWWW#
 #########################################

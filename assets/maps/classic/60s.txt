@@ -2,7 +2,7 @@
 60 Seconds
 Bradley
 
-10 5
+4 9
 
 ' '
 60000
@@ -15,13 +15,21 @@ Bradley
 ! ! ! !xxxx! !@    !
 ! ! ! !!!!!! !!!!!!!
 ! ! !!!           @!
-! !   ! !!!!!!!!!!!!
-! !   ! !@        $!
+! !   !:!!!!!!!!!!!!
+! !   ! !@        0!
 ! !   ! !!! !!!!!!!!
 !    !  !!! !!!!!!!!
 !   !  !!@!        !
 !  !  !x! !!!!!!!! !
 !!!  !xx! !xxxxxx! !
 !   !!!!! !!!!!!!! !
-!                  !
+!:                 !
 !!!!!!!!!!!!!!!!!!!!
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxx0      @      @      @      @      @      @                $xxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

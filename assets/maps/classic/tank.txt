@@ -12,10 +12,10 @@ x>                  x
 x#####     W#   W#W x
 x       #W##!#  #@# x
 x x###x##@#*        x
-x             #   x#x
-x       *       x   x
-x   Wx   #W##  #    x
-x  ##     #@#    x  x
+x  #:#        #   x#x
+x       *       x  0W
+x W Wx   #W##  #   Wx
+x 0##     #@#    x  x
 x #!W        ###### x
 x      *     %$x    x
 xxxxxxxxxxxxxxxxxxxxx
