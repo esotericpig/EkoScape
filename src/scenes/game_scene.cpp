@@ -136,25 +136,55 @@ void GameScene::on_key_down_event(SDL_Keycode key) {
 }
 
 void GameScene::handle_key_states(const Uint8* keys) {
-  bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
-  bool is_down = (keys[SDL_SCANCODE_DOWN] == 1 || keys[SDL_SCANCODE_S] == 1);
-  bool is_left = (keys[SDL_SCANCODE_LEFT] == 1 || keys[SDL_SCANCODE_A] == 1);
-  bool is_right = (keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
+  // Key states are stored because in Dantares you can't turn/walk while turning/walking,
+  //     and without storing the states and trying again on the next frame,
+  //     it feels unresponsive and frustrating.
+  // In TurnLeft/Right() & StepForward/Backward(), you can pass in true to force this,
+  //     but then this makes the animation a tiny bit strange as you turn off a step.
+  const bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
+  key_states_.is_down = (key_states_.is_down || keys[SDL_SCANCODE_DOWN] == 1 || keys[SDL_SCANCODE_S] == 1);
+  key_states_.is_left = (key_states_.is_left || keys[SDL_SCANCODE_LEFT] == 1 || keys[SDL_SCANCODE_A] == 1);
+  key_states_.is_right = (key_states_.is_right || keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
+
+  const bool is_walking = (dantares_.IsWalking() >= 0);
 
   // Must check Left/Right first, so that the Player can turn while walking forward/backward,
   //     which is an important mechanic for the game.
-  if(is_left) {
-    if(!is_right) { dantares_.TurnLeft(true); }
-  } else if(is_right) {
-    dantares_.TurnRight(true);
-  }
-  // Unfortunately, can't use xor, because always want to move forward even if Up isn't pressed.
-  else if(game_phase_ == GamePhase::kPlay && player_warp_time_ <= Duration::kZero && !(is_up && is_down)) {
-    if(is_down) {
-      dantares_.StepBackward();
+  if(key_states_.is_left) {
+    if(!key_states_.is_right) {
+      if(!is_walking) {
+        dantares_.TurnLeft();
+        key_states_.is_left = false;
+      } // Else, try again on next frame.
+    } else {
+      key_states_.is_left = false;
+    }
+
+    key_states_.is_down = false;
+    key_states_.is_right = false;
+  } else if(key_states_.is_right) {
+    if(!is_walking) {
+      dantares_.TurnRight();
+      key_states_.is_right = false;
+    } // Else, try again on next frame.
+
+    key_states_.is_down = false;
+  } else if(game_phase_ == GamePhase::kPlay && player_warp_time_ <= Duration::kZero) {
+    // Check Down first so that it can override continuously moving forward.
+    if(key_states_.is_down) {
+      if(!is_up) {
+        if(!is_walking) {
+          dantares_.StepBackward();
+          key_states_.is_down = false;
+        } // Else, try again on next frame.
+      } else {
+        key_states_.is_down = false;
+      }
     } else {
       dantares_.StepForward(); // Always keep moving forward.
     }
+  } else {
+    key_states_.is_down = false;
   }
 }
 

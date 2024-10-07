@@ -54,6 +54,12 @@ private:
     kGameOver,
   };
 
+  struct KeyStates {
+    bool is_down = false;
+    bool is_left = false;
+    bool is_right = false;
+  };
+
   using MoveChecker = std::function<bool(const Pos3i&)>;
 
   static inline const Duration kInitExtraRobotDelay = Duration::from_millis(1'000);
@@ -74,6 +80,7 @@ private:
   DantaresMap map_{dantares_};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
+  KeyStates key_states_{};
   bool player_hit_end_ = false;
   bool player_warped_ = false;
   Duration player_warp_time_{};
