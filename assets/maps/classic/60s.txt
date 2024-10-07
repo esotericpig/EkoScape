@@ -2,7 +2,7 @@
 60 Seconds
 Bradley
 
-4 9
+5 9
 
 ' '
 60000

@@ -20,7 +20,7 @@ Bradley
 #                                       #
 #                           w           #
 #                            w  WW      #
-#?                  ^        wWW       &#
+#                   ^        wWW       &#
 #########                   wwwwWW   WWW#
 #                             wwWW? WW@W#
 #    # #                  wwwwwwwwWWwwwW#
