@@ -93,7 +93,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {
   return print();
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const tiny_utf8::string& str) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const CybelStrUtf8& str) {
   if(str.empty()) { return print(); }
 
   for(char32_t c: str) {
@@ -108,7 +108,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const tiny_utf8::s
   return *this;
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<tiny_utf8::string>& strs) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<CybelStrUtf8>& strs) {
   for(const auto& str: strs) {
     print(str);
     print(); // Space.
@@ -129,12 +129,12 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t c) {
   return puts();
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const tiny_utf8::string& str) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const CybelStrUtf8& str) {
   if(!str.empty()) { print(str); }
   return puts();
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const std::vector<tiny_utf8::string>& lines) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const std::vector<CybelStrUtf8>& lines) {
   for(const auto& line: lines) { puts(line); }
   return *this;
 }

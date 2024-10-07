@@ -47,13 +47,13 @@ public:
 private:
   class MapOption {
   public:
-    tiny_utf8::string group{};
+    CybelStrUtf8 group{};
     std::filesystem::path file{};
-    tiny_utf8::string title{};
-    tiny_utf8::string text{};
+    CybelStrUtf8 title{};
+    CybelStrUtf8 text{};
 
     explicit MapOption() noexcept = default;
-    explicit MapOption(const tiny_utf8::string& text);
+    explicit MapOption(const CybelStrUtf8& text);
   };
 
   static inline const int kUpDownArrowIndent = 2;

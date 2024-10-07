@@ -9,6 +9,7 @@
 #define CYBEL_UTIL_UTIL_H_
 
 #include "cybel/common.h"
+#include "cybel/types.h"
 
 #include <cctype>
 #include <sstream>
@@ -20,9 +21,9 @@ namespace Util {
   std::string build_str(const Args&... args);
 
   std::string strip_str(const std::string& str);
-  tiny_utf8::string ellips_str(const tiny_utf8::string& str,std::size_t max_len);
-  tiny_utf8::string pad_str(const tiny_utf8::string& str,std::size_t len);
-  int comparei_str(const tiny_utf8::string& str1,const tiny_utf8::string& str2);
+  CybelStrUtf8 ellips_str(const CybelStrUtf8& str,std::size_t max_len);
+  CybelStrUtf8 pad_str(const CybelStrUtf8& str,std::size_t len);
+  int comparei_str(const CybelStrUtf8& str1,const CybelStrUtf8& str2);
 
   template <typename... Args>
   std::size_t build_hash(const Args&... args);

@@ -141,8 +141,8 @@ void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
   ren.begin_auto_center_scale();
 
   assets_.font_renderer().wrap(ren,{395,395,0},[&](auto& font) {
-    const tiny_utf8::string title = map.title();
-    const tiny_utf8::string author = "  by " + map.author();
+    const CybelStrUtf8 title = map.title();
+    const CybelStrUtf8 author = "  by " + map.author();
     const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
 
     font.draw_bg(kTextBgColor,{bg_w,2},kTextBgPadding);

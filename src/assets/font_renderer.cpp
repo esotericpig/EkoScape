@@ -24,7 +24,7 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const tiny_utf8::string& text,int styles) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const CybelStrUtf8& text,int styles) {
   const bool is_selected = styles & kMenuStyleSelected;
   const bool is_cycle = styles & kMenuStyleCycle;
 
@@ -70,12 +70,12 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::print(char32_t c) {
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::print(const tiny_utf8::string& str) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::print(const CybelStrUtf8& str) {
   font.ren.wrap_color(font_color,[&]() { font.print(str); });
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::print(const std::vector<tiny_utf8::string>& strs) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::print(const std::vector<CybelStrUtf8>& strs) {
   font.ren.wrap_color(font_color,[&]() { font.print(strs); });
   return *this;
 }
@@ -95,12 +95,12 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts(char32_t c) {
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const tiny_utf8::string& str) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const CybelStrUtf8& str) {
   font.ren.wrap_color(font_color,[&]() { font.puts(str); });
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const std::vector<tiny_utf8::string>& lines) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const std::vector<CybelStrUtf8>& lines) {
   font.ren.wrap_color(font_color,[&]() { font.puts(lines); });
   return *this;
 }

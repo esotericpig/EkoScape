@@ -9,7 +9,7 @@
 
 namespace ekoscape {
 
-MenuPlayScene::MapOption::MapOption(const tiny_utf8::string& text)
+MenuPlayScene::MapOption::MapOption(const CybelStrUtf8& text)
     : text(text) {}
 
 MenuPlayScene::MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const State& state
@@ -144,7 +144,7 @@ void MenuPlayScene::glob_maps() {
     for(const auto& top_dir: std::filesystem::directory_iterator(assets_.kMapsDir)) {
       if(!top_dir.is_directory()) { continue; }
 
-      const tiny_utf8::string group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
+      const CybelStrUtf8 group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
 
       for(const auto& file: std::filesystem::directory_iterator(top_dir)) {
         if(!file.is_regular_file() || !Map::is_map_file(file)) {
@@ -177,7 +177,7 @@ void MenuPlayScene::glob_maps() {
   }
 
   int order = 0;
-  std::unordered_map<tiny_utf8::string,int> core_groups{
+  std::unordered_map<CybelStrUtf8,int> core_groups{
     {"user",order++},
     {"fanmade",order++},
     {"neo",order++},

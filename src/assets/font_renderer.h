@@ -29,19 +29,19 @@ public:
 
     Wrapper& draw_bg(const Color4f& color,const Size2i& str_size);
     Wrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
-    Wrapper& draw_menu_opt(const tiny_utf8::string& text,int styles = 0); // Julia Stiles?
+    Wrapper& draw_menu_opt(const CybelStrUtf8& text,int styles = 0); // Julia Stiles?
     Wrapper& draw_menu_up_arrow();
     Wrapper& draw_menu_down_arrow();
 
     Wrapper& print();
     Wrapper& print(char32_t c);
-    Wrapper& print(const tiny_utf8::string& str);
-    Wrapper& print(const std::vector<tiny_utf8::string>& strs);
+    Wrapper& print(const CybelStrUtf8& str);
+    Wrapper& print(const std::vector<CybelStrUtf8>& strs);
     Wrapper& print_blanks(int count);
     Wrapper& puts();
     Wrapper& puts(char32_t c);
-    Wrapper& puts(const tiny_utf8::string& str);
-    Wrapper& puts(const std::vector<tiny_utf8::string>& lines);
+    Wrapper& puts(const CybelStrUtf8& str);
+    Wrapper& puts(const std::vector<CybelStrUtf8>& lines);
     Wrapper& puts_blanks(int count);
   };
 
@@ -62,10 +62,10 @@ public:
 
 private:
   static inline const Size2i kFontSize{40,90};
-  static inline const tiny_utf8::string kUpArrowText = "↑";
-  static inline const tiny_utf8::string kDownArrowText = "↓";
-  static inline const tiny_utf8::string kLeftArrowText = "←";
-  static inline const tiny_utf8::string kRightArrowText = "→";
+  static inline const CybelStrUtf8 kUpArrowText = "↑";
+  static inline const CybelStrUtf8 kDownArrowText = "↓";
+  static inline const CybelStrUtf8 kLeftArrowText = "←";
+  static inline const CybelStrUtf8 kRightArrowText = "→";
   static inline const int kSmallSpaceSize = 24;
 
   const FontAtlas& font_atlas_;

@@ -214,7 +214,7 @@ void EkoScapeGame::draw_scene(Renderer& ren) {
        .begin_auto_anchor_scale({0.0f,0.0f}); // Top left.
 
     const Size2i padding{5,5};
-    const tiny_utf8::string fps = std::to_string(avg_fps_to_show_);
+    const CybelStrUtf8 fps = std::to_string(avg_fps_to_show_);
 
     assets_->font_renderer().wrap(ren,{padding.w,padding.h,0},0.33f,[&](auto& font) {
       font.draw_bg({0.0f,0.5f},{static_cast<int>(fps.length()),1},padding);

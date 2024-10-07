@@ -53,6 +53,8 @@ public:
   Color4f with_byte_a(std::uint8_t a) const;
 };
 
+using CybelStrUtf8 = tiny_utf8::string;
+
 template <typename T>
 class Pos3;
 

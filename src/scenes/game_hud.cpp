@@ -45,7 +45,7 @@ void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,const
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w + fruit_padding_w,pos.y,pos.z};
 
     assets_.font_renderer().wrap(ren,fruit_pos,text_scale,[&](auto& font) {
-      const tiny_utf8::string fruit_text = std::to_string(player_fruit_time.round_secs());
+      const CybelStrUtf8 fruit_text = std::to_string(player_fruit_time.round_secs());
 
       font.draw_bg(mini_map_walkable_color_,{static_cast<int>(fruit_text.length()),1},{fruit_padding_w,0});
       font.font_color = mini_map_fruit_color_.with_a(1.0f);

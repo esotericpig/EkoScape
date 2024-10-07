@@ -51,7 +51,7 @@ private:
 
   struct Option {
     OptionType type{};
-    tiny_utf8::string text{};
+    CybelStrUtf8 text{};
   };
 
   static inline const Color4f kTextBgColor{0.0f,0.5f};
