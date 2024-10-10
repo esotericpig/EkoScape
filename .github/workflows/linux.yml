@@ -89,6 +89,7 @@ jobs:
         run: >
           cmake --preset default
           -DVCPKG_BUILD_TYPE=release
+          -DLINUXDEPLOY_ARCH="x86_64"
           -DPKG_SUFFIX="-x86_64"
 
       - name: Build
