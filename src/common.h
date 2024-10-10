@@ -9,11 +9,17 @@
 #define EKOSCAPE_COMMON_H_
 
 #if defined(CYBEL_MACOS)
+  #ifndef DANTARES_MACOS
   #define DANTARES_MACOS
+  #endif
 #elif defined(CYBEL_WINDOWS)
+  #ifndef DANTARES_WINDOWS
   #define DANTARES_WINDOWS
+  #endif
 #else
+  #ifndef DANTARES_LINUX
   #define DANTARES_LINUX
+  #endif
 #endif
 
 #include "cybel/common.h"

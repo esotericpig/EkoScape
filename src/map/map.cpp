@@ -60,9 +60,9 @@ Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_sp
     ,const DefaultEmptyCallback& on_def_empty,bool meta_only) {
   TextReader reader{file};
 
-  load_metadata(reader,file);
+  load_metadata(reader,file.string());
   if(meta_only) { return *this; }
-  load_grids(reader,on_space,on_def_empty,file);
+  load_grids(reader,on_space,on_def_empty,file.string());
 
   return *this;
 }

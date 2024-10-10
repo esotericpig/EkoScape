@@ -44,13 +44,20 @@
 #define DANTARES_H
 
 #if defined(DANTARES_MACOS)
+    #ifndef GL_SILENCE_DEPRECATION
+    #define GL_SILENCE_DEPRECATION
+    #endif
+
     //Mac OS X OpenGL headers.
     //#include<OpenGL/OpenGL.h>
     #include<OpenGL/gl.h>
     //#include<OpenGL/glu.h>
 #elif defined(DANTARES_WINDOWS)
+    #define WIN32_LEAN_AND_MEAN
+    #define NOMINMAX
+
     //Windows OpenGL headers.
-    //#include<windows.h>
+    #include<windows.h>
     #include<GL/gl.h>
     //#include<GL/glu.h>
 #else

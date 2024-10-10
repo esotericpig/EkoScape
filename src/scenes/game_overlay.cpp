@@ -9,6 +9,9 @@
 
 namespace ekoscape {
 
+GameOverlay::Option::Option(OptionType type,const CybelStrUtf8& text)
+    : type(type),text(text) {}
+
 GameOverlay::GameOverlay(Assets& assets)
     : assets_(assets) {}
 

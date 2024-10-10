@@ -1,0 +1,61 @@
+name: Windows x64
+
+on:
+  workflow_dispatch:
+#  push:
+#    branches: [ 'test-gh-ci' ]
+
+env:
+  VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
+
+# NOTE: Don't use `\` for continuation.
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install MSVC CL
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install CMake & Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Install vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: "${{ env.VCPKG_ROOT }}"
+          vcpkgJsonGlob: 'vcpkg.json'
+
+      - name: Configure build
+        run: >
+          cmake --preset default
+          -DBUILD_SHARED_LIBS=OFF
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DVCPKG_CRT_LINKAGE=static
+          -DVCPKG_LIBRARY_LINKAGE=static
+          -DVCPKG_BUILD_TYPE=release
+          -DPKG_SUFFIX="-64"
+
+      - name: Build
+        run: cmake --build --preset no-jobs --config Release
+
+      - name: Package up
+        run: cmake --build --preset no-jobs --config Release --target package
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            build/*.zip
+            build/*.sha256
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+          include-hidden-files: false

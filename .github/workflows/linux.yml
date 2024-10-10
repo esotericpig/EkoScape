@@ -1,0 +1,112 @@
+name: Linux AppImage x64
+
+on:
+  workflow_dispatch:
+#  push:
+#    branches: [ 'test-gh-ci' ]
+
+env:
+  VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
+
+jobs:
+  build:
+    # This corresponds to oldest glibc supported.
+    # - https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#choosing-github-hosted-runners
+    runs-on: ubuntu-22.04
+
+    steps:
+      # vcpkg deps, OpenGL & GLU, GLEW deps, SDL2 deps, AppImage deps (FUSE)
+      # - https://github.com/libsdl-org/SDL/blob/SDL2/docs/README-linux.md
+      # - https://github.com/AppImage/AppImageKit/wiki/FUSE
+      #   - TODO: On Ubuntu >= 24.04, use `libfuse2t64` instead of `libfuse2`.
+      - name: Install sys deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            bash \
+            build-essential \
+            cmake \
+            curl \
+            fcitx-libs-dev \
+            git \
+            gnome-desktop-testing \
+            libasound2-dev \
+            libaudio-dev \
+            libdbus-1-dev \
+            libdecor-0-dev \
+            libdrm-dev \
+            libegl1-mesa-dev \
+            libfuse2 \
+            libgbm-dev \
+            libgl-dev \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libglu1-mesa-dev \
+            libibus-1.0-dev \
+            libjack-dev \
+            libltdl-dev \
+            libpipewire-0.3-dev \
+            libpulse-dev \
+            libsamplerate0-dev \
+            libsndio-dev \
+            libtool \
+            libudev-dev \
+            libwayland-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libxft-dev \
+            libxi-dev \
+            libxkbcommon-dev \
+            libxmu-dev \
+            libxrandr-dev \
+            libxss-dev \
+            make \
+            ninja-build \
+            pkg-config \
+            tar \
+            unzip \
+            zip
+
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install CMake & Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Install vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: "${{ env.VCPKG_ROOT }}"
+          vcpkgJsonGlob: 'vcpkg.json'
+
+      - name: Configure build
+        run: >
+          cmake --preset default
+          -DVCPKG_BUILD_TYPE=release
+          -DPKG_SUFFIX="-x86_64"
+
+      - name: Build
+        run: cmake --build --preset no-jobs --config Release
+
+      - name: Build AppImage
+        run: cmake --build --preset no-jobs --config Release --target appimage
+
+      - name: Package up
+        run: cmake --build --preset no-jobs --config Release --target package
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            build/*.tar.gz
+            build/*.sha256
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+          include-hidden-files: false

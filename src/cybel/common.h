@@ -9,9 +9,17 @@
 #define CYBEL_COMMON_H_
 
 #if defined(CYBEL_MACOS)
-  #include <OpenGL/glew.h>
+  #ifndef GL_SILENCE_DEPRECATION
+  #define GL_SILENCE_DEPRECATION
+  #endif
+
+  #include <GL/glew.h>
   #include <OpenGL/glu.h>
 #elif defined(CYBEL_WINDOWS)
+  #define WIN32_LEAN_AND_MEAN
+  #define NOMINMAX
+
+  #include <windows.h>
   #include <GL/glew.h>
   #include <GL/glu.h>
 #else
@@ -34,7 +42,7 @@
 // Disable warnings for the next includes.
 // - It's annoying to see warnings from third-party libraries,
 //   as it makes it difficult to determine if it's my code or theirs.
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -42,7 +50,7 @@
 #include <tinyutf8/tinyutf8.h>
 
 // Re-enable warnings.
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
   #pragma GCC diagnostic pop
 #endif
 

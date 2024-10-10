@@ -21,7 +21,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
-set(DIST_DIR "${CMAKE_SOURCE_DIR}/dist")
+set(RES_DIR "${CMAKE_SOURCE_DIR}/res")
 
 set(ASSETS_NAME "assets")
 set(ASSETS_FILENAME "${ASSETS_NAME}.zip")
@@ -29,7 +29,7 @@ set(ASSETS_URL "https://github.com/esotericpig/EkoScape/releases/download/v1.99/
 set(ASSETS_DOWN_FILE "${DOWNLOADS_DIR}/${ASSETS_FILENAME}")
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
 
-set(TEMPL_CMAKE_IN_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(TEMPL_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
 set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
@@ -51,25 +51,32 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 #include(FetchContent)
 
-add_executable("${BIN_NAME}")
+if(APPLE)
+  add_executable("${BIN_NAME}")
+elseif(WIN32)
+  add_executable("${BIN_NAME}" WIN32 "${RES_DIR}/res.rc")
+else()
+  add_executable("${BIN_NAME}")
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O3 /DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /DNDEBUG")
 
-  # For Windows, don't really care about warnings.
   #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
 else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 
-  target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
+  if(NOT APPLE)
+    target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
+  endif()
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_MACOS)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_WINDOWS)
-else() #elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX)
+if(APPLE)
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_MACOS DANTARES_MACOS)
+elseif(WIN32)
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_WINDOWS DANTARES_WINDOWS)
+else()
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX DANTARES_LINUX)
 endif()
 
 if(NOT EXISTS "${ASSETS_DIR}/images/EkoScape.png")
@@ -193,7 +200,7 @@ add_custom_target(check
     USES_TERMINAL
     VERBATIM
 )
-configure_file("${TEMPL_CMAKE_IN_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
+configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
 add_custom_target(appimage
     COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/appimage.cmake"
     DEPENDS "${BIN_NAME}"
@@ -214,18 +221,50 @@ install(TARGETS "${BIN_NAME}"
             COMPONENT appimage
             EXCLUDE_FROM_ALL
 )
-install(FILES "${DIST_DIR}/${RDNS_NAME}.desktop"
+install(FILES "${RES_DIR}/${RDNS_NAME}.desktop"
     DESTINATION "share/applications"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
-install(FILES "${DIST_DIR}/${RDNS_NAME}.appdata.xml"
+install(FILES "${RES_DIR}/${RDNS_NAME}.appdata.xml"
     DESTINATION "share/metainfo"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(APPLE)
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
+  set(CPACK_GENERATOR "ZIP")
+
+  # vcpkg doesn't currently support universal macOS binaries,
+  #     so making the universal binary manually on GitHub.
+  # See: .github/workflows/macos.yml
+  # Must have a trailing slash! So that the dir is not created in the package.
+  install(DIRECTORY "${CMAKE_SOURCE_DIR}/build_uni/"
+      DESTINATION "."
+      FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                       GROUP_READ GROUP_EXECUTE
+                       WORLD_READ WORLD_EXECUTE
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+      FILES_MATCHING PATTERN "*"
+  )
+
+#  install(TARGETS "${BIN_NAME}"
+#      RUNTIME DESTINATION "."
+#      COMPONENT cpack
+#      EXCLUDE_FROM_ALL
+#  )
+elseif(WIN32)
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-windows")
+  set(CPACK_GENERATOR "ZIP")
+
+  install(TARGETS "${BIN_NAME}"
+      RUNTIME DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+else()
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-linux")
   set(CPACK_GENERATOR "TGZ")
 
@@ -240,26 +279,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
       FILES_MATCHING PATTERN "*.AppImage"
   )
   # `PROGRAMS` because Desktop Entry files should be executable.
-  install(PROGRAMS "${DIST_DIR}/${RDNS_NAME}.desktop"
+  install(PROGRAMS "${RES_DIR}/${RDNS_NAME}.desktop"
       DESTINATION "."
-      COMPONENT cpack
-      EXCLUDE_FROM_ALL
-  )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
-  set(CPACK_GENERATOR "ZIP")
-
-  install(TARGETS "${BIN_NAME}"
-      RUNTIME DESTINATION "."
-      COMPONENT cpack
-      EXCLUDE_FROM_ALL
-  )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-windows")
-  set(CPACK_GENERATOR "ZIP")
-
-  install(TARGETS "${BIN_NAME}"
-      RUNTIME DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
