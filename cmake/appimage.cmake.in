@@ -1,4 +1,17 @@
 ###
+# Configurable params w/ defaults:
+#   # See: https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous
+#   -DLINUXDEPLOY_ARCH=x86_64
+#
+# Running:
+#   # Currently in this script, `Release` is always used (i.e., `--config` is always ignored).
+#   cmake --build --preset default --config Release --target appimage
+#
+# 1. Downloads `linuxdeploy` to `build/downloads/`, if doesn't exist.
+# 2. Deletes `build/AppDir/` and `build/AppImage/`.
+# 3. Installs `Release` to `build/AppDir/usr/`.
+# 4. Builds AppImage to `build/AppImage/`, using `linuxdeploy`.
+#
 # @author Bradley Whited
 ###
 
@@ -9,7 +22,7 @@ set(ASSETS_DIR "@ASSETS_DIR@")
 set(APPDIR_DIR "${CMAKE_BINARY_DIR}/AppDir")
 set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
 #cmake_path(RELATIVE_PATH APPDIR_PREFIX)
-set(APPIMG_DIR "${CMAKE_BINARY_DIR}/appimage")
+set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
 
 set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
 set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
@@ -17,6 +30,9 @@ set(LINUXDEPLOY_URL
     "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/${LINUXDEPLOY_FILENAME}")
 set(LINUXDEPLOY_BIN "${DOWNLOADS_DIR}/${LINUXDEPLOY_FILENAME}")
 
+############################################
+# Downloads                                #
+############################################
 if(NOT EXISTS "${LINUXDEPLOY_BIN}")
   message(STATUS "Downloading '${LINUXDEPLOY_URL}' to '${LINUXDEPLOY_BIN}'...")
   file(DOWNLOAD
@@ -33,24 +49,27 @@ if(NOT EXISTS "${LINUXDEPLOY_BIN}")
   )
 endif()
 
+############################################
+# Clean                                    #
+############################################
 if(EXISTS "${APPDIR_DIR}")
-  message(STATUS "Deleting old AppDir '${APPDIR_DIR}'...")
+  message(STATUS "Deleting old dir '${APPDIR_DIR}'...")
   file(REMOVE_RECURSE "${APPDIR_DIR}")
 endif()
+if(EXISTS "${APPIMG_DIR}")
+  message(STATUS "Deleting old dir '${APPIMG_DIR}'...")
+  file(REMOVE_RECURSE "${APPIMG_DIR}")
+endif()
 
-file(GLOB OLD_APPIMAGE_FILES "*.AppImage")
-foreach(OLD_APPIMAGE ${OLD_APPIMAGE_FILES})
-  message(STATUS "Deleting old AppImage '${OLD_APPIMAGE}'...")
-  file(REMOVE "${OLD_APPIMAGE}")
-endforeach()
-
+############################################
+# Install & Build                          #
+############################################
 execute_process(
     COMMAND "${CMAKE_COMMAND}" --install "${CMAKE_BINARY_DIR}" --config Release --prefix "${APPDIR_PREFIX}"
               --component appimage
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
-
 file(MAKE_DIRECTORY "${APPIMG_DIR}")
 execute_process(
     COMMAND "${LINUXDEPLOY_BIN}" --appdir "${APPDIR_DIR}"

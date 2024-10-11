@@ -37,16 +37,23 @@ jobs:
           -DBUILD_SHARED_LIBS=OFF
           -DCMAKE_OSX_ARCHITECTURES=arm64
           -DVCPKG_OSX_ARCHITECTURES=arm64
+          -DVCPKG_TARGET_TRIPLET="arm64-osx"
+          -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
           -DPKG_SUFFIX="-uni"
+          -DPKG_MACOS_BUILD_UNI_DIR=ON
       - name: Build arm64
         run: cmake --build --preset no-jobs --config Release
-      - name: Move arm64
+      - name: Move bin arm64
         run: |
           set -x
           mkdir -pv build_uni_temp
           mv -v bin/Release/EkoScape build_uni_temp/EkoScape-arm64
+          set +x
+      - name: Clean arm64
+        run: |
+          set -x
           rm -rf bin build
           set +x
 
@@ -56,17 +63,21 @@ jobs:
           -DBUILD_SHARED_LIBS=OFF
           -DCMAKE_OSX_ARCHITECTURES=x86_64
           -DVCPKG_OSX_ARCHITECTURES=x86_64
+          -DVCPKG_TARGET_TRIPLET="x64-osx"
+          -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
           -DPKG_SUFFIX="-uni"
+          -DPKG_MACOS_BUILD_UNI_DIR=ON
       - name: Build x86_64
         run: cmake --build --preset no-jobs --config Release
-      - name: Move x86_64
+      - name: Move bin x86_64
         run: |
           set -x
           mkdir -pv build_uni_temp
           mv -v bin/Release/EkoScape build_uni_temp/EkoScape-x86_64
           set +x
+      # Do NOT clean.
 
       # vcpkg doesn't currently support universal macOS binaries, so making manually.
       # See `CMakeLists.txt` for `build_uni` config.

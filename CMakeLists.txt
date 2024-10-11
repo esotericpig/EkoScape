@@ -3,7 +3,37 @@
 cmake_minimum_required(VERSION 3.20)
 
 ###
-# Read the `Hacking` section in 'README.md' for how to build, etc.
+# Configurable params w/ defaults:
+#   -DLINUXDEPLOY_ARCH=x86_64      # See: cmake/appimage.cmake.in
+#   -DPKG_SUFFIX=""
+#   -DPKG_MACOS_BUILD_UNI_DIR=OFF  # See: .github/workflows/macos.yml
+#
+# Configuring build:
+#   # Super slow the first time as vcpkg downloads deps.
+#   # This also downloads & extracts additional Assets to the `assets/` dir.
+#   cmake --preset default
+#
+# Building:
+#   cmake --build --preset default --config Release
+#   cmake --build --preset default --config Debug
+#
+# Running:
+#   cmake --build --preset default --config Release --target run
+#   cmake --build --preset default --config Debug --target run
+#   # Or directly:
+#   ./bin/Release/EkoScape
+#   ./bin/Debug/EkoScape
+#
+# Checking code quality (`cppcheck`):
+#   cmake --build --preset default --config Release --target check
+#
+# Building Linux AppImage:
+#   cmake --build --preset default --config Release --target appimage
+#   # Test running it:
+#   ./build/AppImage/EkoScape-x86_64.AppImage
+#
+# Packaging up files (CPack):
+#   cmake --build --preset default --config Release --target package
 #
 # @author Bradley Whited
 ###
@@ -11,6 +41,7 @@ cmake_minimum_required(VERSION 3.20)
 #message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
 
 project("EkoScape"
+    HOMEPAGE_URL "https://github.com/esotericpig/EkoScape"
     LANGUAGES C CXX
 )
 
@@ -34,6 +65,7 @@ set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
 set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
 set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
+option(PKG_MACOS_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 set(CPACK_VERBATIM_VARIABLES ON)
 set(CPACK_MONOLITHIC_INSTALL OFF)
@@ -44,12 +76,15 @@ set(CPACK_COMPONENTS_GROUPING "ALL_COMPONENTS_IN_ONE")
 set(FETCHCONTENT_QUIET OFF)
 #set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
 
+#include(FetchContent)
+
+############################################
+# Compiler Config                          #
+############################################
 # Also defined in 'CMakePresets.json' because sometimes doesn't work otherwise (for some reason).
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-#include(FetchContent)
 
 if(APPLE)
   add_executable("${BIN_NAME}")
@@ -79,6 +114,9 @@ else()
   target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX DANTARES_LINUX)
 endif()
 
+############################################
+# Download Assets & Extract                #
+############################################
 if(NOT EXISTS "${ASSETS_DIR}/images/EkoScape.png")
   if(NOT EXISTS "${ASSETS_DOWN_FILE}")
     message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DOWN_FILE}'...")
@@ -103,6 +141,9 @@ if(NOT EXISTS "${ASSETS_DIR}/images/EkoScape.png")
   )
 endif()
 
+############################################
+# Libraries                                #
+############################################
 # See 'vcpkg.json' & output of CMake for usage.
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED) # GLU should be included.
@@ -122,6 +163,9 @@ target_link_libraries("${BIN_NAME}" PRIVATE
     tinyutf8::tinyutf8
 )
 
+############################################
+# Source Code                              #
+############################################
 target_include_directories("${BIN_NAME}" PRIVATE
     "${TP_DIR}"
     "${SRC_DIR}"
@@ -178,6 +222,9 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/main.cpp"
 )
 
+############################################
+# Custom Targets                           #
+############################################
 add_custom_target(run
     COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BIN_NAME}"
     DEPENDS "${BIN_NAME}"
@@ -210,6 +257,9 @@ add_custom_target(appimage
     VERBATIM
 )
 
+############################################
+# AppImage                                 #
+############################################
 install(TARGETS "${BIN_NAME}"
     # For AppImage, must use 'bin', cannot use 'games'.
     RUNTIME DESTINATION bin
@@ -233,29 +283,34 @@ install(FILES "${RES_DIR}/${RDNS_NAME}.appdata.xml"
     EXCLUDE_FROM_ALL
 )
 
+############################################
+# Package (CPack)                          #
+############################################
 if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
   set(CPACK_GENERATOR "ZIP")
 
-  # vcpkg doesn't currently support universal macOS binaries,
-  #     so making the universal binary manually on GitHub.
-  # See: .github/workflows/macos.yml
-  # Must have a trailing slash! So that the dir is not created in the package.
-  install(DIRECTORY "${CMAKE_SOURCE_DIR}/build_uni/"
-      DESTINATION "."
-      FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                       GROUP_READ GROUP_EXECUTE
-                       WORLD_READ WORLD_EXECUTE
-      COMPONENT cpack
-      EXCLUDE_FROM_ALL
-      FILES_MATCHING PATTERN "*"
-  )
-
-#  install(TARGETS "${BIN_NAME}"
-#      RUNTIME DESTINATION "."
-#      COMPONENT cpack
-#      EXCLUDE_FROM_ALL
-#  )
+  if(PKG_MACOS_BUILD_UNI_DIR)
+    # vcpkg doesn't currently support universal macOS binaries,
+    #     so making the universal binary manually on GitHub.
+    # See: .github/workflows/macos.yml
+    # Must have a trailing slash! So that the dir is not created in the package.
+    install(DIRECTORY "${CMAKE_SOURCE_DIR}/build_uni/"
+        DESTINATION "."
+        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                         GROUP_READ GROUP_EXECUTE
+                         WORLD_READ WORLD_EXECUTE
+        COMPONENT cpack
+        EXCLUDE_FROM_ALL
+        FILES_MATCHING PATTERN "*"
+    )
+  else()
+    install(TARGETS "${BIN_NAME}"
+        RUNTIME DESTINATION "."
+        COMPONENT cpack
+        EXCLUDE_FROM_ALL
+    )
+  endif()
 elseif(WIN32)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-windows")
   set(CPACK_GENERATOR "ZIP")
@@ -269,8 +324,8 @@ else()
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-linux")
   set(CPACK_GENERATOR "TGZ")
 
-  # Must have a trailing slash! So that `appimage` dir is not created in the package.
-  install(DIRECTORY "${CMAKE_BINARY_DIR}/appimage/"
+  # Must have a trailing slash! So that the dir is not created in the package.
+  install(DIRECTORY "${CMAKE_BINARY_DIR}/AppImage/"
       DESTINATION "."
       FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                        GROUP_READ GROUP_EXECUTE
