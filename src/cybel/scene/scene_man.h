@@ -36,14 +36,14 @@ public:
   void pop_all_scenes();
   bool restart_scene();
 
-  Scene& scene() const;
-  int scene_type() const;
+  Scene& curr_scene() const;
+  int curr_scene_type() const;
 
 private:
   SceneBuilder build_scene_{};
   SceneIniter init_scene_{};
 
-  SceneBag scene_bag_ = kEmptySceneBag;
+  SceneBag curr_scene_bag_ = kEmptySceneBag;
   std::vector<SceneBag> prev_scene_bags_{};
 
   void set_scene(const SceneBag& scene_bag);

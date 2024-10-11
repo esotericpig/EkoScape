@@ -109,7 +109,7 @@ SceneBag EkoScapeGame::build_scene(int action) {
 
 void EkoScapeGame::pop_scene() {
   // If on BoringWorkScene, turn music back on, if it was playing before.
-  if(scene_man_->scene_type() == SceneAction::kGoToBoringWork) {
+  if(scene_man_->curr_scene_type() == SceneAction::kGoToBoringWork) {
     if(was_music_playing_) { play_music(); }
   }
 
@@ -151,7 +151,7 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
 
     // Toggle BoringWorkScene.
     case SDLK_b:
-      if(scene_man_->scene_type() == SceneAction::kGoToBoringWork) {
+      if(scene_man_->curr_scene_type() == SceneAction::kGoToBoringWork) {
         pop_scene();
       } else {
         scene_man_->push_scene(SceneAction::kGoToBoringWork);
@@ -162,7 +162,7 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
     case SDLK_r:
       // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
       //     else it'll be all white due to not re-generating the map.
-      if(SceneActions::is_menu(scene_man_->scene_type())) { assets_->reload_graphics(); }
+      if(SceneActions::is_menu(scene_man_->curr_scene_type())) { assets_->reload_graphics(); }
       break;
 
     // Toggle FPS.
