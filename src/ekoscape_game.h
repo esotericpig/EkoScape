@@ -10,6 +10,7 @@
 
 #include "common.h"
 
+#include "cybel/audio/audio_player.h"
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"
 #include "cybel/scene/scene_man.h"
@@ -45,11 +46,11 @@ public:
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren) override;
 
-  void play_music();
-
   static void show_error_global(const std::string& error);
 
 private:
+  AudioPlayer* audio_player_ = nullptr;
+  bool was_music_playing_ = false;
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
@@ -59,6 +60,9 @@ private:
 
   MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};
+
+  void play_music();
+  void stop_music(bool on_boring_work = false);
 
   SceneBag build_scene(int type);
   void pop_scene();

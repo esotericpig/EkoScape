@@ -20,6 +20,7 @@ CMakeUserPresets.json
 *.mod
 *.o
 *.obj
+*.ogg
 *.out
 *.pch
 *.png

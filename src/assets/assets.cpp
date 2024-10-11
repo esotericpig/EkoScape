@@ -46,8 +46,8 @@ std::filesystem::path Assets::fetch_assets_path() {
   return assets_path;
 }
 
-Assets::Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird)
-    : styled_graphics_(kTexturesDir,graphics_style,make_weird),has_music_player_(has_music_player) {
+Assets::Assets(StyledGraphics::Style graphics_style,bool has_audio_player,bool make_weird)
+    : styled_graphics_(kTexturesDir,graphics_style,make_weird),has_audio_player_(has_audio_player) {
   reload_graphics(make_weird);
   reload_music();
 }
@@ -110,10 +110,10 @@ void Assets::reload_graphics(bool make_weird) {
 }
 
 void Assets::reload_music() {
-  if(!has_music_player_) { return; }
+  if(!has_audio_player_) { return; }
 
   try {
-    music_ = std::make_unique<Music>(kMusicDir / "music.ogg");
+    music_ = std::make_unique<Music>(kMusicDir / "ekoscape.ogg");
   } catch(const CybelError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     // Don't fail, since music is optional.

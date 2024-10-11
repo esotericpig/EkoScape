@@ -130,6 +130,7 @@ target_include_directories("${BIN_NAME}" PRIVATE
 target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares.cpp"
 
+    "${SRC_DIR}/cybel/audio/audio_player.cpp"
     "${SRC_DIR}/cybel/audio/music.cpp"
     "${SRC_DIR}/cybel/gfx/font_atlas.cpp"
     "${SRC_DIR}/cybel/gfx/image.cpp"

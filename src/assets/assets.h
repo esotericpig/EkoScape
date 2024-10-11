@@ -42,7 +42,7 @@ public:
   const std::filesystem::path kMusicDir{kAssetsDir / "music"};
   const std::filesystem::path kTexturesDir{kAssetsDir / "textures"};
 
-  explicit Assets(StyledGraphics::Style graphics_style,bool has_music_player,bool make_weird = false);
+  explicit Assets(StyledGraphics::Style graphics_style,bool has_audio_player,bool make_weird = false);
 
   void reload_graphics();
   void reload_graphics(bool make_weird);
@@ -94,7 +94,7 @@ public:
 private:
   bool is_weird_ = false;
   StyledGraphics styled_graphics_;
-  bool has_music_player_ = false;
+  bool has_audio_player_ = false;
 
   Texture* star_texture_ = nullptr;
   std::unique_ptr<Texture> star1_texture_{};

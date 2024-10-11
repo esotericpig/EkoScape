@@ -9,18 +9,7 @@
 
 namespace cybel {
 
-CybelEngine::Resources::Resources() noexcept {}
-
 CybelEngine::Resources::~Resources() noexcept {
-  if(has_music_player) {
-    has_music_player = false;
-    // Mix_CloseAudio() is supposed to auto-stop audio, but found it not to work once,
-    //     so calling Mix_HaltMusic() just to make sure.
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-  }
-
   IMG_Quit();
 
   if(context != NULL) {
@@ -50,7 +39,8 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
   init_config(config);
   init_gui(config);
   init_renderer(config,build_scene);
-  init_music_player(config);
+
+  audio_player_ = std::make_unique<AudioPlayer>(config.music_types);
 }
 
 void CybelEngine::init_hints(const Config& config) {
@@ -159,37 +149,6 @@ void CybelEngine::init_renderer(const Config& config,const SceneMan::SceneBuilde
 void CybelEngine::init_scene(Scene& scene) {
   scene.init_scene(*renderer_);
   scene.resize_scene(*renderer_,renderer_->dimens());
-}
-
-void CybelEngine::init_music_player(const Config& config) {
-  if(Mix_Init(config.music_types) == 0) {
-    std::cerr << "[WARN] Failed to init SDL_mixer: " << Util::get_sdl_mix_error() << '.' << std::endl;
-    return; // Don't fail, since music is optional.
-  }
-
-  int result = -1;
-
-  if(config.music_types & MIX_INIT_MID) {
-    // Since we're playing a MIDI file, use these settings according to the doc:
-    // - https://wiki.libsdl.org/SDL2_mixer/FrontPage
-    // - For SDL3, use SDL_AUDIO_S8, probably? Not defined in SDL2.
-    result = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,AUDIO_S8,1,2048);
-  } else {
-    // Defaults:
-    //   MIX_DEFAULT_FREQUENCY(44100) or 48000,
-    //   MIX_DEFAULT_FORMAT(SDL_AUDIO_S16 or AUDIO_S16SYS),
-    //   MIX_DEFAULT_CHANNELS(2),
-    //   2048
-    result = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,MIX_DEFAULT_FORMAT,MIX_DEFAULT_CHANNELS,2048);
-  }
-
-  if(result != 0) {
-    Mix_Quit();
-    std::cerr << "[WARN] Failed to open audio device: " << Util::get_sdl_mix_error() << '.' << std::endl;
-    return; // Don't fail, since music is optional.
-  }
-
-  res_.has_music_player = true;
 }
 
 void CybelEngine::sync_size(bool force) {
@@ -319,22 +278,6 @@ void CybelEngine::handle_events() {
   if(should_resize) { sync_size(false); }
 }
 
-void CybelEngine::play_music(const Music& music) {
-  if(!res_.has_music_player) { return; }
-
-  // -1 to play indefinitely.
-  if(Mix_PlayMusic(music.music_,-1) != 0) {
-    std::cerr << "[WARN] Failed to play music: " << Util::get_sdl_mix_error() << '.' << std::endl;
-    // Don't fail, since music is optional.
-  }
-}
-
-void CybelEngine::stop_music() {
-  if(!res_.has_music_player) { return; }
-
-  Mix_HaltMusic();
-}
-
 void CybelEngine::show_error(const std::string& error) const {
   show_error(title_,error);
 }
@@ -370,13 +313,9 @@ void CybelEngine::set_vsync(bool enable) {
   }
 }
 
-bool CybelEngine::has_music_player() const { return res_.has_music_player; }
-
-bool CybelEngine::is_music_playing() const {
-  return res_.has_music_player && Mix_PlayingMusic() == 1;
-}
-
 const Uint8* CybelEngine::fetch_key_states() const { return SDL_GetKeyboardState(NULL); }
+
+AudioPlayer& CybelEngine::audio_player() const { return *audio_player_; }
 
 Scene& CybelEngine::main_scene() const { return main_scene_; }
 

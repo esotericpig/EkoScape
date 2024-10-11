@@ -17,7 +17,7 @@
 
 namespace cybel {
 
-class CybelEngine;
+class AudioPlayer;
 
 class Music {
 public:
@@ -29,9 +29,12 @@ public:
   Music& operator=(const Music& other) = delete;
   Music& operator=(Music&& other) noexcept;
 
-  friend class CybelEngine;
+  const std::string& id() const;
+
+  friend class AudioPlayer;
 
 private:
+  std::string id_{};
   Mix_Music* music_ = NULL;
 
   void move_from(Music&& other) noexcept;

@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#include "audio/music.h"
+#include "audio/audio_player.h"
 #include "gfx/image.h"
 #include "render/render_types.h"
 #include "render/renderer.h"
@@ -36,9 +36,8 @@ private:
   public:
     SDL_Window* window = NULL;
     SDL_GLContext context = NULL;
-    bool has_music_player = false;
 
-    explicit Resources() noexcept;
+    explicit Resources() noexcept = default;
     Resources(const Resources& other) = delete;
     Resources(Resources&& other) noexcept = delete;
     virtual ~Resources() noexcept;
@@ -46,6 +45,8 @@ private:
     Resources& operator=(const Resources& other) = delete;
     Resources& operator=(Resources&& other) noexcept = delete;
   } res_{};
+
+  std::unique_ptr<AudioPlayer> audio_player_{};
 
 public:
   struct Config {
@@ -98,9 +99,6 @@ public:
   void run();
   void request_stop();
 
-  void play_music(const Music& music);
-  void stop_music();
-
   void show_error(const std::string& error) const;
   void show_error(const std::string& title,const std::string& error) const;
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
@@ -110,10 +108,9 @@ public:
   void reset_title();
   void set_vsync(bool enable);
 
-  bool has_music_player() const;
-  bool is_music_playing() const;
   const Uint8* fetch_key_states() const;
 
+  AudioPlayer& audio_player() const;
   Scene& main_scene() const;
   SceneMan& scene_man() const;
   const std::string& title() const;
@@ -142,7 +139,6 @@ private:
   void init_gui(const Config& config);
   void init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene);
   void init_scene(Scene& scene);
-  void init_music_player(const Config& config);
 
   void start_frame_timer();
   void end_frame_timer();

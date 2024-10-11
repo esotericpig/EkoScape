@@ -25,9 +25,10 @@ EkoScapeGame::EkoScapeGame() {
   cybel_engine_ = std::make_unique<CybelEngine>(
     *this,config,[&](int action) { return build_scene(action); }
   );
+  audio_player_ = &cybel_engine_->audio_player();
   scene_man_ = &cybel_engine_->scene_man();
   assets_ = std::make_unique<Assets>(
-    StyledGraphics::Style::kRealistic,cybel_engine_->has_music_player()
+    StyledGraphics::Style::kRealistic,audio_player_->is_alive()
   );
 
   cybel_engine_->set_icon(assets_->icon_image());
@@ -87,6 +88,7 @@ SceneBag EkoScapeGame::build_scene(int action) {
 
     case SceneAction::kGoToBoringWork:
       result.scene = std::make_shared<BoringWorkScene>(*cybel_engine_,*assets_);
+      stop_music(true);
       break;
 
     case SceneAction::kNil:
@@ -106,8 +108,14 @@ SceneBag EkoScapeGame::build_scene(int action) {
 }
 
 void EkoScapeGame::pop_scene() {
+  // If on BoringWorkScene, turn music back on, if it was playing before.
+  if(scene_man_->scene_type() == SceneAction::kGoToBoringWork) {
+    if(was_music_playing_) { play_music(); }
+  }
+
   if(!scene_man_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
+    audio_player_->stop_music();
     cybel_engine_->request_stop();
   }
 }
@@ -124,13 +132,13 @@ void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
       break;
 
     case SDLK_AUDIOSTOP:
-      cybel_engine_->stop_music();
+      stop_music();
       break;
 
     // Toggle music.
     case SDLK_n:
-      if(cybel_engine_->is_music_playing()) {
-        cybel_engine_->stop_music();
+      if(audio_player_->is_music_playing()) {
+        stop_music();
       } else {
         play_music();
       }
@@ -226,9 +234,17 @@ void EkoScapeGame::draw_scene(Renderer& ren) {
 }
 
 void EkoScapeGame::play_music() {
-  if(cybel_engine_->has_music_player() && assets_->music() != nullptr) {
-    cybel_engine_->play_music(*assets_->music());
+  if(audio_player_->is_alive() && assets_->music() != nullptr) {
+    audio_player_->play_or_resume_music(*assets_->music());
+    was_music_playing_ = true;
+  } else {
+    was_music_playing_ = false;
   }
+}
+
+void EkoScapeGame::stop_music(bool on_boring_work) {
+  audio_player_->pause_music();
+  if(!on_boring_work) { was_music_playing_ = false; }
 }
 
 void EkoScapeGame::show_error_global(const std::string& error) {
