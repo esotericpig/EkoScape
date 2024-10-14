@@ -1,0 +1,57 @@
+[EkoScape/v1]
+Name of Map
+Author's Name
+
+7 11
+
+' '
+1000
+
+########################
+#          %           #
+# >       %@%          #
+#          %           #
+####################:::#
+#                      #
+#          =           #
+#                      #
+#:::####################
+#                      #
+#          !         0 #
+#                      #
+########################
+
+WWWWWWWWWWWWWWWWWWWWWWWW
+W         w+w          W
+W 0       +@+          W
+W         w+w          W
+WWWWWWWWWWWWWWWWWWWW:::W
+W                      W
+W          ?           W
+W                      W
+W:::WWWWWWWWWWWWWWWWWWWW
+W                      W
+W          |         1 W
+W                      W
+WWWWWWWWWWWWWWWWWWWWWWWW
+
+xxxxxxxxxxxxxxxxxxxxxxxx
+x          *           x
+x 1       *@*          x
+x          *           x
+xxxxxxxxxxxxxxxxxxxx:::x
+x                      x
+x          &           x
+x                      x
+x:::xxxxxxxxxxxxxxxxxxxx
+x                      x
+x          Q         $ x
+x                      x
+xxxxxxxxxxxxxxxxxxxxxxxx
+
+Floors:         w *
+Walls:        # W x &
+Ghost Walls:  % +
+Things:       @ : $
+Portals:      0 - 9
+Robots:       = ! | ? Q
