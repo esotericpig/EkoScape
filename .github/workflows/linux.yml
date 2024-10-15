@@ -21,6 +21,7 @@ jobs:
       #   - TODO: On Ubuntu >= 24.04, use `libfuse2t64` instead of `libfuse2`.
       - name: Install sys deps
         run: |
+          set -x
           sudo apt-get update -y
           sudo apt-get install -y \
             autoconf \
@@ -70,6 +71,9 @@ jobs:
             tar \
             unzip \
             zip
+          echo 'Check glibc version:'
+          ldd --version
+          set +x
 
       - name: Check out repo
         uses: actions/checkout@v4
