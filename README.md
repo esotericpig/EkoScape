@@ -48,9 +48,9 @@ A Desktop Entry file is provided if you wish to integrate it with your DE (Deskt
 
 This project uses **CMake**, [Ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages), and [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started). Please install these for your system.
 
-See the [GitHub Workflows](.github/workflows/) for quickly getting started.
+See the [GitHub Workflows](.github/workflows/) or the top of [CMakeLists.txt](CMakeLists.txt) for quickly getting started.
 
-If you have Ruby installed, there is also a script, [scripts/dev.rb](scripts/dev.rb), for quick development.
+If you have Ruby installed, there is also a script, [scripts/dev.rb](scripts/dev.rb), for rapid development.
 
 ### Configuring Build ###
 
@@ -62,7 +62,7 @@ Platform-specific notes:
 - On **macOS**, you need to install GLEW manually:
   - `brew install glew`
 
-The following command will be very slow the first time you run it, as it downloads the packages from `vcpkg`. Also, it downloads & extracts additional Assets to the `assets/` dir.
+The following command will be very slow the first time you run it, as it downloads the packages from `vcpkg`. Also, it downloads & extracts additional [Assets](https://github.com/esotericpig/EkoScape/releases/tag/v1.99) to the `assets/` dir (only if `assets/images/EkoScape.png` doesn't exist).
 
 ```
 cmake --preset default
@@ -190,6 +190,8 @@ While playing the game, press `F3` to see the FPS in the top left. The game is c
 On Linux, to test the Windows icon in the exe (after downloading), you can use `wine explorer` and navigate to the folder to check it out.
 
 To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
+
+There are various scripts in the [scripts/](scripts/) folder for development, but not necessary, just for convenience.
 
 ## Code Notes ##
 
