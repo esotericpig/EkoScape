@@ -39,6 +39,7 @@ A Desktop Entry file is provided if you wish to integrate it with your DE (Deskt
   - [Checking Code Quality](#checking-code-quality)
   - [Building Linux AppImage](#building-linux-appimage)
   - [Packaging Up](#packaging-up)
+  - [Miscellaneous](#miscellaneous)
 - [Code Notes](#code-notes)
 - [Credits](#credits)
 - [License](#license)
@@ -182,11 +183,19 @@ Now run the below target. This target uses `--install` & **CPack** to package up
 cmake --build --preset default --config Release --target package
 ```
 
+### Miscellaneous ###
+
+While playing the game, press `F3` to see the FPS in the top left. The game is capped at 60 FPS and has VSync enabled.
+
+On Linux, to test the Windows icon in the exe (after downloading), you can use `wine explorer` and navigate to the folder to check it out.
+
+To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
+
 ## Code Notes ##
 
 In the beginning, I rewrote the original code for fun using SDL2 and modern C++ in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff, which took over a month.
 
-The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I was planning to make a simple ECS, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just to stick with the original class-based structure.
+The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I was planning to make a simple ECS, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just stick with the original class-based structure.
 
 Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
 
