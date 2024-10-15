@@ -32,16 +32,16 @@ A Desktop Entry file is provided if you wish to integrate it with your DE (Deskt
 
 ## Contents ##
 
-- [Hacking](#hacking-)
-  - [Configuring Build](#configuring-build-)
-  - [Building](#building-)
-  - [Running](#running-)
-  - [Checking Code Quality](#checking-code-quality-)
-  - [Building Linux AppImage](#building-linux-appimage-)
-  - [Packaging Up](#packaging-up-)
-- [Code Notes](#code-notes-)
-- [Credits](#credits-)
-- [License](#license-)
+- [Hacking](#hacking)
+  - [Configuring Build](#configuring-build)
+  - [Building](#building)
+  - [Running](#running)
+  - [Checking Code Quality](#checking-code-quality)
+  - [Building Linux AppImage](#building-linux-appimage)
+  - [Packaging Up](#packaging-up)
+- [Code Notes](#code-notes)
+- [Credits](#credits)
+- [License](#license)
 
 ## Hacking ##
 
