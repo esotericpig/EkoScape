@@ -37,11 +37,11 @@ jobs:
         run: >
           cmake --preset default
           -DBUILD_SHARED_LIBS=OFF
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DVCPKG_TARGET_TRIPLET="x64-windows-static"
           -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
-          -DPKG_SUFFIX="-64"
+          -DPKG_SUFFIX="-x64"
 
       - name: Build
         run: cmake --build --preset no-jobs --config Release
