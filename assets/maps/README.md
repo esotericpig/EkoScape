@@ -98,7 +98,7 @@ Walls:        # W x &
 Ghost Walls:  % +
 Player:       ^ v > <
 Things:       @ : $
-Portals:      0 - 9
+Portals:      0 1 2 3 4 5 6 7 8 9
 Robots:       = ! | ? Q
 ```
 
