@@ -6,7 +6,7 @@ The [user/](user/) folder was created for you. The [fanmade/](fanmade/) folder w
 
 ## Submitting Your Map Files ##
 
-You can submit your Map files [here on GitHub Discussions](https://github.com/esotericpig/EkoScape/discussions/1) for a chance to have them included in the next version! Or to simply share them for others to try.
+You can submit your Map files [here on GitHub Discussions](https://github.com/esotericpig/EkoScape/discussions/1) or as an [Issue](https://github.com/esotericpig/EkoScape/issues) for a chance to have them included in the next version! Or to simply share them for others to try.
 
 Alternatively, you can just copy & paste them into a comment on [itch.io](https://esotericpig.itch.io/ekoscape) using a Markdown code block (backticks).
 
