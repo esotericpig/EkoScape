@@ -108,6 +108,7 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
+          name: linux-appimage-x64
           path: |
             build/*.tar.gz
             build/*.sha256

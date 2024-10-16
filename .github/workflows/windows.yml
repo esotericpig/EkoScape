@@ -52,6 +52,7 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
+          name: windows-x64
           path: |
             build/*.zip
             build/*.sha256

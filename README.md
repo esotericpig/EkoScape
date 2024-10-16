@@ -40,6 +40,7 @@ A Desktop Entry file is provided if you wish to integrate it with your DE (Deskt
   - [Building Linux AppImage](#building-linux-appimage)
   - [Packaging Up](#packaging-up)
   - [Miscellaneous](#miscellaneous)
+  - [New Release](#new-release)
 - [Code Notes](#code-notes)
 - [Credits](#credits)
 - [License](#license)
@@ -187,11 +188,25 @@ cmake --build --preset default --config Release --target package
 
 While playing the game, press `F3` to see the FPS in the top left. The game is capped at 60 FPS and has VSync enabled.
 
-On Linux, to test the Windows icon in the exe (after downloading), you can use `wine explorer` and navigate to the folder to check it out.
-
-To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
-
 There are various scripts in the [scripts/](scripts/) folder for development, but not necessary, just for convenience.
+
+### New Release ###
+
+Optionally, to update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
+
+With the [GH CLI](https://cli.github.com) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
+
+```
+./scripts/get_artifacts.sh
+```
+
+On Linux, to test the Windows icon in the exe (after downloading), you can use `wine explorer` and then navigate to the folder to check it out.
+
+Create a new release:
+
+```
+gh release create --draft --generate-notes v2.0 build/artifacts/*
+```
 
 ## Code Notes ##
 
