@@ -33,6 +33,7 @@ A Desktop Entry file is provided if you wish to integrate it with your DE (Deskt
 ## Contents ##
 
 - [Hacking](#hacking)
+  - [IDEs](#ides)
   - [Configuring Build](#configuring-build)
   - [Building](#building)
   - [Running](#running)
@@ -52,6 +53,11 @@ This project uses **CMake**, [Ninja](https://github.com/ninja-build/ninja/wiki/P
 See the [GitHub Workflows](.github/workflows/) or the top of [CMakeLists.txt](CMakeLists.txt) for quickly getting started.
 
 If you have Ruby installed, there is also a script, [scripts/dev.rb](scripts/dev.rb), for rapid development.
+
+### IDEs ###
+
+- **CLion**
+  - CMake Profiles are included. You'll need to edit them in the IDE to change the env var `VCPKG_ROOT=/path/to/vcpkg` appropriately.
 
 ### Configuring Build ###
 

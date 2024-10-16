@@ -28,7 +28,8 @@ CMakeUserPresets.json
 *.smod
 *.so
 
-/.idea/
+/.idea/*
+!/.idea/cmake.xml
 /AppDir/
 /bin/
 /build/
