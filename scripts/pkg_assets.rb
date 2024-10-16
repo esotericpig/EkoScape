@@ -6,10 +6,10 @@
 # Show usage:
 #   $ ./scripts/pkg_assets.rb
 #
-# Clean, package, & upload 'assets/' to GitHub as 'assets.zip':
+# Clean, package up `assets/` (to `build/assets.zip`), & upload it to GitHub as `assets.zip`:
 #   $ ./scripts/pkg_assets.rb -c -p -g
 #
-# @version 0.1.0
+# @version 0.1.1
 # @author Bradley Whited
 ###
 
@@ -38,7 +38,7 @@ class AssetsPkger
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.0'
+      op.version = '0.1.1'
       op.summary_width = 8
 
       # Opt indent.
@@ -57,17 +57,18 @@ class AssetsPkger
 
       op.separator ''
       op.separator 'Basic Options'
-      op.on('-n',nil,'[no-clob] no-clobber dry run')
+      op.on('-n',nil,'no-clobber dry run')
     end
 
     opts = {}
     opt_parser.parse!(into: opts)
-    @dry_run = opts[:n]
 
-    if opts.empty? || (opts.length == 1 && @dry_run)
+    if opts.empty?
       puts opt_parser.help
       exit
     end
+
+    @dry_run = opts[:n]
 
     # Order matters! Because user can specify all opts.
     clean if opts[:c]

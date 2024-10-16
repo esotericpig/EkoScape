@@ -8,7 +8,7 @@
 # Show usage:
 #   $ ./scripts/dev.rb
 #
-# @version 0.1.2
+# @version 0.1.3
 # @author Bradley Whited
 ###
 
@@ -33,7 +33,7 @@ class DevApp
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.2'
+      op.version = '0.1.3'
       op.summary_width = 14
 
       si = op.summary_indent
@@ -52,9 +52,9 @@ class DevApp
       op.on('-A',nil,"[AppImage] build AppImage w/ '#{@config}'")
       op.on('-P',nil,'[pkg] package up AppImage & files using CPack')
       op.separator ''
-      op.on('-p <preset>','[preset] use <preset> for the preset') { |p| p.to_s.strip }
-      op.on('-d',nil,"[debug] use 'Debug' config")
-      op.on('-j [jobs]','[jobs] set number of jobs; if no number, uses 1') do |j|
+      op.on('-p <preset>','use <preset> for the preset') { |p| p.to_s.strip }
+      op.on('-d',nil,"use 'Debug' config")
+      op.on('-j [jobs]','set number of jobs; if no number, uses 1') do |j|
         j = j.to_s.strip
         j = j.empty? ? 1 : j.to_i
         @extra_build_args.push('-j',j)
@@ -63,7 +63,7 @@ class DevApp
 
       op.separator ''
       op.separator 'Basic Options'
-      op.on('-n',nil,'[no-clob] no-clobber dry run')
+      op.on('-n',nil,'no-clobber dry run')
 
       op.separator ''
       op.separator 'Notes'
