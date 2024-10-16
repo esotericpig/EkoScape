@@ -7,11 +7,12 @@
 
 #include "ekoscape_game.h"
 
-// SDL requires standard main().
+// SDL2 requires standard main().
 // - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_%2E%2E%2E
 int main(int /*argc*/,char** /*argv*/) {
   using namespace ekoscape;
 
+  // Pointer so that run() is not inside of a try-catch (for speed).
   std::unique_ptr<EkoScapeGame> eko{};
 
   try {
