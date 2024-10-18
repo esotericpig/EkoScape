@@ -15,9 +15,11 @@ Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SD
 
 Requirements:
 - Linux x86_64
-  - glibc >= 2.14 (Ubuntu >= 22.04 or Fedora >= 16)
+  - glibc >= 2.14 (Ubuntu >= 22.04; Fedora >= 16)
   - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
 - macOS arm64 or x86_64
+  - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning when running:
+    - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
 - Windows x64
 
 You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) or from the [latest release on GitHub](https://github.com/esotericpig/EkoScape/releases/latest).
@@ -28,7 +30,7 @@ You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See
 
 ### Linux Notes ###
 
-A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file, `com.github.esotericpig.EkoScape.desktop`, in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/com.github.esotericpig.EkoScape.desktop).
+A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file -- `com.github.esotericpig.EkoScape.desktop` -- in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/com.github.esotericpig.EkoScape.desktop).
 
 ## Contents ##
 
@@ -52,12 +54,14 @@ This project uses **CMake**, [Ninja](https://github.com/ninja-build/ninja/wiki/P
 
 See the [GitHub Workflows](.github/workflows/) or the top of [CMakeLists.txt](CMakeLists.txt) for quickly getting started.
 
-If you have Ruby installed, there is also a script, [scripts/dev.rb](scripts/dev.rb), for rapid development.
+If you have Ruby installed, there is also a script -- [scripts/dev.rb](scripts/dev.rb) -- for rapid development.
 
 ### IDEs ###
 
+Optional stuff for IDEs.
+
 - **CLion**
-  - CMake Profiles are included. You'll need to edit them in the IDE to change the env var `VCPKG_ROOT=/path/to/vcpkg` appropriately.
+  - CMake Profiles are included. You'll need to edit them (Settings => Build, Execution, Deployment => CMake) to change the env var appropriately: `VCPKG_ROOT=/path/to/vcpkg`
 
 ### Configuring Build ###
 
@@ -75,7 +79,7 @@ The following command will be very slow the first time you run it, as it downloa
 cmake --preset default
 ```
 
-For various params, see the [GH Workflows](.github/workflows/) or the [vcpkg docs](https://learn.microsoft.com/en-us/vcpkg/users/triplets).
+Optionally, for various params, see the [GH Workflows](.github/workflows/) or the [vcpkg docs](https://learn.microsoft.com/en-us/vcpkg/users/triplets).
 
 Examples:
 
@@ -123,10 +127,11 @@ cmake --build --preset default --config Release
 cmake --build --preset default --config Debug
 ```
 
-This defaults to 5 parallel jobs. Instead, you can either use the preset `no-jobs` (which uses the max on Ninja) or use the `-j` option:
+This defaults to 5 parallel jobs. Instead, you can either use the preset `no-jobs` (which causes Ninja to use the max number of jobs) or use the `-j` option:
 
 ```
 cmake --build --preset no-jobs --config Release
+
 cmake --build --preset default --config Release -j 1
 ```
 
@@ -156,7 +161,7 @@ cmake --build --preset default --config Release --target check
 
 ### Building Linux AppImage ###
 
-This automatically downloads [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous) if it doesn't exist.
+This automatically downloads [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous) to `build/downloads/` if it doesn't exist.
 
 ```
 cmake --build --preset default --config Release --target appimage
@@ -184,7 +189,7 @@ When configuring, optionally add a suffix for the filename:
 cmake --preset default -DPKG_SUFFIX="-x64"
 ```
 
-Now run the below target. This target uses `--install` & **CPack** to package up the files. Currently, `Release` is always used, even if you specify differently.
+Now run the target `package`. It uses `--install` & **CPack** to package up the files. Currently, `Release` is always used, even if you specify differently.
 
 ```
 cmake --build --preset default --config Release --target package
@@ -198,15 +203,15 @@ There are various scripts in the [scripts/](scripts/) folder for development, bu
 
 ### New Release ###
 
-Optionally, to update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
+Optional: To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
 
-With the [GH CLI](https://cli.github.com) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
+With the [GH CLI](https://cli.github.com) (`gh`) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
 
 ```
 ./scripts/get_artifacts.sh
 ```
 
-On Linux, to test the Windows icon in the exe (after downloading), you can use `wine explorer` and then navigate to the folder to check it out.
+(On Linux, to test the Windows icon in the exe, you can use `wine explorer .` and then check it out.)
 
 Create a new release:
 
