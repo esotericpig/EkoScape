@@ -10,14 +10,14 @@ IFS=$'\n\t'
 # @author Bradley Whited
 ###
 
-ARTIF_DIR='build/artifacts'
+ARTIC_DIR='build/artifacts'
 
 get_artifact() {
-  gh run download --dir "${ARTIF_DIR}/" --name "$1"
+  gh run download --dir "${ARTIC_DIR}/" --name "$1"
 }
 
 set -x
-mkdir -pv "${ARTIF_DIR}"
+mkdir -pv "${ARTIC_DIR}"
 
 # Download each one separately so that it won't create a sub dir.
 get_artifact 'linux-appimage-x64'
