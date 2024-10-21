@@ -1,6 +1,6 @@
 # EkoScape #
 
-![EkoShot](https://github.com/user-attachments/assets/51fa9a49-e7b5-4543-b68d-e827af763cd2)
+[![EkoShot](https://github.com/user-attachments/assets/51fa9a49-e7b5-4543-b68d-e827af763cd2)](https://esotericpig.itch.io/ekoscape)
 
 [![itch.io](https://img.shields.io/badge/play-itch.io-fa5c5c)](https://esotericpig.itch.io/ekoscape)
 [![Latest Release](https://img.shields.io/github/v/release/esotericpig/EkoScape?include_prereleases&display_name=release&color=1a7f37)](https://github.com/esotericpig/EkoScape/releases/latest)
