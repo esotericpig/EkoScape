@@ -1,0 +1,97 @@
+[EkoScape/v1]
+Ice Cream
+Bradley
+
+9 9
+
+'W'
+1000
+
+xxxxxxxxxxxxxxxxxxxxxxxxxx******
+xxxxxxxxxxxxx********xxx***::::**
+xxxxxxxxxxxx**::::::**xx*:::xx::*
+xxxxxxxxxxxx*&:xxxx::****:xxxxx$*
+xxxxxxxxxxxxxxxxxxxx::**::
+xxxxxxxxxxxxxxxxxxxxx:**:
+xxxxxxxxxxxxxxxxxxxx:::::
+xxxxxxxxxxxxxxxxxx::*****::
+xxxxxxxxxxxxxxxxx::*******::
+xxxxxxxxxxxxxxxxx:*****::**:
+xxxxxxxxxxxxxxxx::*::*@*:**:
+xxxxxxxxxxxxxxxx::**::*****:
+xxxxxxxxxxxxxxxxx::********:
+xxxxxxxxxxxxxxxxxx:*******::xxxxxxWWWW
+xxxxxxxxxxxxxxxxxWWW***WWWWWWWWWWWww@WW
+xxxxxxxxxxxxxWWWWwwW*WWwwwwwW@wwwwwwwwW
+xxxxxxxxxxxWW:wwwwwW=WwwwwwwwwwwwwwwwwW
+xxxxxWWWWWWwwwwwwwwwwwwwwww!wwww***wwwW
+xxWWWWwwwWwwwwwwwwwwwwwwwwwwwww**wwwwWW
+xxW?wwwwwwwwwwwwwwwwwwwwwwwwww**wwwwwWWW
+xxWwwwwwww*****ww@Wwwwwwwwwwww*wwwwwwwwWW
+xxWwwwwwww*www**ww:wwwwwwwWwww*wwwwwwwwwW
+xWWwwwwwwwwwwww**wWWwwwWW+Wwww*wwwwww|wwW
+WWwwwwWwwwwwwwww*wwWW+WWwwwwwwwwwWWwwwwwW
+WwwwwwW+wwwwwwwwwwwwwwwwwwwwwwwwwwWwwwwwW
+Wwwwwww+WwwwWWwwwwwwwwwwwwwwwwwww@WwwwwWW
+WwwwwwwwW@+WWwwwwwwwwwwwwwwwwwwww+wwwwWW
+ Wwwwwwwwwwwww!w*wwww*wwwwwwwwwWWwwwwwwWW
+ WWwwwwwwwwwwwww*wwww**wwwWW++WWwwww*wwwWW
+  WWwwwwww**www**wwwww**wwwwwwwwwwww*wwwwW
+   WW:wwwww*****wwwwwww****wwwwwwww**wwwwW
+    Wwwwwwwwwwwwwwwwwwwwwwwwwww!w***wwwwW
+    WWwwwwwwwwwwwwwwwwwwwwwWwwwwwwwwwwWWW
+     WWwww@WWwwwwwWWwwwwwwwWWWwwwwwww:WW
+      WWWWW WWWWWWW W2WWWWWW WWWwwwWWWW
+                    WWWWW      WWWWW
+
+                    WWW
+                    W2W
+                    WwW
+               WWWWWW=WWWWWWWW
+           WW WW:wwwwwWWwwwwwWW WWW
+         WWWWWWwwwwwwwwwwwwwwwWWwwWW
+        WWwwwwWwwwwwwwwwwwwwwwwwwwwWWWW
+     WWWWwwwwwwwwwwwwwwwwwwwwwwww!wwwwwW
+     W:wwwW++wwwwWwwwwwWWwwwwwwwwwwwwwwWW
+     WwwwwwwWWw@WWwwwwwwWW@wwwWWwwwwWwwwW
+     WwwwwwwwW+WWwwwwwwwwWWwwWWwwwww+wwwW
+     WWwwwwwwwwwwwwwwwwwwwW++W@wwwwWWwwwW
+      WwwwwwwwwwwwwW+WwwwwwwwwwwwW+WwwwwW
+      WWwww?wwwwwwww+wwwwwwwwwwwwwwwwwwwW
+       Wwwwwwwwwwwwwwwwwwwww!wwwwwwwwwwwW
+       WwwwwwwwWwwwwwwwWWwwwwwwwwwwwwwwWW
+       WW@wwwwwWwwwwwwwWWwwwwwwWwwwwwwwW
+        WWwwwwWWWwwwwwwWWWwww:WWWwwwwWWW
+         WWWWWW WWwwwwWW WW@wWW WWWWWW
+                 WW1WWW   WWWW
+                  WWW
+
+           ###     # ###  ##      #
+           #@##   ####1# ###     ###
+           #  ##### ## ### #######@#
+            #        #=#           #
+            #    #       #   #     #
+            ##   %   #   %   #  !  #
+             #   #!  :   #   #    ##
+             #@      #   %        #
+             ###         #     :###
+               ######       @####
+                    ###0######
+                      ###
+
+                      ###
+              ###     #0#
+              #@##### # #     ####
+              #     ###=#######@##
+              ##                #
+               #                #
+               #   ##    #%    ##
+               #    ####:#     #
+               #:           ! ##
+               ##             #
+                #   #    #   ##
+                #   ##%%##  @#
+                ##          #
+                 ###     ####
+                   # #^# #
+                   #######
