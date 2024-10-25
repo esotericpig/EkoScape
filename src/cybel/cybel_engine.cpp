@@ -25,8 +25,8 @@ CybelEngine::Resources::~Resources() noexcept {
 }
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
-    : main_scene_(main_scene) {
-  init_hints(config);
+    : main_scene_(main_scene),title_(config.title) {
+  init_hints();
 
   // Don't use SDL_INIT_AUDIO here, since audio is optional.
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
@@ -43,10 +43,10 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
   audio_player_ = std::make_unique<AudioPlayer>(config.music_types);
 }
 
-void CybelEngine::init_hints(const Config& config) {
+void CybelEngine::init_hints() {
   // Not available in SDL v2.0.
-  //SDL_SetHint(SDL_HINT_APP_NAME,config.title.c_str());
-  SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,config.title.c_str());
+  //SDL_SetHint(SDL_HINT_APP_NAME,title_.c_str());
+  SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,title_.c_str());
   // One of: nearest, linear, best.
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,"best");
   //SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
@@ -87,7 +87,6 @@ void CybelEngine::init_config(Config& config) {
     }
   }
 
-  title_ = config.title;
   config.size.w = (width > 0) ? width : kFallbackWidth;
   config.size.h = (height > 0) ? height : kFallbackHeight;
   config.target_size.w = (config.target_size.w > 0) ? config.target_size.w : config.size.w;
@@ -113,7 +112,7 @@ void CybelEngine::init_gui(const Config& config) {
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
   //     we call sync_size() later, which we do in run().
   res_.window = SDL_CreateWindow(
-    config.title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h
+    title_.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h
     ,SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
   );
 

@@ -134,7 +134,7 @@ private:
   bool is_running_ = false;
   Timer frame_timer_{};
 
-  void init_hints(const Config& config);
+  void init_hints();
   void init_config(Config& config);
   void init_gui(const Config& config);
   void init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene);
