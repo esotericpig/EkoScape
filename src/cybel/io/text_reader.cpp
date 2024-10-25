@@ -42,7 +42,7 @@ bool TextReader::get(char& data) {
 bool TextReader::seek_and_destroy(char target) {
   if(in_.eof()) { return false; }
 
-  for(char c; in_.get(c);) {
+  for(char c = 0; in_.get(c);) {
     if(c == target) { return true; }
   }
 
