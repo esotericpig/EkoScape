@@ -95,11 +95,13 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /DNDEBUG")
+  set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
 
   #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
 else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
   if(NOT APPLE)
     target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
