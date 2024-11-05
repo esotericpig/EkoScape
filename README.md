@@ -7,30 +7,40 @@
 [![Source Code](https://img.shields.io/badge/source-github-211f1f.svg)](https://github.com/esotericpig/EkoScape)
 [![License](https://img.shields.io/github/license/esotericpig/EkoScape.svg)](LICENSE)
 
+EkoScape is a simple 3D step-based game where you run through a maze rescuing your fellow alien *Ekos*, like a 3D Pac-Man, with robot enemies, fruit, and portals. The maps are simple text files that you can edit!
+
+## Code Notes ##
+
 EkoScape is a remake of an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine: The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
 
 Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SDL2 (multi-platform) using modern C++20. However, it still uses The Dantares Engine and legacy OpenGL 2.0+, as homage to the original game and engine.
 
+In the beginning, I rewrote the original code for fun in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff (such as portals, fruit, and multiple grids), which took over a month.
+
+The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I did make a simple ECS (Entity-Component-System) for it, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just stick with the original class-based structure.
+
+Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
+
 ## Playing ##
 
-Requirements:
-- Linux x86_64
-  - glibc >= 2.14 (Ubuntu >= 22.04; Fedora >= 16)
+**System Requirements:**
+- Linux x86_64 (AppImage)
+  - glibc 2.14+ (Ubuntu 22.04+; Fedora 16+)
   - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
 - macOS arm64 or x86_64
   - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning when running:
     - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
 - Windows x64
 
-You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) or from the [latest release on GitHub](https://github.com/esotericpig/EkoScape/releases/latest).
+You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) or from the [latest release on GitHub](https://github.com/esotericpig/EkoScape/releases/latest). You can also install the game from the official [itch app](https://itch.io/app) -- the game has been tested to install & run from it, even in sandbox mode.
 
 Then simply run it in the same folder containing the `assets` folder.
 
 You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
 
-### Linux Notes ###
-
-A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file -- `com.github.esotericpig.EkoScape.desktop` -- in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/com.github.esotericpig.EkoScape.desktop).
+**Additional System Notes:**
+- Linux:
+  - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file -- `com.github.esotericpig.EkoScape.desktop` -- in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/com.github.esotericpig.EkoScape.desktop).
 
 ## Contents ##
 
@@ -44,7 +54,6 @@ A Desktop Entry file is provided if you wish to integrate it with your DE (Deskt
   - [Packaging Up](#packaging-up)
   - [Miscellaneous](#miscellaneous)
   - [New Release](#new-release)
-- [Code Notes](#code-notes)
 - [Credits](#credits)
 - [License](#license)
 
@@ -73,7 +82,7 @@ Platform-specific notes:
 - On **macOS**, you need to install GLEW manually:
   - `brew install glew`
 
-The following command will be very slow the first time you run it, as it downloads the packages from `vcpkg`. Also, it downloads & extracts additional [Assets](https://github.com/esotericpig/EkoScape/releases/tag/v1.99) to the `assets/` dir (only if `assets/images/EkoScape.png` doesn't exist).
+The following command will be very slow the first time you run it, as `vcpkg` downloads the dependencies. Also, it downloads & extracts additional [Assets](https://github.com/esotericpig/EkoScape/releases/tag/v1.99) to the `assets/` dir (only if `assets/images/EkoScape.png` doesn't exist).
 
 ```
 cmake --preset default
@@ -218,14 +227,6 @@ Create a new release:
 ```
 gh release create --draft --generate-notes v2.0 build/artifacts/*
 ```
-
-## Code Notes ##
-
-In the beginning, I rewrote the original code for fun using SDL2 and modern C++ in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff, which took over a month.
-
-The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I was planning to make a simple ECS, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just stick with the original class-based structure.
-
-Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
 
 ## Credits ##
 
