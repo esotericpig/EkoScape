@@ -5,14 +5,14 @@
       <configuration PROFILE_NAME="Release" ENABLED="true" GENERATION_DIR="build" CONFIG_NAME="Release" GENERATION_OPTIONS="--preset=default" BUILD_OPTIONS="-j 5" NO_GENERATOR="true">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
-            <env name="VCPKG_ROOT" value="/path/to/vcpkg" />
+            <env name="VCPKG_ROOT" value="$PROJECT_DIR$/vcpkg" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
       <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="build" CONFIG_NAME="Debug" GENERATION_OPTIONS="--preset=default" BUILD_OPTIONS="-j 5" NO_GENERATOR="true">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
-            <env name="VCPKG_ROOT" value="/path/to/vcpkg" />
+            <env name="VCPKG_ROOT" value="$PROJECT_DIR$/vcpkg" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
