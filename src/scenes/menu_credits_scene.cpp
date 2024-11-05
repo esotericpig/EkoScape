@@ -81,8 +81,8 @@ void MenuCreditsScene::draw_scene(Renderer& ren) {
   });
 
   assets_.font_renderer().wrap(ren,{x,y,0},0.60f,[&](auto& font) {
-    font.puts("Monogram font by DataGoblin.itch.io");
-    font.puts("Star textures by KronBits.itch.io");
+    font.puts("Monogram font by datagoblin.itch.io");
+    font.puts("Star textures by Kronbits.itch.io");
   });
 
   assets_.font_renderer().wrap(ren,{395,615,0},[&](auto& font) {

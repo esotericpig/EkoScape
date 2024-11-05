@@ -230,8 +230,8 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
 ## Credits ##
 
 - [The Dantares Engine](third_party/Dantares/) by [Ryan Witmer](https://phasercat.com)
-- [Monogram font](https://datagoblin.itch.io/monogram) by DataGoblin
-- [Star textures](https://kronbits.itch.io/particle-pack) by KronBits
+- [Monogram font](https://datagoblin.itch.io/monogram) by datagoblin
+- [Star textures](https://kronbits.itch.io/particle-pack) by Kronbits
 - [Piskel](https://www.piskelapp.com) for pixel editing.
 
 ## License ##
