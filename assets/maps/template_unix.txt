@@ -50,7 +50,7 @@ x                      x
 xxxxxxxxxxxxxxxxxxxxxxxx
 
 Floors:         w *
-Walls:        # W x &
+Walls:        # W x & _
 Ghost Walls:  % +
 Things:       @ : $
 Portals:      0 1 2 3 4 5 6 7 8 9
