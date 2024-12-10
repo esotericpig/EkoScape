@@ -239,7 +239,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
 
     for(pos.x = 0; pos.x < size.w; ++pos.x) {
       dan_pos.x = pos.x;
-      auto empty_type = SpaceType::kDeadSpace;
+      auto empty_type = SpaceType::kVoid;
       auto thing_type = SpaceType::kNil;
 
       if(line != nullptr && pos.x < line_len) {
@@ -426,6 +426,8 @@ SpaceType Map::default_empty() const { return default_empty_; }
 
 const Duration& Map::robot_delay() const { return robot_delay_; }
 
+int Map::grid_count() const { return static_cast<int>(grids_.size()); }
+
 int Map::grid_z() const { return grid_index_; }
 
 Size2i Map::size() const { return size(grid_index_); }
@@ -457,9 +459,9 @@ const Pos3i& Map::player_init_pos() const { return player_init_pos_; }
 
 Facing Map::player_init_facing() const { return player_init_facing_; }
 
-std::ostream& Map::print(bool rstrip_dead_spaces) const { return print(std::cout,rstrip_dead_spaces); }
+std::ostream& Map::print(bool rstrip) const { return print(std::cout,rstrip); }
 
-std::ostream& Map::print(std::ostream& out,bool rstrip_dead_spaces) const {
+std::ostream& Map::print(std::ostream& out,bool rstrip) const {
   out << build_header() << '\n'
       << title_  << '\n'
       << author_ << '\n'
@@ -481,12 +483,12 @@ std::ostream& Map::print(std::ostream& out,bool rstrip_dead_spaces) const {
 
       int width = grid->size().w;
 
-      if(rstrip_dead_spaces) {
-        // Find the last non-dead space to avoid printing trailing x's.
+      if(rstrip) {
+        // Find the last non-Void space to avoid printing trailing Voids.
         for(pos.x = width - 1; pos.x >= 0; --pos.x) {
           SpaceType type = grid->raw_space(pos).type();
 
-          if(type != SpaceType::kDeadSpace) {
+          if(type != SpaceType::kVoid) {
             width = pos.x + 1;
             break;
           }
@@ -497,7 +499,7 @@ std::ostream& Map::print(std::ostream& out,bool rstrip_dead_spaces) const {
       if(width <= 0) { width = 1; }
 
       for(pos.x = 0; pos.x < width; ++pos.x) {
-        auto type = SpaceType::kDeadSpace;
+        auto type = SpaceType::kVoid;
 
         if(z == player_init_pos_.z && pos.x == player_init_pos_.x && pos.y == player_init_pos_.y) {
           type = SpaceTypes::to_player(player_init_facing_);

@@ -7,73 +7,73 @@ Bradley
 '*'
 1000
 
-                WWWWWWW
-          ### WWW    $W
-       #### #WW       WW
-      ##    ++        2W
-    xx#    W###  %#   WW
-   xx***   W!wwwww#  WW
-  xx****  www@ww@www#W
-  x*****#wwwwwwwwwww##
- xx***####wwwwwwwwwww#
- x****#wwwwwww##w##ww#
-xx*x**%ww@#wwww#:#ww##     WW
-x2****%ww#wwwwwwwwww#    WWWWWW
-x*****#wwww##ww######   WWwwwwWWW
-x*****###w##wwwwww##   WWwwwwwwwWW       WW
-x**x****###wwwwwwww## WWwwwwwwwwwWW    WWWWWW
-x**x*******wwwwwwww ##WwwwwwwwwwwWWW   WwwwwWW
-x**x********wwwwwww  WwwwwwWWWww1WWW  WwwwwwwWW
-x**x*******####     WWwwwwWW WWWWWW  WWwwwwwwwWW
-x**x**x****#      W++wwwwwW##       WWwwwwwwww1WW
-x**xx*xx**##      wwwwwwwwW@##     WWwwwwwwwwWW
+________________WWWWWWW
+__________###_WWW    $W
+_______#### #WW       WW
+______##    ++        2W
+____xx#    W###  %#   WW
+___xx***   W!wwwww#  WW
+__xx****  www@ww@www#W
+__x*****#wwwwwwwwwww##
+_xx***####wwwwwwwwwww#
+_x****#wwwwwww##w##ww#
+xx*x**%ww@#wwww#:#ww##_____WW
+x2****%ww#wwwwwwwwww#____WWWWWW
+x*****#wwww##ww######___WWwwwwWWW
+x*****###w##wwwwww##___WWwwwwwwwWW_______WW
+x**x****###wwwwwwww##_WWwwwwwwwwwWW____WWWWWW
+x**x*******wwwwwwww ##WwwwwwwwwwwWWW___WwwwwWW
+x**x********wwwwwww  WwwwwwWWWww1WWW__WwwwwwwWW
+x**x*******####     WWwwwwWW WWWWWW__WWwwwwwwwWW
+x**x**x****#      W++wwwwwW##_______WWwwwwwwww1WW
+x**xx*xx**##      wwwwwwwwW@##_____WWwwwwwwwwWW
 x******x**%      wwwwwwwwWW  !###WWWwwwwWWWWw@W
-xx*****x**%     wwwwwwwww+      wwwwwwwWW   WWW
- x@****x**##    wwwwwwwwW      wwwwwwwWW
- xx****x***##   wwwwwwww+       wwwWWWW
-  x*******!#### wwwwwwww        #WWW
-   x******x## ##wwwwwwW      ####
-   xxx**xxx ##    WwwW       #
-     xxxx    #     WW        #
-             ##        :     #
-              ##       *     #      ###
-               #  **   x*x   #     ##@###
-               ##  x*    **  ##   ##    ##
-                #   **    *   #  ##      ##
-                ##   x*        ###        #
-                 #    *      ###          ##
-                 #        ####      ##     #
-                 ##               #%#      ##
-                  #   #          ##       * #
-                  #   #               #   * ##
-                  #   %      ##      ##   x  #
-                  #   ##  ###       ###!  *  #
-                  ##   ##%#        ## ## ** *##       WW
-                   #              ##   # *  * #     WWWwWW
-                   #:            ##    ##   * #    WWwww0W
-                    ##!       ####      #  *x #W  WWwwwwWW
-                     #######   #        ## *   WWWWwwwwwW
-                         #     #         #     WWwwwwwwW
-                         #     ##        ##    wwwwwwwWW
-                         #   *  #         #  wwwwwwwwWW
-                         ##  ** ##        ##wwwwwwwwWW
-                          #  @*  #         WwwwwwwWWW
-                          #   x  #        WWwwwwwWW
-                          #   ** #        W@wwwWWW
-                          #    * #        WWWWWW
-                          #  * * #         WW
-                          #  *   #
-                         ##  x  ##
-                         #  **  #
-                        ##  *  ##
-                        #      #
-                       ##     ##
-                       #     ##
-                      WWww   #
-                     WWwwwwwW
-                     WwwwwwwWWWW
-                    WWwwwwwwwwwWWWW
-                    W@wwwwwwwwwwwwWW
-                    WWWWwwwwwwwwwwwW
-                       WWWWW^wwwww0W
-                           WWWWWWWWW
+xx*****x**%     wwwwwwwww+      wwwwwwwWW___WWW
+_x@****x**##    wwwwwwwwW      wwwwwwwWW
+_xx****x***##   wwwwwwww+       wwwWWWW
+__x*******!#### wwwwwwww        #WWW
+___x******x## ##wwwwwwW      ####
+___xxx**xxx_##    WwwW       #
+_____xxxx____#     WW        #
+_____________##        :     #
+______________##       *     #______###
+_______________#  **   x*x   #_____##@###
+_______________##  x*    **  ##___##    ##
+________________#   **    *   #__##      ##
+________________##   x*        ###        #
+_________________#    *      ###          ##
+_________________#        ####      ##     #
+_________________##               #%#      ##
+__________________#   #          ##       * #
+__________________#   #               #   * ##
+__________________#   %      ##      ##   x  #
+__________________#   ##  ###       ###!  *  #
+__________________##   ##%#        ##_## ** *##_______WW
+___________________#              ##___# *  * #_____WWWwWW
+___________________#:            ##____##   * #____WWwww0W
+____________________##!       ####______#  *x #W__WWwwwwWW
+_____________________#######   #________## *   WWWWwwwwwW
+_________________________#     #_________#     WWwwwwwwW
+_________________________#     ##________##    wwwwwwwWW
+_________________________#   *  #_________#  wwwwwwwwWW
+_________________________##  ** ##________##wwwwwwwwWW
+__________________________#  @*  #_________WwwwwwwWWW
+__________________________#   x  #________WWwwwwwWW
+__________________________#   ** #________W@wwwWWW
+__________________________#    * #________WWWWWW
+__________________________#  * * #_________WW
+__________________________#  *   #
+_________________________##  x  ##
+_________________________#  **  #
+________________________##  *  ##
+________________________#      #
+_______________________##     ##
+_______________________#     ##
+______________________WWww   #
+_____________________WWwwwwwW
+_____________________WwwwwwwWWWW
+____________________WWwwwwwwwwwWWWW
+____________________W@wwwwwwwwwwwwWW
+____________________WWWWwwwwwwwwwwwW
+_______________________WWWWW^wwwww0W
+___________________________WWWWWWWWW

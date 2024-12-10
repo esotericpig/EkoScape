@@ -16,7 +16,8 @@ namespace ekoscape {
 
 // If add a new type, need to update:
 // - assets/maps/README.md
-// - SpaceTypes.to_space_type(char)
+// - SpaceTypes.to_space_type()
+// - SpaceTypes.value_of()
 // - [maybe] Map.parse_grid()
 // - GameScene.init_map_textures()
 enum class SpaceType : char {
@@ -47,6 +48,7 @@ enum class SpaceType : char {
   kRobotSnake     = '?',
   kRobotStatue    = '=',
   kRobotWorm      = 'Q',
+  kVoid           = '_',
   kWall           = '#',
   kWallGhost      = '%',
   kWhite          = 'W',
@@ -55,8 +57,6 @@ enum class SpaceType : char {
 };
 
 namespace SpaceTypes {
-  inline const auto kDefault = SpaceType::kDeadSpace;
-
   bool is_player(SpaceType type);
   bool is_thing(SpaceType type);
   bool is_robot(SpaceType type);

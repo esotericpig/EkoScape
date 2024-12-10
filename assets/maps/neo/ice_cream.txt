@@ -7,91 +7,91 @@ Bradley
 'W'
 1000
 
-xxxxxxxxxxxxxxxxxxxxxxxxxx******
-xxxxxxxxxxxxx********xxx***::::**
-xxxxxxxxxxxx**::::::**xx*:::xx::*
-xxxxxxxxxxxx*&:xxxx::****:xxxxx$*
-xxxxxxxxxxxxxxxxxxxx::**::
-xxxxxxxxxxxxxxxxxxxxx:**:
-xxxxxxxxxxxxxxxxxxxx:::::
-xxxxxxxxxxxxxxxxxx::*****::
-xxxxxxxxxxxxxxxxx::*******::
-xxxxxxxxxxxxxxxxx:*****::**:
-xxxxxxxxxxxxxxxx::*::*@*:**:
-xxxxxxxxxxxxxxxx::**::*****:
-xxxxxxxxxxxxxxxxx::********:
-xxxxxxxxxxxxxxxxxx:*******::xxxxxxWWWW
-xxxxxxxxxxxxxxxxxWWW***WWWWWWWWWWWww@WW
-xxxxxxxxxxxxxWWWWwwW*WWwwwwwW@wwwwwwwwW
-xxxxxxxxxxxWW:wwwwwW=WwwwwwwwwwwwwwwwwW
-xxxxxWWWWWWwwwwwwwwwwwwwwww!wwww***wwwW
-xxWWWWwwwWwwwwwwwwwwwwwwwwwwwww**wwwwWW
-xxW?wwwwwwwwwwwwwwwwwwwwwwwwww**wwwwwWWW
-xxWwwwwwww*****ww@Wwwwwwwwwwww*wwwwwwwwWW
-xxWwwwwwww*www**ww:wwwwwwwWwww*wwwwwwwwwW
-xWWwwwwwwwwwwww**wWWwwwWW+Wwww*wwwwww|wwW
+__________________________******
+_____________********xxx***::::**
+____________**::::::**xx*:::xx::*
+____________*&:xxxx::****:xxxxx$*
+____________________::**::
+_____________________:**:
+____________________:::::
+__________________::*****::
+_________________::*******::
+_________________:*****::**:
+________________::*::*@*:**:
+________________::**::*****:
+_________________::********:
+__________________:*******::xxxxxxWWWW
+_________________WWW***WWWWWWWWWWWww@WW
+_____________WWWWwwW*WWwwwwwW@wwwwwwwwW
+___________WW:wwwwwW=WwwwwwwwwwwwwwwwwW
+_____WWWWWWwwwwwwwwwwwwwwww!wwww***wwwW
+__WWWWwwwWwwwwwwwwwwwwwwwwwwwww**wwwwWW
+__W?wwwwwwwwwwwwwwwwwwwwwwwwww**wwwwwWWW
+__Wwwwwwww*****ww@Wwwwwwwwwwww*wwwwwwwwWW
+__Wwwwwwww*www**ww:wwwwwwwWwww*wwwwwwwwwW
+_WWwwwwwwwwwwww**wWWwwwWW+Wwww*wwwwww|wwW
 WWwwwwWwwwwwwwww*wwWW+WWwwwwwwwwwWWwwwwwW
 WwwwwwW+wwwwwwwwwwwwwwwwwwwwwwwwwwWwwwwwW
 Wwwwwww+WwwwWWwwwwwwwwwwwwwwwwwww@WwwwwWW
 WwwwwwwwW@+WWwwwwwwwwwwwwwwwwwwww+wwwwWW
- Wwwwwwwwwwwww!w*wwww*wwwwwwwwwWWwwwwwwWW
- WWwwwwwwwwwwwww*wwww**wwwWW++WWwwww*wwwWW
-  WWwwwwww**www**wwwww**wwwwwwwwwwww*wwwwW
-   WW:wwwww*****wwwwwww****wwwwwwww**wwwwW
-    Wwwwwwwwwwwwwwwwwwwwwwwwwww!w***wwwwW
-    WWwwwwwwwwwwwwwwwwwwwwwWwwwwwwwwwwWWW
-     WWwww@WWwwwwwWWwwwwwwwWWWwwwwwww:WW
-      WWWWW WWWWWWW W2WWWWWW WWWwwwWWWW
-                    WWWWW      WWWWW
+_Wwwwwwwwwwwww!w*wwww*wwwwwwwwwWWwwwwwwWW
+_WWwwwwwwwwwwwww*wwww**wwwWW++WWwwww*wwwWW
+__WWwwwwww**www**wwwww**wwwwwwwwwwww*wwwwW
+___WW:wwwww*****wwwwwww****wwwwwwww**wwwwW
+____Wwwwwwwwwwwwwwwwwwwwwwwwwww!w***wwwwW
+____WWwwwwwwwwwwwwwwwwwwwwwWwwwwwwwwwwWWW
+_____WWwww@WWwwwwwWWwwwwwwwWWWwwwwwww:WW
+______WWWWW_WWWWWWW_W2WWWWWW_WWWwwwWWWW
+____________________WWWWW______WWWWW
 
-                    WWW
-                    W2W
-                    WwW
-               WWWWWW=WWWWWWWW
-           WW WW:wwwwwWWwwwwwWW WWW
-         WWWWWWwwwwwwwwwwwwwwwWWwwWW
-        WWwwwwWwwwwwwwwwwwwwwwwwwwwWWWW
-     WWWWwwwwwwwwwwwwwwwwwwwwwwww!wwwwwW
-     W:wwwW++wwwwWwwwwwWWwwwwwwwwwwwwwwWW
-     WwwwwwwWWw@WWwwwwwwWW@wwwWWwwwwWwwwW
-     WwwwwwwwW+WWwwwwwwwwWWwwWWwwwww+wwwW
-     WWwwwwwwwwwwwwwwwwwwwW++W@wwwwWWwwwW
-      WwwwwwwwwwwwwW+WwwwwwwwwwwwW+WwwwwW
-      WWwww?wwwwwwww+wwwwwwwwwwwwwwwwwwwW
-       Wwwwwwwwwwwwwwwwwwwww!wwwwwwwwwwwW
-       WwwwwwwwWwwwwwwwWWwwwwwwwwwwwwwwWW
-       WW@wwwwwWwwwwwwwWWwwwwwwWwwwwwwwW
-        WWwwwwWWWwwwwwwWWWwww:WWWwwwwWWW
-         WWWWWW WWwwwwWW WW@wWW WWWWWW
-                 WW1WWW   WWWW
-                  WWW
+____________________WWW
+____________________W2W
+____________________WwW
+_______________WWWWWW=WWWWWWWW
+___________WW_WW:wwwwwWWwwwwwWW_WWW
+_________WWWWWWwwwwwwwwwwwwwwwWWwwWW
+________WWwwwwWwwwwwwwwwwwwwwwwwwwwWWWW
+_____WWWWwwwwwwwwwwwwwwwwwwwwwwww!wwwwwW
+_____W:wwwW++wwwwWwwwwwWWwwwwwwwwwwwwwwWW
+_____WwwwwwwWWw@WWwwwwwwWW@wwwWWwwwwWwwwW
+_____WwwwwwwwW+WWwwwwwwwwWWwwWWwwwww+wwwW
+_____WWwwwwwwwwwwwwwwwwwwwW++W@wwwwWWwwwW
+______WwwwwwwwwwwwwW+WwwwwwwwwwwwW+WwwwwW
+______WWwww?wwwwwwww+wwwwwwwwwwwwwwwwwwwW
+_______Wwwwwwwwwwwwwwwwwwwww!wwwwwwwwwwwW
+_______WwwwwwwwWwwwwwwwWWwwwwwwwwwwwwwwWW
+_______WW@wwwwwWwwwwwwwWWwwwwwwWwwwwwwwW
+________WWwwwwWWWwwwwwwWWWwww:WWWwwwwWWW
+_________WWWWWW_WWwwwwWW_WW@wWW_WWWWWW
+_________________WW1WWW___WWWW
+__________________WWW
 
-           ###     # ###  ##      #
-           #@##   ####1# ###     ###
-           #  ##### ## ### #######@#
-            #        #=#           #
-            #    #       #   #     #
-            ##   %   #   %   #  !  #
-             #   #!  :   #   #    ##
-             #@      #   %        #
-             ###         #     :###
-               ######       @####
-                    ###0######
-                      ###
+___________###_____#_###__##______#
+___________#@##___####1#_###_____###
+___________#  ##### ## ### #######@#
+____________#        #=#           #
+____________#    #       #   #     #
+____________##   %   #   %   #  !  #
+_____________#   #!  :   #   #    ##
+_____________#@      #   %        #
+_____________###         #     :###
+_______________######       @####
+____________________###0######
+______________________###
 
-                      ###
-              ###     #0#
-              #@##### # #     ####
-              #     ###=#######@##
-              ##                #
-               #                #
-               #   ##    #%    ##
-               #    ####:#     #
-               #:           ! ##
-               ##             #
-                #   #    #   ##
-                #   ##%%##  @#
-                ##          #
-                 ###     ####
-                   # #^# #
-                   #######
+______________________###
+______________###_____#0#
+______________#@#####_# #_____####
+______________#     ###=#######@##
+______________##                #
+_______________#                #
+_______________#   ##    #%    ##
+_______________#    ####:#     #
+_______________#:           ! ##
+_______________##             #
+________________#   #    #   ##
+________________#   ##%%##  @#
+________________##          #
+_________________###     ####
+___________________# #^# #
+___________________#######

@@ -111,6 +111,7 @@ public:
   SpaceType default_empty() const;
   const Duration& robot_delay() const;
 
+  int grid_count() const;
   int grid_z() const;
   Size2i size() const;
   Size2i size(int z) const;
@@ -121,8 +122,8 @@ public:
   const Pos3i& player_init_pos() const;
   Facing player_init_facing() const;
 
-  std::ostream& print(bool rstrip_dead_spaces = false) const;
-  std::ostream& print(std::ostream& out,bool rstrip_dead_spaces = false) const;
+  std::ostream& print(bool rstrip = false) const;
+  std::ostream& print(std::ostream& out,bool rstrip = false) const;
   friend std::ostream& operator<<(std::ostream& out,const Map& map);
 
 protected:

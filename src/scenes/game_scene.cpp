@@ -106,6 +106,7 @@ void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kRobotSnake,&assets_.robot_texture());
   set_space_textures(SpaceType::kRobotStatue,&assets_.robot_texture());
   set_space_textures(SpaceType::kRobotWorm,&assets_.robot_texture());
+  // SpaceType::kVoid - No textures.
   set_space_textures(SpaceType::kWall,&assets_.ceiling_texture(),&assets_.wall_texture()
       ,&assets_.floor_texture());
   set_space_textures(SpaceType::kWallGhost,&assets_.ceiling_texture(),&assets_.wall_ghost_texture()

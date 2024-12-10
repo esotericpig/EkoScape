@@ -69,6 +69,7 @@ bool SpaceTypes::is_non_walkable(SpaceType type) {
   switch(type) {
     case SpaceType::kDeadSpace:
     case SpaceType::kEndWall:
+    case SpaceType::kVoid:
     case SpaceType::kWall:
     case SpaceType::kWhite:
       return true;
@@ -132,6 +133,7 @@ SpaceType SpaceTypes::to_space_type(char value) {
     case SpaceType::kRobotSnake:
     case SpaceType::kRobotStatue:
     case SpaceType::kRobotWorm:
+    case SpaceType::kVoid:
     case SpaceType::kWall:
     case SpaceType::kWallGhost:
     case SpaceType::kWhite:
@@ -142,20 +144,59 @@ SpaceType SpaceTypes::to_space_type(char value) {
     // Don't use `default:` so that the compiler/IDE can catch new enum types.
   }
 
-  return kDefault;
+  return SpaceType::kVoid;
 }
 
 SpaceType SpaceTypes::to_space_type(int value) { return to_space_type(static_cast<char>(value)); }
 
 char SpaceTypes::value_of(SpaceType type) {
-  char value = static_cast<char>(type);
+  bool is_valid = false;
 
-  // If 0, probably wasn't initialized, for example:
-  //   SpaceType example1{};
-  //   SpaceType example2 = SpaceType::kNil;
-  if(value == 0) { value = static_cast<char>(kDefault); }
+  switch(type) {
+    case SpaceType::kNil:
+      break; // Not valid.
 
-  return value;
+    case SpaceType::kCell:
+    case SpaceType::kDeadSpace:
+    case SpaceType::kDeadSpaceGhost:
+    case SpaceType::kEmpty:
+    case SpaceType::kEnd:
+    case SpaceType::kEndWall:
+    case SpaceType::kFruit:
+    case SpaceType::kPlayerEast:
+    case SpaceType::kPlayerNorth:
+    case SpaceType::kPlayerSouth:
+    case SpaceType::kPlayerWest:
+    case SpaceType::kPortal0:
+    case SpaceType::kPortal1:
+    case SpaceType::kPortal2:
+    case SpaceType::kPortal3:
+    case SpaceType::kPortal4:
+    case SpaceType::kPortal5:
+    case SpaceType::kPortal6:
+    case SpaceType::kPortal7:
+    case SpaceType::kPortal8:
+    case SpaceType::kPortal9:
+    case SpaceType::kRobot:
+    case SpaceType::kRobotGhost:
+    case SpaceType::kRobotSnake:
+    case SpaceType::kRobotStatue:
+    case SpaceType::kRobotWorm:
+    case SpaceType::kVoid:
+    case SpaceType::kWall:
+    case SpaceType::kWallGhost:
+    case SpaceType::kWhite:
+    case SpaceType::kWhiteFloor:
+    case SpaceType::kWhiteGhost:
+      is_valid = true;
+      break;
+
+    // Don't use `default:` so that the compiler/IDE can catch new enum types.
+  }
+
+  if(!is_valid) { type = SpaceType::kVoid; }
+
+  return static_cast<char>(type);
 }
 
 } // Namespace.

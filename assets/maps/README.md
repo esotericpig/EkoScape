@@ -68,7 +68,8 @@ You can place your Map files inside of any sub folder in `assets/maps/` or in a 
 | `#`                    | Normal wall.                                                                             |
 | `W` (uppercase)        | White marble wall.                                                                       |
 | `x` (lowercase)        | Outer space "wall" (barrier).                                                            |
-| `&`                    | A fake End (`$`) that acts as a wall.                                                    |
+| `&`                    | Fake End (`$`) that acts as a wall.                                                      |
+| `_`                    | Black void (doesn't draw anything).                                                      |
 | **Fake (Ghost) Walls** | Player/Robot can walk through, even though looks like a Wall.                            |
 | `%`                    | Normal ghost wall.                                                                       |
 | `+`                    | White marble ghost wall.                                                                 |
@@ -94,7 +95,7 @@ You can place your Map files inside of any sub folder in `assets/maps/` or in a 
 
 ```
 Floors:         w *
-Walls:        # W x &
+Walls:        # W x & _
 Ghost Walls:  % +
 Player:       ^ v > <
 Things:       @ : $
@@ -107,6 +108,6 @@ Robots:       = ! | ? Q
 ```
 Normals:        # %
 Whites:       w W +
-Outer space:  * x
+Outer space:  * x _
 Ends:           $ &
 ```
