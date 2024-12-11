@@ -17,12 +17,8 @@ Color4f MenuCreditsScene::rand_color() {
 MenuCreditsScene::MenuCreditsScene(Assets& assets)
     : assets_(assets),wtfs_(50,WtfParticle{}) {}
 
-void MenuCreditsScene::init_scene(Renderer& ren) {
-  view_dimens_ = ren.dimens();
-}
-
-void MenuCreditsScene::on_key_down_event(SDL_Keycode key) {
-  switch(key) {
+void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) {
+  switch(event.key) {
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
@@ -31,21 +27,21 @@ void MenuCreditsScene::on_key_down_event(SDL_Keycode key) {
 
     case SDLK_f:
       if(!assets_.is_weird()) { assets_.reload_graphics(true); }
-      init_wtfs();
+      init_wtfs(dimens);
       break;
   }
 }
 
-int MenuCreditsScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
+int MenuCreditsScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
   const int action = scene_action_;
   scene_action_ = SceneAction::kNil;
 
-  update_wtfs(step);
+  update_wtfs(step,dimens);
 
   return action;
 }
 
-void MenuCreditsScene::draw_scene(Renderer& ren) {
+void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();
@@ -97,11 +93,11 @@ void MenuCreditsScene::draw_scene(Renderer& ren) {
   ren.end_scale();
 }
 
-void MenuCreditsScene::init_wtfs() {
+void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
   auto& r = Rando::it();
   auto max_births = static_cast<int>(wtfs_.size() >> 1);
-  const auto init_x = static_cast<float>(view_dimens_.target_size.w) / 2.0f;
-  const auto init_y = static_cast<float>(view_dimens_.target_size.h) / 2.0f;
+  const auto init_x = static_cast<float>(dimens.target_size.w) / 2.0f;
+  const auto init_y = static_cast<float>(dimens.target_size.h) / 2.0f;
   const auto init_w = static_cast<float>(assets_.font_renderer().font_size().w);
   const auto init_h = static_cast<float>(assets_.font_renderer().font_size().h);
   const auto size = static_cast<int>(wtfs_.size());
@@ -134,7 +130,7 @@ void MenuCreditsScene::init_wtfs() {
   }
 }
 
-void MenuCreditsScene::update_wtfs(const FrameStep& step) {
+void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimens) {
   const auto text_len = static_cast<float>(kWtfText.length());
   const Size2f font_spacing = assets_.font_renderer().font_spacing().to_size2<float>();
   const float total_spacing_w = font_spacing.w * (text_len - 1);
@@ -168,7 +164,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step) {
     // Because of rotation, use max for both width & height for in_bounds().
     const auto s = static_cast<int>(std::max(wtf.true_size.w,wtf.true_size.h));
 
-    if(!view_dimens_.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),{s,s})) {
+    if(!dimens.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),{s,s})) {
       wtf.die().past_lives = 1;
       --i; // Reprocess this index to actually remove it from active count.
     }

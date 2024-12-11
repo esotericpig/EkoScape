@@ -18,8 +18,8 @@ MenuPlayScene::MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const Stat
   refresh_maps();
 }
 
-void MenuPlayScene::on_key_down_event(SDL_Keycode key) {
-  switch(key) {
+void MenuPlayScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
+  switch(event.key) {
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
@@ -74,7 +74,7 @@ int MenuPlayScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens
   return action;
 }
 
-void MenuPlayScene::draw_scene(Renderer& ren) {
+void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();

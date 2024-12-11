@@ -24,7 +24,7 @@ void GameScene::load_map(const std::filesystem::path& file) {
     ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
   );
 
-  std::cout << "[INFO] Map file: '" << file.string() << "'\n"
+  std::cout << "[INFO] Map file ['" << file.string() << "'] with [" << map_.grid_count() << "] grid(s):\n"
             << map_ << std::endl;
 
   map_.add_to_dantares([&](auto& /*dan*/,int /*z*/,int /*id*/) {
@@ -116,14 +116,8 @@ void GameScene::init_map_textures() {
   set_space_textures(SpaceType::kWhiteGhost,&assets_.white_ghost_texture());
 }
 
-void GameScene::init_scene(Renderer& ren) {
-  overlay_.init(ren.dimens());
-}
-
-void GameScene::on_scene_exit() {}
-
-void GameScene::on_key_down_event(SDL_Keycode key) {
-  switch(key) {
+void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
+  switch(event.key) {
     // Toggle mini map.
     case SDLK_m:
       state_.show_mini_map = !state_.show_mini_map;
@@ -131,65 +125,65 @@ void GameScene::on_key_down_event(SDL_Keycode key) {
       break;
 
     default:
-      scene_action_ = overlay_.on_key_down_event(key);
+      scene_action_ = overlay_.on_key_down_event(event);
       break;
   }
 }
 
-void GameScene::handle_key_states(const Uint8* keys) {
+void GameScene::handle_key_states(const KeyStates& keys,const ViewDimens& /*dimens*/) {
   // Key states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.
   // In TurnLeft/Right() & StepForward/Backward(), you can pass in true to force this,
   //     but then this makes the animation a tiny bit strange as you turn off a step.
-  const bool is_up = (keys[SDL_SCANCODE_UP] == 1 || keys[SDL_SCANCODE_W] == 1);
-  key_states_.is_down = (key_states_.is_down || keys[SDL_SCANCODE_DOWN] == 1 || keys[SDL_SCANCODE_S] == 1);
-  key_states_.is_left = (key_states_.is_left || keys[SDL_SCANCODE_LEFT] == 1 || keys[SDL_SCANCODE_A] == 1);
-  key_states_.is_right = (key_states_.is_right || keys[SDL_SCANCODE_RIGHT] == 1 || keys[SDL_SCANCODE_D] == 1);
+  const bool is_up = (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]);
+  stored_keys_.is_down = (stored_keys_.is_down || keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]);
+  stored_keys_.is_left = (stored_keys_.is_left || keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]);
+  stored_keys_.is_right = (stored_keys_.is_right || keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]);
 
   const bool is_walking = (dantares_.IsWalking() >= 0);
 
   // Must check Left/Right first, so that the Player can turn while walking forward/backward,
   //     which is an important mechanic for the game.
-  if(key_states_.is_left) {
-    if(!key_states_.is_right) {
+  if(stored_keys_.is_left) {
+    if(!stored_keys_.is_right) {
       if(!is_walking) {
         dantares_.TurnLeft();
-        key_states_.is_left = false;
+        stored_keys_.is_left = false;
       } // Else, try again on next frame.
     } else {
-      key_states_.is_left = false;
+      stored_keys_.is_left = false;
     }
 
-    key_states_.is_down = false;
-    key_states_.is_right = false;
-  } else if(key_states_.is_right) {
+    stored_keys_.is_down = false;
+    stored_keys_.is_right = false;
+  } else if(stored_keys_.is_right) {
     if(!is_walking) {
       dantares_.TurnRight();
-      key_states_.is_right = false;
+      stored_keys_.is_right = false;
     } // Else, try again on next frame.
 
-    key_states_.is_down = false;
+    stored_keys_.is_down = false;
   } else if(game_phase_ == GamePhase::kPlay && player_warp_time_ <= Duration::kZero) {
     // Check Down first so that it can override continuously moving forward.
-    if(key_states_.is_down) {
+    if(stored_keys_.is_down) {
       if(!is_up) {
         if(!is_walking) {
           dantares_.StepBackward();
-          key_states_.is_down = false;
+          stored_keys_.is_down = false;
         } // Else, try again on next frame.
       } else {
-        key_states_.is_down = false;
+        stored_keys_.is_down = false;
       }
     } else {
       dantares_.StepForward(); // Always keep moving forward.
     }
   } else {
-    key_states_.is_down = false;
+    stored_keys_.is_down = false;
   }
 }
 
-int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
+int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
   if(scene_action_ != SceneAction::kNil) {
     const int action = scene_action_;
     scene_action_ = SceneAction::kNil;
@@ -199,7 +193,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
 
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
-      if(!overlay_.update_map_info()) { return SceneAction::kNil; }
+      if(!overlay_.update_map_info(step)) { return SceneAction::kNil; }
 
       game_phase_ = GamePhase::kPlay;
       robot_move_time_ += step.dpf;
@@ -209,7 +203,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& /*dime
       break;
 
     case GamePhase::kGameOver:
-      overlay_.update_game_over(step,player_hit_end_);
+      overlay_.update_game_over(step,dimens,player_hit_end_);
       break;
   }
 
@@ -396,7 +390,7 @@ const Pos3i* GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal,const
   return nullptr;
 }
 
-void GameScene::draw_scene(Renderer& ren) {
+void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_3d_scene();
 
   if(player_hit_end_) {
@@ -409,8 +403,8 @@ void GameScene::draw_scene(Renderer& ren) {
   }
 
   ren.begin_2d_scene();
-  hud_.draw(ren,map_,state_.show_mini_map,player_fruit_time_,player_hit_end_);
-  overlay_.draw(ren);
+  hud_.draw(ren,dimens,map_,state_.show_mini_map,player_fruit_time_,player_hit_end_);
+  overlay_.draw(ren,dimens);
 
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:

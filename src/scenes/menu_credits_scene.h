@@ -28,10 +28,9 @@ public:
 
   explicit MenuCreditsScene(Assets& assets);
 
-  void init_scene(Renderer& ren) override;
-  void on_key_down_event(SDL_Keycode key) override;
+  void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren) override;
+  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
 private:
   class WtfParticle : public Particle {
@@ -45,12 +44,11 @@ private:
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;
 
-  ViewDimens view_dimens_{};
   std::vector<WtfParticle> wtfs_{};
   int active_wtf_count_ = 0;
 
-  void init_wtfs();
-  void update_wtfs(const FrameStep& step);
+  void init_wtfs(const ViewDimens& dimens);
+  void update_wtfs(const FrameStep& step,const ViewDimens& dimens);
   void draw_wtfs(Renderer& ren);
 };
 

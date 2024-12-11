@@ -22,8 +22,8 @@ class GameHud {
 public:
   explicit GameHud(Assets& assets);
 
-  void draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,const Duration& player_fruit_time
-      ,bool player_hit_end);
+  void draw(Renderer& ren,const ViewDimens& dimens,const DantaresMap& map,bool show_mini_map
+      ,const Duration& player_fruit_time,bool player_hit_end);
 
 private:
   static inline const Size2i kMiniMapHoodRadius{4,3};

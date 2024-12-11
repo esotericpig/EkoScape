@@ -26,13 +26,13 @@ public:
 
   virtual ~Scene() noexcept = default;
 
+  virtual void init_scene(const ViewDimens& /*dimens*/) {}
+
   /**
    * If you know that all of your scenes will only either be in 2D or 3D, then you can call
-   * begin_2d_scene()/begin_3d_scene() in init_scene() & resize_scene(), instead of in the
-   * main loop with draw_scene().
-   * - This also applies to: begin_*center(), begin_*scale(), begin_*offset().
+   * begin_2d_scene()/begin_3d_scene() in resize_scene(), instead of in the main loop with draw_scene().
+   * - This also applies to: begin_*center(), begin_*scale(), begin_*offset(), etc.
    */
-  virtual void init_scene(Renderer& /*ren*/) {}
   virtual void resize_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 
   /**
@@ -41,10 +41,10 @@ public:
    */
   virtual void on_scene_exit() {}
 
-  virtual void on_key_down_event(SDL_Keycode /*key*/) {}
-  virtual void handle_key_states(const Uint8* /*keys*/) {}
+  virtual void on_key_down_event(const KeyEvent& /*event*/,const ViewDimens& /*dimens*/) {}
+  virtual void handle_key_states(const KeyStates& /*keys*/,const ViewDimens& /*dimens*/) {}
   virtual int update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) { return kNilType; }
-  virtual void draw_scene(Renderer& /*ren*/) {}
+  virtual void draw_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 };
 
 } // Namespace.

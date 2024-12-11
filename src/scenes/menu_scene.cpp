@@ -19,10 +19,10 @@ MenuScene::MenuScene(Assets& assets)
   }
 }
 
-void MenuScene::on_key_down_event(SDL_Keycode key) {
+void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
   Option& sel_opt = opts_.at(opt_index_);
 
-  switch(key) {
+  switch(event.key) {
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
@@ -97,7 +97,7 @@ int MenuScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*
   return action;
 }
 
-void MenuScene::draw_scene(Renderer& ren) {
+void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();

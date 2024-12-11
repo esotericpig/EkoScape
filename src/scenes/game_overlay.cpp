@@ -15,12 +15,6 @@ GameOverlay::Option::Option(OptionType type,const CybelStrUtf8& text)
 GameOverlay::GameOverlay(Assets& assets)
     : assets_(assets) {}
 
-void GameOverlay::init(const ViewDimens& dimens) {
-  view_dimens_ = dimens;
-
-  map_info_timer_.resume();
-}
-
 void GameOverlay::flash(const Color4f& color) {
   flash_color_ = color;
   flash_age_ = 0.0f;
@@ -48,7 +42,7 @@ void GameOverlay::game_over(const DantaresMap& map,bool player_hit_end) {
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
-int GameOverlay::on_key_down_event(SDL_Keycode key) {
+int GameOverlay::on_key_down_event(const KeyEvent& event) {
   const int game_over_opt_count = static_cast<int>(game_over_opts_.size());
 
   if(game_over_opt_index_ < 0 || game_over_opt_index_ >= game_over_opt_count) {
@@ -57,7 +51,7 @@ int GameOverlay::on_key_down_event(SDL_Keycode key) {
 
   const Option sel_opt = game_over_opts_.at(game_over_opt_index_);
 
-  switch(key) {
+  switch(event.key) {
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
@@ -107,35 +101,40 @@ void GameOverlay::update(const FrameStep& step) {
   }
 }
 
-bool GameOverlay::update_map_info() {
-  return (map_info_timer_.end().duration() >= kMapInfoDuration);
+bool GameOverlay::update_map_info(const FrameStep& step) {
+  if(map_info_age_ < 1.0f) {
+    map_info_age_ += static_cast<float>(step.delta_time / kMapInfoDuration.secs());
+    return false;
+  }
+
+  return true;
 }
 
-void GameOverlay::update_game_over(const FrameStep& step,bool player_hit_end) {
+void GameOverlay::update_game_over(const FrameStep& step,const ViewDimens& dimens,bool player_hit_end) {
   if(game_over_age_ < 1.0f) {
     game_over_age_ += static_cast<float>(step.delta_time / kGameOverDuration.secs());
     if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
   }
 
   if(player_hit_end) {
-    if(star_sys_.is_empty()) { star_sys_.init(view_dimens_,true); }
+    if(star_sys_.is_empty()) { star_sys_.init(dimens,true); }
     star_sys_.update(step);
   }
 }
 
-void GameOverlay::draw(Renderer& ren) {
+void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
   if(flash_age_ >= 0.0f) {
     flash_color_.a = kAlpha * flash_age_;
 
     ren.wrap_color(flash_color_,[&]() {
-      ren.draw_quad({0,0,0},ren.dimens().size);
+      ren.draw_quad({0,0,0},dimens.size);
     });
   }
   if(fade_age_ >= 0.0f) {
     fade_color_.a = kAlpha * fade_age_;
 
     ren.wrap_color(fade_color_,[&]() {
-      ren.draw_quad({0,0,0},ren.dimens().size);
+      ren.draw_quad({0,0,0},dimens.size);
     });
   }
 }

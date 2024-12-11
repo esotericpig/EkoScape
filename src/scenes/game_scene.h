@@ -40,12 +40,10 @@ public:
   explicit GameScene(Assets& assets,const std::filesystem::path& map_file,const State& state
       ,const StateCallback& on_state_changed);
 
-  void init_scene(Renderer& ren) override;
-  void on_scene_exit() override;
-  void on_key_down_event(SDL_Keycode key) override;
-  void handle_key_states(const Uint8* keys) override;
+  void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
+  void handle_key_states(const KeyStates& keys,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren) override;
+  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
 private:
   enum class GamePhase {
@@ -54,7 +52,7 @@ private:
     kGameOver,
   };
 
-  struct KeyStates {
+  struct StoredKeyStates {
     bool is_down = false;
     bool is_left = false;
     bool is_right = false;
@@ -80,7 +78,7 @@ private:
   DantaresMap map_{dantares_};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
-  KeyStates key_states_{};
+  StoredKeyStates stored_keys_{};
   bool player_hit_end_ = false;
   bool player_warped_ = false;
   Duration player_warp_time_{};

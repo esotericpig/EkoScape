@@ -20,12 +20,12 @@ GameHud::GameHud(Assets& assets)
   mini_map_walkable_color_.set(0.0f,kAlpha);
 }
 
-void GameHud::draw(Renderer& ren,const DantaresMap& map,bool show_mini_map,const Duration& player_fruit_time
-    ,bool player_hit_end) {
+void GameHud::draw(Renderer& ren,const ViewDimens& dimens,const DantaresMap& map,bool show_mini_map
+    ,const Duration& player_fruit_time,bool player_hit_end) {
   ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor HUD to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (show_mini_map ? kMiniMapSize.h : 0);
-  Pos3i pos{0,ren.dimens().target_size.h - total_h,0};
+  Pos3i pos{0,dimens.target_size.h - total_h,0};
   const float text_scale = 0.33f;
 
   ren.wrap_color(mini_map_walkable_color_,[&]() {

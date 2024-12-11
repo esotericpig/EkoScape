@@ -59,7 +59,7 @@ void CybelEngine::init_config(Config& config) {
   // If getting the current display mode fails, we fall back to Config.size.
   //     Therefore, scale_factor needs to have priority over Config.size.
   if(config.scale_factor > 0.0f) {
-    SDL_DisplayMode display_mode;
+    SDL_DisplayMode display_mode{};
 
     if(SDL_GetCurrentDisplayMode(0,&display_mode) != 0) {
       std::cerr << "[WARN] Failed to get current display mode: " << Util::get_sdl_error() << '.'
@@ -146,7 +146,7 @@ void CybelEngine::init_renderer(const Config& config,const SceneMan::SceneBuilde
 }
 
 void CybelEngine::init_scene(Scene& scene) {
-  scene.init_scene(*renderer_);
+  scene.init_scene(renderer_->dimens());
   scene.resize_scene(*renderer_,renderer_->dimens());
 }
 
@@ -176,19 +176,21 @@ void CybelEngine::run() {
 
   // No need to init the current scene in scene_man_,
   //     since it would have already been called on push_scene().
-  main_scene_.init_scene(*renderer_);
+  main_scene_.init_scene(renderer_->dimens());
 
   // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
   //     and also need to call the scenes' resize() after init_scene().
   sync_size();
 
+  KeyStates keys{};
+
   while(is_running_) {
     start_frame_timer();
     handle_events();
 
-    const Uint8* keys = fetch_key_states();
-    main_scene_.handle_key_states(keys);
-    scene_man_->curr_scene().handle_key_states(keys);
+    keys.refresh();
+    main_scene_.handle_key_states(keys,renderer_->dimens());
+    scene_man_->curr_scene().handle_key_states(keys,renderer_->dimens());
 
     const FrameStep step{dpf_,delta_time_};
     main_scene_.update_scene_logic(step,renderer_->dimens());
@@ -199,8 +201,8 @@ void CybelEngine::run() {
     }
 
     renderer_->clear_view();
-    main_scene_.draw_scene(*renderer_);
-    scene_man_->curr_scene().draw_scene(*renderer_);
+    main_scene_.draw_scene(*renderer_,renderer_->dimens());
+    scene_man_->curr_scene().draw_scene(*renderer_,renderer_->dimens());
 
     SDL_GL_SwapWindow(res_.window);
     end_frame_timer();
@@ -228,33 +230,33 @@ void CybelEngine::end_frame_timer() {
 }
 
 void CybelEngine::handle_events() {
-  SDL_Event event{};
+  SDL_Event sdl_event{};
   // Store in a var to prevent re-sizing a bunch of times in the loop (costly),
   //     while the user is still dragging the window corner/edge.
   bool should_resize = false;
 
-  while(is_running_ && SDL_PollEvent(&event) != 0) {
-    switch(event.type) {
+  while(is_running_ && SDL_PollEvent(&sdl_event) != 0) {
+    switch(sdl_event.type) {
       case SDL_QUIT:
         std::cerr << "[EVENT] Received Quit event." << std::endl;
         request_stop();
         return;
 
       case SDL_KEYDOWN: {
-        SDL_Keycode key = event.key.keysym.sym;
+        const KeyEvent key_event{sdl_event};
 
-        if(key == SDLK_ESCAPE) {
+        if(key_event.key == SDLK_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
           request_stop();
           return;
         }
 
-        main_scene_.on_key_down_event(key);
-        scene_man_->curr_scene().on_key_down_event(key);
+        main_scene_.on_key_down_event(key_event,renderer_->dimens());
+        scene_man_->curr_scene().on_key_down_event(key_event,renderer_->dimens());
       } break;
 
       case SDL_KEYUP: {
-        SDL_Keycode key = event.key.keysym.sym;
+        const auto key = sdl_event.key.keysym.sym;
 
         if(key == SDLK_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
@@ -264,7 +266,7 @@ void CybelEngine::handle_events() {
       } break;
 
       case SDL_WINDOWEVENT:
-        switch(event.window.event) {
+        switch(sdl_event.window.event) {
           case SDL_WINDOWEVENT_RESIZED:
           case SDL_WINDOWEVENT_SIZE_CHANGED:
             should_resize = true;
@@ -283,6 +285,10 @@ void CybelEngine::show_error(const std::string& error) const {
 
 void CybelEngine::show_error(const std::string& title,const std::string& error) const {
   show_error_global(title,error,res_.window);
+}
+
+void CybelEngine::show_error_global(const std::string& title,const std::string& error) {
+  show_error_global(title,error,NULL);
 }
 
 void CybelEngine::show_error_global(const std::string& title,const std::string& error,SDL_Window* window) {
@@ -311,8 +317,6 @@ void CybelEngine::set_vsync(bool enable) {
     SDL_GL_SetSwapInterval(0);
   }
 }
-
-const Uint8* CybelEngine::fetch_key_states() const { return SDL_GetKeyboardState(NULL); }
 
 AudioPlayer& CybelEngine::audio_player() const { return *audio_player_; }
 

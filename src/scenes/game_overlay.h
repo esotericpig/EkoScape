@@ -25,19 +25,18 @@ namespace ekoscape {
 class GameOverlay {
 public:
   explicit GameOverlay(Assets& assets);
-  void init(const ViewDimens& dimens);
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
   void game_over(const DantaresMap& map,bool player_hit_end);
 
-  int on_key_down_event(SDL_Keycode key);
+  int on_key_down_event(const KeyEvent& event);
 
   void update(const FrameStep& step);
-  bool update_map_info();
-  void update_game_over(const FrameStep& step,bool player_hit_end);
+  bool update_map_info(const FrameStep& step);
+  void update_game_over(const FrameStep& step,const ViewDimens& dimens,bool player_hit_end);
 
-  void draw(Renderer& ren);
+  void draw(Renderer& ren,const ViewDimens& dimens);
   void draw_map_info(Renderer& ren,const DantaresMap& map);
   void draw_game_over(Renderer& ren,const DantaresMap& map,bool player_hit_end);
 
@@ -67,9 +66,8 @@ private:
   static inline const float kAlpha = 0.33f;
 
   Assets& assets_;
-  ViewDimens view_dimens_{};
 
-  Timer map_info_timer_{};
+  float map_info_age_ = 0.0f;
   Color4f flash_color_{};
   float flash_age_ = -1.0f;
   float flash_age_dir_ = 0.0f;

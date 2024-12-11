@@ -188,6 +188,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/cybel/render/renderer.cpp"
     "${SRC_DIR}/cybel/scene/scene_bag.cpp"
     "${SRC_DIR}/cybel/scene/scene_man.cpp"
+    "${SRC_DIR}/cybel/scene/scene_types.cpp"
     "${SRC_DIR}/cybel/util/cybel_error.cpp"
     "${SRC_DIR}/cybel/util/duration.cpp"
     "${SRC_DIR}/cybel/util/rando.cpp"

@@ -101,14 +101,12 @@ public:
 
   void show_error(const std::string& error) const;
   void show_error(const std::string& title,const std::string& error) const;
-  static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window = NULL);
+  static void show_error_global(const std::string& title,const std::string& error);
 
   void set_icon(const Image& image);
   void set_title(const std::string& title);
   void reset_title();
   void set_vsync(bool enable);
-
-  const Uint8* fetch_key_states() const;
 
   AudioPlayer& audio_player() const;
   Scene& main_scene() const;
@@ -143,6 +141,8 @@ private:
   void start_frame_timer();
   void end_frame_timer();
   void handle_events();
+
+  static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);
 };
 
 } // Namespace.

@@ -125,8 +125,8 @@ void EkoScapeGame::run() {
   cybel_engine_->run(); // Game loop.
 }
 
-void EkoScapeGame::on_key_down_event(SDL_Keycode key) {
-  switch(key) {
+void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
+  switch(event.key) {
     case SDLK_AUDIOPLAY:
       play_music();
       break;
@@ -182,7 +182,7 @@ int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*d
   star_sys_.update(step);
 
   if(avg_fps_to_show_ >= 0) {
-    const double mpf = step.dpf.millis(); // Milliseconds per frame.
+    const double mpf = step.dpf.millis(); // Milliseconds Per Frame.
     const float fps = (mpf > 0.0) ? static_cast<float>(1000.0 / mpf) : 0.0f;
 
     if(avg_fps_ < 0.0f) {
@@ -205,7 +205,7 @@ int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*d
   return SceneAction::kNil;
 }
 
-void EkoScapeGame::draw_scene(Renderer& ren) {
+void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   if(!star_sys_.is_empty()) {
     ren.begin_2d_scene()
        .begin_auto_scale()
