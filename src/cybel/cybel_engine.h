@@ -106,12 +106,14 @@ public:
   void set_icon(const Image& image);
   void set_title(const std::string& title);
   void reset_title();
+  void set_fullscreen(bool fullscreen,bool windowed = true);
   void set_vsync(bool enable);
 
   AudioPlayer& audio_player() const;
   Scene& main_scene() const;
   SceneMan& scene_man() const;
   const std::string& title() const;
+  bool is_fullscreen() const;
   Renderer& renderer() const;
   const ViewDimens& dimens() const;
   int target_fps() const;

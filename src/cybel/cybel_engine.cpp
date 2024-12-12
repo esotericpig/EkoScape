@@ -304,6 +304,19 @@ void CybelEngine::set_title(const std::string& title) { SDL_SetWindowTitle(res_.
 
 void CybelEngine::reset_title() { set_title(title_); }
 
+void CybelEngine::set_fullscreen(bool fullscreen,bool windowed) {
+  const auto result = SDL_SetWindowFullscreen(
+    res_.window,
+    fullscreen ? (windowed ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN) : 0
+  );
+
+  if(result != 0) {
+    std::string desc = fullscreen ? (windowed ? "windowed fullscreen" : "fullscreen") : "windowed";
+    std::cerr << "[WARN] Failed to set window to [" << desc << "] with error [" << result << "]: "
+              << Util::get_sdl_error() << '.' << std::endl;
+  }
+}
+
 void CybelEngine::set_vsync(bool enable) {
   if(enable) {
     SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
@@ -325,6 +338,11 @@ Scene& CybelEngine::main_scene() const { return main_scene_; }
 SceneMan& CybelEngine::scene_man() const { return *scene_man_; }
 
 const std::string& CybelEngine::title() const { return title_; }
+
+bool CybelEngine::is_fullscreen() const {
+  const auto flags = SDL_GetWindowFlags(res_.window);
+  return (flags & SDL_WINDOW_FULLSCREEN) || (flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
+}
 
 Renderer& CybelEngine::renderer() const { return *renderer_; }
 

@@ -175,6 +175,11 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
         avg_fps_to_show_ = -1;
       }
       break;
+
+    // Toggle fullscreen.
+    case SDLK_F11:
+      cybel_engine_->set_fullscreen(!cybel_engine_->is_fullscreen(),true);
+      break;
   }
 }
 
