@@ -26,7 +26,7 @@ void GameOverlay::fade_to(const Color4f& color) {
   fade_age_ = 0.0f;
 }
 
-void GameOverlay::game_over(const DantaresMap& map,bool player_hit_end) {
+void GameOverlay::game_over(const Map& map,bool player_hit_end) {
   if(game_over_age_ >= 0.0f) { return; }
 
   const bool perfect = (map.total_rescues() >= map.total_cells()) && player_hit_end;
@@ -139,7 +139,7 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
   }
 }
 
-void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
+void GameOverlay::draw_map_info(Renderer& ren,const Map& map) {
   ren.begin_auto_center_scale();
 
   assets_.font_renderer().wrap(ren,{395,395,0},[&](auto& font) {
@@ -155,7 +155,7 @@ void GameOverlay::draw_map_info(Renderer& ren,const DantaresMap& map) {
   ren.end_scale();
 }
 
-void GameOverlay::draw_game_over(Renderer& ren,const DantaresMap& map,bool player_hit_end) {
+void GameOverlay::draw_game_over(Renderer& ren,const Map& map,bool player_hit_end) {
   ren.begin_auto_center_scale();
 
   const Color4f bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);

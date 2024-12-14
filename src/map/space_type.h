@@ -16,10 +16,11 @@ namespace ekoscape {
 
 // If add a new type, need to update:
 // - assets/maps/README.md
-// - SpaceTypes.to_space_type()
-// - SpaceTypes.value_of()
-// - [maybe] Map.parse_grid()
+// - SpaceTypes.is_valid()
 // - GameScene.init_map_textures()
+// - [maybe] SpaceTypes.is_walkable()
+// - [maybe] SpaceTypes.is_non_walkable()
+// - [maybe] Map.parse_grid()
 enum class SpaceType : char {
   kNil            =   0, // Not for game users.
   kCell           = '@',
@@ -57,6 +58,7 @@ enum class SpaceType : char {
 };
 
 namespace SpaceTypes {
+  bool is_valid(SpaceType type);
   bool is_player(SpaceType type);
   bool is_thing(SpaceType type);
   bool is_robot(SpaceType type);

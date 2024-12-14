@@ -71,11 +71,13 @@ private:
   StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;
 
+  void init_map_textures();
+
   // - Classic values: {0.125f,-0.04f,0.04f}.
   // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
   //   - See set_space_textures(), which relies on this logic.
   Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
-  DantaresMap map_{dantares_};
+  DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*id*/) { init_map_textures(); }};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
   StoredKeyStates stored_keys_{};
@@ -93,10 +95,8 @@ private:
   GameHud hud_;
   GameOverlay overlay_;
 
-  void load_map(const std::filesystem::path& file);
   SpaceType init_map_space(const Pos3i& pos,SpaceType type);
   void init_map_default_empty(const Pos3i& pos,SpaceType type);
-  void init_map_textures();
 
   void update_player(const FrameStep& step);
   void game_over(bool hit_end);

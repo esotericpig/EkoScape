@@ -14,7 +14,7 @@
 #include "cybel/util/util.h"
 
 #include "assets/assets.h"
-#include "map/dantares_map.h"
+#include "map/map.h"
 
 namespace ekoscape {
 
@@ -22,7 +22,7 @@ class GameHud {
 public:
   explicit GameHud(Assets& assets);
 
-  void draw(Renderer& ren,const ViewDimens& dimens,const DantaresMap& map,bool show_mini_map
+  void draw(Renderer& ren,const ViewDimens& dimens,const Map& map,bool show_mini_map
       ,const Duration& player_fruit_time,bool player_hit_end);
 
 private:

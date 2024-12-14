@@ -9,17 +9,17 @@
 
 namespace ekoscape {
 
-DantaresMap::DantaresMap(Dantares& dantares)
-    : dantares_(dantares) {}
+DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_textures)
+    : dantares_(dantares),set_textures_(set_textures) {}
 
 Map& DantaresMap::clear_grids() {
-  Base::clear_grids();
+  Map::clear_grids();
   grid_ids_.clear();
 
   return *this;
 }
 
-void DantaresMap::add_to_dantares(const TexturesSetter& set_textures) {
+Map& DantaresMap::add_to_bridge() {
   if(grids_.empty()) { throw CybelError{Util::build_str("No grids in map [",title_,"].")}; }
   if(grid_index_ < 0 || grid_index_ >= static_cast<int>(grids_.size())) {
     throw CybelError{Util::build_str("Invalid grid index [",grid_index_,"] for map [",title_
@@ -53,11 +53,11 @@ void DantaresMap::add_to_dantares(const TexturesSetter& set_textures) {
     for(Pos2i pos{0,0}; pos.y < size.h; ++pos.y) {
       for(pos.x = 0; pos.x < size.w; ++pos.x) {
         Space& space = grid->raw_space(pos);
-        change_square(pos,space.type());
+        update_bridge_space(pos.x,pos.y,space.type());
       }
     }
 
-    if(set_textures) { set_textures(dantares_,z,id); }
+    if(set_textures_) { set_textures_(dantares_,z,id); }
 
     // Must be called after setting the textures.
     if(!dantares_.GenerateMap()) {
@@ -81,25 +81,37 @@ void DantaresMap::add_to_dantares(const TexturesSetter& set_textures) {
   }
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
     std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map grid ["
-        << z << ',' << id << ':' << title_ << "] in Dantares." << std::endl;
+              << z << ',' << id << ':' << title_ << "] in Dantares." << std::endl;
     // Don't fail; game is still playable.
   }
   if(!dantares_.SetWalkingSpeed(walking_speed_)) {
     std::cerr << "[WARN] Failed to set walking speed [" << walking_speed_ << "] for map grid ["
-        << z << ',' << id << ':' << title_ << "] in Dantares." << std::endl;
+              << z << ',' << id << ':' << title_ << "] in Dantares." << std::endl;
     // Don't fail; game is still playable.
   }
+
+  return *this;
+}
+
+bool DantaresMap::move_player(const Pos3i& pos) {
+  if(!Map::move_player(pos)) { return false; } // Changes grid if necessary.
+  return dantares_.SetPlayerPosition(pos.x,pos.y);
+}
+
+bool DantaresMap::sync_player_pos() {
+  const Pos3i player_pos = this->player_pos();
+  return dantares_.SetPlayerPosition(player_pos.x,player_pos.y);
 }
 
 bool DantaresMap::change_grid(int z) { return change_grid(z,false); }
 
 bool DantaresMap::change_grid(int z,bool force) {
   if(!force && z == grid_index_) { return true; }
-  if(!Base::change_grid(z)) { return false; }
+  if(!Map::change_grid(z)) { return false; }
 
   if(z < 0 || z >= static_cast<int>(grid_ids_.size())) {
     std::cerr << "[ERROR] Invalid Z [" << z << "] for map [" << title_ << "] with IDs size ["
-        << grid_ids_.size() << "]." << std::endl;
+              << grid_ids_.size() << "]." << std::endl;
     return false;
   }
 
@@ -107,12 +119,12 @@ bool DantaresMap::change_grid(int z,bool force) {
 
   if(id == -1 || !dantares_.IsMap(id)) {
     std::cerr << "[ERROR] Invalid map grid ID [" << z << ',' << id << ':' << title_
-        << "] for Dantares; add map to Dantares first before changing grids." << std::endl;
+              << "] for Dantares; call add_to_bridge() once before changing grids." << std::endl;
     return false;
   }
   if(!dantares_.SetCurrentMap(id)) {
     std::cerr << "[ERROR] Failed to make map grid [" << z << ',' << id << ':' << title_
-        << "] current in Dantares." << std::endl;
+              << "] current in Dantares." << std::endl;
     return false;
   }
 
@@ -122,92 +134,14 @@ bool DantaresMap::change_grid(int z,bool force) {
   if(player_pos.x < 0 || player_pos.x >= grid_size.w
       || player_pos.y < 0 || player_pos.y >= grid_size.h) {
     dantares_.SetPlayerPosition(0,0);
-  }
+      }
 
   return true;
 }
 
-bool DantaresMap::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
-  if(!Base::move_thing(from_pos,to_pos)) { return false; }
-
-  change_square(from_pos,raw_space(from_pos).empty_type());
-  change_square(to_pos,raw_space(to_pos).thing_type());
-  return true;
-}
-
-bool DantaresMap::remove_thing(const Pos3i& pos) {
-  if(!Base::remove_thing(pos)) { return false; }
-
-  change_square(pos,raw_space(pos).empty_type());
-  return true;
-}
-
-bool DantaresMap::place_thing(SpaceType type,const Pos3i& pos) {
-  if(!Base::place_thing(type,pos)) { return false; }
-
-  change_square(pos,type);
-  return true;
-}
-
-bool DantaresMap::set_player_pos() {
-  const Pos3i player_pos = this->player_pos();
-  return dantares_.SetPlayerPosition(player_pos.x,player_pos.y);
-}
-
-bool DantaresMap::set_player_pos(const Pos3i& pos) {
-  if(!change_grid(pos.z)) { return false; } // If same Z, no change.
-  return dantares_.SetPlayerPosition(pos.x,pos.y);
-}
-
-bool DantaresMap::set_space(const Pos3i& pos,SpaceType empty_type,SpaceType thing_type) {
-  if(!Base::set_space(pos,empty_type,thing_type)) { return false; }
-
-  change_square(pos,raw_space(pos).type()); // Use type() to determine if empty or thing.
-  return true;
-}
-
-bool DantaresMap::set_empty(const Pos3i& pos,SpaceType type) {
-  if(!Base::set_empty(pos,type)) { return false; }
-
-  change_square(pos,raw_space(pos).type()); // Use type() in case there is a thing.
-  return true;
-}
-
-bool DantaresMap::set_thing(const Pos3i& pos,SpaceType type) {
-  if(!Base::set_thing(pos,type)) { return false; }
-
-  change_square(pos,raw_space(pos).type()); // Use type() in case thing is kNil.
-  return true;
-}
-
-Pos3i DantaresMap::player_pos() const {
-  return {dantares_.GetPlayerX(),dantares_.GetPlayerY(),grid_index_};
-}
-
-const Space* DantaresMap::player_space() const { return space(player_pos()); }
-
-SpaceType DantaresMap::player_space_type() const {
-  return SpaceTypes::to_space_type(dantares_.GetCurrentSpace());
-}
-
-Facing DantaresMap::player_facing() const {
-  return Facings::to_facing(dantares_.GetPlayerFacing());
-}
-
-void DantaresMap::change_square(const Pos2i& pos,SpaceType type) {
-  dantares_.ChangeSquare(pos.x,pos.y,SpaceTypes::value_of(type));
-
-  // Must always update walkability after changing the square.
-  if(SpaceTypes::is_walkable(type)) {
-    dantares_.MakeSpaceWalkable(pos.x,pos.y);
-  } else {
-    dantares_.MakeSpaceNonWalkable(pos.x,pos.y);
-  }
-}
-
-void DantaresMap::change_square(const Pos3i& pos,SpaceType type) {
+void DantaresMap::update_bridge_space(const Pos3i& pos,SpaceType type) {
   if(pos.z == grid_index_) {
-    change_square(pos.to_pos2<int>(),type);
+    update_bridge_space(pos.x,pos.y,type);
     return;
   }
   if(pos.z < 0 || pos.z >= static_cast<int>(grid_ids_.size())) { return; }
@@ -218,9 +152,34 @@ void DantaresMap::change_square(const Pos3i& pos,SpaceType type) {
   // Luckily, changing the map in Dantares isn't an expensive operation.
   if(z_id == -1 || !dantares_.SetCurrentMap(z_id)) { return; }
 
-  change_square(pos.to_pos2<int>(),type);
+  update_bridge_space(pos.x,pos.y,type);
 
   if(curr_id != -1) { dantares_.SetCurrentMap(curr_id); }
+}
+
+void DantaresMap::update_bridge_space(int x,int y,SpaceType type) {
+  dantares_.ChangeSquare(x,y,SpaceTypes::value_of(type));
+
+  // Must always update walkability after changing the square.
+  if(SpaceTypes::is_walkable(type)) {
+    dantares_.MakeSpaceWalkable(x,y);
+  } else {
+    dantares_.MakeSpaceNonWalkable(x,y);
+  }
+}
+
+Pos3i DantaresMap::player_pos() const {
+  return Pos3i{dantares_.GetPlayerX(),dantares_.GetPlayerY(),grid_index_};
+}
+
+const Space* DantaresMap::player_space() const { return space(player_pos()); }
+
+SpaceType DantaresMap::player_space_type() const {
+  return SpaceTypes::to_space_type(dantares_.GetCurrentSpace());
+}
+
+Facing DantaresMap::player_facing() const {
+  return Facings::to_facing(dantares_.GetPlayerFacing());
 }
 
 } // Namespace.

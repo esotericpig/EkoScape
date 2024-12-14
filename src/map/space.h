@@ -41,7 +41,6 @@ public:
   SpaceType empty_type() const;
   SpaceType thing_type() const;
 
-  // NOTE: There is no is_empty() because that could be confused with SpaceType::kEmpty.
   bool has_thing() const;
   bool has_robot() const;
   bool is_portal() const;

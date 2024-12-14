@@ -28,51 +28,44 @@ namespace ekoscape {
  * and to ease development using both together.
  *
  * Example:
- *   DantaresMap map{dantares};
+ *   @code
+ *   DantaresMap map{dantares,[&](Dantares& dan,int z,int id) {
+ *     // Set textures appropriately in Dantares...
+ *   }};
  *
  *   map.load_file("map.txt"); // Or build in code w/ parse_grid().
- *
- *   map.add_to_dantares([&](Dantares& d) {
- *     // Set textures appropriately in Dantares.
- *   });
- *
- *   // Use map normally.
+ *   map.add_to_bridge();
+ *   // Now use map normally...
+ *   @endcode
  */
 class DantaresMap : public Map {
 public:
   using TexturesSetter = std::function<void(Dantares&,int z,int id)>;
 
-  explicit DantaresMap(Dantares& dantares);
+  explicit DantaresMap(Dantares& dantares,const TexturesSetter& set_textures);
 
   Map& clear_grids() override;
+  Map& add_to_bridge() override;
 
-  void add_to_dantares(const TexturesSetter& set_textures = nullptr);
-
+  bool move_player(const Pos3i& pos) override;
+  bool sync_player_pos() override;
   bool change_grid(int z) override;
-  bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos) override;
-  bool remove_thing(const Pos3i& pos) override;
-  bool place_thing(SpaceType type,const Pos3i& pos) override;
 
-  bool set_player_pos();
-  bool set_player_pos(const Pos3i& pos);
-  bool set_space(const Pos3i& pos,SpaceType empty_type,SpaceType thing_type) override;
-  bool set_empty(const Pos3i& pos,SpaceType type) override;
-  bool set_thing(const Pos3i& pos,SpaceType type) override;
+  Pos3i player_pos() const override;
+  const Space* player_space() const override;
+  SpaceType player_space_type() const override;
+  Facing player_facing() const override;
 
-  Pos3i player_pos() const;
-  const Space* player_space() const;
-  SpaceType player_space_type() const;
-  Facing player_facing() const;
+protected:
+  void update_bridge_space(const Pos3i& pos,SpaceType type) override;
+  void update_bridge_space(int x,int y,SpaceType type);
 
 private:
-  using Base = Map;
-
   Dantares& dantares_;
+  TexturesSetter set_textures_{};
   std::vector<int> grid_ids_{};
 
   bool change_grid(int z,bool force);
-  void change_square(const Pos2i& pos,SpaceType type);
-  void change_square(const Pos3i& pos,SpaceType type);
 };
 
 } // Namespace.

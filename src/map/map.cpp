@@ -292,13 +292,6 @@ Map& Map::shrink_grids_to_fit() {
   return *this;
 }
 
-bool Map::change_grid(int z) {
-  if(z < 0 || z >= static_cast<int>(grids_.size())) { return false; }
-
-  grid_index_ = z;
-  return true;
-}
-
 bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
   Space* from_space = this->mutable_space(from_pos);
   if(from_space == nullptr || !from_space->has_thing()) { return false; }
@@ -308,6 +301,10 @@ bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
 
   SpaceType thing_type = from_space->remove_thing();
   to_space->set_thing(thing_type);
+
+  update_bridge_space(from_pos,from_space->empty_type());
+  update_bridge_space(to_pos,thing_type);
+
   return true;
 }
 
@@ -325,14 +322,34 @@ bool Map::remove_thing(const Pos3i& pos) {
     default: break;
   }
 
+  update_bridge_space(pos,space->empty_type());
+
   return true;
 }
 
 bool Map::place_thing(SpaceType type,const Pos3i& pos) {
+  if(!SpaceTypes::is_thing(type)) { return false; }
+
   Space* space = this->mutable_space(pos);
   if(space == nullptr || space->has_thing()) { return false; }
 
   space->set_thing(type);
+  update_bridge_space(pos,type);
+
+  return true;
+}
+
+bool Map::move_player(const Pos3i& pos) {
+  if(!change_grid(pos.z)) { return false; }
+  return true;
+}
+
+bool Map::sync_player_pos() { return move_player(player_pos()); }
+
+bool Map::change_grid(int z) {
+  if(z < 0 || z >= static_cast<int>(grids_.size())) { return false; }
+
+  grid_index_ = z;
   return true;
 }
 
@@ -360,43 +377,15 @@ Map& Map::set_walking_speed(float speed) {
 
 Map& Map::set_default_empty(SpaceType type) {
   // Cannot have 2+ things on a single space.
-  if(type == SpaceType::kNil || SpaceTypes::is_player(type) || SpaceTypes::is_thing(type)) {
-    default_empty_ = SpaceType::kEmpty;
-  } else {
+  if(SpaceTypes::is_valid(type) && !SpaceTypes::is_player(type) && !SpaceTypes::is_thing(type)) {
     default_empty_ = type;
   }
-
   return *this;
 }
 
 Map& Map::set_robot_delay(Duration duration) {
   robot_delay_ = (duration >= kMinRobotDelay) ? duration : kMinRobotDelay;
   return *this;
-}
-
-bool Map::set_space(const Pos3i& pos,SpaceType empty_type,SpaceType thing_type) {
-  Space* space = this->mutable_space(pos);
-  if(space == nullptr) { return false; }
-
-  space->set_empty(empty_type);
-  space->set_thing(thing_type);
-  return true;
-}
-
-bool Map::set_empty(const Pos3i& pos,SpaceType type) {
-  Space* space = this->mutable_space(pos);
-  if(space == nullptr) { return false; }
-
-  space->set_empty(type);
-  return true;
-}
-
-bool Map::set_thing(const Pos3i& pos,SpaceType type) {
-  Space* space = this->mutable_space(pos);
-  if(space == nullptr) { return false; }
-
-  space->set_thing(type);
-  return true;
 }
 
 std::string Map::build_header() const {

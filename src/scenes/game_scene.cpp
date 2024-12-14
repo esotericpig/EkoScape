@@ -12,24 +12,18 @@ namespace ekoscape {
 GameScene::GameScene(Assets& assets,const std::filesystem::path& map_file,const State& state
     ,const StateCallback& on_state_changed)
     : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets),overlay_(assets) {
-  load_map(map_file);
-
-  // Extra delay to give some time for the Player to initially orient/adjust.
-  robot_move_time_ = map_.robot_delay() + kInitExtraRobotDelay;
-}
-
-void GameScene::load_map(const std::filesystem::path& file) {
-  map_.load_file(file
+  map_.load_file(map_file
     ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type); }
     ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
   );
 
-  std::cout << "[INFO] Map file ['" << file.string() << "'] with [" << map_.grid_count() << "] grid(s):\n"
+  std::cout << "[INFO] Map file ['" << map_file.string() << "'] with [" << map_.grid_count() << "] grid(s):\n"
             << map_ << std::endl;
 
-  map_.add_to_dantares([&](auto& /*dan*/,int /*z*/,int /*id*/) {
-    init_map_textures();
-  });
+  map_.add_to_bridge();
+
+  // Extra delay to give some time for the Player to initially orient/adjust.
+  robot_move_time_ = map_.robot_delay() + kInitExtraRobotDelay;
 }
 
 SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
@@ -185,10 +179,7 @@ void GameScene::handle_key_states(const KeyStates& keys,const ViewDimens& /*dime
 
 int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
   if(scene_action_ != SceneAction::kNil) {
-    const int action = scene_action_;
-    scene_action_ = SceneAction::kNil;
-
-    return action;
+    return std::exchange(scene_action_,SceneAction::kNil);
   }
 
   switch(game_phase_) {
@@ -282,7 +273,7 @@ void GameScene::update_player(const FrameStep& step) {
       });
 
       if(portal_bro != nullptr) {
-        map_.set_player_pos(*portal_bro);
+        map_.move_player(*portal_bro);
         overlay_.flash(assets_.portal_color());
         player_warped_ = true;
         player_warp_time_ = kWarpDuration;
@@ -309,7 +300,7 @@ void GameScene::game_over(bool hit_end) {
 
   // Because of how high speeds are handled, we need to manually sync the correct Player pos,
   //     since the pos might be beyond End, etc. after fully moving.
-  map_.set_player_pos();
+  map_.sync_player_pos();
 
   if(!player_hit_end_) { overlay_.fade_to(assets_.eko_color()); }
   overlay_.game_over(map_,player_hit_end_);

@@ -9,7 +9,7 @@
 
 namespace ekoscape {
 
-Robot::MoveData::MoveData(DantaresMap& map)
+Robot::MoveData::MoveData(Map& map)
     : map(map) {}
 
 void Robot::MoveData::refresh(bool player_ate_fruit) {

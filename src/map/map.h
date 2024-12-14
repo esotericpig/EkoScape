@@ -33,6 +33,7 @@ namespace ekoscape {
  * When parsing a Map Grid (and on output), the lines are flipped vertically to accommodate this.
  *
  * Besides loading & parsing a Map file, this class can also be used for creating a Map file:
+ *   @code
  *   std::vector<std::string> grid1 = {
  *     "xxxxxxxxxxxx",
  *     "x>         x",
@@ -61,8 +62,8 @@ namespace ekoscape {
  *
  *   std::cout << map << std::endl;
  *
- * Note that set_space(), set_empty(), & set_thing() should only be used before calling parse_grid(),
- * as these are considered "raw" functions and will not update the number of Cells, etc.
+ *   map.add_to_bridge(); // Call this first before using in the game.
+ *   @endcode
  */
 class Map {
 public:
@@ -85,11 +86,15 @@ public:
   Map& parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space = nullptr
       ,const DefaultEmptyCallback& on_def_empty = nullptr,std::string file = "");
   Map& shrink_grids_to_fit();
+  virtual Map& add_to_bridge() { return *this; }
 
+  bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
+  bool remove_thing(const Pos3i& pos);
+  bool place_thing(SpaceType type,const Pos3i& pos);
+
+  virtual bool move_player(const Pos3i& pos);
+  virtual bool sync_player_pos();
   virtual bool change_grid(int z);
-  virtual bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
-  virtual bool remove_thing(const Pos3i& pos);
-  virtual bool place_thing(SpaceType type,const Pos3i& pos);
 
   Map& set_title(const std::string& title);
   Map& set_author(const std::string& author);
@@ -97,10 +102,6 @@ public:
   Map& set_walking_speed(float speed);
   Map& set_default_empty(SpaceType type);
   Map& set_robot_delay(Duration duration);
-
-  virtual bool set_space(const Pos3i& pos,SpaceType empty_type,SpaceType thing_type);
-  virtual bool set_empty(const Pos3i& pos,SpaceType type);
-  virtual bool set_thing(const Pos3i& pos,SpaceType type);
 
   std::string build_header() const;
   int version() const;
@@ -121,6 +122,11 @@ public:
   int total_rescues() const;
   const Pos3i& player_init_pos() const;
   Facing player_init_facing() const;
+
+  virtual Pos3i player_pos() const { return Pos3i{}; }
+  virtual const Space* player_space() const { return nullptr; }
+  virtual SpaceType player_space_type() const { return SpaceType::kNil; }
+  virtual Facing player_facing() const { return Facing::kSouth; }
 
   std::ostream& print(bool rstrip = false) const;
   std::ostream& print(std::ostream& out,bool rstrip = false) const;
@@ -152,7 +158,9 @@ protected:
   void load_grids(TextReader& reader,const SpaceCallback& on_space,const DefaultEmptyCallback& on_def_empty
       ,const std::string& file);
 
-  Space* mutable_space(const Pos3i& pos); // Can't use name `space`, unfortunately.
+  virtual void update_bridge_space(const Pos3i& /*pos*/,SpaceType /*type*/) {}
+
+  Space* mutable_space(const Pos3i& pos); // Can't use the name `space`, unfortunately.
   Space& raw_space(const Pos3i& pos);
   const Space& raw_space(const Pos3i& pos) const;
 };

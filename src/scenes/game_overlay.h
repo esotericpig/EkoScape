@@ -16,7 +16,7 @@
 #include "cybel/util/timer.h"
 
 #include "assets/assets.h"
-#include "map/dantares_map.h"
+#include "map/map.h"
 #include "world/star_sys.h"
 #include "scene_action.h"
 
@@ -28,7 +28,7 @@ public:
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
-  void game_over(const DantaresMap& map,bool player_hit_end);
+  void game_over(const Map& map,bool player_hit_end);
 
   int on_key_down_event(const KeyEvent& event);
 
@@ -37,8 +37,8 @@ public:
   void update_game_over(const FrameStep& step,const ViewDimens& dimens,bool player_hit_end);
 
   void draw(Renderer& ren,const ViewDimens& dimens);
-  void draw_map_info(Renderer& ren,const DantaresMap& map);
-  void draw_game_over(Renderer& ren,const DantaresMap& map,bool player_hit_end);
+  void draw_map_info(Renderer& ren,const Map& map);
+  void draw_game_over(Renderer& ren,const Map& map,bool player_hit_end);
 
   float game_over_age() const;
 

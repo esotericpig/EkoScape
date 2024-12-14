@@ -12,7 +12,7 @@
 
 #include "cybel/util/rando.h"
 
-#include "map/dantares_map.h"
+#include "map/map.h"
 #include "map/space.h"
 #include "map/space_type.h"
 
@@ -22,12 +22,12 @@ class Robot {
 public:
   class MoveData {
   public:
-    DantaresMap& map;
+    Map& map;
     Pos3i player_pos{};
     bool player_ate_fruit = false;
     std::vector<Robot> new_robots{};
 
-    explicit MoveData(DantaresMap& map);
+    explicit MoveData(Map& map);
 
     void refresh(bool player_ate_fruit);
   };
