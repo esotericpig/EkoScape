@@ -3,23 +3,10 @@
 [![EkoShot](https://github.com/user-attachments/assets/51fa9a49-e7b5-4543-b68d-e827af763cd2)](https://esotericpig.itch.io/ekoscape)
 
 [![itch.io](https://img.shields.io/badge/play-itch.io-fa5c5c)](https://esotericpig.itch.io/ekoscape)
-[![Latest Release](https://img.shields.io/github/v/release/esotericpig/EkoScape?include_prereleases&display_name=release&color=1a7f37)](https://github.com/esotericpig/EkoScape/releases/latest)
 [![Source Code](https://img.shields.io/badge/source-github-211f1f.svg)](https://github.com/esotericpig/EkoScape)
 [![License](https://img.shields.io/github/license/esotericpig/EkoScape.svg)](LICENSE)
 
 EkoScape is a simple 3D step-based game where you run through a maze rescuing your fellow alien *Ekos*, like a 3D Pac-Man, with robot enemies, fruit, and portals. The maps are simple text files that you can edit!
-
-## Code Notes ##
-
-EkoScape is a remake of an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine: The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
-
-Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SDL2 (multi-platform) using modern C++20. However, it still uses The Dantares Engine and legacy OpenGL 2.0+, as homage to the original game and engine.
-
-In the beginning, I rewrote the original code for fun in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff (such as portals, fruit, and multiple grids), which took over a month.
-
-The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I did make a simple ECS (Entity-Component-System) for it, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just stick with the original class-based structure.
-
-Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
 
 ## Playing ##
 
@@ -32,15 +19,25 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
     - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
 - Windows x64
 
-You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) or from the [latest release on GitHub](https://github.com/esotericpig/EkoScape/releases/latest). You can also install the game from the official [itch app](https://itch.io/app) -- the game has been tested to install & run from it, even in sandbox mode.
-
-Then simply run it in the same folder containing the `assets` folder.
+You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) (and then simply run it in the same folder containing the `assets` folder), or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
 
 You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
 
 **Additional System Notes:**
 - Linux:
   - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file -- `com.github.esotericpig.EkoScape.desktop` -- in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/com.github.esotericpig.EkoScape.desktop).
+
+## Code Notes ##
+
+EkoScape is a remake of an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine: The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
+
+Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SDL2 (multi-platform) using modern C++20. However, it still uses The Dantares Engine and legacy OpenGL 2.0+, as homage to the original game and engine.
+
+In the beginning, I rewrote the original code for fun in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff (such as portals, fruit, and multiple grids), which took over a month.
+
+The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I did make a simple ECS (Entity-Component-System) for it, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just stick with the original class-based structure.
+
+Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
 
 ## Contents ##
 
@@ -170,7 +167,7 @@ cmake --build --preset default --config Release --target check
 
 ### Building Linux AppImage ###
 
-This automatically downloads [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous) to `build/downloads/` if it doesn't exist.
+This automatically downloads [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous) to `build/downloads/` if it doesn't exist. The config is ignored and always uses the Release config.
 
 ```
 cmake --build --preset default --config Release --target appimage
@@ -184,7 +181,7 @@ If your platform is not `x86_64`, you'll need to change which `linuxdeploy` to u
 ```
 rm -r build
 
-# aarch64, armhf, i386
+# aarch64, armhf, i386, static-x86_64, x86_64
 cmake --preset default -DLINUXDEPLOY_ARCH=aarch64
 
 cmake --build --preset default --config Release --target appimage
@@ -198,7 +195,7 @@ When configuring, optionally add a suffix for the filename:
 cmake --preset default -DPKG_SUFFIX="-x64"
 ```
 
-Now run the target `package`. It uses `--install` & **CPack** to package up the files. Currently, `Release` is always used, even if you specify differently.
+Now run the target `package`. It uses `--install` & **CPack** to package up the files.
 
 ```
 cmake --build --preset default --config Release --target package
@@ -225,7 +222,7 @@ With the [GH CLI](https://cli.github.com) (`gh`) installed, run this script to d
 Create a new release:
 
 ```
-gh release create --draft --generate-notes v2.0 build/artifacts/*
+gh release create --draft --generate-notes v2.0
 ```
 
 ## Credits ##
