@@ -1,6 +1,7 @@
 ###
 # Configurable params w/ defaults:
 #   # See: https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous
+#   # - aarch64, armhf, i386, static-x86_64, x86_64
 #   -DLINUXDEPLOY_ARCH=x86_64
 #
 # Running:
@@ -22,7 +23,7 @@ set(ASSETS_DIR "@ASSETS_DIR@")
 set(APPDIR_DIR "${CMAKE_BINARY_DIR}/AppDir")
 set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
 #cmake_path(RELATIVE_PATH APPDIR_PREFIX)
-set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
+set(APPIMG_DIR "@APPIMG_DIR@")
 
 set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
 set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")

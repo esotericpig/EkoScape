@@ -62,6 +62,7 @@ set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
 
 set(TEMPL_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
+set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
 set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
 set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
@@ -328,7 +329,7 @@ else()
   set(CPACK_GENERATOR "TGZ")
 
   # Must have a trailing slash! So that the dir is not created in the package.
-  install(DIRECTORY "${CMAKE_BINARY_DIR}/AppImage/"
+  install(DIRECTORY "${APPIMG_DIR}/"
       DESTINATION "."
       FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                        GROUP_READ GROUP_EXECUTE
