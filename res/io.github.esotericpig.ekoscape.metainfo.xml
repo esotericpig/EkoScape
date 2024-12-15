@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+NOTE: This file uses tabs.
+
 - https://docs.appimage.org/packaging-guide/optional/appstream.html
 - https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
 - https://www.freedesktop.org/software/appstream/docs/chap-Validation.html
 -->
 <component type="desktop-application">
-	<id>com.github.esotericpig.EkoScape</id>
+	<id>io.github.esotericpig.ekoscape</id>
 	<metadata_license>FSFAP</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<name>EkoScape</name>
 	<summary>Simple 3D step-based game, like a 3D Pac-Man</summary>
-	<icon type="stock">com.github.esotericpig.EkoScape</icon>
-	<!-- <icon type="cached">com.github.esotericpig.EkoScape.png</icon> -->
+	<icon type="stock">io.github.esotericpig.ekoscape</icon>
+	<!-- <icon type="cached">io.github.esotericpig.ekoscape.png</icon> -->
 	<description>
 		<p>
 		Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.0.
@@ -35,9 +37,12 @@
 	<url type="homepage">https://github.com/esotericpig/EkoScape</url>
 	<url type="bugtracker">https://github.com/esotericpig/EkoScape/issues</url>
 	<!-- <url type="vcs-browser">https://github.com/esotericpig/EkoScape</url> -->
-	<launchable type="desktop-id">com.github.esotericpig.EkoScape.desktop</launchable>
+	<launchable type="desktop-id">io.github.esotericpig.ekoscape.desktop</launchable>
+	<releases>
+		<release version="2.0" date="2024-10-24" urgency="medium" />
+	</releases>
 	<provides>
-		<id>com.github.esotericpig.EkoScape.desktop</id>
+		<id>io.github.esotericpig.ekoscape.desktop</id>
 	</provides>
 
 	<!--
@@ -45,13 +50,11 @@
 		<internet>offline-only</internet>
 	</requires>
 	-->
-	<!--
-	<developer id="com.github.esotericpig">
+	<developer id="io.github.esotericpig">
 		<name>Bradley Whited</name>
 	</developer>
-	-->
 
-	<!-- Must be PNG! -->
+	<!-- NOTE: Must be PNG! -->
 	<screenshots>
 		<screenshot type="default">
 			<caption>Playing the EkoScape game.</caption>

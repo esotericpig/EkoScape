@@ -19,13 +19,13 @@ EkoScape is a simple 3D step-based game where you run through a maze rescuing yo
     - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
 - Windows x64
 
-You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) (and then simply run it in the same folder containing the `assets` folder), or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
+You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) and then simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
 
 You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
 
 **Additional System Notes:**
 - Linux:
-  - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file -- `com.github.esotericpig.EkoScape.desktop` -- in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/com.github.esotericpig.EkoScape.desktop).
+  - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file, `io.github.esotericpig.ekoscape.desktop`, in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/io.github.esotericpig.ekoscape.desktop).
 
 ## Code Notes ##
 

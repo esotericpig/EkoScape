@@ -63,7 +63,7 @@ void Assets::reload_graphics(bool make_weird) {
   star2_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star2.png"});
   star_texture_ = is_weird_ ? star2_texture_.get() : star1_texture_.get();
 
-  icon_image_ = std::make_unique<Image>(kIconsDir / "com.github.esotericpig.EkoScape.png");
+  icon_image_ = std::make_unique<Image>(kIconsDir / "io.github.esotericpig.ekoscape.png");
   logo_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "EkoScape.png"},is_weird_});
   keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"},is_weird_});
   dantares_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "Dantares.png"},is_weird_});

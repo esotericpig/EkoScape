@@ -2,15 +2,14 @@
 ###
 # == Install ==
 # To install manually, change these to absolute paths:
-#   Icon=/home/<username>/Applications/EkoScape/assets/icons/com.github.esotericpig.EkoScape.png
+#   Icon=/home/<username>/Applications/EkoScape/assets/icons/io.github.esotericpig.ekoscape.png
 #   Exec=/home/<username>/Applications/EkoScape/EkoScape-x86_64.AppImage
 #
 # NOTE: The `assets/` folder must be in the same folder as the AppImage!
 #
 # Finally, run this:
-#   xdg-desktop-menu install --novendor com.github.esotericpig.EkoScape.desktop
-#
-# This will usually install to `~/.local/share/applications`.
+#   # This will usually install to `~/.local/share/applications`.
+#   xdg-desktop-menu install --novendor io.github.esotericpig.ekoscape.desktop
 #
 # If it doesn't appear, you might also need to run one or both of these:
 #   xdg-desktop-menu forceupdate
@@ -18,7 +17,7 @@
 #
 # == Uninstall ==
 # To uninstall:
-#   xdg-desktop-menu uninstall com.github.esotericpig.EkoScape.desktop
+#   xdg-desktop-menu uninstall io.github.esotericpig.ekoscape.desktop
 ###
 
 # - https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html
@@ -27,8 +26,8 @@ Name=EkoScape
 GenericName=3D Game
 Comment=Simple 3D step-based game, like a 3D Pac-Man
 
-#Icon=/home/<username>/Applications/EkoScape/assets/icons/com.github.esotericpig.EkoScape.png
-Icon=com.github.esotericpig.EkoScape
+#Icon=/home/<username>/Applications/EkoScape/assets/icons/io.github.esotericpig.ekoscape.png
+Icon=io.github.esotericpig.ekoscape
 #TryExec=EkoScape
 #Exec=/home/<username>/Applications/EkoScape/EkoScape-x86_64.AppImage
 Exec=EkoScape
@@ -41,4 +40,4 @@ Categories=Game;ArcadeGame;
 Keywords=3D;game;games;arcade;
 
 StartupWMClass=EkoScape
-PrefersNonDefaultGPU=true
+#PrefersNonDefaultGPU=true

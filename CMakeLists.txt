@@ -38,14 +38,15 @@ cmake_minimum_required(VERSION 3.20)
 # @author Bradley Whited
 ###
 
-#message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
+message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
 
 project("EkoScape"
     HOMEPAGE_URL "https://github.com/esotericpig/EkoScape"
     LANGUAGES C CXX
 )
 
-set(RDNS_NAME "com.github.esotericpig.${PROJECT_NAME}")
+string(TOLOWER "${PROJECT_NAME}" PROJ_ID)
+set(RDNS_NAME "io.github.esotericpig.${PROJ_ID}")
 set(BIN_NAME "${PROJECT_NAME}")
 set(BIN_DIRNAME "bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
@@ -281,8 +282,11 @@ install(FILES "${RES_DIR}/${RDNS_NAME}.desktop"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
-install(FILES "${RES_DIR}/${RDNS_NAME}.appdata.xml"
+install(FILES "${RES_DIR}/${RDNS_NAME}.metainfo.xml"
     DESTINATION "share/metainfo"
+    # FIXME: The official AppStream docs recommend `.metainfo.xml` now, but AppImage still only supports
+    #        the older `.appdata.xml`. If AppImage possibly fixes this in the future, remove this.
+    RENAME "${RDNS_NAME}.appdata.xml"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
