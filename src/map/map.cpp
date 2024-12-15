@@ -74,51 +74,51 @@ void Map::load_metadata(TextReader& reader,const std::string& file) {
   int data_i = 0;
 
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_str("Missing header in map [",file,"].")};
+    throw CybelError{"Missing header in map [",file,"]."};
   }
   if(!parse_header(line,data_i)) {
-    throw CybelError{Util::build_str("Invalid header [",line,"] in map [",file,"].")};
+    throw CybelError{"Invalid header [",line,"] in map [",file,"]."};
   }
   if(!kSupportedVersions.in_range(data_i)) {
-    throw CybelError{Util::build_str("Unsupported version [",data_i,"] in map [",file,"].")};
+    throw CybelError{"Unsupported version [",data_i,"] in map [",file,"]."};
   }
   version_ = data_i;
 
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_str("Missing title in map [",file,"].")};
+    throw CybelError{"Missing title in map [",file,"]."};
   }
   set_title(line);
 
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_str("Missing author in map [",file,"].")};
+    throw CybelError{"Missing author in map [",file,"]."};
   }
   set_author(line);
 
   if(!reader.read(data_f)) {
-    throw CybelError{Util::build_str("Missing turning speed in map [",file,"].")};
+    throw CybelError{"Missing turning speed in map [",file,"]."};
   }
   set_turning_speed(data_f);
 
   if(!reader.read(data_f)) {
-    throw CybelError{Util::build_str("Missing walking speed in map [",file,"].")};
+    throw CybelError{"Missing walking speed in map [",file,"]."};
   }
   set_walking_speed(data_f);
 
   if(!reader.seek_and_destroy('\'')
       || !reader.get(data_c)
       || !reader.seek_and_destroy('\'')) {
-    throw CybelError{Util::build_str("Missing default empty space in map [",file,"].")};
+    throw CybelError{"Missing default empty space in map [",file,"]."};
   }
   set_default_empty(SpaceTypes::to_space_type(data_c));
 
   if(!reader.read(data_i)) {
-    throw CybelError{Util::build_str("Missing robot delay in map [",file,"].")};
+    throw CybelError{"Missing robot delay in map [",file,"]."};
   }
   set_robot_delay(Duration::from_millis(data_i));
 
   // Finish consuming previous line.
   if(!reader.read_line(line)) {
-    throw CybelError{Util::build_str("Missing a grid in map [",file,"].")};
+    throw CybelError{"Missing a grid in map [",file,"]."};
   }
 }
 
@@ -164,24 +164,21 @@ void Map::load_grids(TextReader& reader,const SpaceCallback& on_space
   shrink_grids_to_fit();
 
   if(grids_.empty()) {
-    throw CybelError{Util::build_str("Missing a grid in map [",file,"].")};
+    throw CybelError{"Missing a grid in map [",file,"]."};
   }
   if(!has_player) {
-    throw CybelError{Util::build_str(
+    throw CybelError{
       "Missing a Player space {"
       ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
       ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
       ,',',SpaceTypes::value_of(SpaceType::kPlayerEast)
       ,',',SpaceTypes::value_of(SpaceType::kPlayerWest)
       ,"} in a grid of map [",file,"]."
-    )};
+    };
   }
   if(!has_end) {
-    throw CybelError{Util::build_str(
-      "Missing an End space ["
-      ,SpaceTypes::value_of(SpaceType::kEnd)
-      ,"] in a grid of map [",file,"]."
-    )};
+    throw CybelError{"Missing an End space [",SpaceTypes::value_of(SpaceType::kEnd)
+        ,"] in a grid of map [",file,"]."};
   }
 }
 
@@ -199,7 +196,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
   if(file.empty()) { file = title_; }
 
   if(grids_.size() >= Dantares::MAXMAPS) {
-    throw CybelError{Util::build_str("Too many grids in map [",file,"]; max is ",Dantares::MAXMAPS,'.')};
+    throw CybelError{"Too many grids in map [",file,"]; max is ",Dantares::MAXMAPS,'.'};
   }
 
   if(size.w <= 0) {
@@ -216,8 +213,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
   if(size.h <= 0) { size.h = line_count; }
 
   if(size.w <= 0 || size.h <= 0) {
-    throw CybelError{Util::build_str("Grid size [",size.w,'x',size.h,"] in map [",file
-        ,"] must at least be 1x1.")};
+    throw CybelError{"Grid size [",size.w,'x',size.h,"] in map [",file,"] must at least be 1x1."};
   }
 
   auto grid = std::make_unique<MapGrid>(size);

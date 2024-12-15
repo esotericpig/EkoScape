@@ -20,14 +20,14 @@ Map& DantaresMap::clear_grids() {
 }
 
 Map& DantaresMap::add_to_bridge() {
-  if(grids_.empty()) { throw CybelError{Util::build_str("No grids in map [",title_,"].")}; }
+  if(grids_.empty()) { throw CybelError{"No grids in map [",title_,"]."}; }
   if(grid_index_ < 0 || grid_index_ >= static_cast<int>(grids_.size())) {
-    throw CybelError{Util::build_str("Invalid grid index [",grid_index_,"] for map [",title_
-        ,"] of size [",grids_.size(),"].")};
+    throw CybelError{"Invalid grid index [",grid_index_,"] for map [",title_,"] of size ["
+        ,grids_.size(),"]."};
   }
   if(player_init_pos_.z < 0 || player_init_pos_.z >= static_cast<int>(grids_.size())) {
-    throw CybelError{Util::build_str("Invalid player Z [",player_init_pos_.z,"] for map [",title_
-        ,"] of size [",grids_.size(),"].")};
+    throw CybelError{"Invalid player Z [",player_init_pos_.z,"] for map [",title_,"] of size ["
+        ,grids_.size(),"]."};
   }
 
   grid_ids_.resize(grids_.size(),-1);
@@ -41,11 +41,10 @@ Map& DantaresMap::add_to_bridge() {
     const int id = dantares_.AddMap(static_cast<const void*>(int_spaces.data()),size.w,size.h);
 
     if(id == -1 || !dantares_.IsMap(id)) {
-      throw CybelError{Util::build_str("Failed to add map grid [",z,',',id,':',title_,"] to Dantares.")};
+      throw CybelError{"Failed to add map grid [",z,',',id,':',title_,"] to Dantares."};
     }
     if(!dantares_.SetCurrentMap(id)) {
-      throw CybelError{Util::build_str("Failed to make map grid [",z,',',id,':',title_
-          ,"] current in Dantares.")};
+      throw CybelError{"Failed to make map grid [",z,',',id,':',title_,"] current in Dantares."};
     }
 
     grid_ids_[z] = id;
@@ -61,8 +60,7 @@ Map& DantaresMap::add_to_bridge() {
 
     // Must be called after setting the textures.
     if(!dantares_.GenerateMap()) {
-      throw CybelError{Util::build_str("Failed to generate map grid [",z,',',id,':',title_
-          ,"] in Dantares.")};
+      throw CybelError{"Failed to generate map grid [",z,',',id,':',title_,"] in Dantares."};
     }
   }
 
@@ -71,13 +69,11 @@ Map& DantaresMap::add_to_bridge() {
   const int dan_facing = Facings::value_of(player_init_facing_);
 
   if(!change_grid(z,true)) {
-    throw CybelError{Util::build_str("Failed to change to map grid [",z,',',id,':',title_
-        ,"] in Dantares.")};
+    throw CybelError{"Failed to change to map grid [",z,',',id,':',title_,"] in Dantares."};
   }
   if(!dantares_.SetPlayerPosition(player_init_pos_.x,player_init_pos_.y,dan_facing)) {
-    throw CybelError{Util::build_str("Failed to set player pos [",dan_facing,":("
-        ,player_init_pos_.x,',',player_init_pos_.y,")] for map grid [",z,',',id,':',title_
-        ,"] in Dantares.")};
+    throw CybelError{"Failed to set player pos [",dan_facing,":(",player_init_pos_.x,',',player_init_pos_.y
+        ,")] for map grid [",z,',',id,':',title_,"] in Dantares."};
   }
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
     std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map grid ["

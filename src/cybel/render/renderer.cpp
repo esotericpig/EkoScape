@@ -181,8 +181,7 @@ void Renderer::init_gl() {
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    throw CybelError{Util::build_str("Failed to init OpenGL [",error,"]: "
-        ,Util::get_gl_error(error),'.')};
+    throw CybelError{"Failed to init OpenGL [",error,"]: ",Util::get_gl_error(error),'.'};
   }
 }
 

@@ -10,12 +10,18 @@
 
 #include "cybel/common.h"
 
+#include "util.h"
+
 namespace cybel {
 
 class CybelError : public std::exception {
 public:
   explicit CybelError() noexcept = default;
   explicit CybelError(const std::string& msg) noexcept;
+
+  template <typename... MsgArgs>
+  explicit CybelError(const MsgArgs&... msg_args)
+      : msg_(Util::build_str(msg_args...)) {}
 
   const char* what() const noexcept override;
 
