@@ -33,12 +33,9 @@ void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens&
 }
 
 int MenuCreditsScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
-  const int action = scene_action_;
-  scene_action_ = SceneAction::kNil;
-
   update_wtfs(step,dimens);
 
-  return action;
+  return std::exchange(scene_action_,SceneAction::kNil);
 }
 
 void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {

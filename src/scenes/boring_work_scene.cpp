@@ -31,10 +31,7 @@ void BoringWorkScene::on_key_down_event(const KeyEvent& event,const ViewDimens& 
 }
 
 int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) {
-  const int action = scene_action_;
-  scene_action_ = SceneAction::kNil;
-
-  return action;
+  return std::exchange(scene_action_,SceneAction::kNil);
 }
 
 void BoringWorkScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {

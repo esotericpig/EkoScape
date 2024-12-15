@@ -91,10 +91,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
 }
 
 int MenuScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) {
-  const int action = scene_action_;
-  scene_action_ = SceneAction::kNil; // Avoid possible infinite loop.
-
-  return action;
+  return std::exchange(scene_action_,SceneAction::kNil);
 }
 
 void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
