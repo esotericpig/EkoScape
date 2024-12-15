@@ -53,8 +53,6 @@ public:
   Color4f with_byte_a(std::uint8_t a) const;
 };
 
-using CybelStrUtf8 = tiny_utf8::string;
-
 template <typename T>
 class Pos3;
 
@@ -170,6 +168,7 @@ public:
 
 using Size2f = Size2<float>;
 using Size2i = Size2<int>;
+using StrUtf8 = tiny_utf8::string;
 
 } // Namespace.
 #endif

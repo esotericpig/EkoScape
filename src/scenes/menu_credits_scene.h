@@ -39,7 +39,7 @@ private:
     Size2f true_size{};
   };
 
-  static inline const CybelStrUtf8 kWtfText = "wtf!?";
+  static inline const StrUtf8 kWtfText = "wtf!?";
 
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;

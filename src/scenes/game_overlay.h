@@ -51,10 +51,10 @@ private:
   class Option {
   public:
     OptionType type{};
-    CybelStrUtf8 text{};
+    StrUtf8 text{};
 
     explicit Option() noexcept = default;
-    explicit Option(OptionType type,const CybelStrUtf8& text);
+    explicit Option(OptionType type,const StrUtf8& text);
   };
 
   static inline const Color4f kTextBgColor{0.0f,0.5f};

@@ -96,13 +96,13 @@ public:
 
     FontAtlasWrapper& print();
     FontAtlasWrapper& print(char32_t c);
-    FontAtlasWrapper& print(const CybelStrUtf8& str);
-    FontAtlasWrapper& print(const std::vector<CybelStrUtf8>& strs);
+    FontAtlasWrapper& print(const StrUtf8& str);
+    FontAtlasWrapper& print(const std::vector<StrUtf8>& strs);
     FontAtlasWrapper& print_blanks(int count);
     FontAtlasWrapper& puts();
     FontAtlasWrapper& puts(char32_t c);
-    FontAtlasWrapper& puts(const CybelStrUtf8& str);
-    FontAtlasWrapper& puts(const std::vector<CybelStrUtf8>& lines);
+    FontAtlasWrapper& puts(const StrUtf8& str);
+    FontAtlasWrapper& puts(const std::vector<StrUtf8>& lines);
     FontAtlasWrapper& puts_blanks(int count);
   };
 

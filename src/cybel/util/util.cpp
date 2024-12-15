@@ -29,7 +29,7 @@ std::string Util::strip_str(const std::string& str) {
   return str.substr(begin,end - begin);
 }
 
-CybelStrUtf8 Util::ellips_str(const CybelStrUtf8& str,std::size_t max_len) {
+StrUtf8 Util::ellips_str(const StrUtf8& str,std::size_t max_len) {
   if(str.length() > max_len) {
     if(max_len == 0) { return ""; }
     if(max_len == 1) { return str.substr(0,max_len); }
@@ -40,17 +40,17 @@ CybelStrUtf8 Util::ellips_str(const CybelStrUtf8& str,std::size_t max_len) {
   return str;
 }
 
-CybelStrUtf8 Util::pad_str(const CybelStrUtf8& str,std::size_t len) {
+StrUtf8 Util::pad_str(const StrUtf8& str,std::size_t len) {
   if(str.length() >= len) { return str; }
 
-  CybelStrUtf8 result = str;
+  StrUtf8 result = str;
 
   while(result.length() < len) { result += " "; }
 
   return result;
 }
 
-int Util::comparei_str(const CybelStrUtf8& str1,const CybelStrUtf8& str2) {
+int Util::comparei_str(const StrUtf8& str1,const StrUtf8& str2) {
   const std::size_t len1 = str1.length();
   const std::size_t len2 = str2.length();
   const std::size_t min_len = std::min(len1,len2);

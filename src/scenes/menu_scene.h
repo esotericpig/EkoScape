@@ -37,10 +37,10 @@ private:
 
   struct Option {
     OptionType type{};
-    CybelStrUtf8 text{};
+    StrUtf8 text{};
   };
 
-  static inline const CybelStrUtf8 kGraphicsText = "gfx: ";
+  static inline const StrUtf8 kGraphicsText = "gfx: ";
 
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;

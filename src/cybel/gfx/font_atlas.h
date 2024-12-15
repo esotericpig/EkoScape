@@ -38,8 +38,8 @@ public:
     Builder& spacing(int char_spacing,int line_spacing);
     Builder& default_index(int index);
     Builder& default_index(int col,int row);
-    Builder& index_to_char(const CybelStrUtf8& str);
-    Builder& index_to_char(const std::vector<CybelStrUtf8>& lines);
+    Builder& index_to_char(const StrUtf8& str);
+    Builder& index_to_char(const std::vector<StrUtf8>& lines);
 
     friend class FontAtlas;
 

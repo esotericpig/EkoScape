@@ -57,7 +57,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int col,int row) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(const CybelStrUtf8& str) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_char(const StrUtf8& str) {
   int index = 0;
 
   for(auto c: str) {
@@ -68,7 +68,7 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const CybelStrUtf8& str) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<CybelStrUtf8>& lines) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<StrUtf8>& lines) {
   int index = 0;
   int col_count = 0;
 
