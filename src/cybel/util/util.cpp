@@ -50,6 +50,51 @@ StrUtf8 Util::pad_str(const StrUtf8& str,std::size_t len) {
   return result;
 }
 
+std::string Util::wrap_str(const std::string& str,std::size_t max_len) {
+  if(str.length() <= max_len) { return str; }
+
+  std::ostringstream result{};
+  std::istringstream lines{str};
+  std::string line{};
+
+  while(std::getline(lines,line)) {
+    if(line.length() <= max_len) {
+      result << line << '\n';
+      continue;
+    }
+
+    std::ostringstream wrapped_line{};
+    std::istringstream words{line};
+    std::string word{};
+
+    while(words >> word) {
+      const auto wrapped_len = static_cast<std::size_t>(wrapped_line.tellp());
+
+      // If empty, then always add the word, else might get `\n<long.word>\n` instead of `<long.word>\n`.
+      if(wrapped_len > 0) {
+        // +1 for space.
+        if((wrapped_len + 1 + word.length()) > max_len) {
+          result << wrapped_line.str() << '\n';
+
+          wrapped_line.str("");
+          wrapped_line.clear();
+        } else {
+          wrapped_line << ' '; // Not the first word on this line.
+        }
+      }
+
+      wrapped_line << word;
+    }
+
+    // Not empty?
+    if(static_cast<std::size_t>(wrapped_line.tellp()) > 0) {
+      result << wrapped_line.str() << '\n';
+    }
+  }
+
+  return result.str();
+}
+
 int Util::comparei_str(const StrUtf8& str1,const StrUtf8& str2) {
   const std::size_t len1 = str1.length();
   const std::size_t len2 = str2.length();
