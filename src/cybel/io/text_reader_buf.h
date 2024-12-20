@@ -33,12 +33,7 @@ namespace cybel {
  */
 class TextReaderBuf : public std::streambuf {
 public:
-  /**
-   * Default initial buffer size; only used on init.
-   */
-  static inline const std::size_t kDefaultInitBufferSize = 1024;
-
-  explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = kDefaultInitBufferSize);
+  explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = 1024);
   TextReaderBuf(const TextReaderBuf& other) = delete;
   TextReaderBuf(TextReaderBuf&& other) noexcept;
   virtual ~TextReaderBuf() noexcept;
@@ -54,7 +49,7 @@ public:
   bool is_open() const;
 
 protected:
-  virtual int_type underflow() override;
+  int_type underflow() override;
 
   /**
    * Not implemented, since it could require seeking, which might not be supported by SDL_RWseek().
@@ -63,20 +58,20 @@ protected:
    *
    * Always returns EOF.
    */
-  virtual int_type pbackfail(int_type c = traits_type::eof()) override;
+  int_type pbackfail(int_type c = traits_type::eof()) override;
 
   /**
    * Not implemented, since this class is for reading only.
    *
    * Always returns EOF.
    */
-  virtual int_type overflow(int_type c = traits_type::eof()) override;
+  int_type overflow(int_type c = traits_type::eof()) override;
 
 private:
   using Base = std::streambuf;
 
   SDL_RWops* context_ = NULL;
-  std::vector<char_type> buffer_;
+  std::vector<char_type> buffer_{};
 
   void move_from(TextReaderBuf&& other) noexcept;
   void close() noexcept;

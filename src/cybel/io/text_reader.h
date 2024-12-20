@@ -24,8 +24,8 @@ namespace cybel {
 // NOTE: See limitations of TextReaderBuf before modifying this class.
 class TextReader {
 public:
-  explicit TextReader(const std::filesystem::path& file
-      ,std::size_t buffer_size = TextReaderBuf::kDefaultInitBufferSize);
+  explicit TextReader(const std::filesystem::path& file);
+  explicit TextReader(const std::filesystem::path& file,std::size_t buffer_size);
 
   bool read_line(std::string& line);
 
