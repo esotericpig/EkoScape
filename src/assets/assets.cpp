@@ -9,87 +9,96 @@
 
 namespace ekoscape {
 
-std::filesystem::path Assets::fetch_assets_path() {
-  // First, try current dir, so that the user can easily overwrite the assets (and it's fast).
-  std::filesystem::path assets_path = ".";
-  assets_path /= kAssetsDirname;
+std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
+  std::vector<std::filesystem::path> dirs{};
+  std::filesystem::path dir{};
 
-  if(is_directory(assets_path)) { return assets_path; }
+  // First, try current dir, so that the user can easily overwrite the assets.
+  dirs.emplace_back(".");
 
   // Try our AppImage's path.
   const char* appimg_path = std::getenv("APPIMAGE");
 
   if(appimg_path != nullptr) {
-    assets_path = appimg_path;
-    assets_path = assets_path.parent_path() / kAssetsDirname;
-
-    if(is_directory(assets_path)) { return assets_path; }
+    // parent_path() can throw exceptions.
+    try {
+      dir = appimg_path;
+      dirs.emplace_back(dir.parent_path());
+    } catch(const std::exception& e) {
+      std::cerr << "[WARN] Failed to get parent path of AppImage path [" << appimg_path << "]: "
+                << e.what() << '.' << std::endl;
+    }
   }
 
-  // Lastly, try our app's base dir (slowest).
+  // Try our game's base dir.
+  // - NOTE: SDL_GetBasePath() is slow so should only be called once.
   char* base_path = SDL_GetBasePath();
 
-  if(base_path == NULL) {
-    throw CybelError{"Failed to get base path of app: " + Util::get_sdl_error() + "."};
+  if(base_path != NULL) {
+    dirs.emplace_back(base_path);
+
+    SDL_free(base_path);
+    base_path = NULL;
+  } else {
+    std::cerr << "[WARN] Failed to get base path of game: " + Util::get_sdl_error() + '.' << std::endl;
   }
 
-  assets_path = base_path;
-  assets_path /= kAssetsDirname;
-
-  SDL_free(base_path);
-  base_path = NULL;
-
-  if(!is_directory(assets_path)) {
-    throw CybelError{"Failed to find [" + kAssetsDirname + "] folder."};
+  // Make all paths absolute for Util::unique() (without throwing exceptions if path doesn't exist).
+  for(std::size_t i = 0; i < dirs.size(); ++i) {
+    dirs[i] = weakly_canonical(dirs[i]);
   }
 
-  return assets_path;
+  return Util::unique(dirs);
 }
 
-Assets::Assets(StyledGraphics::Style graphics_style,bool has_audio_player,bool make_weird)
-    : styled_graphics_(kTexturesDir,graphics_style,make_weird),has_audio_player_(has_audio_player) {
-  reload_graphics(make_weird);
+Assets::Assets(const StrUtf8& tex_style,bool has_audio_player,bool make_weird)
+    : has_audio_player_(has_audio_player) {
+  reload_gfx(tex_style,make_weird);
   reload_music();
 }
 
-void Assets::reload_graphics() { reload_graphics(is_weird_); }
+void Assets::reload_gfx() { reload_gfx(is_weird_); }
 
-void Assets::reload_graphics(bool make_weird) {
+void Assets::reload_gfx(bool make_weird) { reload_gfx(styled_texs_bag_it_->dirname,make_weird); }
+
+void Assets::reload_gfx(const StrUtf8& tex_style,bool make_weird) {
   is_weird_ = make_weird;
 
-  styled_graphics_.reload(is_weird_);
+  reload_styled_texs_bag(tex_style);
 
-  star1_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star.png"});
-  star2_texture_ = std::make_unique<Texture>(Image{kTexturesDir / "star2.png"});
-  star_texture_ = is_weird_ ? star2_texture_.get() : star1_texture_.get();
+  star1_tex_ = load_tex(kTexsSubdir / "star.png");
+  star2_tex_ = load_tex(kTexsSubdir / "star2.png");
+  star_tex_ = is_weird_ ? star2_tex_.get() : star1_tex_.get();
 
-  icon_image_ = std::make_unique<Image>(kIconsDir / "io.github.esotericpig.ekoscape.png");
-  logo_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "EkoScape.png"},is_weird_});
-  keys_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "keys.png"},is_weird_});
-  dantares_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "Dantares.png"},is_weird_});
-  boring_work_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "boring_work.png"},is_weird_});
-  goodnight_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "goodnight.png"},is_weird_});
-  corngrits_sprite_ = std::make_unique<Sprite>(Texture{Image{kImagesDir / "corngrits.png"},is_weird_});
+  icon_img_ = load_img(kIconsSubdir / "io.github.esotericpig.ekoscape.png");
+  logo_sprite_ = load_sprite(kImgsSubdir / "EkoScape.png");
+  keys_sprite_ = load_sprite(kImgsSubdir / "keys.png");
+  dantares_sprite_ = load_sprite(kImgsSubdir / "Dantares.png");
+  boring_work_sprite_ = load_sprite(kImgsSubdir / "boring_work.png");
+  goodnight_sprite_ = load_sprite(kImgsSubdir / "goodnight.png");
+  corngrits_sprite_ = load_sprite(kImgsSubdir / "corngrits.png");
 
-  font_atlas_ = std::make_unique<FontAtlas>(
-    FontAtlas::Builder{Texture{Image{kImagesDir / "font_monogram.png"}}}
-      .offset(0,0)
-      .cell_size(9,14)
-      .cell_padding(2)
-      .spacing(5,5)
-      .default_index(0)
-      .index_to_char({
-        R"( !"#$%&'()*+,-./)",
-        R"(0123456789:;<=>?)",
-        R"(@ABCDEFGHIJKLMNO)",
-        R"(PQRSTUVWXYZ[\]^_)",
-        R"(`abcdefghijklmno)",
-        R"(pqrstuvwxyz{|}~…)",
-        R"(¿¡←↑→↓©®×÷±«¤»¬¯)",
-        R"(₀₁₂₃₄₅₆₇₈₉°ªº£¥¢)",
-      })
-      .build()
-  );
+  load_asset([&](const auto& base_dir) {
+    font_atlas_ = std::make_unique<FontAtlas>(
+      FontAtlas::Builder{Texture{Image{base_dir / kImgsSubdir / "font_monogram.png"}}}
+        .offset(0,0)
+        .cell_size(9,14)
+        .cell_padding(2)
+        .spacing(5,5)
+        .default_index(0)
+        .index_to_char({
+          R"( !"#$%&'()*+,-./)",
+          R"(0123456789:;<=>?)",
+          R"(@ABCDEFGHIJKLMNO)",
+          R"(PQRSTUVWXYZ[\]^_)",
+          R"(`abcdefghijklmno)",
+          R"(pqrstuvwxyz{|}~…)",
+          R"(¿¡←↑→↓©®×÷±«¤»¬¯)",
+          R"(₀₁₂₃₄₅₆₇₈₉°ªº£¥¢)",
+        })
+        .build()
+    );
+  });
   font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,is_weird_);
 
   eko_color_.set_hex(0xff0000);
@@ -109,62 +118,245 @@ void Assets::reload_graphics(bool make_weird) {
   }
 }
 
+void Assets::reload_styled_texs_bag(const StrUtf8& tex_style) {
+  styled_texs_bag_.clear();
+  styled_texs_bag_it_ = styled_texs_bag_.cbegin();
+
+  std::unordered_set<std::filesystem::path> loaded_dirnames{};
+  std::ostringstream errors{};
+
+  for(const auto& base_dir: kBaseDirs) {
+    const auto texs_dir = base_dir / kTexsSubdir;
+
+    if(!is_directory(texs_dir)) { continue; } // ADL (Argument-Dependent Lookup).
+
+    try {
+      for(const auto& style_entry: std::filesystem::directory_iterator(texs_dir)) {
+        if(!style_entry.is_directory()) { continue; }
+
+        const auto style_dir = style_entry.path();
+        const auto style_dirname = style_dir.filename();
+
+        if(loaded_dirnames.contains(style_dirname)) { continue; }
+
+        styled_texs_bag_.push_back(load_styled_texs(style_dir));
+        loaded_dirnames.insert(style_dirname);
+      }
+    } catch(const CybelError& e) {
+      std::cerr << "[WARN] " << e.what() << std::endl;
+      errors << "\n\n- " << e.what();
+    } catch(const std::filesystem::filesystem_error& e) {
+      std::string msg = "Failed to crawl textures folder [" + texs_dir.string() + "]: " + e.what() + '.';
+      std::cerr << "[WARN] " << msg << std::endl;
+      errors << "\n\n- " << msg;
+    }
+  }
+
+  styled_texs_bag_.shrink_to_fit();
+  styled_texs_bag_it_ = styled_texs_bag_.cbegin();
+
+  if(styled_texs_bag_.empty()) {
+    throw CybelError{"Failed to find/load any graphics styles in textures folder [",kTexsSubdir.string(),"]."
+        ,errors.str()};
+  }
+
+  // Sort the styles alphabetically, ignoring case.
+  std::ranges::sort(styled_texs_bag_,[](const auto& style1, const auto& style2) {
+    return Util::comparei_str(style1.dirname,style2.dirname) < 0;
+  });
+
+  // Auto-select the style that matches `tex_style`, ignoring case.
+  for(styled_texs_bag_it_ = styled_texs_bag_.cbegin(); styled_texs_bag_it_ < styled_texs_bag_.cend();
+      ++styled_texs_bag_it_) {
+    if(Util::comparei_str(styled_texs_bag_it_->dirname,tex_style) == 0) { break; }
+  }
+
+  if(styled_texs_bag_it_ >= styled_texs_bag_.cend()) {
+    std::cerr << "[WARN] Failed to find/load graphics style [" << tex_style << "]." << std::endl;
+    styled_texs_bag_it_ = styled_texs_bag_.cbegin();
+  }
+}
+
+Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir) const {
+  StyledTextures st{};
+
+  st.dirname = dir.filename().string();
+  st.name = Util::ellips_str(st.dirname,18);
+
+  st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png"},is_weird_);
+  st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png"},is_weird_);
+  st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png"},is_weird_);
+  st.dead_space_ghost_tex = std::make_unique<Texture>(Image{dir / "dead_space_ghost.png"},is_weird_);
+  st.end_tex = std::make_unique<Texture>(Image{dir / "end.png"},is_weird_);
+  st.end_wall_tex = std::make_unique<Texture>(Image{dir / "end_wall.png"},is_weird_);
+  st.floor_tex = std::make_unique<Texture>(Image{dir / "floor.png"},is_weird_);
+  st.fruit_tex = std::make_unique<Texture>(Image{dir / "fruit.png"},is_weird_);
+  st.portal_tex = std::make_unique<Texture>(Image{dir / "portal.png"},is_weird_);
+  st.robot_tex = std::make_unique<Texture>(Image{dir / "robot.png"},is_weird_);
+  st.wall_tex = std::make_unique<Texture>(Image{dir / "wall.png"},is_weird_);
+  st.wall_ghost_tex = std::make_unique<Texture>(Image{dir / "wall_ghost.png"},is_weird_);
+  st.white_tex = std::make_unique<Texture>(Image{dir / "white.png"},is_weird_);
+  st.white_ghost_tex = std::make_unique<Texture>(Image{dir / "white_ghost.png"},is_weird_);
+
+  return st; // NRVO (Named Return Value Optimization).
+}
+
+void Assets::load_asset(const AssetLoader& load_from) const {
+  std::string error{};
+
+  for(const auto& base_dir: kBaseDirs) {
+    try {
+      load_from(base_dir);
+      return; // Success.
+    } catch(const CybelError& e) {
+      if(error.empty()) { error = e.what(); }
+    }
+  }
+
+  if(error.empty()) {
+    error = "Failed to find/load assets in assets folder [" + kAssetsSubdir.string() + "].";
+  }
+
+  throw CybelError{error};
+}
+
+std::unique_ptr<Image> Assets::load_img(const std::filesystem::path& subfile) const {
+  std::unique_ptr<Image> img{};
+
+  load_asset([&](const auto& base_dir) {
+    img = std::make_unique<Image>(base_dir / subfile);
+  });
+
+  return img;
+}
+
+std::unique_ptr<Sprite> Assets::load_sprite(const std::filesystem::path& subfile) const {
+  std::unique_ptr<Sprite> sprite{};
+
+  load_asset([&](const auto& base_dir) {
+    sprite = std::make_unique<Sprite>(Texture{Image{base_dir / subfile},is_weird_});
+  });
+
+  return sprite;
+}
+
+std::unique_ptr<Texture> Assets::load_tex(const std::filesystem::path& subfile) const {
+  std::unique_ptr<Texture> tex{};
+
+  load_asset([&](const auto& base_dir) {
+    tex = std::make_unique<Texture>(Image{base_dir / subfile},is_weird_);
+  });
+
+  return tex;
+}
+
 void Assets::reload_music() {
   if(!has_audio_player_) { return; }
 
   try {
-    music_ = std::make_unique<Music>(kMusicDir / "ekoscape.ogg");
+    load_asset([&](const auto& base_dir) {
+      music_ = std::make_unique<Music>(base_dir / kMusicSubdir / "ekoscape.ogg");
+    });
   } catch(const CybelError& e) {
     std::cerr << "[WARN] " << e.what() << std::endl;
     // Don't fail, since music is optional.
   }
 }
 
-const std::string& Assets::prev_graphics_style() { return styled_graphics_.prev_style(); }
+void Assets::glob_maps_meta(const MapCallback& on_map) const {
+  std::unordered_set<StrUtf8> loaded_maps{};
 
-const std::string& Assets::next_graphics_style() { return styled_graphics_.next_style(); }
+  for(const auto& base_dir: kBaseDirs) {
+    const auto maps_dir = base_dir / kMapsSubdir;
+
+    if(!is_directory(maps_dir)) { continue; }
+
+    try {
+      for(const auto& group_entry: std::filesystem::directory_iterator(maps_dir)) {
+        if(!group_entry.is_directory()) { continue; }
+
+        const StrUtf8 group = group_entry.path().filename().string();
+
+        for(const auto& map_entry: std::filesystem::directory_iterator(group_entry)) {
+          const auto map_file = map_entry.path();
+          const auto map_key = group + '/' + map_file.filename().string();
+
+          if(loaded_maps.contains(map_key)) { continue; }
+          if(!map_entry.is_regular_file() || !Map::is_map_file(map_file)) { continue; }
+
+          Map map{};
+
+          try {
+            map.load_file_meta(map_file);
+          } catch(const CybelError& e) {
+            std::cerr << "[WARN] " << e.what() << std::endl;
+            continue;
+          }
+
+          on_map(group,map_file,map);
+          loaded_maps.insert(map_key);
+        }
+      }
+    } catch(const std::filesystem::filesystem_error& e) {
+      std::cerr << "[WARN] Failed to crawl maps folder [" << maps_dir.string() << "]: " << e.what() << '.'
+                << std::endl;
+    }
+  }
+}
+
+const StrUtf8& Assets::prev_tex_style() {
+  if(styled_texs_bag_it_ <= styled_texs_bag_.cbegin()) {
+    styled_texs_bag_it_ = styled_texs_bag_.cend(); // Wrap to end.
+  }
+  --styled_texs_bag_it_;
+
+  return styled_texs_bag_it_->name;
+}
+
+const StrUtf8& Assets::next_tex_style() {
+  ++styled_texs_bag_it_;
+  if(styled_texs_bag_it_ >= styled_texs_bag_.cend()) {
+    styled_texs_bag_it_ = styled_texs_bag_.cbegin(); // Wrap to beginning.
+  }
+
+  return styled_texs_bag_it_->name;
+}
 
 bool Assets::is_weird() const { return is_weird_; }
 
-StyledGraphics::Style Assets::graphics_style() const { return styled_graphics_.style(); }
+const StrUtf8& Assets::tex_style() const { return styled_texs_bag_it_->name; }
 
-const std::string& Assets::graphics_style_name() const { return styled_graphics_.style_name(); }
+const Texture& Assets::ceiling_tex() const { return *styled_texs_bag_it_->ceiling_tex; }
 
-const Texture& Assets::ceiling_texture() const { return *styled_graphics_.graphics().ceiling_texture; }
+const Texture& Assets::cell_tex() const { return *styled_texs_bag_it_->cell_tex; }
 
-const Texture& Assets::cell_texture() const { return *styled_graphics_.graphics().cell_texture; }
+const Texture& Assets::dead_space_tex() const { return *styled_texs_bag_it_->dead_space_tex; }
 
-const Texture& Assets::dead_space_texture() const { return *styled_graphics_.graphics().dead_space_texture; }
+const Texture& Assets::dead_space_ghost_tex() const { return *styled_texs_bag_it_->dead_space_ghost_tex; }
 
-const Texture& Assets::dead_space_ghost_texture() const {
-  return *styled_graphics_.graphics().dead_space_ghost_texture;
-}
+const Texture& Assets::end_tex() const { return *styled_texs_bag_it_->end_tex; }
 
-const Texture& Assets::end_texture() const { return *styled_graphics_.graphics().end_texture; }
+const Texture& Assets::end_wall_tex() const { return *styled_texs_bag_it_->end_wall_tex; }
 
-const Texture& Assets::end_wall_texture() const { return *styled_graphics_.graphics().end_wall_texture; }
+const Texture& Assets::floor_tex() const { return *styled_texs_bag_it_->floor_tex; }
 
-const Texture& Assets::floor_texture() const { return *styled_graphics_.graphics().floor_texture; }
+const Texture& Assets::fruit_tex() const { return *styled_texs_bag_it_->fruit_tex; }
 
-const Texture& Assets::fruit_texture() const { return *styled_graphics_.graphics().fruit_texture; }
+const Texture& Assets::portal_tex() const { return *styled_texs_bag_it_->portal_tex; }
 
-const Texture& Assets::portal_texture() const { return *styled_graphics_.graphics().portal_texture; }
+const Texture& Assets::robot_tex() const { return *styled_texs_bag_it_->robot_tex; }
 
-const Texture& Assets::robot_texture() const { return *styled_graphics_.graphics().robot_texture; }
+const Texture& Assets::wall_tex() const { return *styled_texs_bag_it_->wall_tex; }
 
-const Texture& Assets::wall_texture() const { return *styled_graphics_.graphics().wall_texture; }
+const Texture& Assets::wall_ghost_tex() const { return *styled_texs_bag_it_->wall_ghost_tex; }
 
-const Texture& Assets::wall_ghost_texture() const { return *styled_graphics_.graphics().wall_ghost_texture; }
+const Texture& Assets::white_tex() const { return *styled_texs_bag_it_->white_tex; }
 
-const Texture& Assets::white_texture() const { return *styled_graphics_.graphics().white_texture; }
+const Texture& Assets::white_ghost_tex() const { return *styled_texs_bag_it_->white_ghost_tex; }
 
-const Texture& Assets::white_ghost_texture() const {
-  return *styled_graphics_.graphics().white_ghost_texture;
-}
+const Texture& Assets::star_tex() const { return *star_tex_; }
 
-const Texture& Assets::star_texture() const { return *star_texture_; }
-
-const Image& Assets::icon_image() const { return *icon_image_; }
+const Image& Assets::icon_img() const { return *icon_img_; }
 
 const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
 

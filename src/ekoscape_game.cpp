@@ -22,16 +22,12 @@ EkoScapeGame::EkoScapeGame() {
   // These are fixed values and should not be changed.
   config.target_size = {1600,900};
 
-  cybel_engine_ = std::make_unique<CybelEngine>(
-    *this,config,[&](int action) { return build_scene(action); }
-  );
+  cybel_engine_ = std::make_unique<CybelEngine>(*this,config,[&](int action) { return build_scene(action); });
   audio_player_ = &cybel_engine_->audio_player();
   scene_man_ = &cybel_engine_->scene_man();
-  assets_ = std::make_unique<Assets>(
-    StyledGraphics::Style::kRealistic,audio_player_->is_alive()
-  );
+  assets_ = std::make_unique<Assets>("realistic",audio_player_->is_alive());
 
-  cybel_engine_->set_icon(assets_->icon_image());
+  cybel_engine_->set_icon(assets_->icon_img());
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
@@ -162,7 +158,7 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
     case SDLK_r:
       // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
       //     else it'll be all white due to not re-generating the map.
-      if(SceneActions::is_menu(scene_man_->curr_scene_type())) { assets_->reload_graphics(); }
+      if(SceneActions::is_menu(scene_man_->curr_scene_type())) { assets_->reload_gfx(); }
       break;
 
     // Toggle FPS.
@@ -216,7 +212,7 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
        .begin_auto_scale()
        .begin_add_blend();
 
-    star_sys_.draw(ren,assets_->star_texture());
+    star_sys_.draw(ren,assets_->star_tex());
 
     ren.end_blend()
        .end_scale();

@@ -23,11 +23,10 @@ void MenuPlayScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
-      if(map_opts_.size() <= 1) {
+      if(map_opts_.size() <= 1) { // Only has the random-map option?
         cybel_engine_.show_error("No map to select.");
-        scene_action_ = SceneAction::kGoBack;
       } else {
-        select_map_opt(); // Justin Case.
+        sync_map_opt(); // Justin Case.
         scene_action_ = SceneAction::kGoToGame;
       }
       break;
@@ -114,20 +113,7 @@ void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
 void MenuPlayScene::refresh_maps() {
   glob_maps();
-  map_opt_index_ = 0; // Random map.
-
-  if(!state_.is_rand_map) {
-    const int opts_len = static_cast<int>(map_opts_.size());
-
-    for(int i = 0; i < opts_len; ++i) {
-      if(map_opts_[i].file == state_.map_file) {
-        map_opt_index_ = i;
-        break;
-      }
-    }
-  }
-
-  select_map_opt();
+  sync_map_opt();
 }
 
 void MenuPlayScene::glob_maps() {
@@ -136,65 +122,43 @@ void MenuPlayScene::glob_maps() {
 
   map_opts_.clear();
   map_opts_.emplace_back("< Random Map >");
+  map_opt_index_ = 0;
 
-  try {
-    for(const auto& top_dir: std::filesystem::directory_iterator(assets_.kMapsDir)) {
-      if(!top_dir.is_directory()) { continue; }
+  assets_.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
+    MapOption opt{};
 
-      const StrUtf8 group = Util::ellips_str(top_dir.path().filename().string(),max_group_len);
+    opt.group = group;
+    opt.file = map_file;
+    opt.title = map.title();
+    opt.text = Util::pad_str(Util::ellips_str(opt.title,max_title_len),max_title_len)
+        + " [" + Util::ellips_str(opt.group,max_group_len) + ']';
 
-      for(const auto& file: std::filesystem::directory_iterator(top_dir)) {
-        if(!file.is_regular_file() || !Map::is_map_file(file)) {
-          continue;
-        }
+    map_opts_.push_back(opt);
+  });
 
-        Map map{};
-        try {
-          map.load_file_meta(file);
-        } catch(const CybelError& e) {
-          std::cerr << "[WARN] " << e.what() << std::endl;
-          continue;
-        }
-
-        MapOption opt{};
-        opt.group = group;
-        opt.file = file;
-        opt.title = map.title();
-
-        std::stringstream ss{};
-        ss << Util::pad_str(Util::ellips_str(opt.title,max_title_len),max_title_len)
-           << " [" << opt.group << ']';
-        opt.text = ss.str();
-
-        map_opts_.push_back(opt);
-      }
-    }
-  } catch(const std::filesystem::filesystem_error& e) {
-    cybel_engine_.show_error(e.what());
+  if(map_opts_.size() <= 1) { // Only has the random-map option?
+    cybel_engine_.show_error("No maps were found/loaded in the sub folders of the maps folder ["
+        + Assets::kMapsSubdir.string() + "].");
+    return;
   }
 
-  int order = 0;
-  std::unordered_map<StrUtf8,int> core_groups{
-    {"user",order++},
-    {"fanmade",order++},
-    {"neo",order++},
-    {"classic",order++},
-  };
-
+  // Sort by: non-core group, core group, & title.
   std::sort(
     map_opts_.begin() + 1,map_opts_.end()
     ,[&](const auto& opt1,const auto& opt2) {
-      const bool is_core_group1 = core_groups.contains(opt1.group);
-      const bool is_core_group2 = core_groups.contains(opt2.group);
+      // Return true if opt1 < opt2.
+
+      const bool is_core_group1 = kCoreGroupToPriority.contains(opt1.group);
+      const bool is_core_group2 = kCoreGroupToPriority.contains(opt2.group);
 
       // Bubble non-core groups to top.
-      if(is_core_group1 && !is_core_group2) { return false; } // 1.
-      if(!is_core_group1 && is_core_group2) { return true; } // -1.
+      if(is_core_group1 && !is_core_group2) { return false; } // opt1 > opt2.
+      if(!is_core_group1 && is_core_group2) { return true; } // opt1 < opt2.
 
       int group_cmp = 0;
 
       if(is_core_group1 && is_core_group2) {
-        group_cmp = core_groups[opt1.group] - core_groups[opt2.group];
+        group_cmp = kCoreGroupToPriority[opt1.group] - kCoreGroupToPriority[opt2.group];
       } else {
         group_cmp = Util::comparei_str(opt1.group,opt2.group);
       }
@@ -203,6 +167,16 @@ void MenuPlayScene::glob_maps() {
       return Util::comparei_str(opt1.title,opt2.title) < 0;
     }
   );
+
+  // Select the correct map from the previous/current state.
+  if(!state_.is_rand_map) {
+    for(int i = 0; i < static_cast<int>(map_opts_.size()); ++i) {
+      if(map_opts_[i].file == state_.map_file) {
+        map_opt_index_ = i;
+        break;
+      }
+    }
+  }
 }
 
 void MenuPlayScene::prev_map_opt_group() {
@@ -222,11 +196,10 @@ void MenuPlayScene::prev_map_opt_group() {
 void MenuPlayScene::next_map_opt_group() {
   if(map_opts_.empty()) { return; }
 
-  const int opts_len = static_cast<int>(map_opts_.size());
   const MapOption& sel_opt = map_opts_.at(map_opt_index_);
   int i = map_opt_index_;
 
-  for(; i < opts_len; ++i) {
+  for(; i < static_cast<int>(map_opts_.size()); ++i) {
     const MapOption& opt = map_opts_[i];
     if(opt.group != sel_opt.group) { break; }
   }
@@ -234,21 +207,24 @@ void MenuPlayScene::next_map_opt_group() {
   select_map_opt(i,true);
 }
 
-void MenuPlayScene::select_map_opt() {
+void MenuPlayScene::sync_map_opt() {
   select_map_opt(map_opt_index_,false,true);
 }
 
 void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
-  if(map_opts_.empty()) {
+  const auto opts_len = static_cast<int>(map_opts_.size());
+
+  if(opts_len <= 1) { // Only has the random-map option?
+    map_opt_index_ = 0;
+
     if(force) {
       state_.map_file.clear();
       state_.is_rand_map = true;
       on_state_changed_(state_);
     }
+
     return;
   }
-
-  const int opts_len = static_cast<int>(map_opts_.size());
 
   if(index < 0) {
     index = wrap ? (opts_len - 1) : 0;
@@ -261,11 +237,8 @@ void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
   state_.is_rand_map = (map_opt_index_ == 0);
 
   if(state_.is_rand_map) {
-    if(opts_len >= 2) {
-      state_.map_file = map_opts_.at(Rando::it().rand_int(1,opts_len)).file;
-    } else {
-      state_.map_file.clear();
-    }
+    // opts_len is always >= 2 here (checked at top).
+    state_.map_file = map_opts_.at(Rando::it().rand_int(1,opts_len)).file;
   } else {
     state_.map_file = map_opts_.at(map_opt_index_).file;
   }

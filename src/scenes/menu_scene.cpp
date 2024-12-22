@@ -32,7 +32,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
           break;
 
         case OptionType::kGraphics:
-          assets_.next_graphics_style();
+          assets_.next_tex_style();
           update_graphics_opt(sel_opt);
           break;
 
@@ -68,7 +68,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
     case SDLK_a:
       switch(sel_opt.type) {
         case OptionType::kGraphics:
-          assets_.prev_graphics_style();
+          assets_.prev_tex_style();
           update_graphics_opt(sel_opt);
           break;
 
@@ -80,7 +80,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
     case SDLK_d:
       switch(sel_opt.type) {
         case OptionType::kGraphics:
-          assets_.next_graphics_style();
+          assets_.next_tex_style();
           update_graphics_opt(sel_opt);
           break;
 
@@ -120,10 +120,10 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     }
   });
 
-  ren.wrap_texture(assets_.robot_texture(),[&](auto& tex) {
+  ren.wrap_texture(assets_.robot_tex(),[&](auto& tex) {
     tex.draw_quad({10,368,0},{300,256});
   });
-  ren.wrap_texture(assets_.cell_texture(),[&](auto& tex) {
+  ren.wrap_texture(assets_.cell_tex(),[&](auto& tex) {
     tex.draw_quad({10,634,0},{300,256});
   });
   ren.wrap_sprite(assets_.keys_sprite(),[&](auto& s) {
@@ -135,7 +135,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 }
 
 void MenuScene::update_graphics_opt(Option& opt) {
-  opt.text = kGraphicsText + assets_.graphics_style_name();
+  opt.text = kGraphicsText + assets_.tex_style();
 }
 
 } // Namespace.

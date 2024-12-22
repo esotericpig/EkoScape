@@ -23,7 +23,6 @@
 #include <filesystem>
 #include <functional>
 #include <sstream>
-#include <unordered_map>
 #include <vector>
 
 namespace ekoscape {
@@ -56,6 +55,16 @@ private:
     explicit MapOption(const StrUtf8& text);
   };
 
+  /**
+   * Order of core groups.
+   */
+  static inline std::unordered_map<StrUtf8,int> kCoreGroupToPriority{
+    {"user",1},
+    {"fanmade",2},
+    {"neo",3},
+    {"classic",4},
+  };
+
   static inline const int kUpDownArrowIndent = 2;
   static inline const int kMaxMapOpts = 10;
   // If kMaxMapOpts is even, no exact middle; bias drawing of selected option towards top half,
@@ -77,7 +86,7 @@ private:
   void glob_maps();
   void prev_map_opt_group();
   void next_map_opt_group();
-  void select_map_opt();
+  void sync_map_opt();
   void select_map_opt(int index,bool wrap,bool force = false);
 };
 

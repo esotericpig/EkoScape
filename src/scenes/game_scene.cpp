@@ -73,41 +73,37 @@ void GameScene::init_map_default_empty(const Pos3i& pos,SpaceType type) {
   }
 }
 
-void GameScene::init_map_textures() {
-  set_space_textures(SpaceType::kCell,&assets_.ceiling_texture(),&assets_.cell_texture()
-      ,&assets_.floor_texture());
-  set_space_textures(SpaceType::kDeadSpace,&assets_.dead_space_texture(),nullptr
-      ,&assets_.dead_space_texture());
-  set_space_textures(SpaceType::kDeadSpaceGhost,&assets_.dead_space_ghost_texture(),nullptr
-      ,&assets_.dead_space_ghost_texture());
-  set_space_textures(SpaceType::kEmpty,&assets_.ceiling_texture(),nullptr,&assets_.floor_texture());
-  set_space_textures(SpaceType::kEnd,&assets_.end_texture());
-  set_space_textures(SpaceType::kEndWall,&assets_.end_wall_texture());
-  set_space_textures(SpaceType::kFruit,&assets_.fruit_texture());
+void GameScene::init_map_texs() {
+  set_space_texs(SpaceType::kCell,&assets_.ceiling_tex(),&assets_.cell_tex(),&assets_.floor_tex());
+  set_space_texs(SpaceType::kDeadSpace,&assets_.dead_space_tex(),nullptr,&assets_.dead_space_tex());
+  set_space_texs(SpaceType::kDeadSpaceGhost,&assets_.dead_space_ghost_tex(),nullptr
+      ,&assets_.dead_space_ghost_tex());
+  set_space_texs(SpaceType::kEmpty,&assets_.ceiling_tex(),nullptr,&assets_.floor_tex());
+  set_space_texs(SpaceType::kEnd,&assets_.end_tex());
+  set_space_texs(SpaceType::kEndWall,&assets_.end_wall_tex());
+  set_space_texs(SpaceType::kFruit,&assets_.fruit_tex());
   // SpaceType::kPlayer* - No textures.
-  set_space_textures(SpaceType::kPortal0,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal1,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal2,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal3,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal4,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal5,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal6,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal7,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal8,&assets_.portal_texture());
-  set_space_textures(SpaceType::kPortal9,&assets_.portal_texture());
-  set_space_textures(SpaceType::kRobot,&assets_.robot_texture());
-  set_space_textures(SpaceType::kRobotGhost,&assets_.robot_texture());
-  set_space_textures(SpaceType::kRobotSnake,&assets_.robot_texture());
-  set_space_textures(SpaceType::kRobotStatue,&assets_.robot_texture());
-  set_space_textures(SpaceType::kRobotWorm,&assets_.robot_texture());
+  set_space_texs(SpaceType::kPortal0,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal1,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal2,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal3,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal4,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal5,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal6,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal7,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal8,&assets_.portal_tex());
+  set_space_texs(SpaceType::kPortal9,&assets_.portal_tex());
+  set_space_texs(SpaceType::kRobot,&assets_.robot_tex());
+  set_space_texs(SpaceType::kRobotGhost,&assets_.robot_tex());
+  set_space_texs(SpaceType::kRobotSnake,&assets_.robot_tex());
+  set_space_texs(SpaceType::kRobotStatue,&assets_.robot_tex());
+  set_space_texs(SpaceType::kRobotWorm,&assets_.robot_tex());
   // SpaceType::kVoid - No textures.
-  set_space_textures(SpaceType::kWall,&assets_.ceiling_texture(),&assets_.wall_texture()
-      ,&assets_.floor_texture());
-  set_space_textures(SpaceType::kWallGhost,&assets_.ceiling_texture(),&assets_.wall_ghost_texture()
-      ,&assets_.floor_texture());
-  set_space_textures(SpaceType::kWhite,&assets_.white_texture());
-  set_space_textures(SpaceType::kWhiteFloor,&assets_.white_texture(),nullptr,&assets_.white_texture());
-  set_space_textures(SpaceType::kWhiteGhost,&assets_.white_ghost_texture());
+  set_space_texs(SpaceType::kWall,&assets_.ceiling_tex(),&assets_.wall_tex(),&assets_.floor_tex());
+  set_space_texs(SpaceType::kWallGhost,&assets_.ceiling_tex(),&assets_.wall_ghost_tex(),&assets_.floor_tex());
+  set_space_texs(SpaceType::kWhite,&assets_.white_tex());
+  set_space_texs(SpaceType::kWhiteFloor,&assets_.white_tex(),nullptr,&assets_.white_tex());
+  set_space_texs(SpaceType::kWhiteGhost,&assets_.white_ghost_tex());
 }
 
 void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
@@ -411,11 +407,11 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   }
 }
 
-void GameScene::set_space_textures(SpaceType type,const Texture* texture) {
-  set_space_textures(type,texture,texture,texture);
+void GameScene::set_space_texs(SpaceType type,const Texture* tex) {
+  set_space_texs(type,tex,tex,tex);
 }
 
-void GameScene::set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall
+void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall
     ,const Texture* floor) {
   const int space_id = SpaceTypes::value_of(type);
 

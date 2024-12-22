@@ -26,7 +26,7 @@ void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens&
       break;
 
     case SDLK_f:
-      if(!assets_.is_weird()) { assets_.reload_graphics(true); }
+      if(!assets_.is_weird()) { assets_.reload_gfx(true); }
       init_wtfs(dimens);
       break;
   }

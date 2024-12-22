@@ -202,7 +202,6 @@ target_sources("${BIN_NAME}" PRIVATE
 
     "${SRC_DIR}/assets/assets.cpp"
     "${SRC_DIR}/assets/font_renderer.cpp"
-    "${SRC_DIR}/assets/styled_graphics.cpp"
 
     "${SRC_DIR}/map/dantares_map.cpp"
     "${SRC_DIR}/map/facing.cpp"

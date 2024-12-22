@@ -17,61 +17,57 @@
 #include "cybel/gfx/texture.h"
 #include "cybel/util/cybel_error.h"
 
+#include "map/map.h"
 #include "font_renderer.h"
-#include "styled_graphics.h"
 
 #include <cstdlib>
 #include <filesystem>
+#include <unordered_set>
 
 namespace ekoscape {
 
 class Assets {
-private:
-  static inline const std::string kAssetsDirname = "assets";
-
-  /**
-   * This is an expensive operation that should only be called once.
-   */
-  static std::filesystem::path fetch_assets_path();
-
 public:
-  const std::filesystem::path kAssetsDir{fetch_assets_path()};
-  const std::filesystem::path kIconsDir{kAssetsDir / "icons"};
-  const std::filesystem::path kImagesDir{kAssetsDir / "images"};
-  const std::filesystem::path kMapsDir{kAssetsDir / "maps"};
-  const std::filesystem::path kMusicDir{kAssetsDir / "music"};
-  const std::filesystem::path kTexturesDir{kAssetsDir / "textures"};
+  using MapCallback = std::function<void(const StrUtf8& group,const std::filesystem::path& map_file,Map&)>;
 
-  explicit Assets(StyledGraphics::Style graphics_style,bool has_audio_player,bool make_weird = false);
+  static inline const std::filesystem::path kAssetsSubdir{"assets"};
+  static inline const std::filesystem::path kIconsSubdir{kAssetsSubdir / "icons"};
+  static inline const std::filesystem::path kImgsSubdir{kAssetsSubdir / "images"};
+  static inline const std::filesystem::path kMapsSubdir{kAssetsSubdir / "maps"};
+  static inline const std::filesystem::path kMusicSubdir{kAssetsSubdir / "music"};
+  static inline const std::filesystem::path kTexsSubdir{kAssetsSubdir / "textures"};
 
-  void reload_graphics();
-  void reload_graphics(bool make_weird);
+  explicit Assets(const StrUtf8& tex_style,bool has_audio_player,bool make_weird = false);
+
+  void reload_gfx();
+  void reload_gfx(bool make_weird);
   void reload_music();
 
-  const std::string& prev_graphics_style();
-  const std::string& next_graphics_style();
+  void glob_maps_meta(const MapCallback& on_map) const;
+
+  const StrUtf8& prev_tex_style();
+  const StrUtf8& next_tex_style();
 
   bool is_weird() const;
-  StyledGraphics::Style graphics_style() const;
-  const std::string& graphics_style_name() const;
+  const StrUtf8& tex_style() const;
 
-  const Texture& ceiling_texture() const;
-  const Texture& cell_texture() const;
-  const Texture& dead_space_texture() const;
-  const Texture& dead_space_ghost_texture() const;
-  const Texture& end_texture() const;
-  const Texture& end_wall_texture() const;
-  const Texture& floor_texture() const;
-  const Texture& fruit_texture() const;
-  const Texture& portal_texture() const;
-  const Texture& robot_texture() const;
-  const Texture& wall_texture() const;
-  const Texture& wall_ghost_texture() const;
-  const Texture& white_texture() const;
-  const Texture& white_ghost_texture() const;
-  const Texture& star_texture() const;
+  const Texture& ceiling_tex() const;
+  const Texture& cell_tex() const;
+  const Texture& dead_space_tex() const;
+  const Texture& dead_space_ghost_tex() const;
+  const Texture& end_tex() const;
+  const Texture& end_wall_tex() const;
+  const Texture& floor_tex() const;
+  const Texture& fruit_tex() const;
+  const Texture& portal_tex() const;
+  const Texture& robot_tex() const;
+  const Texture& wall_tex() const;
+  const Texture& wall_ghost_tex() const;
+  const Texture& white_tex() const;
+  const Texture& white_ghost_tex() const;
+  const Texture& star_tex() const;
 
-  const Image& icon_image() const;
+  const Image& icon_img() const;
   const Sprite& logo_sprite() const;
   const Sprite& keys_sprite() const;
   const Sprite& dantares_sprite() const;
@@ -92,15 +88,46 @@ public:
   const Music* music() const;
 
 private:
-  bool is_weird_ = false;
-  StyledGraphics styled_graphics_;
+  struct StyledTextures {
+    StrUtf8 name{};
+    StrUtf8 dirname{};
+
+    std::unique_ptr<Texture> ceiling_tex{};
+    std::unique_ptr<Texture> cell_tex{};
+    std::unique_ptr<Texture> dead_space_tex{};
+    std::unique_ptr<Texture> dead_space_ghost_tex{};
+    std::unique_ptr<Texture> end_tex{};
+    std::unique_ptr<Texture> end_wall_tex{};
+    std::unique_ptr<Texture> floor_tex{};
+    std::unique_ptr<Texture> fruit_tex{};
+    std::unique_ptr<Texture> portal_tex{};
+    std::unique_ptr<Texture> robot_tex{};
+    std::unique_ptr<Texture> wall_tex{};
+    std::unique_ptr<Texture> wall_ghost_tex{};
+    std::unique_ptr<Texture> white_tex{};
+    std::unique_ptr<Texture> white_ghost_tex{};
+  };
+
+  using AssetLoader = std::function<void(const std::filesystem::path& base_dir)>;
+
+  /**
+   * NOTE: This should only ever be called once, since it uses SDL_GetBasePath(),
+   *       which is an expensive operation.
+   */
+  static std::vector<std::filesystem::path> fetch_base_dirs();
+  static inline const std::vector<std::filesystem::path> kBaseDirs = fetch_base_dirs();
+
   bool has_audio_player_ = false;
+  bool is_weird_ = false;
 
-  Texture* star_texture_ = nullptr;
-  std::unique_ptr<Texture> star1_texture_{};
-  std::unique_ptr<Texture> star2_texture_{};
+  std::vector<StyledTextures> styled_texs_bag_{};
+  std::vector<StyledTextures>::const_iterator styled_texs_bag_it_ = styled_texs_bag_.cbegin();
 
-  std::unique_ptr<Image> icon_image_{};
+  Texture* star_tex_ = nullptr;
+  std::unique_ptr<Texture> star1_tex_{};
+  std::unique_ptr<Texture> star2_tex_{};
+
+  std::unique_ptr<Image> icon_img_{};
   std::unique_ptr<Sprite> logo_sprite_{};
   std::unique_ptr<Sprite> keys_sprite_{};
   std::unique_ptr<Sprite> dantares_sprite_{};
@@ -119,6 +146,15 @@ private:
   Color4f wall_color_{};
 
   std::unique_ptr<Music> music_{};
+
+  void reload_gfx(const StrUtf8& tex_style,bool make_weird);
+  void reload_styled_texs_bag(const StrUtf8& tex_style);
+  StyledTextures load_styled_texs(const std::filesystem::path& dir) const;
+
+  void load_asset(const AssetLoader& load_from) const;
+  std::unique_ptr<Image> load_img(const std::filesystem::path& subfile) const;
+  std::unique_ptr<Sprite> load_sprite(const std::filesystem::path& subfile) const;
+  std::unique_ptr<Texture> load_tex(const std::filesystem::path& subfile) const;
 };
 
 } // Namespace.

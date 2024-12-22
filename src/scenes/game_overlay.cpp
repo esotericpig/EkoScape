@@ -223,7 +223,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const Map& map,bool player_hit_en
   ren.end_scale()
      .begin_auto_scale()
      .begin_add_blend();
-  star_sys_.draw(ren,assets_.star_texture());
+  star_sys_.draw(ren,assets_.star_tex());
   ren.end_blend()
      .end_scale();
 }

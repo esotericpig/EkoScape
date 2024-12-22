@@ -71,13 +71,13 @@ private:
   StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;
 
-  void init_map_textures();
+  void init_map_texs();
 
   // - Classic values: {0.125f,-0.04f,0.04f}.
   // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
-  //   - See set_space_textures(), which relies on this logic.
+  //   - See set_space_texs(), which relies on this logic.
   Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
-  DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*id*/) { init_map_textures(); }};
+  DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*id*/) { init_map_texs(); }};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
   StoredKeyStates stored_keys_{};
@@ -107,8 +107,8 @@ private:
 
   const Pos3i* fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
-  void set_space_textures(SpaceType type,const Texture* texture);
-  void set_space_textures(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);
+  void set_space_texs(SpaceType type,const Texture* tex);
+  void set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);
 };
 
 } // Namespace.
