@@ -12,20 +12,13 @@
 int main(int /*argc*/,char** /*argv*/) {
   using namespace ekoscape;
 
-  // Pointer so that run() is not inside of a try-catch (for speed).
-  std::unique_ptr<EkoScapeGame> eko{};
-
   try {
-    eko = std::make_unique<EkoScapeGame>();
+    EkoScapeGame eko{};
+    eko.run();
   } catch(const CybelError& e) {
     EkoScapeGame::show_error_global(e.what());
     return 1;
-  } catch(const std::invalid_argument& e) {
-    EkoScapeGame::show_error_global(Util::build_str("Invalid argument: ",e.what()));
-    return 2;
   }
-
-  eko->run();
 
   return 0;
 }
