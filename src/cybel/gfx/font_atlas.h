@@ -24,8 +24,8 @@ class FontAtlas : public SpriteAtlas {
 public:
   class Builder : public SpriteAtlas::Builder {
   public:
-    explicit Builder(Texture&& texture);
-    explicit Builder(const std::shared_ptr<Texture>& texture);
+    explicit Builder(Texture&& tex);
+    explicit Builder(const std::shared_ptr<Texture>& tex);
 
     FontAtlas build();
 

@@ -9,11 +9,11 @@
 
 namespace cybel {
 
-SpriteAtlas::Builder::Builder(Texture&& texture)
-    : Builder(std::make_shared<Texture>(std::move(texture))) {}
+SpriteAtlas::Builder::Builder(Texture&& tex)
+    : Builder(std::make_shared<Texture>(std::move(tex))) {}
 
-SpriteAtlas::Builder::Builder(const std::shared_ptr<Texture>& texture)
-    : texture_(texture) {}
+SpriteAtlas::Builder::Builder(const std::shared_ptr<Texture>& tex)
+    : tex_(tex) {}
 
 SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas(*this); }
 
@@ -41,7 +41,7 @@ SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int cols,int rows) {
 }
 
 SpriteAtlas::SpriteAtlas(const Builder& builder)
-    : texture_(builder.texture_)
+    : tex_(builder.tex_)
       ,grid_size_(builder.grid_size_)
       ,cell_count_(grid_size_.w * grid_size_.h)
       ,index_to_src_(cell_count_) {
@@ -61,11 +61,11 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
       y_offset + (builder.cell_size_.h * row),
     };
 
-    index_to_src_[i] = Sprite::build_src(*texture_,offset,cell_size_);
+    index_to_src_[i] = Sprite::build_src(*tex_,offset,cell_size_);
   }
 }
 
-const Texture& SpriteAtlas::texture() const { return *texture_; }
+const Texture& SpriteAtlas::tex() const { return *tex_; }
 
 const Pos4f* SpriteAtlas::src(int index) const {
   if(index < 0 || index >= cell_count_) { return nullptr; }

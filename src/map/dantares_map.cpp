@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_textures)
-    : dantares_(dantares),set_textures_(set_textures) {}
+DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_texs)
+    : dantares_(dantares),set_texs_(set_texs) {}
 
 Map& DantaresMap::clear_grids() {
   Map::clear_grids();
@@ -56,7 +56,7 @@ Map& DantaresMap::add_to_bridge() {
       }
     }
 
-    if(set_textures_) { set_textures_(dantares_,z,id); }
+    if(set_texs_) { set_texs_(dantares_,z,id); }
 
     // Must be called after setting the textures.
     if(!dantares_.GenerateMap()) {

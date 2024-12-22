@@ -42,7 +42,7 @@ class DantaresMap : public Map {
 public:
   using TexturesSetter = std::function<void(Dantares&,int z,int id)>;
 
-  explicit DantaresMap(Dantares& dantares,const TexturesSetter& set_textures);
+  explicit DantaresMap(Dantares& dantares,const TexturesSetter& set_texs);
 
   Map& clear_grids() override;
   Map& add_to_bridge() override;
@@ -62,7 +62,7 @@ protected:
 
 private:
   Dantares& dantares_;
-  TexturesSetter set_textures_{};
+  TexturesSetter set_texs_{};
   std::vector<int> grid_ids_{};
 
   bool change_grid(int z,bool force);

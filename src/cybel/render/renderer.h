@@ -46,10 +46,10 @@ public:
   class TextureWrapper {
   public:
     Renderer& ren;
-    const Texture& texture;
+    const Texture& tex;
     Pos4f src{};
 
-    explicit TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src);
+    explicit TextureWrapper(Renderer& ren,const Texture& tex,const Pos4f& src);
 
     TextureWrapper& draw_quad(const Pos3i& pos);
     TextureWrapper& draw_quad(const Pos3i& pos,const Size2i& size);
@@ -133,15 +133,15 @@ public:
   Renderer& begin_add_blend();
   Renderer& end_blend();
 
-  Renderer& begin_texture(const Texture& texture);
-  Renderer& end_texture();
+  Renderer& begin_tex(const Texture& tex);
+  Renderer& end_tex();
 
   Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
   Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback);
   Renderer& wrap_add_blend(const WrapCallback& callback);
 
-  Renderer& wrap_texture(const Texture& texture,const WrapTextureCallback& callback);
-  Renderer& wrap_texture(const Texture& texture,const Pos4f& src,const WrapTextureCallback& callback);
+  Renderer& wrap_tex(const Texture& tex,const WrapTextureCallback& callback);
+  Renderer& wrap_tex(const Texture& tex,const Pos4f& src,const WrapTextureCallback& callback);
 
   Renderer& wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback);
   Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);
@@ -166,6 +166,7 @@ private:
   float aspect_scale_ = 1.0f;
   Pos2f offset_{0.0f,0.0f};
   Color4f clear_color_{};
+
   GLint blend_src_rgb_ = 0;
   GLint blend_src_alpha_ = 0;
   GLint blend_dst_rgb_ = 0;

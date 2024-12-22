@@ -301,7 +301,7 @@ void CybelEngine::show_error_global(const std::string& title,const std::string& 
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),wrapped_error.c_str(),window);
 }
 
-void CybelEngine::set_icon(const Image& image) { SDL_SetWindowIcon(res_.window,image.surface_); }
+void CybelEngine::set_icon(const Image& img) { SDL_SetWindowIcon(res_.window,img.surface_); }
 
 void CybelEngine::set_title(const std::string& title) { SDL_SetWindowTitle(res_.window,title.c_str()); }
 

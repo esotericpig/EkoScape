@@ -33,7 +33,7 @@ public:
   void clear();
 
   void update(const FrameStep& step);
-  void draw(Renderer& ren,const Texture& texture);
+  void draw(Renderer& ren,const Texture& tex);
 
   bool is_empty() const;
 

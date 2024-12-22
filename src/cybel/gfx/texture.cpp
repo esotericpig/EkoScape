@@ -9,24 +9,24 @@
 
 namespace cybel {
 
-Texture::Texture(Image& image,bool make_weird) {
-  const std::uint8_t bpp = image.bpp();
-  bool is_red_first = image.is_red_first();
-  GLenum image_format = GL_RGBA;
+Texture::Texture(Image& img,bool make_weird) {
+  const std::uint8_t bpp = img.bpp();
+  bool is_red_first = img.is_red_first();
+  GLenum img_format = GL_RGBA;
 
   if(make_weird) { is_red_first = !is_red_first; }
 
   switch(bpp) {
     case 4:
-      image_format = is_red_first ? GL_RGBA : GL_BGRA;
+      img_format = is_red_first ? GL_RGBA : GL_BGRA;
       break;
 
     case 3:
-      image_format = is_red_first ? GL_RGB : GL_BGR;
+      img_format = is_red_first ? GL_RGB : GL_BGR;
       break;
 
     default:
-      throw CybelError{"Unsupported BPP [",static_cast<int>(bpp),"] for image [",image.id(),"]."};
+      throw CybelError{"Unsupported BPP [",static_cast<int>(bpp),"] for image [",img.id(),"]."};
   }
 
   glGenTextures(1,&gl_id_);
@@ -44,10 +44,9 @@ Texture::Texture(Image& image,bool make_weird) {
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
 
-  image.lock();
-  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,image.size().w,image.size().h,0,image_format
-      ,image.gl_type(),image.pixels());
-  image.unlock();
+  img.lock();
+  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,img.size().w,img.size().h,0,img_format,img.gl_type(),img.pixels());
+  img.unlock();
 
   // See: https://open.gl/textures
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -61,15 +60,15 @@ Texture::Texture(Image& image,bool make_weird) {
 
   if(error != GL_NO_ERROR) {
     destroy();
-    throw CybelError{"Failed to gen/bind texture for image [",image.id(),"]; error [",error,"]: "
+    throw CybelError{"Failed to gen/bind texture for image [",img.id(),"]; error [",error,"]: "
         ,Util::get_gl_error(error),'.'};
   }
 
-  size_ = image.size();
+  size_ = img.size();
 }
 
-Texture::Texture(Image&& image,bool make_weird)
-    : Texture(image,make_weird) {}
+Texture::Texture(Image&& img,bool make_weird)
+    : Texture(img,make_weird) {}
 
 Texture::Texture(const Color4f& color,bool make_weird) {
   auto r = static_cast<GLubyte>(std::round(color.r * 255.0f));

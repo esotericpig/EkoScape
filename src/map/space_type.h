@@ -17,7 +17,7 @@ namespace ekoscape {
 // If add a new type, need to update:
 // - assets/maps/README.md
 // - SpaceTypes.is_valid()
-// - GameScene.init_map_textures()
+// - GameScene.init_map_texs()
 // - [maybe] SpaceTypes.is_walkable()
 // - [maybe] SpaceTypes.is_non_walkable()
 // - [maybe] Map.parse_grid()

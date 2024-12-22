@@ -9,11 +9,11 @@
 
 namespace cybel {
 
-Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& texture,const Pos4f& src)
-    : ren(ren),texture(texture),src(src) {}
+Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& tex,const Pos4f& src)
+    : ren(ren),tex(tex),src(src) {}
 
 Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(const Pos3i& pos) {
-  return draw_quad(pos,texture.size());
+  return draw_quad(pos,tex.size());
 }
 
 Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(const Pos3i& pos,const Size2i& size) {
@@ -69,7 +69,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& c
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding) {
-  ren.end_texture();
+  ren.end_tex();
   ren.wrap_color(color,[&] {
     ren.draw_quad(
       {pos.x - padding.w,pos.y - padding.h,pos.z},
@@ -79,7 +79,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& c
       }
     );
   });
-  ren.begin_texture(font.texture());
+  ren.begin_tex(font.tex());
 
   return *this;
 }
@@ -295,14 +295,14 @@ Renderer& Renderer::end_blend() {
   return *this;
 }
 
-Renderer& Renderer::begin_texture(const Texture& texture) {
+Renderer& Renderer::begin_tex(const Texture& tex) {
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D,texture.gl_id());
+  glBindTexture(GL_TEXTURE_2D,tex.gl_id());
 
   return *this;
 }
 
-Renderer& Renderer::end_texture() {
+Renderer& Renderer::end_tex() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
   glDisable(GL_TEXTURE_2D);
 
@@ -336,33 +336,32 @@ Renderer& Renderer::wrap_add_blend(const WrapCallback& callback) {
   return end_blend();
 }
 
-Renderer& Renderer::wrap_texture(const Texture& texture,const WrapTextureCallback& callback) {
-  return wrap_texture(texture,kDefaultSrc,callback);
+Renderer& Renderer::wrap_tex(const Texture& tex,const WrapTextureCallback& callback) {
+  return wrap_tex(tex,kDefaultSrc,callback);
 }
 
-Renderer& Renderer::wrap_texture(const Texture& texture,const Pos4f& src
-    ,const WrapTextureCallback& callback) {
-  TextureWrapper wrapper{*this,texture,src};
+Renderer& Renderer::wrap_tex(const Texture& tex,const Pos4f& src,const WrapTextureCallback& callback) {
+  TextureWrapper wrapper{*this,tex,src};
 
-  begin_texture(texture);
+  begin_tex(tex);
   callback(wrapper);
-  return end_texture();
+  return end_tex();
 }
 
 Renderer& Renderer::wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback) {
   SpriteWrapper wrapper{*this,sprite};
 
-  begin_texture(sprite.texture());
+  begin_tex(sprite.tex());
   callback(wrapper);
-  return end_texture();
+  return end_tex();
 }
 
 Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback) {
   SpriteAtlasWrapper wrapper{*this,atlas};
 
-  begin_texture(atlas.texture());
+  begin_tex(atlas.tex());
   callback(wrapper);
-  return end_texture();
+  return end_tex();
 }
 
 Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos
@@ -379,9 +378,9 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const
     ,const Size2i& spacing,const WrapFontAtlasCallback& callback) {
   FontAtlasWrapper wrapper{*this,font,pos,char_size,spacing};
 
-  begin_texture(font.texture());
+  begin_tex(font.tex());
   callback(wrapper);
-  return end_texture();
+  return end_tex();
 }
 
 Renderer& Renderer::draw_quad(const Pos3i& pos,const Size2i& size) {

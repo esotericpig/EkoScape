@@ -103,7 +103,7 @@ public:
   void show_error(const std::string& title,const std::string& error) const;
   static void show_error_global(const std::string& title,const std::string& error);
 
-  void set_icon(const Image& image);
+  void set_icon(const Image& img);
   void set_title(const std::string& title);
   void reset_title();
   void set_fullscreen(bool fullscreen,bool windowed = true);

@@ -120,10 +120,10 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     }
   });
 
-  ren.wrap_texture(assets_.robot_tex(),[&](auto& tex) {
+  ren.wrap_tex(assets_.robot_tex(),[&](auto& tex) {
     tex.draw_quad({10,368,0},{300,256});
   });
-  ren.wrap_texture(assets_.cell_tex(),[&](auto& tex) {
+  ren.wrap_tex(assets_.cell_tex(),[&](auto& tex) {
     tex.draw_quad({10,634,0},{300,256});
   });
   ren.wrap_sprite(assets_.keys_sprite(),[&](auto& s) {
