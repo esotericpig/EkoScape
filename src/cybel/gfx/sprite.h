@@ -23,8 +23,11 @@ public:
 
   explicit Sprite(Texture&& tex,int padding = 0);
   explicit Sprite(Texture&& tex,const Pos2i& offset,const Size2i& size,int padding = 0);
+  explicit Sprite(std::unique_ptr<Texture> tex,int padding = 0);
+  explicit Sprite(std::unique_ptr<Texture> tex,const Pos2i& offset,const Size2i& size,int padding = 0);
   explicit Sprite(const std::shared_ptr<Texture>& tex,int padding = 0);
   explicit Sprite(const std::shared_ptr<Texture>& tex,const Pos2i& offset,const Size2i& size,int padding = 0);
+
   virtual ~Sprite() noexcept = default;
 
   const Texture& tex() const;

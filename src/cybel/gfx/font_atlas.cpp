@@ -10,30 +10,33 @@
 namespace cybel {
 
 FontAtlas::Builder::Builder(Texture&& tex)
-    : Base(std::move(tex)) {}
+    : sprite_atlas_(std::move(tex)) {}
+
+FontAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
+    : sprite_atlas_(std::move(tex)) {}
 
 FontAtlas::Builder::Builder(const std::shared_ptr<Texture>& tex)
-    : Base(tex) {}
+    : sprite_atlas_(tex) {}
 
 FontAtlas FontAtlas::Builder::build() { return FontAtlas{*this}; }
 
 FontAtlas::Builder& FontAtlas::Builder::offset(int x,int y) {
-  Base::offset(x,y);
+  sprite_atlas_.offset(x,y);
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::cell_size(int width,int height) {
-  Base::cell_size(width,height);
+  sprite_atlas_.cell_size(width,height);
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::cell_padding(int padding) {
-  Base::cell_padding(padding);
+  sprite_atlas_.cell_padding(padding);
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::grid_size(int cols,int rows) {
-  Base::grid_size(cols,rows);
+  sprite_atlas_.grid_size(cols,rows);
   return *this;
 }
 
@@ -82,14 +85,18 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<StrUtf8>
     }
   }
 
-  if(grid_size_.w == 0) { grid_size_.w = col_count; }
-  if(grid_size_.h == 0) { grid_size_.h = static_cast<int>(lines.size()); }
+  auto grid_size = sprite_atlas_.grid_size();
+
+  if(grid_size.w <= 0) { grid_size.w = col_count; }
+  if(grid_size.h <= 0) { grid_size.h = static_cast<int>(lines.size()); }
+
+  sprite_atlas_.grid_size(grid_size.w,grid_size.h);
 
   return *this;
 }
 
 FontAtlas::FontAtlas(const Builder& builder)
-    : SpriteAtlas(builder)
+    : SpriteAtlas(builder.sprite_atlas_)
       ,spacing_(builder.spacing_)
       ,char_to_index_(builder.char_to_index_) {
   if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {

@@ -25,6 +25,7 @@ public:
   explicit Texture(Image& img,bool make_weird = false);
   explicit Texture(Image&& img,bool make_weird = false);
   explicit Texture(const Color4f& color,bool make_weird = false);
+
   Texture(const Texture& other) = delete;
   Texture(Texture&& other) noexcept;
   virtual ~Texture() noexcept;

@@ -10,7 +10,7 @@
 namespace cybel {
 
 Texture::Texture(Image& img,bool make_weird) {
-  const std::uint8_t bpp = img.bpp();
+  const auto bpp = img.bpp();
   bool is_red_first = img.is_red_first();
   GLenum img_format = GL_RGBA;
 
@@ -33,7 +33,7 @@ Texture::Texture(Image& img,bool make_weird) {
   glBindTexture(GL_TEXTURE_2D,gl_id_);
 
   // I didn't have any problems without this, but could be needed.
-  // - https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_upload_and_pixel_reads
+  // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_upload_and_pixel_reads
   if(bpp == 3) {
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
   } else {
@@ -82,12 +82,18 @@ Texture::Texture(const Color4f& color,bool make_weird) {
     b = 255 - b;
   }
 
-  int width = 2;
-  int height = 2;
-  GLubyte pixels[] = {
-    r,g,b,a, r,g,b,a,
-    r,g,b,a, r,g,b,a
-  };
+  const int width = 2;
+  const int height = 2;
+  const std::uint8_t bpp = 4;
+  const int size = width * height * bpp;
+  GLubyte pixels[size]{};
+
+  for(auto* p = pixels; p < (pixels + size); p += bpp) {
+    p[0] = r;
+    p[1] = g;
+    p[2] = b;
+    p[3] = a;
+  }
 
   glGenTextures(1,&gl_id_);
   glBindTexture(GL_TEXTURE_2D,gl_id_);

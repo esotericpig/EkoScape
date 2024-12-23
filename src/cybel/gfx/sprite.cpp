@@ -44,6 +44,12 @@ Sprite::Sprite(Texture&& tex,int padding)
 Sprite::Sprite(Texture&& tex,const Pos2i& offset,const Size2i& size,int padding)
     : Sprite(std::make_shared<Texture>(std::move(tex)),offset,size,padding) {}
 
+Sprite::Sprite(std::unique_ptr<Texture> tex,int padding)
+    : Sprite(std::shared_ptr{std::move(tex)},padding) {}
+
+Sprite::Sprite(std::unique_ptr<Texture> tex,const Pos2i& offset,const Size2i& size,int padding)
+    : Sprite(std::shared_ptr{std::move(tex)},offset,size,padding) {}
+
 Sprite::Sprite(const std::shared_ptr<Texture>& tex,int padding)
     : Sprite(tex,{0,0},{0,0},padding) {}
 

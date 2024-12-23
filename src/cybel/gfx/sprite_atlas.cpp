@@ -12,6 +12,9 @@ namespace cybel {
 SpriteAtlas::Builder::Builder(Texture&& tex)
     : Builder(std::make_shared<Texture>(std::move(tex))) {}
 
+SpriteAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
+    : Builder(std::shared_ptr{std::move(tex)}) {}
+
 SpriteAtlas::Builder::Builder(const std::shared_ptr<Texture>& tex)
     : tex_(tex) {}
 
@@ -39,6 +42,16 @@ SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int cols,int rows) {
   grid_size_.h = rows;
   return *this;
 }
+
+const std::shared_ptr<Texture>& SpriteAtlas::Builder::tex() const { return tex_; }
+
+const Pos2i& SpriteAtlas::Builder::offset() const { return offset_; }
+
+const Size2i& SpriteAtlas::Builder::cell_size() const { return cell_size_; }
+
+int SpriteAtlas::Builder::cell_padding() const { return cell_padding_; }
+
+const Size2i& SpriteAtlas::Builder::grid_size() const { return grid_size_; }
 
 SpriteAtlas::SpriteAtlas(const Builder& builder)
     : tex_(builder.tex_)

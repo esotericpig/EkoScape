@@ -23,8 +23,8 @@ public:
   class Builder {
   public:
     explicit Builder(Texture&& tex);
+    explicit Builder(std::unique_ptr<Texture> tex);
     explicit Builder(const std::shared_ptr<Texture>& tex);
-    virtual ~Builder() noexcept = default;
 
     SpriteAtlas build();
 
@@ -33,9 +33,15 @@ public:
     Builder& cell_padding(int padding);
     Builder& grid_size(int cols,int rows);
 
+    const std::shared_ptr<Texture>& tex() const;
+    const Pos2i& offset() const;
+    const Size2i& cell_size() const;
+    int cell_padding() const;
+    const Size2i& grid_size() const;
+
     friend class SpriteAtlas;
 
-  protected:
+  private:
     std::shared_ptr<Texture> tex_{};
     Pos2i offset_{};
     Size2i cell_size_{};

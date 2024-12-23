@@ -23,6 +23,7 @@ class CybelEngine;
 class Image {
 public:
   explicit Image(const std::filesystem::path& file);
+
   Image(const Image& other) = delete;
   Image(Image&& other) noexcept;
   virtual ~Image() noexcept;

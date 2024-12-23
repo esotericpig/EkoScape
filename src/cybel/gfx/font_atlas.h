@@ -22,14 +22,14 @@ namespace cybel {
 
 class FontAtlas : public SpriteAtlas {
 public:
-  class Builder : public SpriteAtlas::Builder {
+  class Builder {
   public:
     explicit Builder(Texture&& tex);
+    explicit Builder(std::unique_ptr<Texture> tex);
     explicit Builder(const std::shared_ptr<Texture>& tex);
 
     FontAtlas build();
 
-    // Re-define base funcs to return derived Builder (instead of base Builder).
     Builder& offset(int x,int y);
     Builder& cell_size(int width,int height);
     Builder& cell_padding(int padding);
@@ -43,14 +43,12 @@ public:
 
     friend class FontAtlas;
 
-  protected:
+  private:
+    SpriteAtlas::Builder sprite_atlas_;
     Size2i spacing_{};
     int default_index_ = 0;
     Pos2i default_cell_{};
     std::unordered_map<char32_t,int> char_to_index_{};
-
-  private:
-    using Base = SpriteAtlas::Builder;
   };
 
   const Size2i& spacing() const;
