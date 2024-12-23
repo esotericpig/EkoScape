@@ -174,7 +174,10 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
 
     // Toggle fullscreen.
     case SDLK_F11:
-      cybel_engine_->set_fullscreen(!cybel_engine_->is_fullscreen(),true);
+      const bool fullscreen = !cybel_engine_->is_fullscreen();
+
+      cybel_engine_->set_fullscreen(fullscreen,true);
+      cybel_engine_->set_cursor_visible(!fullscreen);
       break;
   }
 }

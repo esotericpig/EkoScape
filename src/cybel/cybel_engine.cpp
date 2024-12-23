@@ -320,6 +320,10 @@ void CybelEngine::set_fullscreen(bool fullscreen,bool windowed) {
   }
 }
 
+void CybelEngine::set_cursor_visible(bool visible) {
+  SDL_ShowCursor(visible ? SDL_ENABLE : SDL_DISABLE);
+}
+
 void CybelEngine::set_vsync(bool enable) {
   if(enable) {
     SDL_SetHint(SDL_HINT_RENDER_VSYNC,"1");
@@ -346,6 +350,8 @@ bool CybelEngine::is_fullscreen() const {
   const auto flags = SDL_GetWindowFlags(res_.window);
   return (flags & SDL_WINDOW_FULLSCREEN) || (flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
+
+bool CybelEngine::is_cursor_visible() const { return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE; }
 
 Renderer& CybelEngine::renderer() const { return *renderer_; }
 
