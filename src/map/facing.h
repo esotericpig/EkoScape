@@ -13,7 +13,7 @@
 namespace ekoscape {
 
 // - See Dantares.SetPlayerPosition() or Dantares.IsWalking() for values.
-// - If add a new one, also need to update Facings::to_facing().
+// - If add a new one, also need to update Facings::to_facing()/value_of().
 enum class Facing : int {
   kNorth = 0,
   kSouth = 2,

@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
-#include <sstream>
 #include <vector>
 
 namespace ekoscape {
@@ -67,7 +66,7 @@ private:
 
   static inline const int kUpDownArrowIndent = 2;
   static inline const int kMaxMapOpts = 10;
-  // If kMaxMapOpts is even, no exact middle; bias drawing of selected option towards top half,
+  // If kMaxMapOpts is even, no exact middle, so bias drawing of selected option towards top half,
   //     since this is easier on the eyes.
   static inline const int kMapOptsHalf1 = std::max((kMaxMapOpts >> 1) - 1,1);
   static inline const int kMapOptsHalf2 = kMaxMapOpts >> 1;

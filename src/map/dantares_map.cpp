@@ -14,6 +14,10 @@ DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_texs)
 
 Map& DantaresMap::clear_grids() {
   Map::clear_grids();
+
+  for(auto id: grid_ids_) {
+    dantares_.DeleteMap(id);
+  }
   grid_ids_.clear();
 
   return *this;
@@ -78,19 +82,19 @@ Map& DantaresMap::add_to_bridge() {
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
     std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map grid ["
               << z << ',' << id << ':' << title_ << "] in Dantares." << std::endl;
-    // Don't fail; game is still playable.
+    // Don't fail; map is still playable.
   }
   if(!dantares_.SetWalkingSpeed(walking_speed_)) {
     std::cerr << "[WARN] Failed to set walking speed [" << walking_speed_ << "] for map grid ["
               << z << ',' << id << ':' << title_ << "] in Dantares." << std::endl;
-    // Don't fail; game is still playable.
+    // Don't fail; map is still playable.
   }
 
   return *this;
 }
 
 bool DantaresMap::move_player(const Pos3i& pos) {
-  if(!Map::move_player(pos)) { return false; } // Changes grid if necessary.
+  if(!Map::move_player(pos)) { return false; } // Calls change_grid(z) if necessary.
   return dantares_.SetPlayerPosition(pos.x,pos.y);
 }
 
@@ -115,7 +119,7 @@ bool DantaresMap::change_grid(int z,bool force) {
 
   if(id == -1 || !dantares_.IsMap(id)) {
     std::cerr << "[ERROR] Invalid map grid ID [" << z << ',' << id << ':' << title_
-              << "] for Dantares; call add_to_bridge() once before changing grids." << std::endl;
+              << "] for Dantares; call add_to_bridge() at least once before changing grids." << std::endl;
     return false;
   }
   if(!dantares_.SetCurrentMap(id)) {
@@ -130,7 +134,7 @@ bool DantaresMap::change_grid(int z,bool force) {
   if(player_pos.x < 0 || player_pos.x >= grid_size.w
       || player_pos.y < 0 || player_pos.y >= grid_size.h) {
     dantares_.SetPlayerPosition(0,0);
-      }
+  }
 
   return true;
 }
@@ -140,13 +144,21 @@ void DantaresMap::update_bridge_space(const Pos3i& pos,SpaceType type) {
     update_bridge_space(pos.x,pos.y,type);
     return;
   }
-  if(pos.z < 0 || pos.z >= static_cast<int>(grid_ids_.size())) { return; }
+  if(pos.z < 0 || pos.z >= static_cast<int>(grid_ids_.size())) {
+    std::cerr << "[WARN] Failed to update Dantares space with invalid Z [" << pos.z << "] and IDs size ["
+              << grid_ids_.size() << "] for map [" << title_ << "]." << std::endl;
+    return;
+  }
 
   const int z_id = grid_ids_[pos.z];
   const int curr_id = dantares_.GetCurrentMap();
 
   // Luckily, changing the map in Dantares isn't an expensive operation.
-  if(z_id == -1 || !dantares_.SetCurrentMap(z_id)) { return; }
+  if(z_id == -1 || !dantares_.SetCurrentMap(z_id)) {
+    std::cerr << "[WARN] Failed to update Dantares space with invalid map grid ID [" << z_id << "] from Z ["
+              << pos.z << "] for map [" << title_ << "]." << std::endl;
+    return;
+  }
 
   update_bridge_space(pos.x,pos.y,type);
 

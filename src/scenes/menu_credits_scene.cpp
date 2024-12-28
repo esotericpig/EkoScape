@@ -15,7 +15,7 @@ Color4f MenuCreditsScene::rand_color() {
 }
 
 MenuCreditsScene::MenuCreditsScene(Assets& assets)
-    : assets_(assets),wtfs_(50,WtfParticle{}) {}
+    : assets_(assets),wtfs_(75,WtfParticle{}) {}
 
 void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) {
   switch(event.key) {
@@ -82,7 +82,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
   });
 
-  ren.end_blend()
+  ren.end_blend() // Else, the WTFs are too bright.
      .end_scale();
 
   ren.begin_auto_scale();
@@ -92,7 +92,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
 void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
   auto& r = Rando::it();
-  auto max_births = static_cast<int>(wtfs_.size() >> 1);
+  int max_births = (active_wtf_count_ <= 20) ? 25 : 5;
   const auto init_x = static_cast<float>(dimens.target_size.w) / 2.0f;
   const auto init_y = static_cast<float>(dimens.target_size.h) / 2.0f;
   const auto init_w = static_cast<float>(assets_.font_renderer().font_size().w);

@@ -12,19 +12,31 @@ namespace ekoscape {
 Facing Facings::to_facing(int value) {
   auto facing = static_cast<Facing>(value);
 
+  // Don't use `default:` so that the compiler/IDE can catch new enum types.
   switch(facing) {
     case Facing::kNorth:
     case Facing::kSouth:
     case Facing::kEast:
     case Facing::kWest:
       return facing;
-
-    // Don't use `default:` so that the compiler/IDE can catch new enum types.
   }
 
   return Facing::kSouth;
 }
 
-int Facings::value_of(Facing facing) { return static_cast<int>(facing); }
+int Facings::value_of(Facing facing) {
+  auto value = Facing::kSouth;
+
+  switch(facing) {
+    case Facing::kNorth:
+    case Facing::kSouth:
+    case Facing::kEast:
+    case Facing::kWest:
+      value = facing;
+      break;
+  }
+
+  return static_cast<int>(value);
+}
 
 } // Namespace.

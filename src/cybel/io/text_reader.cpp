@@ -20,7 +20,7 @@ bool TextReader::read_line(std::string& line) {
 
   if(in_.eof()) { return false; }
 
-  for(char c; in_.get(c);) {
+  for(char c = 0; in_.get(c);) {
     if(c == '\n') { break; }
     if(c == '\r') {
       if(!in_.eof() && static_cast<char>(in_.peek()) == '\n') { in_.get(c); }

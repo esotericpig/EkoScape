@@ -44,7 +44,6 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
 }
 
 void CybelEngine::init_hints() {
-  // Not available in SDL v2.0.
   //SDL_SetHint(SDL_HINT_APP_NAME,title_.c_str());
   SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,title_.c_str());
   // One of: nearest, linear, best.
@@ -62,8 +61,7 @@ void CybelEngine::init_config(Config& config) {
     SDL_DisplayMode display_mode{};
 
     if(SDL_GetCurrentDisplayMode(0,&display_mode) != 0) {
-      std::cerr << "[WARN] Failed to get current display mode: " << Util::get_sdl_error() << '.'
-          << std::endl;
+      std::cerr << "[WARN] Failed to get current display mode: " << Util::get_sdl_error() << '.' << std::endl;
       // Don't fail; fall back to Config.size.
     } else if(display_mode.w > 0 && display_mode.h > 0) {
       float sw = static_cast<float>(display_mode.w) * config.scale_factor;
@@ -156,10 +154,6 @@ void CybelEngine::sync_size(bool force) {
   resize(size,force);
 }
 
-void CybelEngine::resize() {
-  resize(renderer_->dimens().size,true);
-}
-
 void CybelEngine::resize(const Size2i& size,bool force) {
   if(!force && size.w == renderer_->dimens().size.w && size.h == renderer_->dimens().size.h) {
     return; // Size didn't change.
@@ -179,7 +173,7 @@ void CybelEngine::run() {
 
   // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
   //     and also need to call the scenes' resize() after init_scene().
-  sync_size();
+  sync_size(true);
 
   KeyStates keys{};
 
@@ -255,9 +249,9 @@ void CybelEngine::handle_events() {
       } break;
 
       case SDL_KEYUP: {
-        const auto key = sdl_event.key.keysym.sym;
+        const KeyEvent key_event{sdl_event};
 
-        if(key == SDLK_ESCAPE) {
+        if(key_event.key == SDLK_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
           request_stop();
           return;

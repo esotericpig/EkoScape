@@ -16,7 +16,7 @@ namespace cybel {
 
 class Duration {
 public:
-  static const Duration kZero;
+  static const Duration kZero; // Can't be inline since Duration is an incomplete type here.
 
   explicit Duration();
   static Duration from_millis(double millis);
@@ -28,7 +28,7 @@ public:
   bool operator!=(const Duration& other) const;
   bool operator>(const Duration& other) const;
   bool operator>=(const Duration& other) const;
-  auto operator<=>(const Duration&) const;
+  auto operator<=>(const Duration& other) const;
 
   Duration operator+(const Duration& other) const;
   Duration& operator+=(const Duration& other);

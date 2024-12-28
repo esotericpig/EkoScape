@@ -62,9 +62,7 @@ Duration& Duration::operator/=(const Duration& other) {
   return *this;
 }
 
-Duration Duration::operator%(const Duration& other) const {
-  return Duration{std::fmod(value_,other.value_)};
-}
+Duration Duration::operator%(const Duration& other) const { return Duration{std::fmod(value_,other.value_)}; }
 
 Duration& Duration::operator%=(const Duration& other) {
   value_ = std::fmod(value_,other.value_);
@@ -81,7 +79,10 @@ Duration& Duration::set_from_secs(double secs) {
   return *this;
 }
 
-Duration& Duration::zero() { return set_from_millis(0.0); }
+Duration& Duration::zero() {
+  value_ = 0.0;
+  return *this;
+}
 
 double Duration::millis() const { return value_; }
 

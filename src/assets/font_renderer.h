@@ -23,7 +23,7 @@ public:
   public:
     FontRenderer& font_ren;
     Renderer::FontAtlasWrapper& font;
-    Color4f font_color;
+    Color4f font_color{};
 
     explicit Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font,const Color4f& font_color);
 

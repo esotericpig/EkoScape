@@ -38,6 +38,7 @@ private:
     SDL_GLContext context = NULL;
 
     explicit Resources() noexcept = default;
+
     Resources(const Resources& other) = delete;
     Resources(Resources&& other) noexcept = delete;
     virtual ~Resources() noexcept;
@@ -52,8 +53,8 @@ public:
   struct Config {
     std::string title{};
     float scale_factor = 0.0f;
-    Size2i size = {kFallbackWidth,kFallbackHeight};
-    Size2i target_size = {0,0};
+    Size2i size{kFallbackWidth,kFallbackHeight};
+    Size2i target_size{0,0};
     int fps = kFallbackFps;
     bool vsync = false;
     Color4f clear_color{};
@@ -94,7 +95,6 @@ public:
   CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
   void sync_size(bool force = true);
-  void resize();
   void resize(const Size2i& size,bool force = true);
 
   void run();

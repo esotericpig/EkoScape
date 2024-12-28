@@ -49,7 +49,7 @@ int GameOverlay::on_key_down_event(const KeyEvent& event) {
     return SceneAction::kNil;
   }
 
-  const Option sel_opt = game_over_opts_.at(game_over_opt_index_);
+  const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
 
   switch(event.key) {
     case SDLK_RETURN:
@@ -117,8 +117,11 @@ void GameOverlay::update_game_over(const FrameStep& step,const ViewDimens& dimen
   }
 
   if(player_hit_end) {
-    if(star_sys_.is_empty()) { star_sys_.init(dimens,true); }
-    star_sys_.update(step);
+    if(star_sys_.is_empty()) {
+      star_sys_.init(dimens,true);
+    } else {
+      star_sys_.update(step);
+    }
   }
 }
 

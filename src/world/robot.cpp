@@ -17,27 +17,27 @@ void Robot::MoveData::refresh(bool player_ate_fruit) {
   this->player_ate_fruit = player_ate_fruit;
 }
 
-Robot Robot::build_statue(const Pos3i& pos,double lifespan) {
+Robot Robot::build_statue(const Pos3i& pos,float lifespan) {
   return Robot{pos,kLikeStatue,lifespan};
 }
 
-Robot Robot::build_normal(const Pos3i& pos,double lifespan) {
+Robot Robot::build_normal(const Pos3i& pos,float lifespan) {
   return Robot{pos,kLikeNormal,lifespan};
 }
 
-Robot Robot::build_ghost(const Pos3i& pos,double lifespan) {
+Robot Robot::build_ghost(const Pos3i& pos,float lifespan) {
   return Robot{pos,kLikeGhost,lifespan};
 }
 
-Robot Robot::build_snake(const Pos3i& pos,double lifespan) {
+Robot Robot::build_snake(const Pos3i& pos,float lifespan) {
   return Robot{pos,kLikeSnake,lifespan};
 }
 
-Robot Robot::build_worm(const Pos3i& pos,double lifespan) {
+Robot Robot::build_worm(const Pos3i& pos,float lifespan) {
   return Robot{pos,kLikeSnake | kLikeGhost,lifespan};
 }
 
-Robot::Robot(const Pos3i& pos,int moves_like,double lifespan)
+Robot::Robot(const Pos3i& pos,int moves_like,float lifespan)
     : pos_(pos),moves_like_(moves_like),lifespan_(lifespan) {}
 
 bool Robot::move(MoveData& data) {
@@ -168,13 +168,13 @@ bool Robot::warp_to(MoveData& data,const Pos3i& to_pos) {
 }
 
 void Robot::age(double delta_time) {
-  if(lifespan_ <= 0.0) { return; } // Besides immortality, prevent divide by 0.
+  if(lifespan_ <= 0.0f) { return; } // Besides immortality, prevent divide by 0.
 
   // Divide by lifespan to normalize to [0,1].
-  age_ += (delta_time / lifespan_);
+  age_ += (static_cast<float>(delta_time) / lifespan_);
 }
 
-bool Robot::is_alive() const { return lifespan_ <= 0.0 || age_ <= 1.0; }
+bool Robot::is_alive() const { return lifespan_ <= 0.0f || age_ <= 1.0f; }
 
 bool Robot::is_dead() const { return !is_alive(); }
 

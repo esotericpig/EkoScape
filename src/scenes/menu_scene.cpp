@@ -105,7 +105,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
   assets_.font_renderer().wrap(ren,{395,330,0},[&](auto& font) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
-      Option& opt = opts_[i];
+      const Option& opt = opts_[i];
       int styles = 0;
 
       if(static_cast<int>(i) == opt_index_) {
@@ -135,7 +135,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 }
 
 void MenuScene::update_graphics_opt(Option& opt) {
-  opt.text = kGraphicsText + assets_.tex_style();
+  opt.text = "gfx: " + assets_.tex_style();
 }
 
 } // Namespace.

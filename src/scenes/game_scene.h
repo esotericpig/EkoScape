@@ -12,7 +12,6 @@
 
 #include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
-#include "cybel/util/timer.h"
 
 #include "assets/assets.h"
 #include "map/dantares_map.h"
@@ -77,7 +76,7 @@ private:
   // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
   //   - See set_space_texs(), which relies on this logic.
   Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
-  DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*id*/) { init_map_texs(); }};
+  DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*grid_id*/) { init_map_texs(); }};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
   StoredKeyStates stored_keys_{};
@@ -105,7 +104,7 @@ private:
   void move_robots(const FrameStep& step);
   void remove_robots_at(const Pos3i& pos);
 
-  const Pos3i* fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
+  std::optional<Pos3i> fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
   void set_space_texs(SpaceType type,const Texture* tex);
   void set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);

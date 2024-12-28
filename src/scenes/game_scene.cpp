@@ -113,11 +113,9 @@ void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
       state_.show_mini_map = !state_.show_mini_map;
       on_state_changed_(state_);
       break;
-
-    default:
-      scene_action_ = overlay_.on_key_down_event(event);
-      break;
   }
+
+  scene_action_ = overlay_.on_key_down_event(event);
 }
 
 void GameScene::handle_key_states(const KeyStates& keys,const ViewDimens& /*dimens*/) {
@@ -263,12 +261,12 @@ void GameScene::update_player(const FrameStep& step) {
   //     Therefore, we check for Portals first.
   if(SpaceTypes::is_portal(player_empty_type)) {
     if(!player_warped_) {
-      const Pos3i* portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
+      const auto portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
         const Space* space = map_.space(pos);
         return space != nullptr && !space->has_thing();
       });
 
-      if(portal_bro != nullptr) {
+      if(portal_bro) {
         map_.move_player(*portal_bro);
         overlay_.flash(assets_.portal_color());
         player_warped_ = true;
@@ -332,18 +330,16 @@ void GameScene::move_robots(const FrameStep& step) {
 
     // Warp Robots that are on Portals.
     if(robot.portal_type() != SpaceType::kNil && !robot.warped()) {
-      const Pos3i* portal_bro = fetch_portal_bro(robot.pos(),robot.portal_type(),[&](const auto& pos) {
+      const auto portal_bro = fetch_portal_bro(robot.pos(),robot.portal_type(),[&](const auto& pos) {
         return robot.can_move_to(map_.space(pos));
       });
 
-      if(portal_bro != nullptr) { robot.warp_to(robot_move_data_,*portal_bro); }
+      if(portal_bro) { robot.warp_to(robot_move_data_,*portal_bro); }
     }
   }
 
   // Add new Robots after the move loop, because we can't add new ones inside its loop.
-  for(auto& new_robot: robot_move_data_.new_robots) {
-    robots_.push_back(new_robot);
-  }
+  std::ranges::move(robot_move_data_.new_robots,std::back_inserter(robots_));
   robot_move_data_.new_robots.clear();
 
   // Reset the move time.
@@ -359,29 +355,30 @@ void GameScene::remove_robots_at(const Pos3i& pos) {
   robots_.erase(result.begin(),result.end());
 }
 
-const Pos3i* GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to) {
+std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal
+    ,const MoveChecker& can_move_to) {
   auto it = portal_to_pos_bag_.find(portal);
-  if(it == portal_to_pos_bag_.end()) { return nullptr; }
+  if(it == portal_to_pos_bag_.end()) { return std::nullopt; }
 
   auto& bros = it->second;
-  if(bros.size() <= 1) { return nullptr; } // No bros. :(
+  if(bros.size() <= 1) { return std::nullopt; } // No bros. :(
 
   if(bros.size() > 2) { // More than 1 bro?
     Rando::it().shuffle(bros.begin(),bros.end());
   }
 
   for(auto& bro_pos: bros) { // Find Luigi.
-    if(bro_pos != pos && can_move_to(bro_pos)) { return &bro_pos; }
+    if(bro_pos != pos && can_move_to(bro_pos)) { return bro_pos; }
   }
 
-  return nullptr;
+  return std::nullopt;
 }
 
 void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_3d_scene();
 
   if(player_hit_end_) {
-    // Even if fully transparent, continue to draw so that the Player can turn the mini map.
+    // Even if fully transparent, continue to draw so that the Player can turn the mini map (just for fun).
     ren.wrap_color(assets_.end_color().with_a(1.0f - overlay_.game_over_age()),[&]() {
       dantares_.Draw(kDantaresDist);
     });
@@ -407,10 +404,12 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   }
 }
 
+// ReSharper disable once CppDFAUnreachableFunctionCall
 void GameScene::set_space_texs(SpaceType type,const Texture* tex) {
   set_space_texs(type,tex,tex,tex);
 }
 
+// ReSharper disable once CppDFAUnreachableFunctionCall
 void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall
     ,const Texture* floor) {
   const int space_id = SpaceTypes::value_of(type);

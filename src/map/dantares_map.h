@@ -11,7 +11,6 @@
 #include "common.h"
 
 #include "cybel/util/cybel_error.h"
-#include "cybel/util/util.h"
 
 #include "facing.h"
 #include "map.h"
@@ -29,7 +28,7 @@ namespace ekoscape {
  *
  * Example:
  *   @code
- *   DantaresMap map{dantares,[&](Dantares& dan,int z,int id) {
+ *   DantaresMap map{dantares,[&](Dantares& dan,int z,int grid_id) {
  *     // Set textures appropriately in Dantares...
  *   }};
  *
@@ -40,7 +39,7 @@ namespace ekoscape {
  */
 class DantaresMap : public Map {
 public:
-  using TexturesSetter = std::function<void(Dantares&,int z,int id)>;
+  using TexturesSetter = std::function<void(Dantares&,int z,int grid_id)>;
 
   explicit DantaresMap(Dantares& dantares,const TexturesSetter& set_texs);
 

@@ -16,7 +16,7 @@ namespace cybel {
 
 struct FrameStep {
   Duration dpf{};
-  double delta_time = 0.016;
+  double delta_time = 0.016; // 60 FPS.
 };
 
 class KeyEvent {

@@ -40,8 +40,6 @@ private:
     StrUtf8 text{};
   };
 
-  static inline const StrUtf8 kGraphicsText = "gfx: ";
-
   Assets& assets_;
   int scene_action_ = SceneAction::kNil;
 

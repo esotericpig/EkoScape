@@ -145,7 +145,7 @@ const Color4f& FontRenderer::cycle_arrow_color() const { return cycle_arrow_colo
 Size2i FontRenderer::scale_size(float scale) const {
   if(scale == 1.0f) { return kFontSize; }
 
-  Size2i size = kFontSize;
+  auto size = kFontSize;
 
   size.w = static_cast<int>(std::round(static_cast<float>(size.w) * scale));
   size.h = static_cast<int>(std::round(static_cast<float>(size.h) * scale));

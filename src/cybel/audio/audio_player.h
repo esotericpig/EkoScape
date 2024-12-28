@@ -29,6 +29,7 @@ public:
    * See: https://wiki.libsdl.org/SDL2_mixer/Mix_Init
    */
   explicit AudioPlayer(int music_types);
+
   AudioPlayer(const AudioPlayer& other) = delete;
   AudioPlayer(AudioPlayer&& other) noexcept = delete;
   virtual ~AudioPlayer() noexcept;

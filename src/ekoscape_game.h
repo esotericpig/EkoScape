@@ -54,9 +54,10 @@ private:
   SceneMan* scene_man_ = nullptr;
   std::unique_ptr<Assets> assets_{};
   StarSys star_sys_{};
-  float update_avg_fps_timer_ = 0.0f;
-  float avg_fps_ = -1.0f;
-  int avg_fps_to_show_ = -1;
+
+  float avg_fps_age_{};
+  double avg_fps_ = -1.0;
+  StrUtf8 avg_fps_to_show_{};
 
   MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};

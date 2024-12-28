@@ -22,6 +22,7 @@ class AudioPlayer;
 class Music {
 public:
   explicit Music(const std::filesystem::path& file);
+
   Music(const Music& other) = delete;
   Music(Music&& other) noexcept;
   virtual ~Music() noexcept;

@@ -17,6 +17,8 @@ EkoScapeGame::EkoScapeGame() {
   //config.size = {740,500}; // For GIFs/screenshots.
   config.fps = 60;
   config.vsync = true;
+  config.image_types = IMG_INIT_PNG;
+  config.music_types = MIX_INIT_OGG;
 
   // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
   // These are fixed values and should not be changed.
@@ -96,7 +98,7 @@ SceneBag EkoScapeGame::build_scene(int action) {
 
   if(SceneActions::is_menu(action)) {
     if(star_sys_.is_empty()) { star_sys_.init(cybel_engine_->dimens()); }
-  } else {
+  } else if(action != SceneAction::kGoToBoringWork) {
     star_sys_.clear(); // Free memory, for GameScene in particular.
   }
 
@@ -163,12 +165,11 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
 
     // Toggle FPS.
     case SDLK_F3:
-      if(avg_fps_to_show_ < 0) {
-        update_avg_fps_timer_ = 1.0f;
-        avg_fps_ = -1.0f;
-        avg_fps_to_show_ = 0;
+      if(avg_fps_ < 0.0) {
+        avg_fps_age_ = 1.0f; // Show immediately.
+        avg_fps_ = 0.0;
       } else {
-        avg_fps_to_show_ = -1;
+        avg_fps_ = -1.0;
       }
       break;
 
@@ -185,24 +186,24 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
 int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   star_sys_.update(step);
 
-  if(avg_fps_to_show_ >= 0) {
+  if(avg_fps_ >= 0.0) {
     const double mpf = step.dpf.millis(); // Milliseconds Per Frame.
-    const float fps = (mpf > 0.0) ? static_cast<float>(1000.0 / mpf) : 0.0f;
+    const double fps = (mpf > 0.0) ? (1000.0 / mpf) : 0.0;
 
-    if(avg_fps_ < 0.0f) {
+    if(avg_fps_ == 0.0) {
       avg_fps_ = fps;
     } else {
-      const float smoothing_factor = 0.3f; // Usually 0.1 to 0.3.
+      const double smoothing_factor = 0.3; // Usually 0.1 to 0.3.
 
       // Exponential Moving Average (EMA) to reduce the effects of hiccups,
-      //     instead of a typical average: avg = (avg + fps) / 2.0f.
-      avg_fps_ = (avg_fps_ * (1.0f - smoothing_factor)) + (fps * smoothing_factor);
+      //     instead of a typical average: avg = (avg + fps) / 2.
+      avg_fps_ = (avg_fps_ * (1.0 - smoothing_factor)) + (fps * smoothing_factor);
     }
 
     // Only update the shown FPS at an interval, else the digits change too fast to read.
-    if((update_avg_fps_timer_ += static_cast<float>(step.delta_time)) >= 1.0f) {
-      avg_fps_to_show_ = static_cast<int>(std::round(avg_fps_));
-      update_avg_fps_timer_ = 0.0f;
+    if((avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
+      avg_fps_to_show_ = std::to_string(static_cast<int>(std::round(avg_fps_)));
+      avg_fps_age_ = 0.0f;
     }
   }
 
@@ -221,16 +222,15 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
        .end_scale();
   }
 
-  if(avg_fps_to_show_ >= 0) {
+  if(avg_fps_ >= 0.0) {
     ren.begin_2d_scene()
        .begin_auto_anchor_scale({0.0f,0.0f}); // Top left.
 
     const Size2i padding{5,5};
-    const StrUtf8 fps = std::to_string(avg_fps_to_show_);
 
     assets_->font_renderer().wrap(ren,{padding.w,padding.h,0},0.33f,[&](auto& font) {
-      font.draw_bg({0.0f,0.5f},{static_cast<int>(fps.length()),1},padding);
-      font.print(fps);
+      font.draw_bg({0.0f,0.5f},{static_cast<int>(avg_fps_to_show_.length()),1},padding);
+      font.print(avg_fps_to_show_);
     });
 
     ren.end_scale();

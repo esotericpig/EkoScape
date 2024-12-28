@@ -29,7 +29,7 @@ bool SceneMan::pop_scene() {
   // Avoid setting scene to kEmptySceneBag over & over.
   if(prev_scene_bags_.empty()) { return false; }
 
-  while(!prev_scene_bags_.empty()) {
+  do {
     SceneBag prev = prev_scene_bags_.back();
     prev_scene_bags_.pop_back();
 
@@ -43,7 +43,7 @@ bool SceneMan::pop_scene() {
 
     set_scene(prev);
     return true;
-  }
+  } while(!prev_scene_bags_.empty());
 
   set_scene(kEmptySceneBag);
   return false;

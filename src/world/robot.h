@@ -32,11 +32,11 @@ public:
     void refresh(bool player_ate_fruit);
   };
 
-  static Robot build_statue(const Pos3i& pos,double lifespan = kDefaultLifespan);
-  static Robot build_normal(const Pos3i& pos,double lifespan = kDefaultLifespan);
-  static Robot build_ghost(const Pos3i& pos,double lifespan = kDefaultLifespan);
-  static Robot build_snake(const Pos3i& pos,double lifespan = kDefaultLifespan);
-  static Robot build_worm(const Pos3i& pos,double lifespan = kDefaultLifespan);
+  static Robot build_statue(const Pos3i& pos,float lifespan = kDefaultLifespan);
+  static Robot build_normal(const Pos3i& pos,float lifespan = kDefaultLifespan);
+  static Robot build_ghost(const Pos3i& pos,float lifespan = kDefaultLifespan);
+  static Robot build_snake(const Pos3i& pos,float lifespan = kDefaultLifespan);
+  static Robot build_worm(const Pos3i& pos,float lifespan = kDefaultLifespan);
 
   bool move(MoveData& data);
   bool warp_to(MoveData& data,const Pos3i& to_pos);
@@ -55,8 +55,8 @@ private:
   static inline const int kLikeGhost = 1 << 2; // Can go through walls.
   static inline const int kLikeSnake = 1 << 3; // Leaves behind a "shadow"/tail of statues.
 
-  static inline const double kDefaultLifespan = 0.0;
-  static inline const double kSnakeTailLifespan = 9.0; // Seconds.
+  static inline const float kDefaultLifespan{};
+  static inline const float kSnakeTailLifespan = 9.0f;
   static inline std::vector<Pos2i> rand_move_vels_{
     { 0,-1}, // North.
     { 0, 1}, // South.
@@ -65,15 +65,15 @@ private:
   };
 
   Pos3i pos_{};
-  int moves_like_ = 0;
-  double lifespan_ = 0.0; // Seconds.
-  double age_ = 0.0;
+  int moves_like_{};
+  float lifespan_{};
+  float age_{};
 
   Pos3i last_seen_player_pos_{0,0,-1};
   SpaceType portal_type_ = SpaceType::kNil;
   bool warped_ = false;
 
-  explicit Robot(const Pos3i& pos,int moves_like,double lifespan);
+  explicit Robot(const Pos3i& pos,int moves_like,float lifespan);
 
   bool move_smart(MoveData& data);
   bool move_rand(MoveData& data);

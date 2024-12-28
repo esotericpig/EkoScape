@@ -24,13 +24,13 @@ public:
   float b = 0.0f;
   float a = 1.0f;
 
-  static Color4f hex(std::uint32_t rgb,std::uint8_t a = 255);
-  static Color4f bytes(std::uint8_t rgb,std::uint8_t a = 255);
-  static Color4f bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255);
+  static Color4f hex(std::uint32_t rgb,std::uint8_t a = 255) noexcept;
+  static Color4f bytes(std::uint8_t rgb,std::uint8_t a = 255) noexcept;
+  static Color4f bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255) noexcept;
 
-  Color4f();
-  Color4f(float rgb,float a = 1.0f);
-  Color4f(float r,float g,float b,float a = 1.0f);
+  Color4f() noexcept {}
+  Color4f(float rgb,float a = 1.0f) noexcept;
+  Color4f(float r,float g,float b,float a = 1.0f) noexcept;
 
   Color4f& set(float rgb);
   Color4f& set(float rgb,float a);
@@ -62,8 +62,8 @@ public:
   T x{};
   T y{};
 
-  Pos2() {}
-  Pos2(T x,T y) : x(x),y(y) {}
+  Pos2() noexcept {}
+  Pos2(T x,T y) noexcept : x(x),y(y) {}
 
   bool operator==(const Pos2&) const = default;
 
@@ -90,8 +90,8 @@ public:
   T y{};
   T z{};
 
-  Pos3() {}
-  Pos3(T x,T y,T z) : x(x),y(y),z(z) {}
+  Pos3() noexcept {}
+  Pos3(T x,T y,T z) noexcept : x(x),y(y),z(z) {}
 
   bool operator==(const Pos3&) const = default;
 
@@ -134,8 +134,8 @@ public:
   int min = 0;
   int max = 0;
 
-  Range2i() {}
-  Range2i(int min,int max) : min(min),max(max) {}
+  Range2i() noexcept {}
+  Range2i(int min,int max) noexcept : min(min),max(max) {}
 
   bool in_range(int value) const;
 
@@ -148,12 +148,12 @@ public:
   T w{};
   T h{};
 
-  Size2() {}
-  Size2(T w,T h) : w(w),h(h) {}
+  Size2() noexcept {}
+  Size2(T w,T h) noexcept : w(w),h(h) {}
 
   bool in_bounds(const Pos2<T>& pos,const Size2<T>& size) const {
-    return (pos.x + size.w) >= 0 && pos.x <= w
-        && (pos.y + size.h) >= 0 && pos.y <= h;
+    return (pos.x + size.w) >= 0 && pos.x < w
+        && (pos.y + size.h) >= 0 && pos.y < h;
   }
 
   Size2& set(T w,T h) {
