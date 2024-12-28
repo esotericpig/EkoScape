@@ -24,22 +24,51 @@
 namespace cybel {
 
 /**
- * Note that wrapping inside of a wrap doesn't work as one might expect.
- * This can be fixed internally by using a stack/vector, but not implemented for now.
+ * The begin_/end_*() functions do not preserve the previous states when nesting.
+ * This is by design.
  *
- * Example:
+ * Alternatively, the wrap_*() functions do preserve the previous states when nesting.
+ *
+ * Nesting Example with Wrap:
+ *   @code
+ *   Pos2i pos{100,0};
+ *   const Size2i size{100,100};
+ *
  *   ren.wrap_color({0.0f,0.0f,1.0f},[&]() {
- *     // Blue.
- *     ren.draw_quad(0,0,100,100);
+ *     ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Blue.
  *
- *     // Green.
  *     ren.wrap_color({0.0f,1.0f,0.0f},[&]() {
- *       ren.draw_quad(0,100,100,100);
+ *       ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Green.
+ *
+ *       ren.wrap_color({1.0f,1.0f,0.0f},[&]() {
+ *         ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Yellow.
+ *       });
+ *
+ *       ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Back to Green.
  *     });
  *
- *     // Not blue (or green), but white now (reset).
- *     ren.draw_quad(0,200,100,100);
+ *     ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Back to Blue.
  *   });
+ *
+ *   ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Back to White (default).
+ *   @endcode
+ *
+ * Nesting Example with Begin/End:
+ *   @code
+ *   Pos2i pos{100,0};
+ *   const Size2i size{100,100};
+ *
+ *   ren.begin_color({0.0f,0.0f,1.0f});
+ *     ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Blue.
+ *
+ *     ren.begin_color({0.0f,1.0f,0.0f});
+ *       ren.draw_quad({pos.x,(++pos.y) * size.h,0},size); // Green.
+ *     ren.end_color(); // NOT back to Blue, but White (default).
+ *
+ *     // NOT Blue or Green, but now White (default).
+ *     ren.draw_quad({pos.x,(++pos.y) * size.h,0},size);
+ *   ren.end_color();
+ *   @endcode
  */
 class Renderer {
 public:
@@ -161,18 +190,31 @@ public:
   Color4f& clear_color();
 
 private:
+  struct BlendMode {
+    GLenum src_factor{};
+    GLenum dst_factor{};
+  };
+
+  static inline const BlendMode kDefaultBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
+  static inline const BlendMode kAddBlendMode{GL_ONE,GL_ONE};
+
   ViewDimens dimens_{};
   Pos2f scale_{1.0f,1.0f};
   float aspect_scale_ = 1.0f;
   Pos2f offset_{0.0f,0.0f};
   Color4f clear_color_{};
 
-  GLint blend_src_rgb_ = 0;
-  GLint blend_src_alpha_ = 0;
-  GLint blend_dst_rgb_ = 0;
-  GLint blend_dst_alpha_ = 0;
+  Color4f curr_color_{1.0f};
+  BlendMode curr_blend_mode_ = kDefaultBlendMode;
+  // This would be safer as a shared_ptr, but I think fine,
+  //     as it would require refactoring all of the methods & callers.
+  const Texture* curr_tex_ = nullptr;
 
   void init_gl();
+
+  Renderer& begin_blend(const BlendMode& mode);
+
+  Renderer& wrap_tex(const Texture& tex,const WrapCallback& callback);
 };
 
 } // Namespace.
