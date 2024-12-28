@@ -9,14 +9,14 @@
 
 namespace ekoscape {
 
-GameHud::GameHud(Assets& assets)
-    : assets_(assets) {
-  mini_map_eko_color_ = assets_.eko_color().with_a(kAlpha);
-  mini_map_end_color_ = assets_.end_color().with_a(kAlpha);
-  mini_map_fruit_color_ = assets_.fruit_color().with_a(kAlpha);
-  mini_map_non_walkable_color_ = assets_.wall_color().with_a(kAlpha);
-  mini_map_portal_color_ = assets_.portal_color().with_a(kAlpha);
-  mini_map_robot_color_ = assets_.robot_color().with_a(kAlpha);
+GameHud::GameHud(GameContext& ctx) noexcept
+    : ctx_(ctx) {
+  mini_map_eko_color_ = ctx_.assets.eko_color().with_a(kAlpha);
+  mini_map_end_color_ = ctx_.assets.end_color().with_a(kAlpha);
+  mini_map_fruit_color_ = ctx_.assets.fruit_color().with_a(kAlpha);
+  mini_map_non_walkable_color_ = ctx_.assets.wall_color().with_a(kAlpha);
+  mini_map_portal_color_ = ctx_.assets.portal_color().with_a(kAlpha);
+  mini_map_robot_color_ = ctx_.assets.robot_color().with_a(kAlpha);
   mini_map_walkable_color_.set(0.0f,kAlpha);
 }
 
@@ -31,7 +31,7 @@ void GameHud::draw(Renderer& ren,const ViewDimens& dimens,const Map& map,bool sh
   ren.wrap_color(mini_map_walkable_color_,[&]() {
     ren.draw_quad(pos,{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
-  assets_.font_renderer().wrap(ren,pos,text_scale,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,pos,text_scale,[&](auto& font) {
     const Color4f font_color = font.font_color;
 
     font.print();
@@ -44,7 +44,7 @@ void GameHud::draw(Renderer& ren,const ViewDimens& dimens,const Map& map,bool sh
     const int fruit_padding_w = 5;
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w + fruit_padding_w,pos.y,pos.z};
 
-    assets_.font_renderer().wrap(ren,fruit_pos,text_scale,[&](auto& font) {
+    ctx_.assets.font_renderer().wrap(ren,fruit_pos,text_scale,[&](auto& font) {
       const StrUtf8 fruit_text = std::to_string(player_fruit_time.round_secs());
 
       font.draw_bg(mini_map_walkable_color_,{static_cast<int>(fruit_text.length()),1},{fruit_padding_w,0});
@@ -124,7 +124,7 @@ void GameHud::draw(Renderer& ren,const ViewDimens& dimens,const Map& map,bool sh
 
       if(!player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
-        ren.wrap_font_atlas(assets_.font_atlas(),block_pos,kMiniMapBlockSize,{},[&](auto& font) {
+        ren.wrap_font_atlas(ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,{},[&](auto& font) {
           font.print("↑");
         });
       }

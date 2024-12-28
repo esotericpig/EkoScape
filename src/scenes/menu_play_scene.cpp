@@ -12,9 +12,8 @@ namespace ekoscape {
 MenuPlayScene::MapOption::MapOption(const StrUtf8& text)
     : text(text) {}
 
-MenuPlayScene::MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const State& state
-    ,const StateCallback& on_state_changed)
-    : cybel_engine_(cybel_engine),assets_(assets),state_(state),on_state_changed_(on_state_changed) {
+MenuPlayScene::MenuPlayScene(GameContext& ctx,const State& state,const StateCallback& on_state_changed)
+    : ctx_(ctx),state_(state),on_state_changed_(on_state_changed) {
   refresh_maps();
 }
 
@@ -24,7 +23,7 @@ void MenuPlayScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
       if(map_opts_.size() <= 1) { // Only has the random-map option?
-        cybel_engine_.show_error("No map to select.");
+        ctx_.cybel_engine.show_error("No map to select.");
       } else {
         sync_map_opt(); // Justin Case.
         scene_action_ = SceneAction::kGoToGame;
@@ -75,7 +74,7 @@ void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  assets_.font_renderer().wrap(ren,{25,10,0},0.75f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{25,10,0},0.75f,[&](auto& font) {
     if(!map_opts_.empty()) {
       const int opts_len = static_cast<int>(map_opts_.size());
       const int first_i = map_opt_index_ - kMapOptsHalf1;
@@ -124,7 +123,7 @@ void MenuPlayScene::glob_maps() {
   map_opts_.emplace_back("< Random Map >");
   map_opt_index_ = 0;
 
-  assets_.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
+  ctx_.assets.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
     MapOption opt{};
 
     opt.group = group;
@@ -137,7 +136,7 @@ void MenuPlayScene::glob_maps() {
   });
 
   if(map_opts_.size() <= 1) { // Only has the random-map option?
-    cybel_engine_.show_error("No maps were found/loaded in the sub folders of the maps folder ["
+    ctx_.cybel_engine.show_error("No maps were found/loaded in the sub folders of the maps folder ["
         + Assets::kMapsSubdir.string() + "].");
     return;
   }

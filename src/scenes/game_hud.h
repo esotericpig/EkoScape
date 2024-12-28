@@ -13,14 +13,14 @@
 #include "cybel/render/renderer.h"
 #include "cybel/util/util.h"
 
-#include "assets/assets.h"
 #include "map/map.h"
+#include "game_context.h"
 
 namespace ekoscape {
 
 class GameHud {
 public:
-  explicit GameHud(Assets& assets);
+  explicit GameHud(GameContext& ctx) noexcept;
 
   void draw(Renderer& ren,const ViewDimens& dimens,const Map& map,bool show_mini_map
       ,const Duration& player_fruit_time,bool player_hit_end);
@@ -35,7 +35,7 @@ private:
   };
   static inline const float kAlpha = 0.50f;
 
-  Assets& assets_;
+  GameContext& ctx_;
 
   Color4f mini_map_eko_color_{}; // Cell & Player.
   Color4f mini_map_end_color_{};

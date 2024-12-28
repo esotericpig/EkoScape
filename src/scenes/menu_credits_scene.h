@@ -15,7 +15,7 @@
 #include "cybel/util/rando.h"
 #include "cybel/vfx/particle.h"
 
-#include "assets/assets.h"
+#include "game_context.h"
 #include "scene_action.h"
 
 #include <vector>
@@ -26,7 +26,7 @@ class MenuCreditsScene : public Scene {
 public:
   static Color4f rand_color();
 
-  explicit MenuCreditsScene(Assets& assets);
+  explicit MenuCreditsScene(GameContext& ctx);
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
@@ -41,7 +41,7 @@ private:
 
   static inline const StrUtf8 kWtfText = "wtf!?";
 
-  Assets& assets_;
+  GameContext& ctx_;
   int scene_action_ = SceneAction::kNil;
 
   std::vector<WtfParticle> wtfs_{};

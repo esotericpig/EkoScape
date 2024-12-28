@@ -9,8 +9,8 @@
 
 namespace ekoscape {
 
-MenuScene::MenuScene(Assets& assets)
-    : assets_(assets) {
+MenuScene::MenuScene(GameContext& ctx)
+    : ctx_(ctx) {
   for(auto& opt: opts_) {
     if(opt.type == OptionType::kGraphics) {
       update_graphics_opt(opt);
@@ -32,7 +32,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
           break;
 
         case OptionType::kGraphics:
-          assets_.next_tex_style();
+          ctx_.assets.next_tex_style();
           update_graphics_opt(sel_opt);
           break;
 
@@ -68,7 +68,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
     case SDLK_a:
       switch(sel_opt.type) {
         case OptionType::kGraphics:
-          assets_.prev_tex_style();
+          ctx_.assets.prev_tex_style();
           update_graphics_opt(sel_opt);
           break;
 
@@ -80,7 +80,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
     case SDLK_d:
       switch(sel_opt.type) {
         case OptionType::kGraphics:
-          assets_.next_tex_style();
+          ctx_.assets.next_tex_style();
           update_graphics_opt(sel_opt);
           break;
 
@@ -99,11 +99,11 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  ren.wrap_sprite(assets_.logo_sprite(),[&](auto& s) {
+  ren.wrap_sprite(ctx_.assets.logo_sprite(),[&](auto& s) {
     s.draw_quad({150,10,0},{1300,300});
   });
 
-  assets_.font_renderer().wrap(ren,{395,330,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{395,330,0},[&](auto& font) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
       const Option& opt = opts_[i];
       int styles = 0;
@@ -120,13 +120,13 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     }
   });
 
-  ren.wrap_tex(assets_.robot_tex(),[&](auto& tex) {
+  ren.wrap_tex(ctx_.assets.robot_tex(),[&](auto& tex) {
     tex.draw_quad({10,368,0},{300,256});
   });
-  ren.wrap_tex(assets_.cell_tex(),[&](auto& tex) {
+  ren.wrap_tex(ctx_.assets.cell_tex(),[&](auto& tex) {
     tex.draw_quad({10,634,0},{300,256});
   });
-  ren.wrap_sprite(assets_.keys_sprite(),[&](auto& s) {
+  ren.wrap_sprite(ctx_.assets.keys_sprite(),[&](auto& s) {
     s.draw_quad({849,670,0},{741,220}); // 1482x440.
   });
 
@@ -135,7 +135,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 }
 
 void MenuScene::update_graphics_opt(Option& opt) {
-  opt.text = "gfx: " + assets_.tex_style();
+  opt.text = "gfx: " + ctx_.assets.tex_style();
 }
 
 } // Namespace.

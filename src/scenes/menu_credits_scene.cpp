@@ -14,8 +14,8 @@ Color4f MenuCreditsScene::rand_color() {
   return {r.rand_float(),r.rand_float(),r.rand_float()};
 }
 
-MenuCreditsScene::MenuCreditsScene(Assets& assets)
-    : assets_(assets),wtfs_(75,WtfParticle{}) {}
+MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
+    : ctx_(ctx),wtfs_(75,WtfParticle{}) {}
 
 void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) {
   switch(event.key) {
@@ -26,7 +26,7 @@ void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens&
       break;
 
     case SDLK_f:
-      if(!assets_.is_weird()) { assets_.reload_gfx(true); }
+      if(!ctx_.assets.is_weird()) { ctx_.assets.reload_gfx(true); }
       init_wtfs(dimens);
       break;
   }
@@ -47,16 +47,16 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   int y = 10;
   int right_x = x + 800;
 
-  ren.wrap_sprite(assets_.logo_sprite(),[&](auto& s) {
+  ren.wrap_sprite(ctx_.assets.logo_sprite(),[&](auto& s) {
     s.draw_quad({x,y,0},{780,180}); // 1300x300.
   });
-  ren.wrap_sprite(assets_.dantares_sprite(),[&](auto& s) {
+  ren.wrap_sprite(ctx_.assets.dantares_sprite(),[&](auto& s) {
     s.draw_quad({right_x,y,0},{780,156}); // 600x120.
   });
   x += 35;
   y += 190;
 
-  assets_.font_renderer().wrap(ren,{x,y,0},0.75f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{x,y,0},0.75f,[&](auto& font) {
     font.print("by Bradley Whited");
     font.font.pos.x = right_x;
     font.print("by Ryan Witmer");
@@ -64,7 +64,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     font.puts();
     y = font.font.pos.y;
   });
-  assets_.font_renderer().wrap(ren,{x,y,0},0.45f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{x,y,0},0.45f,[&](auto& font) {
     font.print("github.com/esotericpig/EkoScape");
     font.font.pos.x = right_x;
     font.print("https://phasercat.com");
@@ -73,12 +73,12 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     y = font.font.pos.y;
   });
 
-  assets_.font_renderer().wrap(ren,{x,y,0},0.60f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{x,y,0},0.60f,[&](auto& font) {
     font.puts("Monogram font by datagoblin.itch.io");
     font.puts("Star textures by Kronbits.itch.io");
   });
 
-  assets_.font_renderer().wrap(ren,{395,615,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{395,615,0},[&](auto& font) {
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
   });
 
@@ -95,8 +95,8 @@ void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
   int max_births = (active_wtf_count_ <= 20) ? 25 : 5;
   const auto init_x = static_cast<float>(dimens.target_size.w) / 2.0f;
   const auto init_y = static_cast<float>(dimens.target_size.h) / 2.0f;
-  const auto init_w = static_cast<float>(assets_.font_renderer().font_size().w);
-  const auto init_h = static_cast<float>(assets_.font_renderer().font_size().h);
+  const auto init_w = static_cast<float>(ctx_.assets.font_renderer().font_size().w);
+  const auto init_h = static_cast<float>(ctx_.assets.font_renderer().font_size().h);
   const auto size = static_cast<int>(wtfs_.size());
 
   for(int i = active_wtf_count_; i < size; ++i,++active_wtf_count_) {
@@ -129,7 +129,7 @@ void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
 
 void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimens) {
   const auto text_len = static_cast<float>(kWtfText.length());
-  const Size2f font_spacing = assets_.font_renderer().font_spacing().to_size2<float>();
+  const Size2f font_spacing = ctx_.assets.font_renderer().font_spacing().to_size2<float>();
   const float total_spacing_w = font_spacing.w * (text_len - 1);
 
   for(int i = 0; i < active_wtf_count_; ++i) {
@@ -169,7 +169,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
 }
 
 void MenuCreditsScene::draw_wtfs(Renderer& ren) {
-  assets_.font_renderer().wrap(ren,{},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{},[&](auto& font) {
     for(int i = 0; i < active_wtf_count_; ++i) {
       WtfParticle& wtf = wtfs_[i];
 

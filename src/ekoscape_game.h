@@ -10,7 +10,6 @@
 
 #include "common.h"
 
-#include "cybel/audio/audio_player.h"
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"
 #include "cybel/scene/scene_man.h"
@@ -25,6 +24,7 @@
 #include "scenes/menu_scene.h"
 #include "scenes/scene_action.h"
 #include "world/star_sys.h"
+#include "game_context.h"
 
 #include <filesystem>
 
@@ -49,12 +49,12 @@ public:
   static void show_error_global(const std::string& error);
 
 private:
-  AudioPlayer* audio_player_ = nullptr;
-  bool was_music_playing_ = false;
   SceneMan* scene_man_ = nullptr;
+  bool was_music_playing_ = false;
   std::unique_ptr<Assets> assets_{};
-  StarSys star_sys_{};
+  std::unique_ptr<GameContext> ctx_{};
 
+  StarSys star_sys_{};
   float avg_fps_age_{};
   double avg_fps_ = -1.0;
   StrUtf8 avg_fps_to_show_{};

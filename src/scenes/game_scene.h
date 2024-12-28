@@ -13,9 +13,9 @@
 #include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
 
-#include "assets/assets.h"
 #include "map/dantares_map.h"
 #include "world/robot.h"
+#include "game_context.h"
 #include "game_hud.h"
 #include "game_overlay.h"
 #include "scene_action.h"
@@ -36,7 +36,7 @@ public:
 
   using StateCallback = std::function<void(const State&)>;
 
-  explicit GameScene(Assets& assets,const std::filesystem::path& map_file,const State& state
+  explicit GameScene(GameContext& ctx,const std::filesystem::path& map_file,const State& state
       ,const StateCallback& on_state_changed);
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
@@ -65,7 +65,7 @@ private:
   static inline const Duration kFruitDuration = Duration::from_millis(7'000);
   static inline const int kFruitWarnSecs = 2;
 
-  Assets& assets_;
+  GameContext& ctx_;
   State state_{};
   StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;

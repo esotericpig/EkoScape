@@ -9,9 +9,9 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(Assets& assets,const std::filesystem::path& map_file,const State& state
+GameScene::GameScene(GameContext& ctx,const std::filesystem::path& map_file,const State& state
     ,const StateCallback& on_state_changed)
-    : assets_(assets),state_(state),on_state_changed_(on_state_changed),hud_(assets),overlay_(assets) {
+    : ctx_(ctx),state_(state),on_state_changed_(on_state_changed),hud_(ctx),overlay_(ctx) {
   map_.load_file(map_file
     ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type); }
     ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
@@ -28,7 +28,7 @@ GameScene::GameScene(Assets& assets,const std::filesystem::path& map_file,const 
 
 SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
   // For weird, flip Robots & Cells.
-  if(assets_.is_weird()) {
+  if(ctx_.assets.is_weird()) {
     if(type == SpaceType::kCell) {
       type = SpaceType::kRobot;
     } else if(SpaceTypes::is_robot(type)) {
@@ -74,36 +74,37 @@ void GameScene::init_map_default_empty(const Pos3i& pos,SpaceType type) {
 }
 
 void GameScene::init_map_texs() {
-  set_space_texs(SpaceType::kCell,&assets_.ceiling_tex(),&assets_.cell_tex(),&assets_.floor_tex());
-  set_space_texs(SpaceType::kDeadSpace,&assets_.dead_space_tex(),nullptr,&assets_.dead_space_tex());
-  set_space_texs(SpaceType::kDeadSpaceGhost,&assets_.dead_space_ghost_tex(),nullptr
-      ,&assets_.dead_space_ghost_tex());
-  set_space_texs(SpaceType::kEmpty,&assets_.ceiling_tex(),nullptr,&assets_.floor_tex());
-  set_space_texs(SpaceType::kEnd,&assets_.end_tex());
-  set_space_texs(SpaceType::kEndWall,&assets_.end_wall_tex());
-  set_space_texs(SpaceType::kFruit,&assets_.fruit_tex());
+  const auto& a = ctx_.assets;
+
+  set_space_texs(SpaceType::kCell,&a.ceiling_tex(),&a.cell_tex(),&a.floor_tex());
+  set_space_texs(SpaceType::kDeadSpace,&a.dead_space_tex(),nullptr,&a.dead_space_tex());
+  set_space_texs(SpaceType::kDeadSpaceGhost,&a.dead_space_ghost_tex(),nullptr,&a.dead_space_ghost_tex());
+  set_space_texs(SpaceType::kEmpty,&a.ceiling_tex(),nullptr,&a.floor_tex());
+  set_space_texs(SpaceType::kEnd,&a.end_tex());
+  set_space_texs(SpaceType::kEndWall,&a.end_wall_tex());
+  set_space_texs(SpaceType::kFruit,&a.fruit_tex());
   // SpaceType::kPlayer* - No textures.
-  set_space_texs(SpaceType::kPortal0,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal1,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal2,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal3,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal4,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal5,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal6,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal7,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal8,&assets_.portal_tex());
-  set_space_texs(SpaceType::kPortal9,&assets_.portal_tex());
-  set_space_texs(SpaceType::kRobot,&assets_.robot_tex());
-  set_space_texs(SpaceType::kRobotGhost,&assets_.robot_tex());
-  set_space_texs(SpaceType::kRobotSnake,&assets_.robot_tex());
-  set_space_texs(SpaceType::kRobotStatue,&assets_.robot_tex());
-  set_space_texs(SpaceType::kRobotWorm,&assets_.robot_tex());
+  set_space_texs(SpaceType::kPortal0,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal1,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal2,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal3,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal4,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal5,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal6,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal7,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal8,&a.portal_tex());
+  set_space_texs(SpaceType::kPortal9,&a.portal_tex());
+  set_space_texs(SpaceType::kRobot,&a.robot_tex());
+  set_space_texs(SpaceType::kRobotGhost,&a.robot_tex());
+  set_space_texs(SpaceType::kRobotSnake,&a.robot_tex());
+  set_space_texs(SpaceType::kRobotStatue,&a.robot_tex());
+  set_space_texs(SpaceType::kRobotWorm,&a.robot_tex());
   // SpaceType::kVoid - No textures.
-  set_space_texs(SpaceType::kWall,&assets_.ceiling_tex(),&assets_.wall_tex(),&assets_.floor_tex());
-  set_space_texs(SpaceType::kWallGhost,&assets_.ceiling_tex(),&assets_.wall_ghost_tex(),&assets_.floor_tex());
-  set_space_texs(SpaceType::kWhite,&assets_.white_tex());
-  set_space_texs(SpaceType::kWhiteFloor,&assets_.white_tex(),nullptr,&assets_.white_tex());
-  set_space_texs(SpaceType::kWhiteGhost,&assets_.white_ghost_tex());
+  set_space_texs(SpaceType::kWall,&a.ceiling_tex(),&a.wall_tex(),&a.floor_tex());
+  set_space_texs(SpaceType::kWallGhost,&a.ceiling_tex(),&a.wall_ghost_tex(),&a.floor_tex());
+  set_space_texs(SpaceType::kWhite,&a.white_tex());
+  set_space_texs(SpaceType::kWhiteFloor,&a.white_tex(),nullptr,&a.white_tex());
+  set_space_texs(SpaceType::kWhiteGhost,&a.white_ghost_tex());
 }
 
 void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
@@ -218,7 +219,7 @@ void GameScene::update_player(const FrameStep& step) {
       const auto fruit_secs = player_fruit_time_.round_secs();
 
       if(fruit_secs != prev_fruit_secs && fruit_secs <= kFruitWarnSecs) {
-        overlay_.flash(assets_.fruit_color());
+        overlay_.flash(ctx_.assets.fruit_color());
       }
     }
   }
@@ -239,7 +240,7 @@ void GameScene::update_player(const FrameStep& step) {
     // Check for Fruit before Robots.
     case SpaceType::kFruit:
       map_.remove_thing(player_pos);
-      overlay_.flash(assets_.fruit_color());
+      overlay_.flash(ctx_.assets.fruit_color());
       player_fruit_time_ = kFruitDuration;
       break;
 
@@ -268,7 +269,7 @@ void GameScene::update_player(const FrameStep& step) {
 
       if(portal_bro) {
         map_.move_player(*portal_bro);
-        overlay_.flash(assets_.portal_color());
+        overlay_.flash(ctx_.assets.portal_color());
         player_warped_ = true;
         player_warp_time_ = kWarpDuration;
       }
@@ -296,7 +297,7 @@ void GameScene::game_over(bool hit_end) {
   //     since the pos might be beyond End, etc. after fully moving.
   map_.sync_player_pos();
 
-  if(!player_hit_end_) { overlay_.fade_to(assets_.eko_color()); }
+  if(!player_hit_end_) { overlay_.fade_to(ctx_.assets.eko_color()); }
   overlay_.game_over(map_,player_hit_end_);
 }
 
@@ -379,7 +380,7 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
 
   if(player_hit_end_) {
     // Even if fully transparent, continue to draw so that the Player can turn the mini map (just for fun).
-    ren.wrap_color(assets_.end_color().with_a(1.0f - overlay_.game_over_age()),[&]() {
+    ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_.game_over_age()),[&]() {
       dantares_.Draw(kDantaresDist);
     });
   } else {

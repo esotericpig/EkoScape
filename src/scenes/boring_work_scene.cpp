@@ -9,15 +9,15 @@
 
 namespace ekoscape {
 
-BoringWorkScene::BoringWorkScene(CybelEngine& cybel_engine,Assets& assets)
-    : cybel_engine_(cybel_engine),assets_(assets) {}
+BoringWorkScene::BoringWorkScene(GameContext& ctx) noexcept
+    : ctx_(ctx) {}
 
 void BoringWorkScene::init_scene(const ViewDimens& /*dimens*/) {
-  cybel_engine_.set_title("robots.xlsx - EkoOffice Calc");
+  ctx_.cybel_engine.set_title("robots.xlsx - EkoOffice Calc");
 }
 
 void BoringWorkScene::on_scene_exit() {
-  cybel_engine_.reset_title();
+  ctx_.cybel_engine.reset_title();
 }
 
 void BoringWorkScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
@@ -37,7 +37,7 @@ int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/,const ViewDime
 void BoringWorkScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_2d_scene();
 
-  ren.wrap_sprite(assets_.boring_work_sprite(),[&](auto& s) {
+  ren.wrap_sprite(ctx_.assets.boring_work_sprite(),[&](auto& s) {
     s.draw_quad({0,0,0},dimens.size);
   });
 }

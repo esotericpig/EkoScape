@@ -13,10 +13,9 @@
 #include "cybel/scene/scene.h"
 #include "cybel/util/rando.h"
 #include "cybel/util/util.h"
-#include "cybel/cybel_engine.h"
 
-#include "assets/assets.h"
 #include "map/map.h"
+#include "game_context.h"
 #include "scene_action.h"
 
 #include <algorithm>
@@ -35,8 +34,7 @@ public:
 
   using StateCallback = std::function<void(const State&)>;
 
-  explicit MenuPlayScene(CybelEngine& cybel_engine,Assets& assets,const State& state
-      ,const StateCallback& on_state_changed);
+  explicit MenuPlayScene(GameContext& ctx,const State& state,const StateCallback& on_state_changed);
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
@@ -72,8 +70,7 @@ private:
   static inline const int kMapOptsHalf2 = kMaxMapOpts >> 1;
   static inline const int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
 
-  CybelEngine& cybel_engine_;
-  Assets& assets_;
+  GameContext& ctx_;
   State state_{};
   StateCallback on_state_changed_{};
   int scene_action_ = SceneAction::kNil;

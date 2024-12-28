@@ -12,7 +12,7 @@
 
 #include "cybel/scene/scene.h"
 
-#include "assets/assets.h"
+#include "game_context.h"
 #include "scene_action.h"
 
 #include <vector>
@@ -21,7 +21,7 @@ namespace ekoscape {
 
 class MenuScene : public Scene {
 public:
-  explicit MenuScene(Assets& assets);
+  explicit MenuScene(GameContext& ctx);
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
@@ -40,7 +40,7 @@ private:
     StrUtf8 text{};
   };
 
-  Assets& assets_;
+  GameContext& ctx_;
   int scene_action_ = SceneAction::kNil;
 
   std::vector<Option> opts_ = {

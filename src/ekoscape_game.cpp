@@ -25,9 +25,9 @@ EkoScapeGame::EkoScapeGame() {
   config.target_size = {1600,900};
 
   cybel_engine_ = std::make_unique<CybelEngine>(*this,config,[&](int action) { return build_scene(action); });
-  audio_player_ = &cybel_engine_->audio_player();
   scene_man_ = &cybel_engine_->scene_man();
-  assets_ = std::make_unique<Assets>("realistic",audio_player_->is_alive());
+  assets_ = std::make_unique<Assets>("realistic",cybel_engine_->audio_player().is_alive());
+  ctx_ = std::make_unique<GameContext>(*cybel_engine_,*assets_);
 
   cybel_engine_->set_icon(assets_->icon_img());
 
@@ -53,18 +53,16 @@ SceneBag EkoScapeGame::build_scene(int action) {
       break;
 
     case SceneAction::kGoToMenu:
-      result.scene = std::make_shared<MenuScene>(*assets_);
+      result.scene = std::make_shared<MenuScene>(*ctx_);
       break;
 
     case SceneAction::kGoToMenuPlay:
-      result.scene = std::make_shared<MenuPlayScene>(
-        *cybel_engine_,*assets_,menu_play_scene_state_,
-        [&](const auto& state) { menu_play_scene_state_ = state; }
-      );
+      result.scene = std::make_shared<MenuPlayScene>(*ctx_,menu_play_scene_state_
+          ,[&](const auto& state) { menu_play_scene_state_ = state; });
       break;
 
     case SceneAction::kGoToMenuCredits:
-      result.scene = std::make_shared<MenuCreditsScene>(*assets_);
+      result.scene = std::make_shared<MenuCreditsScene>(*ctx_);
       break;
 
     case SceneAction::kGoToGame:
@@ -72,10 +70,8 @@ SceneBag EkoScapeGame::build_scene(int action) {
         cybel_engine_->show_error("No map was selected.");
       } else {
         try {
-          result.scene = std::make_shared<GameScene>(
-            *assets_,menu_play_scene_state_.map_file,game_scene_state_,
-            [&](const auto& state) { game_scene_state_ = state; }
-          );
+          result.scene = std::make_shared<GameScene>(*ctx_,menu_play_scene_state_.map_file,game_scene_state_
+              ,[&](const auto& state) { game_scene_state_ = state; });
           result.persist = true; // Preserve GameScene when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
           cybel_engine_->show_error(e.what());
@@ -85,7 +81,7 @@ SceneBag EkoScapeGame::build_scene(int action) {
       break;
 
     case SceneAction::kGoToBoringWork:
-      result.scene = std::make_shared<BoringWorkScene>(*cybel_engine_,*assets_);
+      result.scene = std::make_shared<BoringWorkScene>(*ctx_);
       stop_music(true);
       break;
 
@@ -113,7 +109,7 @@ void EkoScapeGame::pop_scene() {
 
   if(!scene_man_->pop_scene()) {
     std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
-    audio_player_->stop_music();
+    ctx_->audio_player.stop_music();
     cybel_engine_->request_stop();
   }
 }
@@ -135,7 +131,7 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
 
     // Toggle music.
     case SDLK_n:
-      if(audio_player_->is_music_playing()) {
+      if(ctx_->audio_player.is_music_playing()) {
         stop_music();
       } else {
         play_music();
@@ -238,8 +234,8 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 }
 
 void EkoScapeGame::play_music() {
-  if(audio_player_->is_alive() && assets_->music() != nullptr) {
-    audio_player_->play_or_resume_music(*assets_->music());
+  if(ctx_->audio_player.is_alive() && assets_->music() != nullptr) {
+    ctx_->audio_player.play_or_resume_music(*assets_->music());
     was_music_playing_ = true;
   } else {
     was_music_playing_ = false;
@@ -247,7 +243,7 @@ void EkoScapeGame::play_music() {
 }
 
 void EkoScapeGame::stop_music(bool on_boring_work) {
-  audio_player_->pause_music();
+  ctx_->audio_player.pause_music();
   if(!on_boring_work) { was_music_playing_ = false; }
 }
 

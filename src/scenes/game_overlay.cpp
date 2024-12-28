@@ -12,8 +12,8 @@ namespace ekoscape {
 GameOverlay::Option::Option(OptionType type,const StrUtf8& text)
     : type(type),text(text) {}
 
-GameOverlay::GameOverlay(Assets& assets)
-    : assets_(assets) {}
+GameOverlay::GameOverlay(GameContext& ctx) noexcept
+    : ctx_(ctx) {}
 
 void GameOverlay::flash(const Color4f& color) {
   flash_color_ = color;
@@ -145,7 +145,7 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
 void GameOverlay::draw_map_info(Renderer& ren,const Map& map) {
   ren.begin_auto_center_scale();
 
-  assets_.font_renderer().wrap(ren,{395,395,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{395,395,0},[&](auto& font) {
     const StrUtf8 title = map.title();
     const StrUtf8 author = "  by " + map.author();
     const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
@@ -161,23 +161,24 @@ void GameOverlay::draw_map_info(Renderer& ren,const Map& map) {
 void GameOverlay::draw_game_over(Renderer& ren,const Map& map,bool player_hit_end) {
   ren.begin_auto_center_scale();
 
-  const Color4f bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);
+  const auto bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);
   const int total_rescues = map.total_rescues();
   const int total_cells = map.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
   const bool perfect = freed_all && player_hit_end;
+  const auto& sprite = player_hit_end ? ctx_.assets.corngrits_sprite() : ctx_.assets.goodnight_sprite();
 
-  ren.wrap_sprite(player_hit_end ? assets_.corngrits_sprite() : assets_.goodnight_sprite(),[&](auto& s) {
+  ren.wrap_sprite(sprite,[&](auto& s) {
     ren.wrap_color({1.0f,game_over_age_},[&]() {
       s.draw_quad({10,10,0},{1200,450});
     });
   });
-  assets_.font_renderer().wrap(ren,{460,460,0},0.60f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{460,460,0},0.60f,[&](auto& font) {
     font.font_color.a *= game_over_age_;
 
-    const Color4f font_color = font.font_color;
-    const Color4f miss_color = assets_.font_renderer().cycle_arrow_color().with_a(font_color.a);
-    const Color4f goal_color = assets_.font_renderer().arrow_color().with_a(font_color.a);
+    const auto font_color = font.font_color;
+    const auto miss_color = ctx_.assets.font_renderer().cycle_arrow_color().with_a(font_color.a);
+    const auto goal_color = ctx_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
     font.draw_bg(bg_color,{37,perfect ? 5 : 2},kTextBgPadding);
     font.puts(player_hit_end ? "Congrats!" : "You're dead!");
@@ -207,7 +208,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const Map& map,bool player_hit_en
     }
   });
 
-  assets_.font_renderer().wrap(ren,{580,perfect ? 790 : 690,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,{580,perfect ? 790 : 690,0},[&](auto& font) {
     const int opt_count = static_cast<int>(game_over_opts_.size());
 
     font.draw_bg(bg_color,{12,opt_count},kTextBgPadding);
@@ -226,7 +227,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const Map& map,bool player_hit_en
   ren.end_scale()
      .begin_auto_scale()
      .begin_add_blend();
-  star_sys_.draw(ren,assets_.star_tex());
+  star_sys_.draw(ren,ctx_.assets.star_tex());
   ren.end_blend()
      .end_scale();
 }

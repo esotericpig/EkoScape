@@ -13,18 +13,17 @@
 #include "cybel/render/renderer.h"
 #include "cybel/scene/scene_types.h"
 #include "cybel/util/duration.h"
-#include "cybel/util/timer.h"
 
-#include "assets/assets.h"
 #include "map/map.h"
 #include "world/star_sys.h"
+#include "game_context.h"
 #include "scene_action.h"
 
 namespace ekoscape {
 
 class GameOverlay {
 public:
-  explicit GameOverlay(Assets& assets);
+  explicit GameOverlay(GameContext& ctx) noexcept;
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
@@ -65,7 +64,7 @@ private:
   static inline const Duration kGameOverDuration = Duration::from_millis(3'000);
   static inline const float kAlpha = 0.33f;
 
-  Assets& assets_;
+  GameContext& ctx_;
 
   float map_info_age_ = 0.0f;
   Color4f flash_color_{};
