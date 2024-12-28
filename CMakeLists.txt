@@ -90,10 +90,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(APPLE)
   add_executable("${BIN_NAME}")
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_MACOS DANTARES_MACOS)
 elseif(WIN32)
   add_executable("${BIN_NAME}" WIN32 "${RES_DIR}/res.rc")
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_WINDOWS DANTARES_WINDOWS)
 else()
   add_executable("${BIN_NAME}")
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX DANTARES_LINUX)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -108,14 +111,6 @@ else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   if(NOT APPLE)
     target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
   endif()
-endif()
-
-if(APPLE)
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_MACOS DANTARES_MACOS)
-elseif(WIN32)
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_WINDOWS DANTARES_WINDOWS)
-else()
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX DANTARES_LINUX)
 endif()
 
 ############################################
