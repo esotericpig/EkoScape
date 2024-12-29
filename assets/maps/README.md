@@ -6,7 +6,7 @@ The [user/](user/) folder was created for you. The [fanmade/](fanmade/) folder w
 
 ## Submitting Your Map Files ##
 
-You can submit your Map files [here on GitHub Discussions](https://github.com/esotericpig/EkoScape/discussions/1) or as an [Issue](https://github.com/esotericpig/EkoScape/issues) for a chance to have them included in the next version! Or to simply share them for others to try.
+You can submit your Map files [here on GitHub Discussions](https://github.com/esotericpig/EkoScape/discussions/1) or as an [Issue](https://github.com/esotericpig/EkoScape/issues) to have them included in the next version! Or to simply share them for others to try.
 
 Alternatively, you can just copy & paste them into a comment on [itch.io](https://esotericpig.itch.io/ekoscape) using a Markdown code block (backticks).
 
@@ -85,11 +85,11 @@ You can place your Map files inside of any sub folder in `assets/maps/` or in a 
 | **Portals**            | Player/Robot touches to warp to the corresponding Portal.                                |
 | `0` - `9`              | `0` warps to `0`; `1` warps to `1`; and so on. If 3+ of the same, picks randomly.        |
 | **Robots (Things)**    | **[tier#]** In order of least to most difficult.                                         |
-| `=`                    | **[1]** Statue. Doesn't move.                                                            |
-| `!`                    | **[2]** Normal. Moves normally.                                                          |
+| `=`                    | **[5]** Statue. Doesn't move.                                                            |
+| `!`                    | **[4]** Normal. Moves normally.                                                          |
 | `\|` (pipe)            | **[3]** Ghost. Moves normally, but can go through walls, like a ghost.                   |
-| `?`                    | **[4]** Snake. Tough; a "snake" that leaves behind a temporary "tail."                   |
-| `Q` (uppercase)        | **[5]** Worm. Very tough; a "snake" (`?`) that can go through walls, like a ghost snake. |
+| `?`                    | **[2]** Snake. Tough; a "snake" that leaves behind a temporary "tail."                   |
+| `Q` (uppercase)        | **[1]** Worm. Very tough; a "snake" (`?`) that can go through walls, like a ghost snake. |
 
 ### Cheatsheet by Type ###
 
