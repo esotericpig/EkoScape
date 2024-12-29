@@ -20,14 +20,20 @@ public:
 
   Timer& start();
   Timer& resume();
-  Timer& end();
+  Duration peek() const;
+  const Duration& end();
 
   const Duration& duration() const;
 
 private:
-  std::uint32_t start_time_ = 0;
-  std::uint32_t end_time_ = 0;
+  using Timestamp = Uint64;
+
+  Timestamp start_time_{};
+  bool has_ended_ = false;
+  Timestamp raw_duration_{};
   Duration duration_{};
+
+  static Timestamp now();
 };
 
 } // Namespace.

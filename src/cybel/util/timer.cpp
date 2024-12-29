@@ -9,36 +9,42 @@
 
 namespace cybel {
 
+Timer::Timestamp Timer::now() { return SDL_GetTicks64(); }
+
 Timer::Timer(bool start) {
   if(start) { this->start(); }
 }
 
 Timer& Timer::start() {
-  start_time_ = SDL_GetTicks();
-  end_time_ = 0;
+  raw_duration_ = 0;
+  duration_.zero();
 
-  return *this;
+  return resume();
 }
 
 Timer& Timer::resume() {
-  const std::uint32_t dur = duration_.round_millis();
-
-  start();
-
-  if(dur <= start_time_) {
-    start_time_ -= dur;
-  } else {
-    start_time_ = 0; // Shouldn't happen, technically.
-  }
+  start_time_ = now();
+  has_ended_ = false;
 
   return *this;
 }
 
-Timer& Timer::end() {
-  end_time_ = SDL_GetTicks();
-  duration_.set_from_millis(end_time_ - start_time_);
+Duration Timer::peek() const {
+  if(has_ended_) { return duration_; }
 
-  return *this;
+  const auto dur = raw_duration_ + (now() - start_time_);
+
+  return Duration::from_millis(static_cast<double>(dur));
+}
+
+const Duration& Timer::end() {
+  if(!has_ended_) {
+    has_ended_ = true;
+    raw_duration_ += (now() - start_time_); // `+=` for resuming.
+    duration_.set_from_millis(static_cast<double>(raw_duration_));
+  }
+
+  return duration_;
 }
 
 const Duration& Timer::duration() const { return duration_; }
