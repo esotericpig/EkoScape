@@ -34,10 +34,7 @@ public:
     bool show_mini_map = true;
   };
 
-  using StateCallback = std::function<void(const State&)>;
-
-  explicit GameScene(GameContext& ctx,const std::filesystem::path& map_file,const State& state
-      ,const StateCallback& on_state_changed);
+  explicit GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file);
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   void handle_key_states(const KeyStates& keys,const ViewDimens& dimens) override;
@@ -66,8 +63,7 @@ private:
   static inline const int kFruitWarnSecs = 2;
 
   GameContext& ctx_;
-  State state_{};
-  StateCallback on_state_changed_{};
+  State& state_;
   int scene_action_ = SceneAction::kNil;
 
   void init_map_texs();

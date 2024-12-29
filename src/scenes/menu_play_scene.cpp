@@ -12,8 +12,8 @@ namespace ekoscape {
 MenuPlayScene::MapOption::MapOption(const StrUtf8& text)
     : text(text) {}
 
-MenuPlayScene::MenuPlayScene(GameContext& ctx,const State& state,const StateCallback& on_state_changed)
-    : ctx_(ctx),state_(state),on_state_changed_(on_state_changed) {
+MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
+    : ctx_(ctx),state_(state) {
   refresh_maps();
 }
 
@@ -219,7 +219,6 @@ void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
     if(force) {
       state_.map_file.clear();
       state_.is_rand_map = true;
-      on_state_changed_(state_);
     }
 
     return;
@@ -241,8 +240,6 @@ void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
   } else {
     state_.map_file = map_opts_.at(map_opt_index_).file;
   }
-
-  on_state_changed_(state_);
 }
 
 } // Namespace.

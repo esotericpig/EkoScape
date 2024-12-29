@@ -20,7 +20,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <functional>
 #include <vector>
 
 namespace ekoscape {
@@ -32,9 +31,7 @@ public:
     bool is_rand_map = true;
   };
 
-  using StateCallback = std::function<void(const State&)>;
-
-  explicit MenuPlayScene(GameContext& ctx,const State& state,const StateCallback& on_state_changed);
+  explicit MenuPlayScene(GameContext& ctx,State& state);
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
@@ -71,8 +68,7 @@ private:
   static inline const int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
 
   GameContext& ctx_;
-  State state_{};
-  StateCallback on_state_changed_{};
+  State& state_;
   int scene_action_ = SceneAction::kNil;
 
   int map_opt_index_ = 0;

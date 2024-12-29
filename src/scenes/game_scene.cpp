@@ -9,9 +9,8 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(GameContext& ctx,const std::filesystem::path& map_file,const State& state
-    ,const StateCallback& on_state_changed)
-    : ctx_(ctx),state_(state),on_state_changed_(on_state_changed),hud_(ctx),overlay_(ctx) {
+GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
+    : ctx_(ctx),state_(state),hud_(ctx),overlay_(ctx) {
   map_.load_file(map_file
     ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type); }
     ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
@@ -112,7 +111,6 @@ void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
     // Toggle mini map.
     case SDLK_m:
       state_.show_mini_map = !state_.show_mini_map;
-      on_state_changed_(state_);
       break;
   }
 

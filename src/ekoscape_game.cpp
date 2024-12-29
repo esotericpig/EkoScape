@@ -57,28 +57,28 @@ SceneBag EkoScapeGame::build_scene(int action) {
       break;
 
     case SceneAction::kGoToMenuPlay:
-      result.scene = std::make_shared<MenuPlayScene>(*ctx_,menu_play_scene_state_
-          ,[&](const auto& state) { menu_play_scene_state_ = state; });
+      result.scene = std::make_shared<MenuPlayScene>(*ctx_,menu_play_scene_state_);
       break;
 
     case SceneAction::kGoToMenuCredits:
       result.scene = std::make_shared<MenuCreditsScene>(*ctx_);
       break;
 
-    case SceneAction::kGoToGame:
-      if(menu_play_scene_state_.map_file.empty()) {
+    case SceneAction::kGoToGame: {
+      const auto& map_file = menu_play_scene_state_.map_file;
+
+      if(map_file.empty()) {
         cybel_engine_->show_error("No map was selected.");
       } else {
         try {
-          result.scene = std::make_shared<GameScene>(*ctx_,menu_play_scene_state_.map_file,game_scene_state_
-              ,[&](const auto& state) { game_scene_state_ = state; });
+          result.scene = std::make_shared<GameScene>(*ctx_,game_scene_state_,map_file);
           result.persist = true; // Preserve GameScene when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
           cybel_engine_->show_error(e.what());
           result.scene = nullptr;
         }
       }
-      break;
+    } break;
 
     case SceneAction::kGoToBoringWork:
       result.scene = std::make_shared<BoringWorkScene>(*ctx_);
