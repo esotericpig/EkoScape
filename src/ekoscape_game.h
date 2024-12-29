@@ -46,6 +46,7 @@ public:
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
+  void show_error(const std::string& error);
   static void show_error_global(const std::string& error);
 
 private:

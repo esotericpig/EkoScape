@@ -288,11 +288,16 @@ void CybelEngine::show_error_global(const std::string& title,const std::string& 
   std::cerr << "[ERROR] " << error << std::endl;
 
   const std::size_t max_len = 80;
-  // Avoid copy if possible.
-  const auto wrapped_error = (error.length() <= max_len) ? std::move(error) : Util::wrap_str(error,max_len);
 
-  // This can be called before/after SDL_Init()/SDL_Quit().
-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),wrapped_error.c_str(),window);
+  // Avoid copy if possible.
+  if(error.length() <= max_len) {
+    // SDL_ShowSimpleMessageBox() can be called before/after SDL_Init()/SDL_Quit().
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
+  } else {
+    const auto wrapped_error = Util::wrap_str(error,max_len);
+
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),wrapped_error.c_str(),window);
+  }
 }
 
 void CybelEngine::set_icon(const Image& img) { SDL_SetWindowIcon(res_.window,img.surface_); }

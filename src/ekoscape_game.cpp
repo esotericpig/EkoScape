@@ -68,13 +68,13 @@ SceneBag EkoScapeGame::build_scene(int action) {
       const auto& map_file = menu_play_scene_state_.map_file;
 
       if(map_file.empty()) {
-        cybel_engine_->show_error("No map was selected.");
+        show_error("No map was selected.");
       } else {
         try {
           result.scene = std::make_shared<GameScene>(*ctx_,game_scene_state_,map_file);
           result.persist = true; // Preserve GameScene when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
-          cybel_engine_->show_error(e.what());
+          show_error(e.what());
           result.scene = nullptr;
         }
       }
@@ -245,6 +245,10 @@ void EkoScapeGame::play_music() {
 void EkoScapeGame::stop_music(bool on_boring_work) {
   ctx_->audio_player.pause_music();
   if(!on_boring_work) { was_music_playing_ = false; }
+}
+
+void EkoScapeGame::show_error(const std::string& error) {
+  cybel_engine_->show_error(error);
 }
 
 void EkoScapeGame::show_error_global(const std::string& error) {
