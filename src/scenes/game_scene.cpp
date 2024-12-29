@@ -256,13 +256,13 @@ void GameScene::update_player(const FrameStep& step) {
     player_empty_type = player_space->empty_type();
   }
 
-  // Portals are like safe zones, so if the Player & a Robot are on a portal, the Player shouldn't die.
+  // Portals are like safe zones, so if the Player & a Robot are on a Portal, the Player shouldn't die.
   //     Therefore, we check for Portals first.
   if(SpaceTypes::is_portal(player_empty_type)) {
     if(!player_warped_) {
       const auto portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
-        const Space* space = map_.space(pos);
-        return space != nullptr && !space->has_thing();
+        // Allow the Player to warp even if there's a Robot/Thing on the Portal.
+        return map_.space(pos) != nullptr;
       });
 
       if(portal_bro) {
