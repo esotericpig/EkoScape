@@ -235,7 +235,7 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
 void EkoScapeGame::play_music() {
   if(ctx_->audio_player.is_alive() && assets_->music() != nullptr) {
-    ctx_->audio_player.play_or_resume_music(*assets_->music());
+    ctx_->audio_player.play_or_resume_music(assets_->music());
     was_music_playing_ = true;
   } else {
     was_music_playing_ = false;
