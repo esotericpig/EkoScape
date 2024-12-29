@@ -26,7 +26,7 @@
 
 namespace ekoscape {
 
-class Assets {
+class Assets final {
 public:
   using MapCallback = std::function<void(const StrUtf8& group,const std::filesystem::path& map_file,Map&)>;
 
@@ -40,8 +40,8 @@ public:
   explicit Assets(const StrUtf8& tex_style,bool has_audio_player,bool make_weird = false);
 
   void reload_gfx();
-  void reload_gfx(bool make_weird);
   void reload_music();
+  void make_weird();
 
   void glob_maps_meta(const MapCallback& on_map) const;
 
@@ -147,6 +147,7 @@ private:
 
   std::unique_ptr<Music> music_{};
 
+  void reload_gfx(bool make_weird);
   void reload_gfx(const StrUtf8& tex_style,bool make_weird);
   void reload_styled_texs_bag(const StrUtf8& tex_style);
   StyledTextures load_styled_texs(const std::filesystem::path& dir) const;

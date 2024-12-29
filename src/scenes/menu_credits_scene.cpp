@@ -25,8 +25,9 @@ void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens&
       scene_action_ = SceneAction::kGoBack;
       break;
 
+    // Shhh... Don't Tell.
     case SDLK_f:
-      if(!ctx_.assets.is_weird()) { ctx_.assets.reload_gfx(true); }
+      ctx_.assets.make_weird();
       init_wtfs(dimens);
       break;
   }

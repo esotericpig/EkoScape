@@ -201,6 +201,19 @@ Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir
   return st; // NRVO (Named Return Value Optimization).
 }
 
+void Assets::reload_music() {
+  if(!has_audio_player_) { return; }
+
+  try {
+    load_asset([&](const auto& base_dir) {
+      music_ = std::make_unique<Music>(base_dir / kMusicSubdir / "ekoscape.ogg");
+    });
+  } catch(const CybelError& e) {
+    std::cerr << "[WARN] " << e.what() << std::endl;
+    // Don't fail, since music is optional.
+  }
+}
+
 void Assets::load_asset(const AssetLoader& load_from) const {
   std::string error{};
 
@@ -250,17 +263,8 @@ std::unique_ptr<Texture> Assets::load_tex(const std::filesystem::path& subfile) 
   return tex;
 }
 
-void Assets::reload_music() {
-  if(!has_audio_player_) { return; }
-
-  try {
-    load_asset([&](const auto& base_dir) {
-      music_ = std::make_unique<Music>(base_dir / kMusicSubdir / "ekoscape.ogg");
-    });
-  } catch(const CybelError& e) {
-    std::cerr << "[WARN] " << e.what() << std::endl;
-    // Don't fail, since music is optional.
-  }
+void Assets::make_weird() {
+  if(!is_weird_) { reload_gfx(true); }
 }
 
 void Assets::glob_maps_meta(const MapCallback& on_map) const {
@@ -268,8 +272,9 @@ void Assets::glob_maps_meta(const MapCallback& on_map) const {
 
   for(const auto& base_dir: kBaseDirs) {
     const auto maps_dir = base_dir / kMapsSubdir;
+    std::error_code err{}; // For noexcept overload.
 
-    if(!is_directory(maps_dir)) { continue; }
+    if(!is_directory(maps_dir,err)) { continue; }
 
     try {
       for(const auto& group_entry: std::filesystem::directory_iterator(maps_dir)) {
