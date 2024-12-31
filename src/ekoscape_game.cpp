@@ -198,7 +198,7 @@ int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*d
 
     // Only update the shown FPS at an interval, else the digits change too fast to read.
     if((avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
-      avg_fps_to_show_ = std::to_string(static_cast<int>(std::round(avg_fps_)));
+      avg_fps_str_ = std::to_string(static_cast<int>(std::round(avg_fps_)));
       avg_fps_age_ = 0.0f;
     }
   }
@@ -207,7 +207,7 @@ int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*d
 }
 
 void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
-  if(!star_sys_.is_empty()) {
+  if(!star_sys_.is_empty() && SceneActions::is_menu(scene_man_->curr_scene_type())) {
     ren.begin_2d_scene()
        .begin_auto_scale()
        .begin_add_blend();
@@ -225,8 +225,8 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     const Size2i padding{5,5};
 
     assets_->font_renderer().wrap(ren,{padding.w,padding.h,0},0.33f,[&](auto& font) {
-      font.draw_bg({0.0f,0.5f},{static_cast<int>(avg_fps_to_show_.length()),1},padding);
-      font.print(avg_fps_to_show_);
+      font.draw_bg(Color4f{0.0f,0.5f},Size2i{static_cast<int>(avg_fps_str_.length()),1},padding);
+      font.print(avg_fps_str_);
     });
 
     ren.end_scale();
