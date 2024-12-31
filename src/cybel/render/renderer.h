@@ -133,6 +133,9 @@ public:
     FontAtlasWrapper& puts(const StrUtf8& str);
     FontAtlasWrapper& puts(const std::vector<StrUtf8>& lines);
     FontAtlasWrapper& puts_blanks(int count);
+
+    Size2i calc_total_size(const Size2i& str_size);
+    Size2i calc_total_size(const Size2i& str_size,const Size2i& padding);
   };
 
   using WrapCallback = std::function<void()>;

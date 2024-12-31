@@ -68,19 +68,13 @@ Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font
     : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
-  return draw_bg(color,str_size,{});
+  return draw_bg(color,str_size,Size2i{});
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding) {
   ren.end_tex(); // Temporarily unbind the font texture.
     ren.wrap_color(color,[&] {
-      ren.draw_quad(
-        Pos3i{pos.x - padding.w,pos.y - padding.h,pos.z},
-        Size2i{
-          (char_size.w * str_size.w) + (font.spacing().w * (str_size.w - 1)) + (padding.w << 1),
-          (char_size.h * str_size.h) + (font.spacing().h * (str_size.h - 1)) + (padding.h << 1)
-        }
-      );
+      ren.draw_quad(Pos3i{pos.x - padding.w,pos.y - padding.h,pos.z},calc_total_size(str_size,padding));
     });
   ren.begin_tex(font.tex()); // Bind back the font texture.
 
@@ -152,6 +146,17 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {
   pos.y += ((char_size.h + spacing.h) * count);
 
   return *this;
+}
+
+Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size) {
+  return calc_total_size(str_size,Size2i{});
+}
+
+Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size,const Size2i& padding) {
+  return Size2i{
+    (str_size.w * char_size.w) + ((str_size.w - 1) * font.spacing().w) + (padding.w << 1),
+    (str_size.h * char_size.h) + ((str_size.h - 1) * font.spacing().h) + (padding.h << 1)
+  };
 }
 
 Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)

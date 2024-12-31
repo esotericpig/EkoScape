@@ -23,21 +23,21 @@ namespace ekoscape {
 
 class GameOverlay {
 public:
-  explicit GameOverlay(GameContext& ctx) noexcept;
+  explicit GameOverlay(GameContext& ctx,const Map& map,const bool& player_hit_end);
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
-  void game_over(const Map& map,bool player_hit_end);
+  void game_over();
 
   int on_key_down_event(const KeyEvent& event);
 
   void update(const FrameStep& step);
   bool update_map_info(const FrameStep& step);
-  void update_game_over(const FrameStep& step,const ViewDimens& dimens,bool player_hit_end);
+  void update_game_over(const FrameStep& step,const ViewDimens& dimens);
 
   void draw(Renderer& ren,const ViewDimens& dimens);
-  void draw_map_info(Renderer& ren,const Map& map);
-  void draw_game_over(Renderer& ren,const Map& map,bool player_hit_end);
+  void draw_map_info(Renderer& ren);
+  void draw_game_over(Renderer& ren);
 
   float game_over_age() const;
 
@@ -58,13 +58,15 @@ private:
 
   static inline const Color4f kTextBgColor{0.0f,0.5f};
   static inline const Size2i kTextBgPadding{15,10};
+  static inline const float kAlpha = 0.33f;
   static inline const Duration kMapInfoDuration = Duration::from_millis(3'000);
   static inline const Duration kFlashDuration = Duration::from_millis(500);
   static inline const Duration kFadeDuration = Duration::from_millis(3'000);
   static inline const Duration kGameOverDuration = Duration::from_millis(3'000);
-  static inline const float kAlpha = 0.33f;
 
   GameContext& ctx_;
+  const Map& map_;
+  const bool& player_hit_end_;
 
   float map_info_age_ = 0.0f;
   Color4f flash_color_{};

@@ -12,6 +12,7 @@
 
 #include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
+#include "cybel/util/timer.h"
 
 #include "map/dantares_map.h"
 #include "world/robot.h"
@@ -32,9 +33,13 @@ class GameScene : public Scene {
 public:
   struct State {
     bool show_mini_map = true;
+    bool show_speedrun = true;
   };
 
   explicit GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file);
+
+  void init_scene(const ViewDimens& dimens) override;
+  void on_scene_exit() override;
 
   void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
   void handle_key_states(const KeyStates& keys,const ViewDimens& dimens) override;
@@ -76,19 +81,20 @@ private:
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
   StoredKeyStates stored_keys_{};
+
   bool player_hit_end_ = false;
   bool player_warped_ = false;
   Duration player_warp_time_{};
   Duration player_fruit_time_{};
+  Timer speedrun_timer_{};
 
   std::vector<Robot> robots_{};
   Duration robot_move_time_{};
   Robot::MoveData robot_move_data_{map_};
-
   std::unordered_map<SpaceType,std::vector<Pos3i>> portal_to_pos_bag_{};
 
-  GameHud hud_;
-  GameOverlay overlay_;
+  std::unique_ptr<GameHud> hud_{};
+  std::unique_ptr<GameOverlay> overlay_{};
 
   SpaceType init_map_space(const Pos3i& pos,SpaceType type);
   void init_map_default_empty(const Pos3i& pos,SpaceType type);

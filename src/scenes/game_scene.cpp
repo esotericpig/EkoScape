@@ -10,7 +10,7 @@
 namespace ekoscape {
 
 GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
-    : ctx_(ctx),state_(state),hud_(ctx),overlay_(ctx) {
+    : ctx_(ctx),state_(state) {
   map_.load_file(map_file
     ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type); }
     ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
@@ -23,6 +23,15 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
 
   // Extra delay to give some time for the Player to initially orient/adjust.
   robot_move_time_ = map_.robot_delay() + kInitExtraRobotDelay;
+
+  hud_ = std::make_unique<GameHud>(ctx,GameHud::State{
+    .map = map_,
+    .show_mini_map = state_.show_mini_map,
+    .player_fruit_time = player_fruit_time_,
+    .player_hit_end = player_hit_end_,
+    .show_speedrun = state.show_speedrun,
+  });
+  overlay_ = std::make_unique<GameOverlay>(ctx,map_,player_hit_end_);
 }
 
 SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
@@ -106,15 +115,32 @@ void GameScene::init_map_texs() {
   set_space_texs(SpaceType::kWhiteGhost,&a.white_ghost_tex());
 }
 
+void GameScene::init_scene(const ViewDimens& /*dimens*/) {
+  if(game_phase_ == GamePhase::kPlay) {
+    speedrun_timer_.resume();
+  }
+}
+
+void GameScene::on_scene_exit() {
+  if(game_phase_ == GamePhase::kPlay) {
+    speedrun_timer_.end();
+  }
+}
+
 void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
   switch(event.key) {
     // Toggle mini map.
     case SDLK_m:
       state_.show_mini_map = !state_.show_mini_map;
       break;
+
+    // Toggle speedrun timer.
+    case SDLK_t:
+      state_.show_speedrun = !state_.show_speedrun;
+      break;
   }
 
-  scene_action_ = overlay_.on_key_down_event(event);
+  scene_action_ = overlay_->on_key_down_event(event);
 }
 
 void GameScene::handle_key_states(const KeyStates& keys,const ViewDimens& /*dimens*/) {
@@ -177,21 +203,26 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens
 
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
-      if(!overlay_.update_map_info(step)) { return SceneAction::kNil; }
+      // Still paused showing the Map Info?
+      if(!overlay_->update_map_info(step)) { return SceneAction::kNil; }
 
       game_phase_ = GamePhase::kPlay;
       robot_move_time_ += step.dpf;
+      speedrun_timer_.start();
       break;
 
     case GamePhase::kPlay:
       break;
 
     case GamePhase::kGameOver:
-      overlay_.update_game_over(step,dimens,player_hit_end_);
+      overlay_->update_game_over(step,dimens);
       break;
   }
 
-  overlay_.update(step);
+  hud_->state.speedrun_time = speedrun_timer_.peek();
+  hud_->update(step);
+  overlay_->update(step);
+
   update_player(step);
   update_robots(step);
   move_robots(step);
@@ -217,7 +248,7 @@ void GameScene::update_player(const FrameStep& step) {
       const auto fruit_secs = player_fruit_time_.round_secs();
 
       if(fruit_secs != prev_fruit_secs && fruit_secs <= kFruitWarnSecs) {
-        overlay_.flash(ctx_.assets.fruit_color());
+        overlay_->flash(ctx_.assets.fruit_color());
       }
     }
   }
@@ -238,7 +269,7 @@ void GameScene::update_player(const FrameStep& step) {
     // Check for Fruit before Robots.
     case SpaceType::kFruit:
       map_.remove_thing(player_pos);
-      overlay_.flash(ctx_.assets.fruit_color());
+      overlay_->flash(ctx_.assets.fruit_color());
       player_fruit_time_ = kFruitDuration;
       break;
 
@@ -267,7 +298,7 @@ void GameScene::update_player(const FrameStep& step) {
 
       if(portal_bro) {
         map_.move_player(*portal_bro);
-        overlay_.flash(ctx_.assets.portal_color());
+        overlay_->flash(ctx_.assets.portal_color());
         player_warped_ = true;
         player_warp_time_ = kWarpDuration;
       }
@@ -288,6 +319,9 @@ void GameScene::update_player(const FrameStep& step) {
 }
 
 void GameScene::game_over(bool hit_end) {
+  hud_->state.speedrun_time = speedrun_timer_.end();
+  hud_->state.is_game_over = true;
+
   game_phase_ = GamePhase::kGameOver;
   player_hit_end_ = hit_end;
 
@@ -295,8 +329,9 @@ void GameScene::game_over(bool hit_end) {
   //     since the pos might be beyond End, etc. after fully moving.
   map_.sync_player_pos();
 
-  if(!player_hit_end_) { overlay_.fade_to(ctx_.assets.eko_color()); }
-  overlay_.game_over(map_,player_hit_end_);
+  // Fade to death?
+  if(!player_hit_end_) { overlay_->fade_to(ctx_.assets.eko_color()); }
+  overlay_->game_over();
 }
 
 void GameScene::update_robots(const FrameStep& step) {
@@ -378,7 +413,7 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
 
   if(player_hit_end_) {
     // Even if fully transparent, continue to draw so that the Player can turn the mini map (just for fun).
-    ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_.game_over_age()),[&]() {
+    ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_->game_over_age()),[&]() {
       dantares_.Draw(kDantaresDist);
     });
   } else {
@@ -386,19 +421,19 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   }
 
   ren.begin_2d_scene();
-  hud_.draw(ren,dimens,map_,state_.show_mini_map,player_fruit_time_,player_hit_end_);
-  overlay_.draw(ren,dimens);
+  hud_->draw(ren,dimens);
+  overlay_->draw(ren,dimens);
 
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
-      overlay_.draw_map_info(ren,map_);
+      overlay_->draw_map_info(ren);
       break;
 
     case GamePhase::kPlay:
       break;
 
     case GamePhase::kGameOver:
-      overlay_.draw_game_over(ren,map_,player_hit_end_);
+      overlay_->draw_game_over(ren);
       break;
   }
 }
