@@ -9,14 +9,61 @@
 
 namespace ekoscape {
 
+MenuScene::Option MenuScene::Option::cycle(const CycleConfig& config) {
+  Option opt{};
+  opt.is_cycle_ = true;
+  opt.on_select_ = config.on_select;
+  opt.on_select_alt_ = config.on_select_alt;
+  opt.on_update_ = config.on_update;
+
+  if(opt.on_update_) { opt.on_update_(opt); } // Init.
+
+  return opt;
+}
+
+MenuScene::Option::Option(const StrUtf8& text,const OnSelect& on_select)
+    : text(text),on_select_(on_select) {}
+
+void MenuScene::Option::select() {
+  if(on_select_) { on_select_(); }
+  if(on_update_) { on_update_(*this); }
+}
+
+void MenuScene::Option::select_alt() {
+  if(on_select_alt_) {
+    on_select_alt_();
+  } else if(on_select_) {
+    on_select_();
+  }
+  if(on_update_) { on_update_(*this); }
+}
+
+bool MenuScene::Option::is_cycle() const { return is_cycle_; }
+
 MenuScene::MenuScene(GameContext& ctx)
     : ctx_(ctx) {
-  for(auto& opt: opts_) {
-    if(opt.type == OptionType::kGraphics) {
-      update_graphics_opt(opt);
-      break;
-    }
-  }
+  auto gfx_opt = Option::cycle({
+    .on_update = [&](auto& opt) { opt.text = "gfx: " + ctx_.assets.tex_style(); },
+    .on_select = [&]() { ctx_.assets.next_tex_style(); },
+    .on_select_alt = [&]() { ctx_.assets.prev_tex_style(); },
+  });
+  auto vsync_opt = Option::cycle({
+    .on_update = [&](auto& opt) {
+      opt.text = "vsync: ";
+      opt.text += (ctx_.cybel_engine.is_vsync() ? "on" : "off");
+    },
+    .on_select = [&]() {
+      ctx_.cybel_engine.set_vsync(!ctx_.cybel_engine.is_vsync());
+    },
+  });
+
+  opts_ = {
+    Option{"play",[&]() { scene_action_ = SceneAction::kGoToMenuPlay; }},
+    gfx_opt,
+    vsync_opt,
+    Option{"credits",[&]() { scene_action_ = SceneAction::kGoToMenuCredits; }},
+    Option{"quit",[&]() { scene_action_ = SceneAction::kQuit; }},
+  };
 }
 
 void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
@@ -26,24 +73,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
     case SDLK_RETURN:
     case SDLK_SPACE:
     case SDLK_KP_ENTER:
-      switch(sel_opt.type) {
-        case OptionType::kPlay:
-          scene_action_ = SceneAction::kGoToMenuPlay;
-          break;
-
-        case OptionType::kGraphics:
-          ctx_.assets.next_tex_style();
-          update_graphics_opt(sel_opt);
-          break;
-
-        case OptionType::kCredits:
-          scene_action_ = SceneAction::kGoToMenuCredits;
-          break;
-
-        case OptionType::kQuit:
-          scene_action_ = SceneAction::kQuit;
-          break;
-      }
+      sel_opt.select();
       break;
 
     case SDLK_UP:
@@ -66,26 +96,12 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
 
     case SDLK_LEFT:
     case SDLK_a:
-      switch(sel_opt.type) {
-        case OptionType::kGraphics:
-          ctx_.assets.prev_tex_style();
-          update_graphics_opt(sel_opt);
-          break;
-
-        default: break; // Ignore.
-      }
+      if(sel_opt.is_cycle()) { sel_opt.select_alt(); }
       break;
 
     case SDLK_RIGHT:
     case SDLK_d:
-      switch(sel_opt.type) {
-        case OptionType::kGraphics:
-          ctx_.assets.next_tex_style();
-          update_graphics_opt(sel_opt);
-          break;
-
-        default: break; // Ignore.
-      }
+      if(sel_opt.is_cycle()) { sel_opt.select(); }
       break;
   }
 }
@@ -109,7 +125,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
       int styles = 0;
 
       if(static_cast<int>(i) == opt_index_) {
-        if(opt.type == OptionType::kGraphics) {
+        if(opt.is_cycle()) {
           styles |= FontRenderer::kMenuStyleCycle;
         } else {
           styles |= FontRenderer::kMenuStyleSelected;
@@ -132,10 +148,6 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
   ren.end_blend()
      .end_scale();
-}
-
-void MenuScene::update_graphics_opt(Option& opt) {
-  opt.text = "gfx: " + ctx_.assets.tex_style();
 }
 
 } // Namespace.

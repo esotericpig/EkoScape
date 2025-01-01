@@ -94,11 +94,11 @@ public:
   CybelEngine& operator=(const CybelEngine& other) = delete;
   CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
-  void sync_size(bool force = true);
-  void resize(const Size2i& size,bool force = true);
-
   void run();
   void request_stop();
+
+  void sync_size(bool force = true);
+  void resize(const Size2i& size,bool force = true);
 
   void show_error(const std::string& error) const;
   void show_error(const std::string& title,const std::string& error) const;
@@ -111,31 +111,34 @@ public:
   void set_cursor_visible(bool visible);
   void set_vsync(bool enable);
 
-  AudioPlayer& audio_player() const;
-  Scene& main_scene() const;
-  SceneMan& scene_man() const;
   const std::string& title() const;
   bool is_fullscreen() const;
   bool is_cursor_visible() const;
+  bool is_vsync() const;
+
   Renderer& renderer() const;
   const ViewDimens& dimens() const;
+  Scene& main_scene() const;
+  SceneMan& scene_man() const;
+  AudioPlayer& audio_player() const;
+
   int target_fps() const;
   const Duration& target_dpf() const;
   const Duration& dpf() const;
   double delta_time() const;
 
 private:
-  Scene& main_scene_;
   std::string title_{};
   std::unique_ptr<Renderer> renderer_{};
+  Scene& main_scene_;
   std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after renderer_.
 
+  bool is_running_ = false;
+  Timer frame_timer_{};
   int target_fps_ = 0;
   Duration target_dpf_{};
   Duration dpf_{};
   double delta_time_ = 0.0;
-  bool is_running_ = false;
-  Timer frame_timer_{};
 
   void init_hints();
   void init_config(Config& config);

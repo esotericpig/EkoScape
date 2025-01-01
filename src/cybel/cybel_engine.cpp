@@ -25,7 +25,7 @@ CybelEngine::Resources::~Resources() noexcept {
 }
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
-    : main_scene_(main_scene),title_(config.title) {
+    : title_(config.title),main_scene_(main_scene) {
   init_hints();
 
   // Don't use SDL_INIT_AUDIO here, since audio is optional.
@@ -147,23 +147,6 @@ void CybelEngine::init_scene(Scene& scene) {
   scene.resize_scene(*renderer_,renderer_->dimens());
 }
 
-void CybelEngine::sync_size(bool force) {
-  Size2i size{};
-
-  SDL_GL_GetDrawableSize(res_.window,&size.w,&size.h);
-  resize(size,force);
-}
-
-void CybelEngine::resize(const Size2i& size,bool force) {
-  if(!force && size.w == renderer_->dimens().size.w && size.h == renderer_->dimens().size.h) {
-    return; // Size didn't change.
-  }
-
-  renderer_->resize(size);
-  main_scene_.resize_scene(*renderer_,renderer_->dimens());
-  scene_man_->curr_scene().resize_scene(*renderer_,renderer_->dimens());
-}
-
 void CybelEngine::run() {
   is_running_ = true;
 
@@ -205,6 +188,23 @@ void CybelEngine::run() {
 }
 
 void CybelEngine::request_stop() { is_running_ = false; }
+
+void CybelEngine::sync_size(bool force) {
+  Size2i size{};
+
+  SDL_GL_GetDrawableSize(res_.window,&size.w,&size.h);
+  resize(size,force);
+}
+
+void CybelEngine::resize(const Size2i& size,bool force) {
+  if(!force && size.w == renderer_->dimens().size.w && size.h == renderer_->dimens().size.h) {
+    return; // Size didn't change.
+  }
+
+  renderer_->resize(size);
+  main_scene_.resize_scene(*renderer_,renderer_->dimens());
+  scene_man_->curr_scene().resize_scene(*renderer_,renderer_->dimens());
+}
 
 void CybelEngine::start_frame_timer() {
   frame_timer_.start();
@@ -337,12 +337,6 @@ void CybelEngine::set_vsync(bool enable) {
   }
 }
 
-AudioPlayer& CybelEngine::audio_player() const { return *audio_player_; }
-
-Scene& CybelEngine::main_scene() const { return main_scene_; }
-
-SceneMan& CybelEngine::scene_man() const { return *scene_man_; }
-
 const std::string& CybelEngine::title() const { return title_; }
 
 bool CybelEngine::is_fullscreen() const {
@@ -352,9 +346,17 @@ bool CybelEngine::is_fullscreen() const {
 
 bool CybelEngine::is_cursor_visible() const { return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE; }
 
+bool CybelEngine::is_vsync() const { return SDL_GL_GetSwapInterval() != 0; }
+
 Renderer& CybelEngine::renderer() const { return *renderer_; }
 
 const ViewDimens& CybelEngine::dimens() const { return renderer_->dimens(); }
+
+Scene& CybelEngine::main_scene() const { return main_scene_; }
+
+SceneMan& CybelEngine::scene_man() const { return *scene_man_; }
+
+AudioPlayer& CybelEngine::audio_player() const { return *audio_player_; }
 
 int CybelEngine::target_fps() const { return target_fps_; }
 
