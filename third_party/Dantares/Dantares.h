@@ -53,8 +53,12 @@
     #include<OpenGL/gl.h>
     //#include<OpenGL/glu.h>
 #elif defined(DANTARES_WINDOWS)
+    #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
     #define NOMINMAX
+    #endif
 
     //Windows OpenGL headers.
     #include<windows.h>
