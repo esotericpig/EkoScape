@@ -16,26 +16,7 @@ namespace cybel {
 
 struct FrameStep {
   Duration dpf{};
-  double delta_time = 0.016; // 60 FPS.
-};
-
-class KeyEvent {
-public:
-  SDL_Keycode key{};
-  Uint16 mods{};
-
-  explicit KeyEvent(const SDL_Event& sdl_event) noexcept;
-};
-
-class KeyStates {
-public:
-  explicit KeyStates() noexcept;
-  void refresh() noexcept;
-
-  bool operator[](SDL_Scancode key) const;
-
-private:
-  const Uint8* keys_ = nullptr;
+  double delta_time{};
 };
 
 } // Namespace.

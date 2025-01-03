@@ -10,15 +10,16 @@
 namespace ekoscape {
 
 EkoScapeGame::EkoScapeGame() {
-  CybelEngine::Config config{};
-
-  config.title = kTitle;
-  config.scale_factor = 0.8333f; // Arrival?
-  //config.size = {740,500}; // For GIFs/screenshots.
-  config.fps = 60;
-  config.vsync = true;
-  config.image_types = IMG_INIT_PNG;
-  config.music_types = MIX_INIT_OGG;
+  CybelEngine::Config config{
+    .title = kTitle,
+    .scale_factor = 0.8333f, // Arrival?
+    // .size = {740,500}, // For GIFs/screenshots.
+    .fps = 60,
+    .vsync = true,
+    .max_input_id = InputAction::kMaxId,
+    .image_types = IMG_INIT_PNG,
+    .music_types = MIX_INIT_OGG,
+  };
 
   // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
   // These are fixed values and should not be changed.
@@ -30,10 +31,75 @@ EkoScapeGame::EkoScapeGame() {
   ctx_ = std::make_unique<GameContext>(*cybel_engine_,*assets_);
 
   cybel_engine_->set_icon(assets_->icon_img());
+  init_input_map();
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
   }
+}
+
+void EkoScapeGame::init_input_map() {
+  auto& im = cybel_engine_->input_man();
+
+  // Movement.
+  im.map_input(InputAction::kUp,[](auto& i) {
+    i.raw_key_event({SDL_SCANCODE_UP,SDL_SCANCODE_W});
+    i.raw_key_state({SDL_SCANCODE_UP,SDL_SCANCODE_W});
+  });
+  im.map_input(InputAction::kDown,[](auto& i) {
+    i.raw_key_event({SDL_SCANCODE_DOWN,SDL_SCANCODE_S});
+    i.raw_key_state({SDL_SCANCODE_DOWN,SDL_SCANCODE_S});
+  });
+  im.map_input(InputAction::kLeft,[](auto& i) {
+    i.raw_key_event({SDL_SCANCODE_LEFT,SDL_SCANCODE_A});
+    i.raw_key_state({SDL_SCANCODE_LEFT,SDL_SCANCODE_A});
+  });
+  im.map_input(InputAction::kRight,[](auto& i) {
+    i.raw_key_event({SDL_SCANCODE_RIGHT,SDL_SCANCODE_D});
+    i.raw_key_state({SDL_SCANCODE_RIGHT,SDL_SCANCODE_D});
+  });
+
+  // Menu Navigation.
+  im.map_input(InputAction::kPageUp,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_PAGEUP);
+  });
+  im.map_input(InputAction::kPageDown,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_PAGEDOWN);
+  });
+  im.map_input(InputAction::kSelect,[](auto& i) {
+    i.raw_key_event({SDL_SCANCODE_RETURN,SDL_SCANCODE_SPACE,SDL_SCANCODE_KP_ENTER});
+  });
+  im.map_input(InputAction::kGoBack,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_BACKSPACE);
+  });
+
+  // Options/Features.
+  im.map_input(InputAction::kToggleMusic,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_N);
+  });
+  im.map_input(InputAction::kToggleFullscreen,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_F11);
+  });
+  im.map_input(InputAction::kToggleMiniMap,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_M);
+  });
+  im.map_input(InputAction::kToggleSpeedrun,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_T);
+  });
+  im.map_input(InputAction::kToggleBossOma,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_B);
+  });
+
+  // Dev/Secrets.
+  im.map_input(InputAction::kRefresh,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_R);
+  });
+  im.map_input(InputAction::kMakeWeird,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_F);
+  });
+  im.map_input(InputAction::kToggleFps,[](auto& i) {
+    i.raw_key_event(SDL_SCANCODE_F3);
+  });
 }
 
 SceneBag EkoScapeGame::build_scene(int action) {
@@ -119,18 +185,9 @@ void EkoScapeGame::run() {
   cybel_engine_->run(); // Game loop.
 }
 
-void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
-  switch(event.key) {
-    case SDLK_AUDIOPLAY:
-      play_music();
-      break;
-
-    case SDLK_AUDIOSTOP:
-      stop_music();
-      break;
-
-    // Toggle music.
-    case SDLK_n:
+void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
+  switch(action) {
+    case InputAction::kToggleMusic:
       if(ctx_->audio_player.is_music_playing()) {
         stop_music();
       } else {
@@ -139,12 +196,12 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
       break;
 
     // Go back a scene.
-    case SDLK_BACKSPACE:
+    case InputAction::kGoBack:
       pop_scene();
       break;
 
     // Toggle BoringWorkScene.
-    case SDLK_b:
+    case InputAction::kToggleBossOma:
       if(scene_man_->curr_scene_type() == SceneAction::kGoToBoringWork) {
         pop_scene();
       } else {
@@ -152,15 +209,13 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
       }
       break;
 
-    // Refresh.
-    case SDLK_r:
+    case InputAction::kRefresh:
       // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
       //     else it'll be all white due to not re-generating the map.
       if(SceneActions::is_menu(scene_man_->curr_scene_type())) { assets_->reload_gfx(); }
       break;
 
-    // Toggle FPS.
-    case SDLK_F3:
+    case InputAction::kToggleFps:
       if(avg_fps_ < 0.0) {
         avg_fps_age_ = 1.0f; // Show immediately.
         avg_fps_ = 0.0;
@@ -169,8 +224,7 @@ void EkoScapeGame::on_key_down_event(const KeyEvent& event,const ViewDimens& /*d
       }
       break;
 
-    // Toggle fullscreen.
-    case SDLK_F11:
+    case InputAction::kToggleFullscreen:
       const bool fullscreen = !cybel_engine_->is_fullscreen();
 
       cybel_engine_->set_fullscreen(fullscreen,true);

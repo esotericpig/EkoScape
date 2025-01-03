@@ -17,16 +17,14 @@ Color4f MenuCreditsScene::rand_color() {
 MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
     : ctx_(ctx),wtfs_(75,WtfParticle{}) {}
 
-void MenuCreditsScene::on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) {
-  switch(event.key) {
-    case SDLK_RETURN:
-    case SDLK_SPACE:
-    case SDLK_KP_ENTER:
+void MenuCreditsScene::on_input_event(int action,const ViewDimens& dimens) {
+  switch(action) {
+    case InputAction::kSelect:
       scene_action_ = SceneAction::kGoBack;
       break;
 
     // Shhh... Don't Tell.
-    case SDLK_f:
+    case InputAction::kMakeWeird:
       ctx_.assets.make_weird();
       init_wtfs(dimens);
       break;

@@ -17,6 +17,7 @@
 #include "cybel/cybel_engine.h"
 
 #include "assets/assets.h"
+#include "input/input_action.h"
 #include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_credits_scene.h"
@@ -31,7 +32,6 @@
 namespace ekoscape {
 
 class EkoScapeGame : public Scene {
-private:
   // NOTE: This must be defined first so that its dtor is called last.
   std::unique_ptr<CybelEngine> cybel_engine_{};
 
@@ -42,7 +42,7 @@ public:
 
   void run();
 
-  void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
+  void on_input_event(int action,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
@@ -62,6 +62,8 @@ private:
 
   MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};
+
+  void init_input_map();
 
   void play_music();
   void stop_music(bool on_boring_work = false);

@@ -13,7 +13,7 @@
 namespace ekoscape {
 
 namespace SceneAction {
-  enum {
+  enum : int {
     kNil = 0,
     kQuit,
     kGoBack,

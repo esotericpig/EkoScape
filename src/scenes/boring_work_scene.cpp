@@ -20,11 +20,9 @@ void BoringWorkScene::on_scene_exit() {
   ctx_.cybel_engine.reset_title();
 }
 
-void BoringWorkScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
-  switch(event.key) {
-    case SDLK_RETURN:
-    case SDLK_SPACE:
-    case SDLK_KP_ENTER:
+void BoringWorkScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
+  switch(action) {
+    case InputAction::kSelect:
       scene_action_ = SceneAction::kGoBack;
       break;
   }

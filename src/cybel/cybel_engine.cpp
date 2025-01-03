@@ -38,8 +38,10 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
 
   init_config(config);
   init_gui(config);
-  init_renderer(config,build_scene);
 
+  renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
+  scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
+  input_man_ = std::make_unique<InputMan>(config.max_input_id);
   audio_player_ = std::make_unique<AudioPlayer>(config.music_types);
 }
 
@@ -137,11 +139,6 @@ void CybelEngine::init_gui(const Config& config) {
   set_vsync(config.vsync);
 }
 
-void CybelEngine::init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene) {
-  renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
-  scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
-}
-
 void CybelEngine::init_scene(Scene& scene) {
   scene.init_scene(renderer_->dimens());
   scene.resize_scene(*renderer_,renderer_->dimens());
@@ -158,19 +155,15 @@ void CybelEngine::run() {
   //     and also need to call the scenes' resize() after init_scene().
   sync_size(true);
 
-  KeyStates keys{};
-
   while(is_running_) {
     start_frame_timer();
+
+    input_man_->reset_states();
     handle_events();
+    handle_input_states();
 
-    keys.refresh();
-    main_scene_.handle_key_states(keys,renderer_->dimens());
-    scene_man_->curr_scene().handle_key_states(keys,renderer_->dimens());
-
-    const FrameStep step{dpf_,delta_time_};
-    main_scene_.update_scene_logic(step,renderer_->dimens());
-    int scene_result = scene_man_->curr_scene().update_scene_logic(step,renderer_->dimens());
+    main_scene_.update_scene_logic(frame_step_,renderer_->dimens());
+    const int scene_result = scene_man_->curr_scene().update_scene_logic(frame_step_,renderer_->dimens());
 
     if(scene_result != Scene::kNilType) {
       scene_man_->push_scene(scene_result);
@@ -211,15 +204,15 @@ void CybelEngine::start_frame_timer() {
 }
 
 void CybelEngine::end_frame_timer() {
-  dpf_ = frame_timer_.peek();
+  frame_step_.dpf = frame_timer_.peek();
 
-  // If target FPS/DPF is 0, then will use delta time only (no delay).
-  if(dpf_ < target_dpf_) {
-    SDL_Delay((target_dpf_ - dpf_).round_millis());
-    dpf_ = frame_timer_.end();
+  // If target_dpf_ (target_fps_) is 0, then will use delta time only (no delay).
+  if(frame_step_.dpf < target_dpf_) {
+    SDL_Delay((target_dpf_ - frame_step_.dpf).round_millis());
+    frame_step_.dpf = frame_timer_.end();
   }
 
-  delta_time_ = dpf_.secs(); // Delta time should be in fractional seconds.
+  frame_step_.delta_time = frame_step_.dpf.secs(); // Delta time should be in fractional seconds.
 }
 
 void CybelEngine::handle_events() {
@@ -236,22 +229,37 @@ void CybelEngine::handle_events() {
         return;
 
       case SDL_KEYDOWN: {
-        const KeyEvent key_event{sdl_event};
+        const RawKeyInput raw_key{sdl_event.key.keysym.scancode,sdl_event.key.keysym.mod};
+        const SymKeyInput sym_key{sdl_event.key.keysym.sym,sdl_event.key.keysym.mod};
 
-        if(key_event.key == SDLK_ESCAPE) {
+        if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
           request_stop();
           return;
         }
 
-        main_scene_.on_key_down_event(key_event,renderer_->dimens());
-        scene_man_->curr_scene().on_key_down_event(key_event,renderer_->dimens());
+        std::unordered_set<int> processed_ids{};
+
+        for(auto id: input_man_->fetch_event_ids(raw_key)) {
+          // Not inserted (already processed)?
+          if(!processed_ids.insert(id).second) { continue; }
+
+          main_scene_.on_input_event(id,renderer_->dimens());
+          scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
+        }
+        for(auto id: input_man_->fetch_event_ids(sym_key)) {
+          // Not inserted (already processed)?
+          if(!processed_ids.insert(id).second) { continue; }
+
+          main_scene_.on_input_event(id,renderer_->dimens());
+          scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
+        }
       } break;
 
       case SDL_KEYUP: {
-        const KeyEvent key_event{sdl_event};
+        const RawKeyInput raw_key{sdl_event.key.keysym.scancode};
 
-        if(key_event.key == SDLK_ESCAPE) {
+        if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
           std::cerr << "[EVENT] Received Esc key event." << std::endl;
           request_stop();
           return;
@@ -270,6 +278,26 @@ void CybelEngine::handle_events() {
   }
 
   if(should_resize) { sync_size(false); }
+}
+
+void CybelEngine::handle_input_states() {
+  int num_keys = 0;
+  const auto* raw_keys = SDL_GetKeyboardState(&num_keys);
+  const KeyMods mods = SDL_GetModState();
+
+  for(int i = 0; i < num_keys; ++i) {
+    auto raw_key = static_cast<RawKey>(i);
+
+    if(raw_keys[i] == 1) {
+      SymKey sym_key = SDL_GetKeyFromScancode(raw_key);
+
+      input_man_->set_state(RawKeyInput{raw_key,mods},true);
+      input_man_->set_state(SymKeyInput{sym_key,mods},true);
+    }
+  }
+
+  main_scene_.handle_input_states(input_man_->states(),renderer_->dimens());
+  scene_man_->curr_scene().handle_input_states(input_man_->states(),renderer_->dimens());
 }
 
 void CybelEngine::show_error(const std::string& error) const {
@@ -356,14 +384,16 @@ Scene& CybelEngine::main_scene() const { return main_scene_; }
 
 SceneMan& CybelEngine::scene_man() const { return *scene_man_; }
 
+InputMan& CybelEngine::input_man() const { return *input_man_; }
+
 AudioPlayer& CybelEngine::audio_player() const { return *audio_player_; }
 
 int CybelEngine::target_fps() const { return target_fps_; }
 
 const Duration& CybelEngine::target_dpf() const { return target_dpf_; }
 
-const Duration& CybelEngine::dpf() const { return dpf_; }
+const Duration& CybelEngine::dpf() const { return frame_step_.dpf; }
 
-double CybelEngine::delta_time() const { return delta_time_; }
+double CybelEngine::delta_time() const { return frame_step_.delta_time; }
 
 } // Namespace.

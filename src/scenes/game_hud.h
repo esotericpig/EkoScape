@@ -40,7 +40,6 @@ public:
   explicit GameHud(GameContext& ctx,const State& state);
 
   void update(const FrameStep& step);
-
   void draw(Renderer& ren,const ViewDimens& dimens);
 
 private:

@@ -127,32 +127,33 @@ void GameScene::on_scene_exit() {
   }
 }
 
-void GameScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
-  switch(event.key) {
-    // Toggle mini map.
-    case SDLK_m:
+void GameScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
+  switch(action) {
+    case InputAction::kToggleMiniMap:
       state_.show_mini_map = !state_.show_mini_map;
       break;
 
-    // Toggle speedrun timer.
-    case SDLK_t:
-      state_.show_speedrun = !state_.show_speedrun;
+    case InputAction::kToggleSpeedrun:
+      // The speedrun time is always shown on Game Over, so don't toggle.
+      if(game_phase_ != GamePhase::kGameOver) {
+        state_.show_speedrun = !state_.show_speedrun;
+      }
       break;
   }
 
-  scene_action_ = overlay_->on_key_down_event(event);
+  scene_action_ = overlay_->on_input_event(action);
 }
 
-void GameScene::handle_key_states(const KeyStates& keys,const ViewDimens& /*dimens*/) {
+void GameScene::handle_input_states(const std::vector<bool>& states,const ViewDimens& /*dimens*/) {
   // Key states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.
   // In TurnLeft/Right() & StepForward/Backward(), you can pass in true to force this,
   //     but then this makes the animation a tiny bit strange as you turn off a step.
-  const bool is_up = (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]);
-  stored_keys_.is_down = (stored_keys_.is_down || keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]);
-  stored_keys_.is_left = (stored_keys_.is_left || keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]);
-  stored_keys_.is_right = (stored_keys_.is_right || keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]);
+  const bool is_up = states[InputAction::kUp];
+  stored_keys_.is_down = (stored_keys_.is_down || states[InputAction::kDown]);
+  stored_keys_.is_left = (stored_keys_.is_left || states[InputAction::kLeft]);
+  stored_keys_.is_right = (stored_keys_.is_right || states[InputAction::kRight]);
 
   const bool is_walking = (dantares_.IsWalking() >= 0);
 

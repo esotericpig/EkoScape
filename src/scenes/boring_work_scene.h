@@ -12,8 +12,9 @@
 
 #include "cybel/scene/scene.h"
 
+#include "input/input_action.h"
+#include "scenes/scene_action.h"
 #include "game_context.h"
-#include "scene_action.h"
 
 namespace ekoscape {
 
@@ -23,7 +24,7 @@ public:
 
   void init_scene(const ViewDimens& dimens) override;
   void on_scene_exit() override;
-  void on_key_down_event(const KeyEvent& event,const ViewDimens& dimens) override;
+  void on_input_event(int action,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 

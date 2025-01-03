@@ -12,7 +12,7 @@
 
 #include "cybel/render/render_types.h"
 #include "cybel/render/renderer.h"
-#include "scene_types.h"
+#include "cybel/scene/scene_types.h"
 
 namespace cybel {
 
@@ -41,8 +41,9 @@ public:
    */
   virtual void on_scene_exit() {}
 
-  virtual void on_key_down_event(const KeyEvent& /*event*/,const ViewDimens& /*dimens*/) {}
-  virtual void handle_key_states(const KeyStates& /*keys*/,const ViewDimens& /*dimens*/) {}
+  virtual void on_input_event(int /*id*/,const ViewDimens& /*dimens*/) {}
+  virtual void handle_input_states(const std::vector<bool>& /*states*/,const ViewDimens& /*dimens*/) {}
+
   virtual int update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) { return kNilType; }
   virtual void draw_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 };

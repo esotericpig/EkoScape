@@ -8,25 +8,26 @@
 #ifndef CYBEL_CYBEL_ENGINE_H_
 #define CYBEL_CYBEL_ENGINE_H_
 
-#include "common.h"
+#include "cybel/common.h"
 
-#include "audio/audio_player.h"
-#include "gfx/image.h"
-#include "render/render_types.h"
-#include "render/renderer.h"
-#include "scene/scene.h"
-#include "scene/scene_man.h"
-#include "util/cybel_error.h"
-#include "util/duration.h"
-#include "util/timer.h"
-#include "util/util.h"
+#include "cybel/audio/audio_player.h"
+#include "cybel/gfx/image.h"
+#include "cybel/input/input_man.h"
+#include "cybel/render/render_types.h"
+#include "cybel/render/renderer.h"
+#include "cybel/scene/scene.h"
+#include "cybel/scene/scene_man.h"
+#include "cybel/util/cybel_error.h"
+#include "cybel/util/duration.h"
+#include "cybel/util/timer.h"
+#include "cybel/util/util.h"
 
 #include <cmath>
+#include <unordered_set>
 
 namespace cybel {
 
 class CybelEngine {
-private:
   /**
    * This is necessary for RAII, since CybelEngine() ctor can throw an exception.
    * I decided to do this over using `unique_ptr`s or individual wrappers.
@@ -58,6 +59,7 @@ public:
     int fps = kFallbackFps;
     bool vsync = false;
     Color4f clear_color{};
+    int max_input_id = 0;
 
     /**
      * All:
@@ -120,6 +122,7 @@ public:
   const ViewDimens& dimens() const;
   Scene& main_scene() const;
   SceneMan& scene_man() const;
+  InputMan& input_man() const;
   AudioPlayer& audio_player() const;
 
   int target_fps() const;
@@ -131,24 +134,24 @@ private:
   std::string title_{};
   std::unique_ptr<Renderer> renderer_{};
   Scene& main_scene_;
-  std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after renderer_.
+  std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after `renderer_`.
+  std::unique_ptr<InputMan> input_man_{};
 
   bool is_running_ = false;
   Timer frame_timer_{};
   int target_fps_ = 0;
   Duration target_dpf_{};
-  Duration dpf_{};
-  double delta_time_ = 0.0;
+  FrameStep frame_step_{};
 
   void init_hints();
   void init_config(Config& config);
   void init_gui(const Config& config);
-  void init_renderer(const Config& config,const SceneMan::SceneBuilder& build_scene);
   void init_scene(Scene& scene);
 
   void start_frame_timer();
   void end_frame_timer();
   void handle_events();
+  void handle_input_states();
 
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);
 };

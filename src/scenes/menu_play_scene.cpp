@@ -17,11 +17,9 @@ MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
   refresh_maps();
 }
 
-void MenuPlayScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
-  switch(event.key) {
-    case SDLK_RETURN:
-    case SDLK_SPACE:
-    case SDLK_KP_ENTER:
+void MenuPlayScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
+  switch(action) {
+    case InputAction::kSelect:
       if(map_opts_.size() <= 1) { // Only has the random-map option?
         ctx_.cybel_engine.show_error("No map to select.");
       } else {
@@ -30,36 +28,31 @@ void MenuPlayScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*
       }
       break;
 
-    case SDLK_UP:
-    case SDLK_w:
+    case InputAction::kUp:
       select_map_opt(map_opt_index_ - 1,true);
       break;
 
-    case SDLK_DOWN:
-    case SDLK_s:
+    case InputAction::kDown:
       select_map_opt(map_opt_index_ + 1,true);
       break;
 
-    case SDLK_LEFT:
-    case SDLK_a:
+    case InputAction::kLeft:
       prev_map_opt_group();
       break;
 
-    case SDLK_RIGHT:
-    case SDLK_d:
+    case InputAction::kRight:
       next_map_opt_group();
       break;
 
-    case SDLK_PAGEUP:
+    case InputAction::kPageUp:
       select_map_opt(map_opt_index_ - kMinMapOptsHalf,false);
       break;
 
-    case SDLK_PAGEDOWN:
+    case InputAction::kPageDown:
       select_map_opt(map_opt_index_ + kMinMapOptsHalf,false);
       break;
 
-    // Refresh.
-    case SDLK_r:
+    case InputAction::kRefresh:
       refresh_maps();
       break;
   }

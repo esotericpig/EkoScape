@@ -66,18 +66,15 @@ MenuScene::MenuScene(GameContext& ctx)
   };
 }
 
-void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dimens*/) {
+void MenuScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
   Option& sel_opt = opts_.at(opt_index_);
 
-  switch(event.key) {
-    case SDLK_RETURN:
-    case SDLK_SPACE:
-    case SDLK_KP_ENTER:
+  switch(action) {
+    case InputAction::kSelect:
       sel_opt.select();
       break;
 
-    case SDLK_UP:
-    case SDLK_w:
+    case InputAction::kUp:
       if(opt_index_ > 0) {
         --opt_index_;
       } else if(opts_.size() > 0) {
@@ -85,8 +82,7 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
       }
       break;
 
-    case SDLK_DOWN:
-    case SDLK_s:
+    case InputAction::kDown:
       if(opt_index_ < (static_cast<int>(opts_.size()) - 1)) {
         ++opt_index_;
       } else {
@@ -94,13 +90,11 @@ void MenuScene::on_key_down_event(const KeyEvent& event,const ViewDimens& /*dime
       }
       break;
 
-    case SDLK_LEFT:
-    case SDLK_a:
+    case InputAction::kLeft:
       if(sel_opt.is_cycle()) { sel_opt.select_alt(); }
       break;
 
-    case SDLK_RIGHT:
-    case SDLK_d:
+    case InputAction::kRight:
       if(sel_opt.is_cycle()) { sel_opt.select(); }
       break;
   }

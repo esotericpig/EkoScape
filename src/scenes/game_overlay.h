@@ -14,6 +14,7 @@
 #include "cybel/scene/scene_types.h"
 #include "cybel/util/duration.h"
 
+#include "input/input_action.h"
 #include "map/map.h"
 #include "world/star_sys.h"
 #include "game_context.h"
@@ -29,7 +30,7 @@ public:
   void fade_to(const Color4f& color);
   void game_over();
 
-  int on_key_down_event(const KeyEvent& event);
+  int on_input_event(int action);
 
   void update(const FrameStep& step);
   bool update_map_info(const FrameStep& step);

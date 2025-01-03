@@ -42,7 +42,7 @@ void GameOverlay::game_over() {
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
-int GameOverlay::on_key_down_event(const KeyEvent& event) {
+int GameOverlay::on_input_event(int action) {
   const int game_over_opt_count = static_cast<int>(game_over_opts_.size());
 
   if(game_over_opt_index_ < 0 || game_over_opt_index_ >= game_over_opt_count) {
@@ -51,18 +51,15 @@ int GameOverlay::on_key_down_event(const KeyEvent& event) {
 
   const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
 
-  switch(event.key) {
-    case SDLK_RETURN:
-    case SDLK_SPACE:
-    case SDLK_KP_ENTER:
+  switch(action) {
+    case InputAction::kSelect:
       switch(sel_opt.type) {
         case OptionType::kPlayAgain: return SceneAction::kRestart;
         case OptionType::kGoBack: return SceneAction::kGoBack;
       }
       break;
 
-    case SDLK_UP:
-    case SDLK_w:
+    case InputAction::kUp:
       if(game_over_opt_index_ > 0) {
         --game_over_opt_index_;
       } else if(game_over_opt_count > 0) {
@@ -70,8 +67,7 @@ int GameOverlay::on_key_down_event(const KeyEvent& event) {
       }
       break;
 
-    case SDLK_DOWN:
-    case SDLK_s:
+    case InputAction::kDown:
       if(game_over_opt_index_ < (game_over_opt_count - 1)) {
         ++game_over_opt_index_;
       } else {
