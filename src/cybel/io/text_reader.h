@@ -10,7 +10,7 @@
 
 #include "cybel/common.h"
 
-#include "text_reader_buf.h"
+#include "cybel/io/text_reader_buf.h"
 
 #include <filesystem>
 #include <istream>

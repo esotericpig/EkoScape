@@ -110,10 +110,10 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
      .begin_add_blend();
 
   ren.wrap_sprite(ctx_.assets.logo_sprite(),[&](auto& s) {
-    s.draw_quad({150,10,0},{1300,300});
+    s.draw_quad(Pos3i{150,10,0},Size2i{1300,300});
   });
 
-  ctx_.assets.font_renderer().wrap(ren,{395,330,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{395,330,0},[&](auto& font) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
       const Option& opt = opts_[i];
       int styles = 0;
@@ -131,13 +131,13 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   });
 
   ren.wrap_tex(ctx_.assets.robot_tex(),[&](auto& tex) {
-    tex.draw_quad({10,368,0},{300,256});
+    tex.draw_quad(Pos3i{10,368,0},Size2i{300,256});
   });
   ren.wrap_tex(ctx_.assets.cell_tex(),[&](auto& tex) {
-    tex.draw_quad({10,634,0},{300,256});
+    tex.draw_quad(Pos3i{10,634,0},Size2i{300,256});
   });
   ren.wrap_sprite(ctx_.assets.keys_sprite(),[&](auto& s) {
-    s.draw_quad({849,670,0},{741,220}); // 1482x440.
+    s.draw_quad(Pos3i{849,670,0},Size2i{741,220}); // 1482x440.
   });
 
   ren.end_blend()

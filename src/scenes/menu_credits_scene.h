@@ -10,7 +10,6 @@
 
 #include "common.h"
 
-#include "cybel/render/render_types.h"
 #include "cybel/scene/scene.h"
 #include "cybel/util/rando.h"
 #include "cybel/vfx/particle.h"

@@ -5,12 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_RENDER_RENDER_TYPES_H_
-#define CYBEL_RENDER_RENDER_TYPES_H_
+#ifndef CYBEL_TYPES_VIEW_DIMENS_H_
+#define CYBEL_TYPES_VIEW_DIMENS_H_
 
 #include "cybel/common.h"
 
-#include "cybel/types.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 
 namespace cybel {
 

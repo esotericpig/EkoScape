@@ -10,9 +10,9 @@
 
 #include "cybel/common.h"
 
-#include "cybel/util/duration.h"
+#include "cybel/audio/music.h"
+#include "cybel/types/duration.h"
 #include "cybel/util/util.h"
-#include "music.h"
 
 namespace cybel {
 

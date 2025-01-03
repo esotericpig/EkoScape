@@ -53,7 +53,7 @@ Map& Map::clear_grids() {
   grid_index_ = -1;
   total_cells_ = 0;
   total_rescues_ = 0;
-  player_init_pos_ = {};
+  player_init_pos_ = Pos3i{};
 
   grids_.clear();
 
@@ -192,7 +192,7 @@ Map& Map::load_file_meta(const std::filesystem::path& file) {
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space
     ,const DefaultEmptyCallback& on_def_empty) {
-  return parse_grid(lines,{},on_space,on_def_empty);
+  return parse_grid(lines,Size2i{},on_space,on_def_empty);
 }
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space
@@ -289,6 +289,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
 
 Map& Map::shrink_grids_to_fit() {
   grids_.shrink_to_fit();
+
   return *this;
 }
 
@@ -341,6 +342,7 @@ bool Map::place_thing(SpaceType type,const Pos3i& pos) {
 
 bool Map::move_player(const Pos3i& pos) {
   if(!change_grid(pos.z)) { return false; }
+
   return true;
 }
 
@@ -350,28 +352,33 @@ bool Map::change_grid(int z) {
   if(z < 0 || z >= static_cast<int>(grids_.size())) { return false; }
 
   grid_index_ = z;
+
   return true;
 }
 
 Map& Map::set_title(const std::string& title) {
   title_ = Util::strip_str(title);
+
   return *this;
 }
 
 Map& Map::set_author(const std::string& author) {
   author_ = Util::strip_str(author);
+
   return *this;
 }
 
 Map& Map::set_turning_speed(float speed) {
   // 0 uses Dantares' default value.
   turning_speed_ = (speed >= 0.0f) ? speed : 0.0f;
+
   return *this;
 }
 
 Map& Map::set_walking_speed(float speed) {
   // 0 uses Dantares' default value.
   walking_speed_ = (speed >= 0.0f) ? speed : 0.0f;
+
   return *this;
 }
 
@@ -380,11 +387,13 @@ Map& Map::set_default_empty(SpaceType type) {
   if(SpaceTypes::is_valid(type) && !SpaceTypes::is_player(type) && !SpaceTypes::is_thing(type)) {
     default_empty_ = type;
   }
+
   return *this;
 }
 
 Map& Map::set_robot_delay(Duration duration) {
   robot_delay_ = (duration >= kMinRobotDelay) ? duration : kMinRobotDelay;
+
   return *this;
 }
 
@@ -422,17 +431,20 @@ int Map::grid_z() const { return grid_index_; }
 Size2i Map::size() const { return size(grid_index_); }
 
 Size2i Map::size(int z) const {
-  if(z < 0 || z >= static_cast<int>(grids_.size())) { return {}; }
+  if(z < 0 || z >= static_cast<int>(grids_.size())) { return Size2i{}; }
+
   return grids_[z]->size();
 }
 
 Space* Map::mutable_space(const Pos3i& pos) {
   if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
+
   return grids_[pos.z]->space(pos);
 }
 
 const Space* Map::space(const Pos3i& pos) const {
   if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
+
   return grids_[pos.z]->space(pos);
 }
 

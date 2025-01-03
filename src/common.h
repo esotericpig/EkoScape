@@ -23,9 +23,6 @@
 #endif
 
 #include "cybel/common.h"
-
-#include "cybel/types.h"
-
 #include "Dantares/Dantares.h"
 
 namespace ekoscape {

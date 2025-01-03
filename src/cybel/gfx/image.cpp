@@ -35,7 +35,7 @@ void Image::move_from(Image&& other) noexcept {
   other.surface_ = NULL;
 
   id_ = std::exchange(other.id_,"");
-  size_ = std::exchange(other.size_,{});
+  size_ = std::exchange(other.size_,Size2i{});
   is_locked_ = std::exchange(other.is_locked_,false);
 }
 

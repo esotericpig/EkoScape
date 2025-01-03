@@ -11,14 +11,14 @@
 #include "common.h"
 
 #include "cybel/render/renderer.h"
-#include "cybel/scene/scene_types.h"
-#include "cybel/util/duration.h"
+#include "cybel/types/duration.h"
+#include "cybel/types/frame_step.h"
 
 #include "input/input_action.h"
 #include "map/map.h"
+#include "scenes/scene_action.h"
 #include "world/star_sys.h"
 #include "game_context.h"
-#include "scene_action.h"
 
 namespace ekoscape {
 

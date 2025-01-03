@@ -131,7 +131,7 @@ void Texture::move_from(Texture&& other) noexcept {
   destroy();
 
   gl_id_ = std::exchange(other.gl_id_,0);
-  size_ = std::exchange(other.size_,{});
+  size_ = std::exchange(other.size_,Size2i{});
 }
 
 Texture::~Texture() noexcept {

@@ -13,7 +13,7 @@ EkoScapeGame::EkoScapeGame() {
   CybelEngine::Config config{
     .title = kTitle,
     .scale_factor = 0.8333f, // Arrival?
-    // .size = {740,500}, // For GIFs/screenshots.
+    // .size = Size2i{740,500}, // For GIFs/screenshots.
     .fps = 60,
     .vsync = true,
     .max_input_id = InputAction::kMaxId,
@@ -23,7 +23,7 @@ EkoScapeGame::EkoScapeGame() {
 
   // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
   // These are fixed values and should not be changed.
-  config.target_size = {1600,900};
+  config.target_size = Size2i{1600,900};
 
   cybel_engine_ = std::make_unique<CybelEngine>(*this,config,[&](int action) { return build_scene(action); });
   scene_man_ = &cybel_engine_->scene_man();
@@ -274,11 +274,11 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
   if(avg_fps_ >= 0.0) {
     ren.begin_2d_scene()
-       .begin_auto_anchor_scale({0.0f,0.0f}); // Top left.
+       .begin_auto_anchor_scale(Pos2f{0.0f,0.0f}); // Top left.
 
     const Size2i padding{5,5};
 
-    assets_->font_renderer().wrap(ren,{padding.w,padding.h,0},0.33f,[&](auto& font) {
+    assets_->font_renderer().wrap(ren,Pos3i{padding.w,padding.h,0},0.33f,[&](auto& font) {
       font.draw_bg(Color4f{0.0f,0.5f},Size2i{static_cast<int>(avg_fps_str_.length()),1},padding);
       font.print(avg_fps_str_);
     });

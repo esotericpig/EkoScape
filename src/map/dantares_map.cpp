@@ -95,11 +95,13 @@ Map& DantaresMap::add_to_bridge() {
 
 bool DantaresMap::move_player(const Pos3i& pos) {
   if(!Map::move_player(pos)) { return false; } // Calls change_grid(z) if necessary.
+
   return dantares_.SetPlayerPosition(pos.x,pos.y);
 }
 
 bool DantaresMap::sync_player_pos() {
   const Pos3i player_pos = this->player_pos();
+
   return dantares_.SetPlayerPosition(player_pos.x,player_pos.y);
 }
 

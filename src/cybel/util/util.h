@@ -9,7 +9,6 @@
 #define CYBEL_UTIL_UTIL_H_
 
 #include "cybel/common.h"
-#include "cybel/types.h"
 
 #include <cctype>
 #include <sstream>

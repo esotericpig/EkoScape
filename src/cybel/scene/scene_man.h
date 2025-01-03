@@ -10,9 +10,9 @@
 
 #include "cybel/common.h"
 
-#include "cybel/util/cybel_error.h"
-#include "scene.h"
-#include "scene_bag.h"
+#include "cybel/scene/scene.h"
+#include "cybel/scene/scene_bag.h"
+#include "cybel/types/cybel_error.h"
 
 #include <functional>
 

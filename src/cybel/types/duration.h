@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_UTIL_DURATION_H_
-#define CYBEL_UTIL_DURATION_H_
+#ifndef CYBEL_TYPES_DURATION_H_
+#define CYBEL_TYPES_DURATION_H_
 
 #include "cybel/common.h"
 
@@ -18,7 +18,7 @@ class Duration {
 public:
   static const Duration kZero; // Can't be inline since Duration is an incomplete type here.
 
-  explicit Duration();
+  explicit Duration() = default;
   static Duration from_millis(double millis);
   static Duration from_secs(double secs);
 

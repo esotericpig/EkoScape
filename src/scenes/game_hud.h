@@ -11,8 +11,8 @@
 #include "common.h"
 
 #include "cybel/render/renderer.h"
-#include "cybel/scene/scene_types.h"
-#include "cybel/util/duration.h"
+#include "cybel/types/duration.h"
+#include "cybel/types/frame_step.h"
 #include "cybel/util/util.h"
 
 #include "map/map.h"

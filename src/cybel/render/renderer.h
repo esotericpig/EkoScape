@@ -13,10 +13,9 @@
 #include "cybel/gfx/font_atlas.h"
 #include "cybel/gfx/sprite_atlas.h"
 #include "cybel/gfx/texture.h"
-#include "cybel/util/cybel_error.h"
+#include "cybel/types/cybel_error.h"
+#include "cybel/types/view_dimens.h"
 #include "cybel/util/util.h"
-#include "cybel/types.h"
-#include "render_types.h"
 
 #include <functional>
 #include <vector>

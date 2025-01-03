@@ -10,7 +10,7 @@
 
 #include "cybel/common.h"
 
-#include "duration.h"
+#include "cybel/types/duration.h"
 
 namespace cybel {
 

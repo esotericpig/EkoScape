@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_SCENE_SCENE_TYPES_H_
-#define CYBEL_SCENE_SCENE_TYPES_H_
+#ifndef CYBEL_TYPES_FRAME_STEP_H_
+#define CYBEL_TYPES_FRAME_STEP_H_
 
 #include "cybel/common.h"
 
-#include "cybel/util/duration.h"
+#include "cybel/types/duration.h"
 
 namespace cybel {
 

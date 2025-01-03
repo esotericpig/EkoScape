@@ -15,10 +15,10 @@
 #include "cybel/gfx/image.h"
 #include "cybel/gfx/sprite.h"
 #include "cybel/gfx/texture.h"
-#include "cybel/util/cybel_error.h"
+#include "cybel/types/cybel_error.h"
 
+#include "assets/font_renderer.h"
 #include "map/map.h"
-#include "font_renderer.h"
 
 #include <cstdlib>
 #include <filesystem>

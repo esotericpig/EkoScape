@@ -13,6 +13,7 @@ Particle& Particle::birth() { return age_by(0.0f); }
 
 Particle& Particle::die() {
   age = 1.1f;
+
   return *this;
 }
 
@@ -42,6 +43,7 @@ Particle& Particle::age_by(float delta_time) {
 Particle& Particle::rebirth() {
   age = 0.0f;
   ++past_lives;
+
   return birth();
 }
 
@@ -75,6 +77,7 @@ bool Particle::is_dead() const { return !is_alive(); }
 float Particle::calc_clamped_age() const {
   if(age < 0.0f) { return 0.0f; }
   if(age > 1.0f) { return 1.0f; }
+
   return age;
 }
 

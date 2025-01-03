@@ -58,10 +58,10 @@ private:
   static inline const float kDefaultLifespan{};
   static inline const float kSnakeTailLifespan = 9.0f;
   static inline std::vector<Pos2i> rand_move_vels_{
-    { 0,-1}, // North.
-    { 0, 1}, // South.
-    { 1, 0}, // East.
-    {-1, 0}, // West.
+    Pos2i{ 0,-1}, // North.
+    Pos2i{ 0, 1}, // South.
+    Pos2i{ 1, 0}, // East.
+    Pos2i{-1, 0}, // West.
   };
 
   Pos3i pos_{};

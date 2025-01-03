@@ -126,14 +126,14 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
     flash_color_.a = kAlpha * flash_age_;
 
     ren.wrap_color(flash_color_,[&]() {
-      ren.draw_quad({0,0,0},dimens.size);
+      ren.draw_quad(Pos3i{0,0,0},dimens.size);
     });
   }
   if(fade_age_ >= 0.0f) {
     fade_color_.a = kAlpha * fade_age_;
 
     ren.wrap_color(fade_color_,[&]() {
-      ren.draw_quad({0,0,0},dimens.size);
+      ren.draw_quad(Pos3i{0,0,0},dimens.size);
     });
   }
 }
@@ -141,12 +141,12 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
 void GameOverlay::draw_map_info(Renderer& ren) {
   ren.begin_auto_center_scale();
 
-  ctx_.assets.font_renderer().wrap(ren,{395,395,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{395,395,0},[&](auto& font) {
     const StrUtf8 title = map_.title();
     const StrUtf8 author = "  by " + map_.author();
     const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
 
-    font.draw_bg(kTextBgColor,{bg_w,2},kTextBgPadding);
+    font.draw_bg(kTextBgColor,Size2i{bg_w,2},kTextBgPadding);
     font.puts(title);
     font.puts(author);
   });
@@ -165,18 +165,18 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   const auto& sprite = player_hit_end_ ? ctx_.assets.corngrits_sprite() : ctx_.assets.goodnight_sprite();
 
   ren.wrap_sprite(sprite,[&](auto& s) {
-    ren.wrap_color({1.0f,game_over_age_},[&]() {
-      s.draw_quad({10,10,0},{1200,450});
+    ren.wrap_color(Color4f{1.0f,game_over_age_},[&]() {
+      s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
   });
-  ctx_.assets.font_renderer().wrap(ren,{460,460,0},0.60f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{460,460,0},0.60f,[&](auto& font) {
     font.font_color.a *= game_over_age_;
 
     const auto font_color = font.font_color;
     const auto miss_color = ctx_.assets.font_renderer().cycle_arrow_color().with_a(font_color.a);
     const auto goal_color = ctx_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
-    font.draw_bg(bg_color,{37,perfect ? 5 : 2},kTextBgPadding);
+    font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2},kTextBgPadding);
     font.puts(player_hit_end_ ? "Congrats!" : "You're dead!");
 
     font.print("You freed ");
@@ -204,10 +204,10 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     }
   });
 
-  ctx_.assets.font_renderer().wrap(ren,{580,perfect ? 790 : 690,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{580,perfect ? 790 : 690,0},[&](auto& font) {
     const int opt_count = static_cast<int>(game_over_opts_.size());
 
-    font.draw_bg(bg_color,{12,opt_count},kTextBgPadding);
+    font.draw_bg(bg_color,Size2i{12,opt_count},kTextBgPadding);
     font.font_color.a *= game_over_age_;
 
     for(int i = 0; i < opt_count; ++i) {

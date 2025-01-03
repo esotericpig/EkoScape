@@ -10,7 +10,10 @@
 
 #include "common.h"
 
-#include "space.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
+
+#include "map/space.h"
 
 #include <vector>
 

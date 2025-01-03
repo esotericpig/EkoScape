@@ -11,14 +11,17 @@
 #include "common.h"
 
 #include "cybel/io/text_reader.h"
-#include "cybel/util/cybel_error.h"
-#include "cybel/util/duration.h"
+#include "cybel/types/cybel_error.h"
+#include "cybel/types/duration.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/range.h"
+#include "cybel/types/size.h"
 #include "cybel/util/util.h"
 
-#include "facing.h"
-#include "map_grid.h"
-#include "space.h"
-#include "space_type.h"
+#include "map/facing.h"
+#include "map/map_grid.h"
+#include "map/space.h"
+#include "map/space_type.h"
 
 #include <filesystem>
 #include <functional>

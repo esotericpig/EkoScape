@@ -16,8 +16,12 @@
   #include <GL/glew.h>
   #include <OpenGL/glu.h>
 #elif defined(CYBEL_WINDOWS)
+  #ifndef WIN32_LEAN_AND_MEAN
   #define WIN32_LEAN_AND_MEAN
+  #endif
+  #ifndef NOMINMAX
   #define NOMINMAX
+  #endif
 
   #include <windows.h>
   #include <GL/glew.h>
@@ -53,5 +57,9 @@
 #if defined(__GNUC__) && !defined(__clang__)
   #pragma GCC diagnostic pop
 #endif
+
+namespace cybel {
+  using StrUtf8 = tiny_utf8::string;
+}
 
 #endif

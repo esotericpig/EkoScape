@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#include "facing.h"
+#include "map/facing.h"
 
 namespace ekoscape {
 

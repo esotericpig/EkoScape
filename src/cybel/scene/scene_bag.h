@@ -10,7 +10,7 @@
 
 #include "cybel/common.h"
 
-#include "scene.h"
+#include "cybel/scene/scene.h"
 
 namespace cybel {
 

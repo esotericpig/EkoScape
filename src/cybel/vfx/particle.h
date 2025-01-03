@@ -10,7 +10,9 @@
 
 #include "cybel/common.h"
 
-#include "cybel/types.h"
+#include "cybel/types/color.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 
 namespace cybel {
 

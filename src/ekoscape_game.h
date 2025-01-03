@@ -13,7 +13,7 @@
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"
 #include "cybel/scene/scene_man.h"
-#include "cybel/util/cybel_error.h"
+#include "cybel/types/cybel_error.h"
 #include "cybel/cybel_engine.h"
 
 #include "assets/assets.h"

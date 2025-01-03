@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#include "space_type.h"
+#include "map/space_type.h"
 
 namespace ekoscape {
 

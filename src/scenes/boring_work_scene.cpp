@@ -36,7 +36,7 @@ void BoringWorkScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_2d_scene();
 
   ren.wrap_sprite(ctx_.assets.boring_work_sprite(),[&](auto& s) {
-    s.draw_quad({0,0,0},dimens.size);
+    s.draw_quad(Pos3i{0,0,0},dimens.size);
   });
 }
 

@@ -10,9 +10,10 @@
 
 #include "cybel/common.h"
 
-#include "cybel/types.h"
-#include "sprite.h"
-#include "texture.h"
+#include "cybel/gfx/sprite.h"
+#include "cybel/gfx/texture.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 
 #include <vector>
 

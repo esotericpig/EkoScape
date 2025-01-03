@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_UTIL_CYBEL_ERROR_H_
-#define CYBEL_UTIL_CYBEL_ERROR_H_
+#ifndef CYBEL_TYPES_CYBEL_ERROR_H_
+#define CYBEL_TYPES_CYBEL_ERROR_H_
 
 #include "cybel/common.h"
 
-#include "util.h"
+#include "cybel/util/util.h"
 
 namespace cybel {
 

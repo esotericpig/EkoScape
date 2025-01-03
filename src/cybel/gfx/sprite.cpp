@@ -51,7 +51,7 @@ Sprite::Sprite(std::unique_ptr<Texture> tex,const Pos2i& offset,const Size2i& si
     : Sprite(std::shared_ptr{std::move(tex)},offset,size,padding) {}
 
 Sprite::Sprite(const std::shared_ptr<Texture>& tex,int padding)
-    : Sprite(tex,{0,0},{0,0},padding) {}
+    : Sprite(tex,Pos2i{0,0},Size2i{0,0},padding) {}
 
 Sprite::Sprite(const std::shared_ptr<Texture>& tex,const Pos2i& offset,const Size2i& size,int padding)
     : tex_(tex) {

@@ -162,9 +162,12 @@ Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size,const 
 Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)
     : clear_color_(clear_color){
   // Avoid divides by 0.
-  dimens_.init_size = {(size.w > 0) ? size.w : 1,(size.h > 0) ? size.h : 1};
+  dimens_.init_size = Size2i{(size.w > 0) ? size.w : 1,(size.h > 0) ? size.h : 1};
   dimens_.size = dimens_.init_size;
-  dimens_.target_size = {(target_size.w > 0) ? target_size.w : 1,(target_size.h > 0) ? target_size.h : 1};
+  dimens_.target_size = Size2i{
+    (target_size.w > 0) ? target_size.w : 1,
+    (target_size.h > 0) ? target_size.h : 1
+  };
 
   init_gl();
 }
@@ -246,7 +249,7 @@ Renderer& Renderer::begin_3d_scene() {
 }
 
 Renderer& Renderer::begin_auto_center_scale() {
-  return begin_auto_anchor_scale({0.5f,0.5f});
+  return begin_auto_anchor_scale(Pos2f{0.5f,0.5f});
 }
 
 Renderer& Renderer::begin_auto_anchor_scale(const Pos2f& anchor) {

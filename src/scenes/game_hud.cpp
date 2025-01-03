@@ -63,13 +63,13 @@ void GameHud::draw(Renderer& ren,const ViewDimens& dimens) {
 }
 
 void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
-  ren.begin_auto_anchor_scale({0.0f,1.0f}); // Anchor to bottom left.
+  ren.begin_auto_anchor_scale(Pos2f{0.0f,1.0f}); // Anchor to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (state.show_mini_map ? kMiniMapSize.h : 0);
   Pos3i pos{0,dimens.target_size.h - total_h,0};
 
   ren.wrap_color(mini_map_walkable_color_,[&]() {
-    ren.draw_quad(pos,{kMiniMapSize.w,kMiniMapBlockSize.h});
+    ren.draw_quad(pos,Size2i{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
   ctx_.assets.font_renderer().wrap(ren,pos,kTextScale,[&](auto& font) {
     const Color4f font_color = font.font_color;
@@ -88,7 +88,8 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
       const StrUtf8 fruit_text = std::to_string(state.player_fruit_time.round_secs());
 
-      font.draw_bg(mini_map_walkable_color_,{static_cast<int>(fruit_text.length()),1},{fruit_padding_w,0});
+      font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1}
+          ,Size2i{fruit_padding_w,0});
       font.font_color = mini_map_fruit_color_.with_a(1.0f);
       font.print(fruit_text);
     });
@@ -166,7 +167,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i& pos) {
 
       if(!state.player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
-        ren.wrap_font_atlas(ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,{},[&](auto& font) {
+        ren.wrap_font_atlas(ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{},[&](auto& font) {
           font.print("↑");
         });
       }
@@ -178,9 +179,9 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i& pos) {
 }
 
 void GameHud::draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens) {
-  ren.begin_auto_anchor_scale({1.0f,1.0f}); // Anchor to bottom right.
+  ren.begin_auto_anchor_scale(Pos2f{1.0f,1.0f}); // Anchor to bottom right.
 
-  ctx_.assets.font_renderer().wrap(ren,{0,0,0},kTextScale,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{},kTextScale,[&](auto& font) {
     const Size2i str_size{static_cast<int>(speedrun_time_str_.length()),1};
     const Size2i padding{10,5};
     const auto total_size = font.font.calc_total_size(str_size,padding);

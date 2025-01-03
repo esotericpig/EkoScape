@@ -146,6 +146,7 @@ SpaceType SpaceTypes::to_player(Facing facing) {
 
 SpaceType SpaceTypes::to_space_type(char value) {
   const auto type = static_cast<SpaceType>(value);
+
   return is_valid(type) ? type : SpaceType::kVoid;
 }
 
@@ -153,6 +154,7 @@ SpaceType SpaceTypes::to_space_type(int value) { return to_space_type(static_cas
 
 char SpaceTypes::value_of(SpaceType type) {
   if(!is_valid(type)) { type = SpaceType::kVoid; }
+
   return static_cast<char>(type);
 }
 

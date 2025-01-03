@@ -10,10 +10,11 @@
 
 #include "cybel/common.h"
 
-#include "cybel/util/cybel_error.h"
+#include "cybel/gfx/image.h"
+#include "cybel/types/color.h"
+#include "cybel/types/cybel_error.h"
+#include "cybel/types/size.h"
 #include "cybel/util/util.h"
-#include "cybel/types.h"
-#include "image.h"
 
 namespace cybel {
 

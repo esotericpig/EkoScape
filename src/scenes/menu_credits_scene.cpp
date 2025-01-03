@@ -11,7 +11,8 @@ namespace ekoscape {
 
 Color4f MenuCreditsScene::rand_color() {
   auto& r = Rando::it();
-  return {r.rand_float(),r.rand_float(),r.rand_float()};
+
+  return Color4f{r.rand_float(),r.rand_float(),r.rand_float()};
 }
 
 MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
@@ -47,15 +48,15 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   int right_x = x + 800;
 
   ren.wrap_sprite(ctx_.assets.logo_sprite(),[&](auto& s) {
-    s.draw_quad({x,y,0},{780,180}); // 1300x300.
+    s.draw_quad(Pos3i{x,y,0},Size2i{780,180}); // 1300x300.
   });
   ren.wrap_sprite(ctx_.assets.dantares_sprite(),[&](auto& s) {
-    s.draw_quad({right_x,y,0},{780,156}); // 600x120.
+    s.draw_quad(Pos3i{right_x,y,0},Size2i{780,156}); // 600x120.
   });
   x += 35;
   y += 190;
 
-  ctx_.assets.font_renderer().wrap(ren,{x,y,0},0.75f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.75f,[&](auto& font) {
     font.print("by Bradley Whited");
     font.font.pos.x = right_x;
     font.print("by Ryan Witmer");
@@ -63,7 +64,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     font.puts();
     y = font.font.pos.y;
   });
-  ctx_.assets.font_renderer().wrap(ren,{x,y,0},0.45f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.45f,[&](auto& font) {
     font.print("github.com/esotericpig/EkoScape");
     font.font.pos.x = right_x;
     font.print("https://phasercat.com");
@@ -72,12 +73,12 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     y = font.font.pos.y;
   });
 
-  ctx_.assets.font_renderer().wrap(ren,{x,y,0},0.60f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.60f,[&](auto& font) {
     font.puts("Monogram font by datagoblin.itch.io");
     font.puts("Star textures by Kronbits.itch.io");
   });
 
-  ctx_.assets.font_renderer().wrap(ren,{395,615,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{395,615,0},[&](auto& font) {
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
   });
 
@@ -160,7 +161,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
     // Because of rotation, use max for both width & height for in_bounds().
     const auto s = static_cast<int>(std::max(wtf.true_size.w,wtf.true_size.h));
 
-    if(!dimens.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),{s,s})) {
+    if(!dimens.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),Size2i{s,s})) {
       wtf.die().past_lives = 1;
       --i; // Reprocess this index to actually remove it from active count.
     }
@@ -168,7 +169,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
 }
 
 void MenuCreditsScene::draw_wtfs(Renderer& ren) {
-  ctx_.assets.font_renderer().wrap(ren,{},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
     for(int i = 0; i < active_wtf_count_; ++i) {
       WtfParticle& wtf = wtfs_[i];
 

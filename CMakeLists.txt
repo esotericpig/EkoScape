@@ -186,14 +186,15 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/cybel/render/renderer.cpp"
     "${SRC_DIR}/cybel/scene/scene_bag.cpp"
     "${SRC_DIR}/cybel/scene/scene_man.cpp"
-    "${SRC_DIR}/cybel/util/cybel_error.cpp"
-    "${SRC_DIR}/cybel/util/duration.cpp"
+    "${SRC_DIR}/cybel/types/color.cpp"
+    "${SRC_DIR}/cybel/types/cybel_error.cpp"
+    "${SRC_DIR}/cybel/types/duration.cpp"
+    "${SRC_DIR}/cybel/types/range.cpp"
     "${SRC_DIR}/cybel/util/rando.cpp"
     "${SRC_DIR}/cybel/util/timer.cpp"
     "${SRC_DIR}/cybel/util/util.cpp"
     "${SRC_DIR}/cybel/vfx/particle.cpp"
     "${SRC_DIR}/cybel/cybel_engine.cpp"
-    "${SRC_DIR}/cybel/types.cpp"
 
     "${SRC_DIR}/assets/assets.cpp"
     "${SRC_DIR}/assets/font_renderer.cpp"
@@ -238,7 +239,7 @@ add_custom_target(check
               "--relative-paths=${CMAKE_SOURCE_DIR}"
 
               --suppress=missingInclude
-              "--suppress=noExplicitConstructor:src/cybel/types.h"
+              #"--suppress=noExplicitConstructor:src/cybel/types.h"
               --suppress=unusedFunction
               --suppress=unusedPrivateFunction
 

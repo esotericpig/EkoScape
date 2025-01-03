@@ -11,9 +11,8 @@
 #include "common.h"
 
 #include "cybel/gfx/texture.h"
-#include "cybel/render/render_types.h"
 #include "cybel/render/renderer.h"
-#include "cybel/scene/scene_types.h"
+#include "cybel/types/frame_step.h"
 #include "cybel/util/rando.h"
 #include "cybel/vfx/particle.h"
 
