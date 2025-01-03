@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#include "cybel/render/renderer.h"
+#include "cybel/gfx/renderer.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/frame_step.h"
 

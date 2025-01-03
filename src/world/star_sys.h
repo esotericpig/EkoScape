@@ -10,8 +10,8 @@
 
 #include "common.h"
 
+#include "cybel/gfx/renderer.h"
 #include "cybel/gfx/texture.h"
-#include "cybel/render/renderer.h"
 #include "cybel/types/frame_step.h"
 #include "cybel/util/rando.h"
 #include "cybel/vfx/particle.h"

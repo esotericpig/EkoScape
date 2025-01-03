@@ -11,7 +11,7 @@
 #include "common.h"
 
 #include "cybel/gfx/font_atlas.h"
-#include "cybel/render/renderer.h"
+#include "cybel/gfx/renderer.h"
 
 #include <functional>
 

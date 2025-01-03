@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_RENDER_RENDERER_H_
-#define CYBEL_RENDER_RENDERER_H_
+#ifndef CYBEL_GFX_RENDERER_H_
+#define CYBEL_GFX_RENDERER_H_
 
 #include "cybel/common.h"
 

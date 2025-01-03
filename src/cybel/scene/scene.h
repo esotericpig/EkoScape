@@ -10,7 +10,7 @@
 
 #include "cybel/common.h"
 
-#include "cybel/render/renderer.h"
+#include "cybel/gfx/renderer.h"
 #include "cybel/types/frame_step.h"
 
 namespace cybel {

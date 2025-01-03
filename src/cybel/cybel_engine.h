@@ -12,8 +12,8 @@
 
 #include "cybel/audio/audio_player.h"
 #include "cybel/gfx/image.h"
+#include "cybel/gfx/renderer.h"
 #include "cybel/input/input_man.h"
-#include "cybel/render/renderer.h"
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_man.h"
 #include "cybel/types/cybel_error.h"
