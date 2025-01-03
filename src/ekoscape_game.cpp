@@ -43,62 +43,58 @@ void EkoScapeGame::init_input_map() {
 
   // Movement.
   im.map_input(InputAction::kUp,[](auto& i) {
-    i.raw_key_event({SDL_SCANCODE_UP,SDL_SCANCODE_W});
-    i.raw_key_state({SDL_SCANCODE_UP,SDL_SCANCODE_W});
+    i.raw_key({SDL_SCANCODE_UP,SDL_SCANCODE_W});
   });
   im.map_input(InputAction::kDown,[](auto& i) {
-    i.raw_key_event({SDL_SCANCODE_DOWN,SDL_SCANCODE_S});
-    i.raw_key_state({SDL_SCANCODE_DOWN,SDL_SCANCODE_S});
+    i.raw_key({SDL_SCANCODE_DOWN,SDL_SCANCODE_S});
   });
   im.map_input(InputAction::kLeft,[](auto& i) {
-    i.raw_key_event({SDL_SCANCODE_LEFT,SDL_SCANCODE_A});
-    i.raw_key_state({SDL_SCANCODE_LEFT,SDL_SCANCODE_A});
+    i.raw_key({SDL_SCANCODE_LEFT,SDL_SCANCODE_A});
   });
   im.map_input(InputAction::kRight,[](auto& i) {
-    i.raw_key_event({SDL_SCANCODE_RIGHT,SDL_SCANCODE_D});
-    i.raw_key_state({SDL_SCANCODE_RIGHT,SDL_SCANCODE_D});
+    i.raw_key({SDL_SCANCODE_RIGHT,SDL_SCANCODE_D});
   });
 
   // Menu Navigation.
   im.map_input(InputAction::kPageUp,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_PAGEUP);
+    i.raw_key({SDL_SCANCODE_PAGEUP});
   });
   im.map_input(InputAction::kPageDown,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_PAGEDOWN);
+    i.raw_key({SDL_SCANCODE_PAGEDOWN});
   });
   im.map_input(InputAction::kSelect,[](auto& i) {
-    i.raw_key_event({SDL_SCANCODE_RETURN,SDL_SCANCODE_SPACE,SDL_SCANCODE_KP_ENTER});
+    i.raw_key({SDL_SCANCODE_RETURN,SDL_SCANCODE_SPACE,SDL_SCANCODE_KP_ENTER});
   });
   im.map_input(InputAction::kGoBack,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_BACKSPACE);
+    i.raw_key({SDL_SCANCODE_BACKSPACE});
   });
 
   // Options/Features.
   im.map_input(InputAction::kToggleMusic,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_N);
+    i.raw_key({SDL_SCANCODE_N});
   });
   im.map_input(InputAction::kToggleFullscreen,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_F11);
+    i.raw_key({SDL_SCANCODE_F11});
   });
   im.map_input(InputAction::kToggleMiniMap,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_M);
+    i.raw_key({SDL_SCANCODE_M});
   });
   im.map_input(InputAction::kToggleSpeedrun,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_T);
+    i.raw_key({SDL_SCANCODE_T});
   });
   im.map_input(InputAction::kToggleBossOma,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_B);
+    i.raw_key({SDL_SCANCODE_B});
   });
 
   // Dev/Secrets.
   im.map_input(InputAction::kRefresh,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_R);
+    i.raw_key({SDL_SCANCODE_R});
   });
   im.map_input(InputAction::kMakeWeird,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_F);
+    i.raw_key({SDL_SCANCODE_F});
   });
   im.map_input(InputAction::kToggleFps,[](auto& i) {
-    i.raw_key_event(SDL_SCANCODE_F3);
+    i.raw_key({SDL_SCANCODE_F3});
   });
 }
 

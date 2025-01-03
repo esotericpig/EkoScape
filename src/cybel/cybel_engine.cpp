@@ -172,8 +172,8 @@ void CybelEngine::run() {
     renderer_->clear_view();
     main_scene_.draw_scene(*renderer_,renderer_->dimens());
     scene_man_->curr_scene().draw_scene(*renderer_,renderer_->dimens());
-
     SDL_GL_SwapWindow(res_.window);
+
     end_frame_timer();
   }
 
@@ -216,58 +216,28 @@ void CybelEngine::end_frame_timer() {
 }
 
 void CybelEngine::handle_events() {
-  SDL_Event sdl_event{};
+  SDL_Event event{};
   // Store in a var to prevent re-sizing a bunch of times in the loop (costly),
   //     while the user is still dragging the window corner/edge.
   bool should_resize = false;
 
-  while(is_running_ && SDL_PollEvent(&sdl_event) != 0) {
-    switch(sdl_event.type) {
+  while(is_running_ && SDL_PollEvent(&event) != 0) {
+    switch(event.type) {
       case SDL_QUIT:
         std::cerr << "[EVENT] Received Quit event." << std::endl;
         request_stop();
         return;
 
-      case SDL_KEYDOWN: {
-        const RawKeyInput raw_key{sdl_event.key.keysym.scancode,sdl_event.key.keysym.mod};
-        const SymKeyInput sym_key{sdl_event.key.keysym.sym,sdl_event.key.keysym.mod};
+      case SDL_KEYDOWN:
+        handle_keydown_event(event);
+        break;
 
-        if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
-          std::cerr << "[EVENT] Received Esc key event." << std::endl;
-          request_stop();
-          return;
-        }
-
-        std::unordered_set<int> processed_ids{};
-
-        for(auto id: input_man_->fetch_event_ids(raw_key)) {
-          // Not inserted (already processed)?
-          if(!processed_ids.insert(id).second) { continue; }
-
-          main_scene_.on_input_event(id,renderer_->dimens());
-          scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
-        }
-        for(auto id: input_man_->fetch_event_ids(sym_key)) {
-          // Not inserted (already processed)?
-          if(!processed_ids.insert(id).second) { continue; }
-
-          main_scene_.on_input_event(id,renderer_->dimens());
-          scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
-        }
-      } break;
-
-      case SDL_KEYUP: {
-        const RawKeyInput raw_key{sdl_event.key.keysym.scancode};
-
-        if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
-          std::cerr << "[EVENT] Received Esc key event." << std::endl;
-          request_stop();
-          return;
-        }
-      } break;
+      case SDL_KEYUP:
+        handle_keyup_event(event);
+        break;
 
       case SDL_WINDOWEVENT:
-        switch(sdl_event.window.event) {
+        switch(event.window.event) {
           case SDL_WINDOWEVENT_RESIZED:
           case SDL_WINDOWEVENT_SIZE_CHANGED:
             should_resize = true;
@@ -277,7 +247,46 @@ void CybelEngine::handle_events() {
     }
   }
 
+  if(!is_running_) { return; }
   if(should_resize) { sync_size(false); }
+}
+
+void CybelEngine::handle_keydown_event(const SDL_Event& event) {
+  const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
+  const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
+
+  if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
+    std::cerr << "[EVENT] Received Esc key event." << std::endl;
+    request_stop();
+    return;
+  }
+
+  std::unordered_set<int> processed_ids{};
+
+  for(auto id: input_man_->fetch_ids(raw_key)) {
+    // Not inserted (already processed)?
+    if(!processed_ids.insert(id).second) { continue; }
+
+    main_scene_.on_input_event(id,renderer_->dimens());
+    scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
+  }
+  for(auto id: input_man_->fetch_ids(sym_key)) {
+    // Not inserted (already processed)?
+    if(!processed_ids.insert(id).second) { continue; }
+
+    main_scene_.on_input_event(id,renderer_->dimens());
+    scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
+  }
+}
+
+void CybelEngine::handle_keyup_event(const SDL_Event& event) {
+  const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
+
+  if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
+    std::cerr << "[EVENT] Received Esc key event." << std::endl;
+    request_stop();
+    return;
+  }
 }
 
 void CybelEngine::handle_input_states() {

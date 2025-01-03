@@ -150,6 +150,8 @@ private:
   void start_frame_timer();
   void end_frame_timer();
   void handle_events();
+  void handle_keydown_event(const SDL_Event& event);
+  void handle_keyup_event(const SDL_Event& event);
   void handle_input_states();
 
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);

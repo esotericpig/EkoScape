@@ -12,83 +12,35 @@ namespace cybel {
 InputMan::Wrapper::Wrapper(InputMan& input_man,int id)
     : input_man_(input_man),id_(id) {}
 
-void InputMan::Wrapper::raw_key_event(RawKey key,KeyMods mods) {
-  raw_key_event(RawKeyInput{key,mods});
-}
-
-void InputMan::Wrapper::raw_key_event(const std::initializer_list<RawKey>& keys,KeyMods mods) {
+void InputMan::Wrapper::raw_key(const std::initializer_list<RawKey>& keys,KeyMods mods) {
   for(const auto& key: keys) {
-    raw_key_event(RawKeyInput{key,mods});
+    raw_key(RawKeyInput{key,mods});
   }
 }
 
-void InputMan::Wrapper::raw_key_event(const RawKeyInput& key) {
-  input_man_.raw_key_event_to_ids_[key].insert(id_);
+void InputMan::Wrapper::raw_key(const RawKeyInput& key) {
+  input_man_.raw_key_to_ids_[key].insert(id_);
 }
 
-void InputMan::Wrapper::raw_key_event(const std::initializer_list<RawKeyInput>& keys) {
+void InputMan::Wrapper::raw_key(const std::initializer_list<RawKeyInput>& keys) {
   for(const auto& key: keys) {
-    raw_key_event(key);
+    raw_key(key);
   }
 }
 
-void InputMan::Wrapper::raw_key_state(RawKey key,KeyMods mods) {
-  raw_key_state(RawKeyInput{key,mods});
-}
-
-void InputMan::Wrapper::raw_key_state(const std::initializer_list<RawKey>& keys,KeyMods mods) {
+void InputMan::Wrapper::sym_key(const std::initializer_list<SymKey>& keys,KeyMods mods) {
   for(const auto& key: keys) {
-    raw_key_state(RawKeyInput{key,mods});
+    sym_key(SymKeyInput{key,mods});
   }
 }
 
-void InputMan::Wrapper::raw_key_state(const RawKeyInput& key) {
-  input_man_.raw_key_state_to_ids_[key].insert(id_);
+void InputMan::Wrapper::sym_key(const SymKeyInput& key) {
+  input_man_.sym_key_to_ids_[key].insert(id_);
 }
 
-void InputMan::Wrapper::raw_key_state(const std::initializer_list<RawKeyInput>& keys) {
+void InputMan::Wrapper::sym_key(const std::initializer_list<SymKeyInput>& keys) {
   for(const auto& key: keys) {
-    raw_key_state(key);
-  }
-}
-
-void InputMan::Wrapper::sym_key_event(SymKey key,KeyMods mods) {
-  sym_key_event(SymKeyInput{key,mods});
-}
-
-void InputMan::Wrapper::sym_key_event(const std::initializer_list<SymKey>& keys,KeyMods mods) {
-  for(const auto& key: keys) {
-    sym_key_event(SymKeyInput{key,mods});
-  }
-}
-
-void InputMan::Wrapper::sym_key_event(const SymKeyInput& key) {
-  input_man_.sym_key_event_to_ids_[key].insert(id_);
-}
-
-void InputMan::Wrapper::sym_key_event(const std::initializer_list<SymKeyInput>& keys) {
-  for(const auto& key: keys) {
-    sym_key_event(key);
-  }
-}
-
-void InputMan::Wrapper::sym_key_state(SymKey key,KeyMods mods) {
-  sym_key_state(SymKeyInput{key,mods});
-}
-
-void InputMan::Wrapper::sym_key_state(const std::initializer_list<SymKey>& keys,KeyMods mods) {
-  for(const auto& key: keys) {
-    sym_key_state(SymKeyInput{key,mods});
-  }
-}
-
-void InputMan::Wrapper::sym_key_state(const SymKeyInput& key) {
-  input_man_.sym_key_state_to_ids_[key].insert(id_);
-}
-
-void InputMan::Wrapper::sym_key_state(const std::initializer_list<SymKeyInput>& keys) {
-  for(const auto& key: keys) {
-    sym_key_state(key);
+    sym_key(key);
   }
 }
 
@@ -122,8 +74,8 @@ void InputMan::reset_states() {
 }
 
 void InputMan::set_state(const RawKeyInput& key,bool state) {
-  auto it = raw_key_state_to_ids_.find(key);
-  if(it == raw_key_state_to_ids_.end()) { return; }
+  auto it = raw_key_to_ids_.find(key);
+  if(it == raw_key_to_ids_.end()) { return; }
 
   for(auto id: it->second) {
     id_to_state_[id] = state;
@@ -131,24 +83,24 @@ void InputMan::set_state(const RawKeyInput& key,bool state) {
 }
 
 void InputMan::set_state(const SymKeyInput& key,bool state) {
-  auto it = sym_key_state_to_ids_.find(key);
-  if(it == sym_key_state_to_ids_.end()) { return; }
+  auto it = sym_key_to_ids_.find(key);
+  if(it == sym_key_to_ids_.end()) { return; }
 
   for(auto id: it->second) {
     id_to_state_[id] = state;
   }
 }
 
-const InputIds& InputMan::fetch_event_ids(const RawKeyInput& key) {
-  auto it = raw_key_event_to_ids_.find(key);
+const InputIds& InputMan::fetch_ids(const RawKeyInput& key) {
+  auto it = raw_key_to_ids_.find(key);
 
-  return (it != raw_key_event_to_ids_.end()) ? it->second : kEmptyIds;
+  return (it != raw_key_to_ids_.end()) ? it->second : kEmptyIds;
 }
 
-const InputIds& InputMan::fetch_event_ids(const SymKeyInput& key) {
-  auto it = sym_key_event_to_ids_.find(key);
+const InputIds& InputMan::fetch_ids(const SymKeyInput& key) {
+  auto it = sym_key_to_ids_.find(key);
 
-  return (it != sym_key_event_to_ids_.end()) ? it->second : kEmptyIds;
+  return (it != sym_key_to_ids_.end()) ? it->second : kEmptyIds;
 }
 
 const std::vector<bool>& InputMan::states() const { return id_to_state_; }
