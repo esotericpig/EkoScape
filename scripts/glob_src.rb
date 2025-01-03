@@ -10,9 +10,9 @@
 #   $ ./scripts/glob_src.rb -p
 #
 # Update source files in 'CMakeLists.txt' (overwrites file):
-#   $ ./scripts/glob_src.rb -u
+#   $ ./scripts/glob_src.rb -U
 #
-# @version 0.1.1
+# @version 0.1.2
 # @author Bradley Whited
 ###
 
@@ -38,7 +38,7 @@ class SrcGlobber
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.1'
+      op.version = '0.1.2'
       op.summary_width = 8
 
       op.separator ''
@@ -47,7 +47,7 @@ class SrcGlobber
       op.separator ''
       op.separator 'Options'
       op.on('-p',nil,'[print] print source files')
-      op.on('-u',nil,"[update] update '#{CMAKE_FILE}'; overwrites lines in #{CMAKE_FUNC}()")
+      op.on('-U',nil,"[update] update '#{CMAKE_FILE}'; overwrites lines in #{CMAKE_FUNC}()")
 
       op.separator ''
       op.separator 'Basic Options'
@@ -66,7 +66,7 @@ class SrcGlobber
 
     if opts[:p]
       print_src
-    elsif opts[:u]
+    elsif opts[:U]
       update_cmake
     end
   end
