@@ -10,7 +10,6 @@
 
 #include "cybel/common.h"
 
-#include <cctype>
 #include <sstream>
 #include <unordered_set>
 #include <vector>
@@ -45,16 +44,16 @@ namespace Util {
 template <typename... Args>
 std::string Util::build_str(const Args&... args) {
   std::ostringstream ss{};
-
   (ss << ... << args);
+
   return ss.str();
 }
 
 template <typename... Args>
 std::size_t Util::build_hash(const Args&... args) {
   std::size_t seed = 0;
-
   ((seed ^= std::hash<Args>{}(args) + 0x9e3779b9 + (seed << 6) + (seed >> 2)),... );
+
   return seed;
 }
 

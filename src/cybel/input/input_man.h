@@ -10,9 +10,9 @@
 
 #include "cybel/common.h"
 
-#include "cybel/types/cybel_error.h"
 #include "cybel/types/key_input.h"
 
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>

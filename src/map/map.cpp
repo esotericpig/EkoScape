@@ -7,6 +7,9 @@
 
 #include "map.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace ekoscape {
 
 bool Map::is_map_file(const std::filesystem::path& file) {
@@ -391,7 +394,7 @@ Map& Map::set_default_empty(SpaceType type) {
   return *this;
 }
 
-Map& Map::set_robot_delay(Duration duration) {
+Map& Map::set_robot_delay(const Duration& duration) {
   robot_delay_ = (duration >= kMinRobotDelay) ? duration : kMinRobotDelay;
 
   return *this;

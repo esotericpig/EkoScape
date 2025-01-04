@@ -7,6 +7,12 @@
 
 #include "game_scene.h"
 
+#include "cybel/util/rando.h"
+
+#include "input/input_action.h"
+
+#include <ranges>
+
 namespace ekoscape {
 
 GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
@@ -145,55 +151,55 @@ void GameScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
 }
 
 void GameScene::handle_input_states(const std::vector<bool>& states,const ViewDimens& /*dimens*/) {
-  // Key states are stored because in Dantares you can't turn/walk while turning/walking,
+  // Input states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.
   // In TurnLeft/Right() & StepForward/Backward(), you can pass in true to force this,
   //     but then this makes the animation a tiny bit strange as you turn off a step.
   const bool is_up = states[InputAction::kUp];
-  stored_keys_.is_down = (stored_keys_.is_down || states[InputAction::kDown]);
-  stored_keys_.is_left = (stored_keys_.is_left || states[InputAction::kLeft]);
-  stored_keys_.is_right = (stored_keys_.is_right || states[InputAction::kRight]);
+  stored_inputs_.is_down = (stored_inputs_.is_down || states[InputAction::kDown]);
+  stored_inputs_.is_left = (stored_inputs_.is_left || states[InputAction::kLeft]);
+  stored_inputs_.is_right = (stored_inputs_.is_right || states[InputAction::kRight]);
 
   const bool is_walking = (dantares_.IsWalking() >= 0);
 
   // Must check Left/Right first, so that the Player can turn while walking forward/backward,
   //     which is an important mechanic for the game.
-  if(stored_keys_.is_left) {
-    if(!stored_keys_.is_right) {
+  if(stored_inputs_.is_left) {
+    if(!stored_inputs_.is_right) {
       if(!is_walking) {
         dantares_.TurnLeft();
-        stored_keys_.is_left = false;
+        stored_inputs_.is_left = false;
       } // Else, try again on next frame.
     } else {
-      stored_keys_.is_left = false;
+      stored_inputs_.is_left = false;
     }
 
-    stored_keys_.is_down = false;
-    stored_keys_.is_right = false;
-  } else if(stored_keys_.is_right) {
+    stored_inputs_.is_down = false;
+    stored_inputs_.is_right = false;
+  } else if(stored_inputs_.is_right) {
     if(!is_walking) {
       dantares_.TurnRight();
-      stored_keys_.is_right = false;
+      stored_inputs_.is_right = false;
     } // Else, try again on next frame.
 
-    stored_keys_.is_down = false;
+    stored_inputs_.is_down = false;
   } else if(game_phase_ == GamePhase::kPlay && player_warp_time_ <= Duration::kZero) {
     // Check Down first so that it can override continuously moving forward.
-    if(stored_keys_.is_down) {
+    if(stored_inputs_.is_down) {
       if(!is_up) {
         if(!is_walking) {
           dantares_.StepBackward();
-          stored_keys_.is_down = false;
+          stored_inputs_.is_down = false;
         } // Else, try again on next frame.
       } else {
-        stored_keys_.is_down = false;
+        stored_inputs_.is_down = false;
       }
     } else {
       dantares_.StepForward(); // Always keep moving forward.
     }
   } else {
-    stored_keys_.is_down = false;
+    stored_inputs_.is_down = false;
   }
 }
 

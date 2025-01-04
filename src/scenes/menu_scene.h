@@ -12,7 +12,6 @@
 
 #include "cybel/scene/scene.h"
 
-#include "input/input_action.h"
 #include "scenes/scene_action.h"
 #include "game_context.h"
 

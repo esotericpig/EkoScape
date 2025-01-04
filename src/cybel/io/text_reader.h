@@ -13,7 +13,6 @@
 #include "cybel/io/text_reader_buf.h"
 
 #include <filesystem>
-#include <istream>
 
 namespace cybel {
 
@@ -51,6 +50,7 @@ private:
 template <typename T>
 bool TextReader::read_imp(T& data,T init_value) {
   data = init_value;
+
   return (in_ >> data) ? true : false;
 }
 

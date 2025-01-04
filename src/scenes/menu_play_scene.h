@@ -11,16 +11,12 @@
 #include "common.h"
 
 #include "cybel/scene/scene.h"
-#include "cybel/util/rando.h"
-#include "cybel/util/util.h"
 
-#include "input/input_action.h"
-#include "map/map.h"
 #include "scenes/scene_action.h"
 #include "game_context.h"
 
-#include <algorithm>
 #include <filesystem>
+#include <unordered_map>
 #include <vector>
 
 namespace ekoscape {
@@ -46,7 +42,7 @@ private:
     StrUtf8 title{};
     StrUtf8 text{};
 
-    explicit MapOption() noexcept = default;
+    explicit MapOption() = default;
     explicit MapOption(const StrUtf8& text);
   };
 

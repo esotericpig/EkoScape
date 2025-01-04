@@ -7,6 +7,9 @@
 
 #include "image.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 Image::Image(const std::filesystem::path& file)
@@ -53,6 +56,7 @@ void Image::destroy() noexcept {
 
 Image& Image::operator=(Image&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
+
   return *this;
 }
 
@@ -64,6 +68,7 @@ Image& Image::lock() {
   }
 
   is_locked_ = true;
+
   return *this;
 }
 

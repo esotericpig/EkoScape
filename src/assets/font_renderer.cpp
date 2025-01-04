@@ -15,12 +15,14 @@ FontRenderer::Wrapper::Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
   font.draw_bg(color,str_size);
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size
     ,const Size2i& padding) {
   font.draw_bg(color,str_size,padding);
+
   return *this;
 }
 
@@ -52,61 +54,73 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const StrUtf8& text,
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_up_arrow() {
   font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.puts(kUpArrowText); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_down_arrow() {
   font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.puts(kDownArrowText); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print() {
   font.print();
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print(char32_t c) {
   font.ren.wrap_color(font_color,[&]() { font.print(c); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print(const StrUtf8& str) {
   font.ren.wrap_color(font_color,[&]() { font.print(str); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print(const std::vector<StrUtf8>& strs) {
   font.ren.wrap_color(font_color,[&]() { font.print(strs); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print_blanks(int count) {
   font.print_blanks(count);
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts() {
   font.puts();
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts(char32_t c) {
   font.ren.wrap_color(font_color,[&]() { font.puts(c); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const StrUtf8& str) {
   font.ren.wrap_color(font_color,[&]() { font.puts(str); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const std::vector<StrUtf8>& lines) {
   font.ren.wrap_color(font_color,[&]() { font.puts(lines); });
+
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts_blanks(int count) {
   font.puts_blanks(count);
+
   return *this;
 }
 
@@ -145,12 +159,10 @@ const Color4f& FontRenderer::cycle_arrow_color() const { return cycle_arrow_colo
 Size2i FontRenderer::scale_size(float scale) const {
   if(scale == 1.0f) { return kFontSize; }
 
-  auto size = kFontSize;
-
-  size.w = static_cast<int>(std::round(static_cast<float>(size.w) * scale));
-  size.h = static_cast<int>(std::round(static_cast<float>(size.h) * scale));
-
-  return size;
+  return Size2i{
+    static_cast<int>(std::round(static_cast<float>(kFontSize.w) * scale)),
+    static_cast<int>(std::round(static_cast<float>(kFontSize.h) * scale))
+  };
 }
 
 } // Namespace.

@@ -11,10 +11,11 @@
 #include "common.h"
 
 #include "cybel/scene/scene.h"
-#include "cybel/util/rando.h"
+#include "cybel/types/color.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 #include "cybel/vfx/particle.h"
 
-#include "input/input_action.h"
 #include "scenes/scene_action.h"
 #include "game_context.h"
 

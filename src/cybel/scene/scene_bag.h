@@ -20,8 +20,8 @@ public:
   std::shared_ptr<Scene> scene{};
   bool persist = false;
 
-  explicit SceneBag();
-  explicit SceneBag(int type,const std::shared_ptr<Scene>& scene = nullptr,bool persist = false);
+  explicit SceneBag() noexcept = default;
+  explicit SceneBag(int type,std::shared_ptr<Scene> scene = nullptr,bool persist = false);
 
   explicit operator bool() const;
   Scene* operator->() const;

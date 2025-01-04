@@ -101,7 +101,7 @@ int Util::comparei_str(const StrUtf8& str1,const StrUtf8& str2) {
   const std::size_t min_len = std::min(len1,len2);
 
   for(std::size_t i = 0; i < min_len; ++i) {
-    // tolower() only works w/ ASCII, but that's fine for now.
+    // FIXME: tolower() only works w/ ASCII, but that's fine for now.
     char32_t c1 = std::tolower(str1.at(i));
     char32_t c2 = std::tolower(str2.at(i));
 
@@ -116,27 +116,32 @@ int Util::comparei_str(const StrUtf8& str1,const StrUtf8& str2) {
 
 std::string Util::get_sdl_error() {
   // This should technically never return null, but Justin Case.
-  const char* str = SDL_GetError();
+  const auto* str = SDL_GetError();
+
   return (str == NULL) ? "" : str;
 }
 
 std::string Util::get_sdl_img_error() {
-  const char* str = IMG_GetError();
+  const auto* str = IMG_GetError();
+
   return (str == NULL) ? "" : str;
 }
 
 std::string Util::get_sdl_mix_error() {
-  const char* str = Mix_GetError();
+  const auto* str = Mix_GetError();
+
   return (str == NULL) ? "" : str;
 }
 
 std::string Util::get_gl_error(GLenum error) {
-  const GLubyte* str = gluErrorString(error);
+  const auto* str = gluErrorString(error);
+
   return (str == NULL) ? "" : reinterpret_cast<const char*>(str);
 }
 
 std::string Util::get_glew_error(GLenum error) {
-  const GLubyte* str = glewGetErrorString(error);
+  const auto* str = glewGetErrorString(error);
+
   return (str == NULL) ? "" : reinterpret_cast<const char*>(str);
 }
 

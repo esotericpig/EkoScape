@@ -10,11 +10,7 @@
 
 #include "cybel/common.h"
 
-#include "cybel/types/cybel_error.h"
-#include "cybel/util/util.h"
-
 #include <filesystem>
-#include <ranges>
 #include <streambuf>
 #include <vector>
 
@@ -37,7 +33,7 @@ public:
 
   TextReaderBuf(const TextReaderBuf& other) = delete;
   TextReaderBuf(TextReaderBuf&& other) noexcept;
-  virtual ~TextReaderBuf() noexcept;
+  ~TextReaderBuf() noexcept override;
 
   TextReaderBuf& operator=(const TextReaderBuf& other) = delete;
   TextReaderBuf& operator=(TextReaderBuf&& other) noexcept;

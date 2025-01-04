@@ -11,11 +11,13 @@
 #include "cybel/common.h"
 
 #include "cybel/gfx/font_atlas.h"
+#include "cybel/gfx/sprite.h"
 #include "cybel/gfx/sprite_atlas.h"
 #include "cybel/gfx/texture.h"
-#include "cybel/types/cybel_error.h"
+#include "cybel/types/color.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 #include "cybel/types/view_dimens.h"
-#include "cybel/util/util.h"
 
 #include <functional>
 #include <vector>

@@ -10,7 +10,6 @@
 
 #include "cybel/common.h"
 
-#include "cybel/gfx/sprite.h"
 #include "cybel/gfx/texture.h"
 #include "cybel/types/pos.h"
 #include "cybel/types/size.h"
@@ -21,11 +20,11 @@ namespace cybel {
 
 class SpriteAtlas {
 public:
-  class Builder {
+  class Builder final {
   public:
     explicit Builder(Texture&& tex);
     explicit Builder(std::unique_ptr<Texture> tex);
-    explicit Builder(const std::shared_ptr<Texture>& tex);
+    explicit Builder(std::shared_ptr<Texture> tex);
 
     SpriteAtlas build();
 
@@ -34,7 +33,7 @@ public:
     Builder& cell_padding(int padding);
     Builder& grid_size(int cols,int rows);
 
-    const std::shared_ptr<Texture>& tex() const;
+    std::shared_ptr<Texture> tex() const;
     const Pos2i& offset() const;
     const Size2i& cell_size() const;
     int cell_padding() const;

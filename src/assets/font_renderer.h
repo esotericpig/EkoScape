@@ -12,8 +12,12 @@
 
 #include "cybel/gfx/font_atlas.h"
 #include "cybel/gfx/renderer.h"
+#include "cybel/types/color.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 
 #include <functional>
+#include <vector>
 
 namespace ekoscape {
 

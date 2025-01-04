@@ -11,12 +11,12 @@ namespace cybel {
 
 const Duration Duration::kZero{0.0};
 
-Duration::Duration(double value)
+Duration Duration::from_millis(double millis) noexcept { return Duration{}.set_from_millis(millis); }
+
+Duration Duration::from_secs(double secs) noexcept { return Duration{}.set_from_secs(secs); }
+
+Duration::Duration(double value) noexcept
     : value_(value) {}
-
-Duration Duration::from_millis(double millis) { return Duration{}.set_from_millis(millis); }
-
-Duration Duration::from_secs(double secs) { return Duration{}.set_from_secs(secs); }
 
 bool Duration::operator<(const Duration& other) const { return value_ < other.value_; }
 
@@ -36,6 +36,7 @@ Duration Duration::operator+(const Duration& other) const { return Duration{valu
 
 Duration& Duration::operator+=(const Duration& other) {
   value_ += other.value_;
+
   return *this;
 }
 
@@ -43,6 +44,7 @@ Duration Duration::operator-(const Duration& other) const { return Duration{valu
 
 Duration& Duration::operator-=(const Duration& other) {
   value_ -= other.value_;
+
   return *this;
 }
 
@@ -50,6 +52,7 @@ Duration Duration::operator*(const Duration& other) const { return Duration{valu
 
 Duration& Duration::operator*=(const Duration& other) {
   value_ *= other.value_;
+
   return *this;
 }
 
@@ -57,28 +60,35 @@ Duration Duration::operator/(const Duration& other) const { return Duration{valu
 
 Duration& Duration::operator/=(const Duration& other) {
   value_ /= other.value_;
+
   return *this;
 }
 
-Duration Duration::operator%(const Duration& other) const { return Duration{std::fmod(value_,other.value_)}; }
+Duration Duration::operator%(const Duration& other) const {
+  return Duration{std::fmod(value_,other.value_)};
+}
 
 Duration& Duration::operator%=(const Duration& other) {
   value_ = std::fmod(value_,other.value_);
+
   return *this;
 }
 
 Duration& Duration::set_from_millis(double millis) {
   value_ = millis;
+
   return *this;
 }
 
 Duration& Duration::set_from_secs(double secs) {
   value_ = secs * 1000;
+
   return *this;
 }
 
 Duration& Duration::zero() {
   value_ = 0.0;
+
   return *this;
 }
 

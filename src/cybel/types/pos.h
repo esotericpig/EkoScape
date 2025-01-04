@@ -22,7 +22,8 @@ public:
   T y{};
 
   explicit Pos2() noexcept = default;
-  explicit Pos2(T x,T y) noexcept : x(x),y(y) {}
+  explicit Pos2(T x,T y) noexcept
+      : x(x),y(y) {}
 
   bool operator==(const Pos2&) const = default;
 
@@ -52,7 +53,8 @@ public:
 
   explicit Pos3() noexcept = default;
   // NOTE: Not defaulting z to 0 on purpose, to help distinguish between Pos2.
-  explicit Pos3(T x,T y,T z) noexcept : x(x),y(y),z(z) {}
+  explicit Pos3(T x,T y,T z) noexcept
+      : x(x),y(y),z(z) {}
 
   bool operator==(const Pos3&) const = default;
 
@@ -77,18 +79,18 @@ using Pos3f = Pos3<float>;
 using Pos3i = Pos3<int>;
 
 struct Pos4f {
-  float x1 = 0.0f;
-  float y1 = 0.0f;
-  float x2 = 0.0f;
-  float y2 = 0.0f;
+  float x1{};
+  float y1{};
+  float x2{};
+  float y2{};
 };
 
 struct Pos5f {
-  float x1 = 0.0f;
-  float y1 = 0.0f;
-  float x2 = 0.0f;
-  float y2 = 0.0f;
-  float z = 0.0f;
+  float x1{};
+  float y1{};
+  float x2{};
+  float y2{};
+  float z{};
 };
 
 } // Namespace.

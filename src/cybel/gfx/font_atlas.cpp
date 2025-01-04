@@ -15,34 +15,39 @@ FontAtlas::Builder::Builder(Texture&& tex)
 FontAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
     : sprite_atlas_(std::move(tex)) {}
 
-FontAtlas::Builder::Builder(const std::shared_ptr<Texture>& tex)
-    : sprite_atlas_(tex) {}
+FontAtlas::Builder::Builder(std::shared_ptr<Texture> tex)
+    : sprite_atlas_(std::move(tex)) {}
 
 FontAtlas FontAtlas::Builder::build() { return FontAtlas{*this}; }
 
 FontAtlas::Builder& FontAtlas::Builder::offset(int x,int y) {
   sprite_atlas_.offset(x,y);
+
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::cell_size(int width,int height) {
   sprite_atlas_.cell_size(width,height);
+
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::cell_padding(int padding) {
   sprite_atlas_.cell_padding(padding);
+
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::grid_size(int cols,int rows) {
   sprite_atlas_.grid_size(cols,rows);
+
   return *this;
 }
 
 FontAtlas::Builder& FontAtlas::Builder::spacing(int char_spacing,int line_spacing) {
   spacing_.w = char_spacing;
   spacing_.h = line_spacing;
+
   return *this;
 }
 
@@ -50,6 +55,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int index) {
   default_index_ = index;
   default_cell_.x = 0;
   default_cell_.y = 0;
+
   return *this;
 }
 
@@ -57,6 +63,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int col,int row) {
   default_index_ = 0;
   default_cell_.x = col;
   default_cell_.y = row;
+
   return *this;
 }
 
@@ -111,8 +118,7 @@ const Size2i& FontAtlas::spacing() const { return spacing_; }
 int FontAtlas::char_index(char32_t c) const {
   auto it = char_to_index_.find(c);
 
-  if(it == char_to_index_.end()) { return default_index_; }
-  return it->second;
+  return (it != char_to_index_.end()) ? it->second : default_index_;
 }
 
 } // Namespace.

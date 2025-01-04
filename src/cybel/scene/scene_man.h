@@ -12,9 +12,9 @@
 
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"
-#include "cybel/types/cybel_error.h"
 
 #include <functional>
+#include <vector>
 
 namespace cybel {
 
@@ -46,7 +46,7 @@ private:
   SceneBag curr_scene_bag_ = kEmptySceneBag;
   std::vector<SceneBag> prev_scene_bags_{};
 
-  void set_scene(const SceneBag& scene_bag);
+  void set_scene(SceneBag scene_bag);
 };
 
 } // Namespace.

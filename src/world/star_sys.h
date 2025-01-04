@@ -12,8 +12,9 @@
 
 #include "cybel/gfx/renderer.h"
 #include "cybel/gfx/texture.h"
+#include "cybel/types/color.h"
 #include "cybel/types/frame_step.h"
-#include "cybel/util/rando.h"
+#include "cybel/types/view_dimens.h"
 #include "cybel/vfx/particle.h"
 
 #include <vector>

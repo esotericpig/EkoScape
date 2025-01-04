@@ -10,12 +10,7 @@
 
 #include "common.h"
 
-#include "cybel/types/cybel_error.h"
-
-#include "map/facing.h"
 #include "map/map.h"
-#include "map/space.h"
-#include "map/space_type.h"
 
 #include <functional>
 #include <vector>

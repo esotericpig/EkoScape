@@ -13,21 +13,13 @@
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"
 #include "cybel/scene/scene_man.h"
-#include "cybel/types/cybel_error.h"
 #include "cybel/cybel_engine.h"
 
 #include "assets/assets.h"
-#include "input/input_action.h"
-#include "scenes/boring_work_scene.h"
 #include "scenes/game_scene.h"
-#include "scenes/menu_credits_scene.h"
 #include "scenes/menu_play_scene.h"
-#include "scenes/menu_scene.h"
-#include "scenes/scene_action.h"
 #include "world/star_sys.h"
 #include "game_context.h"
-
-#include <filesystem>
 
 namespace ekoscape {
 

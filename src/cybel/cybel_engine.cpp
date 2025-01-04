@@ -7,6 +7,9 @@
 
 #include "cybel_engine.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 CybelEngine::Resources::~Resources() noexcept {
@@ -378,6 +381,7 @@ const std::string& CybelEngine::title() const { return title_; }
 
 bool CybelEngine::is_fullscreen() const {
   const auto flags = SDL_GetWindowFlags(res_.window);
+
   return (flags & SDL_WINDOW_FULLSCREEN) || (flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
 

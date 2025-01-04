@@ -12,7 +12,6 @@
 
 #include "cybel/audio/music.h"
 #include "cybel/types/duration.h"
-#include "cybel/util/util.h"
 
 namespace cybel {
 

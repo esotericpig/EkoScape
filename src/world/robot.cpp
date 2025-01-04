@@ -7,6 +7,8 @@
 
 #include "robot.h"
 
+#include "cybel/util/rando.h"
+
 namespace ekoscape {
 
 Robot::MoveData::MoveData(Map& map)

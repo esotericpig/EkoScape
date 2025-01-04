@@ -12,10 +12,12 @@
 
 #include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
+#include "cybel/types/duration.h"
+#include "cybel/types/pos.h"
 #include "cybel/util/timer.h"
 
-#include "input/input_action.h"
 #include "map/dantares_map.h"
+#include "map/space_type.h"
 #include "scenes/game_hud.h"
 #include "scenes/game_overlay.h"
 #include "scenes/scene_action.h"
@@ -24,7 +26,6 @@
 
 #include <filesystem>
 #include <functional>
-#include <ranges>
 #include <unordered_map>
 #include <vector>
 
@@ -53,7 +54,7 @@ private:
     kGameOver,
   };
 
-  struct StoredKeyStates {
+  struct StoredInputs {
     bool is_down = false;
     bool is_left = false;
     bool is_right = false;
@@ -80,7 +81,7 @@ private:
   DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*grid_id*/) { init_map_texs(); }};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
-  StoredKeyStates stored_keys_{};
+  StoredInputs stored_inputs_{};
 
   bool player_hit_end_ = false;
   bool player_warped_ = false;

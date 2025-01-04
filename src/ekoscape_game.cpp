@@ -7,6 +7,13 @@
 
 #include "ekoscape_game.h"
 
+#include "cybel/types/cybel_error.h"
+
+#include "input/input_action.h"
+#include "scenes/boring_work_scene.h"
+#include "scenes/menu_credits_scene.h"
+#include "scenes/menu_scene.h"
+
 namespace ekoscape {
 
 EkoScapeGame::EkoScapeGame() {
@@ -25,7 +32,9 @@ EkoScapeGame::EkoScapeGame() {
   // These are fixed values and should not be changed.
   config.target_size = Size2i{1600,900};
 
-  cybel_engine_ = std::make_unique<CybelEngine>(*this,config,[&](int action) { return build_scene(action); });
+  cybel_engine_ = std::make_unique<CybelEngine>(
+    *this,config,[&](int action) { return build_scene(action); }
+  );
   scene_man_ = &cybel_engine_->scene_man();
   assets_ = std::make_unique<Assets>("realistic",cybel_engine_->audio_player().is_alive());
   ctx_ = std::make_unique<GameContext>(*cybel_engine_,*assets_);

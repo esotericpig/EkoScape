@@ -72,7 +72,7 @@ public:
   std::size_t rand_sizet(std::size_t max);
   std::size_t rand_sizet(std::size_t min,std::size_t max);
 
-  template <class RandIt>
+  template <typename RandIt>
   void shuffle(RandIt first,RandIt last);
 
 private:
@@ -85,10 +85,10 @@ private:
   std::uniform_int_distribution<> int_distr_{0,99}; // I don't have 99 problems.
   std::uniform_int_distribution<std::size_t> sizet_distr_{};
 
-  explicit Rando();
+  explicit Rando() = default;
 };
 
-template <class RandIt>
+template <typename RandIt>
 void Rando::shuffle(RandIt first,RandIt last) { std::shuffle(first,last,gen_); }
 
 } // Namespace.

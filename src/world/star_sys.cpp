@@ -7,6 +7,8 @@
 
 #include "star_sys.h"
 
+#include "cybel/util/rando.h"
+
 namespace ekoscape {
 
 Color4f StarSys::rand_color() {

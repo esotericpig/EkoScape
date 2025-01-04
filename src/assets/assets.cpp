@@ -7,6 +7,9 @@
 
 #include "assets.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace ekoscape {
 
 std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
@@ -229,7 +232,6 @@ void Assets::load_asset(const AssetLoader& load_from) const {
   if(error.empty()) {
     error = "Failed to find/load assets in assets folder [" + kAssetsSubdir.string() + "].";
   }
-
   throw CybelError{error};
 }
 

@@ -7,6 +7,8 @@
 
 #include "dantares_map.h"
 
+#include "cybel/types/cybel_error.h"
+
 namespace ekoscape {
 
 DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_texs)

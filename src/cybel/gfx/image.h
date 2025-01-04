@@ -10,15 +10,14 @@
 
 #include "cybel/common.h"
 
-#include "cybel/types/cybel_error.h"
 #include "cybel/types/size.h"
-#include "cybel/util/util.h"
 
 #include <filesystem>
 
 namespace cybel {
 
 class CybelEngine;
+class Texture;
 
 class Image {
 public:
@@ -38,10 +37,9 @@ public:
   const Size2i& size() const;
   std::uint8_t bpp() const;
   bool is_red_first() const;
-  const void* pixels() const;
-  GLenum gl_type() const;
 
   friend class CybelEngine;
+  friend class Texture;
 
 private:
   std::string id_{};
@@ -51,6 +49,9 @@ private:
 
   void move_from(Image&& other) noexcept;
   void destroy() noexcept;
+
+  const void* pixels() const;
+  GLenum gl_type() const;
 };
 
 } // Namespace.

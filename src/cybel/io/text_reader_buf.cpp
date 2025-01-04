@@ -7,6 +7,9 @@
 
 #include "text_reader_buf.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size)

@@ -12,6 +12,9 @@
 
 #include "cybel/gfx/renderer.h"
 #include "cybel/types/frame_step.h"
+#include "cybel/types/view_dimens.h"
+
+#include <vector>
 
 namespace cybel {
 

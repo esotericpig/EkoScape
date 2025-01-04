@@ -15,14 +15,14 @@
 #include "cybel/gfx/image.h"
 #include "cybel/gfx/sprite.h"
 #include "cybel/gfx/texture.h"
-#include "cybel/types/cybel_error.h"
+#include "cybel/types/color.h"
 
 #include "assets/font_renderer.h"
 #include "map/map.h"
 
-#include <cstdlib>
 #include <filesystem>
-#include <unordered_set>
+#include <functional>
+#include <vector>
 
 namespace ekoscape {
 

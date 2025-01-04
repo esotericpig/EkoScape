@@ -9,10 +9,9 @@
 
 namespace cybel {
 
-Rando::Rando() {}
-
 Rando& Rando::it() {
   static Rando it_{};
+
   return it_;
 }
 
@@ -70,6 +69,7 @@ std::size_t Rando::rand_sizet(std::size_t max) { return rand_sizet(0,max); }
 
 std::size_t Rando::rand_sizet(std::size_t min,std::size_t max) {
   if(max == 0) { return 0; }
+
   return sizet_distr_(gen_,std::uniform_int_distribution<std::size_t>::param_type(min,max - 1));
 }
 

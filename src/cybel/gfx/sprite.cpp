@@ -16,8 +16,8 @@ Pos4f Sprite::build_src(const Texture& tex,const Pos2i& offset,const Size2i& siz
     src.x1 = 0.0f;
     src.x2 = 0.0f;
   } else {
-    const float tex_w = static_cast<float>(tex.size().w);
-    const float src_x = static_cast<float>(offset.x + padding);
+    const auto tex_w = static_cast<float>(tex.size().w);
+    const auto src_x = static_cast<float>(offset.x + padding);
 
     // Clamp between 0 & 1.
     src.x1 = src_x / tex_w;
@@ -27,8 +27,8 @@ Pos4f Sprite::build_src(const Texture& tex,const Pos2i& offset,const Size2i& siz
     src.y1 = 0.0f;
     src.y2 = 0.0f;
   } else {
-    const float tex_h = static_cast<float>(tex.size().h);
-    const float src_y = static_cast<float>(offset.y + padding);
+    const auto tex_h = static_cast<float>(tex.size().h);
+    const auto src_y = static_cast<float>(offset.y + padding);
 
     // Clamp between 0 & 1.
     src.y1 = src_y / tex_h;
@@ -50,11 +50,11 @@ Sprite::Sprite(std::unique_ptr<Texture> tex,int padding)
 Sprite::Sprite(std::unique_ptr<Texture> tex,const Pos2i& offset,const Size2i& size,int padding)
     : Sprite(std::shared_ptr{std::move(tex)},offset,size,padding) {}
 
-Sprite::Sprite(const std::shared_ptr<Texture>& tex,int padding)
-    : Sprite(tex,Pos2i{0,0},Size2i{0,0},padding) {}
+Sprite::Sprite(std::shared_ptr<Texture> tex,int padding)
+    : Sprite(std::move(tex),Pos2i{0,0},Size2i{0,0},padding) {}
 
-Sprite::Sprite(const std::shared_ptr<Texture>& tex,const Pos2i& offset,const Size2i& size,int padding)
-    : tex_(tex) {
+Sprite::Sprite(std::shared_ptr<Texture> tex,const Pos2i& offset,const Size2i& size,int padding)
+    : tex_(std::move(tex)) {
   const int p2 = padding * 2;
 
   size_.w = (size.w > 0) ? size.w : (tex_->size().w - p2 - offset.x);

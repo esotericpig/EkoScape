@@ -16,8 +16,8 @@ namespace cybel {
 
 class CybelError : public std::exception {
 public:
-  explicit CybelError() noexcept = default;
-  explicit CybelError(const std::string& msg) noexcept;
+  explicit CybelError() = default;
+  explicit CybelError(const std::string& msg);
 
   template <typename... MsgArgs>
   explicit CybelError(const MsgArgs&... msg_args)

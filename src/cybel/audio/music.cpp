@@ -7,6 +7,9 @@
 
 #include "music.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 Music::Music(const std::filesystem::path& file)
@@ -47,6 +50,7 @@ void Music::destroy() noexcept {
 
 Music& Music::operator=(Music&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
+
   return *this;
 }
 

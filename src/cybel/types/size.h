@@ -21,7 +21,8 @@ public:
   T h{};
 
   explicit Size2() noexcept = default;
-  explicit Size2(T w,T h) noexcept : w(w),h(h) {}
+  explicit Size2(T w,T h) noexcept
+      : w(w),h(h) {}
 
   bool in_bounds(const Pos2<T>& pos,const Size2& size) const {
     return (pos.x + size.w) >= 0 && pos.x < w

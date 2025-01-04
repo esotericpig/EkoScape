@@ -7,6 +7,8 @@
 
 #include "game_hud.h"
 
+#include <sstream>
+
 namespace ekoscape {
 
 GameHud::GameHud(GameContext& ctx,const State& state)
@@ -167,7 +169,8 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i& pos) {
 
       if(!state.player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
-        ren.wrap_font_atlas(ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{},[&](auto& font) {
+        ren.wrap_font_atlas(ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0}
+            ,[&](auto& font) {
           font.print("↑");
         });
       }

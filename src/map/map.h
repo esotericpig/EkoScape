@@ -11,12 +11,10 @@
 #include "common.h"
 
 #include "cybel/io/text_reader.h"
-#include "cybel/types/cybel_error.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/pos.h"
 #include "cybel/types/range.h"
 #include "cybel/types/size.h"
-#include "cybel/util/util.h"
 
 #include "map/facing.h"
 #include "map/map_grid.h"
@@ -104,7 +102,7 @@ public:
   Map& set_turning_speed(float speed);
   Map& set_walking_speed(float speed);
   Map& set_default_empty(SpaceType type);
-  Map& set_robot_delay(Duration duration);
+  Map& set_robot_delay(const Duration& duration);
 
   std::string build_header() const;
   int version() const;

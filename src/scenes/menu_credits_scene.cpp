@@ -7,6 +7,10 @@
 
 #include "menu_credits_scene.h"
 
+#include "cybel/util/rando.h"
+
+#include "input/input_action.h"
+
 namespace ekoscape {
 
 Color4f MenuCreditsScene::rand_color() {

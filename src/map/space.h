@@ -16,9 +16,9 @@ namespace ekoscape {
 
 class Space {
 public:
-  explicit Space();
-  explicit Space(SpaceType empty_type);
-  explicit Space(SpaceType empty_type,SpaceType thing_type);
+  explicit Space() noexcept = default;
+  explicit Space(SpaceType empty_type) noexcept;
+  explicit Space(SpaceType empty_type,SpaceType thing_type) noexcept;
 
   Space& set(SpaceType empty_type,SpaceType thing_type);
 

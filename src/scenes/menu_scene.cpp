@@ -7,6 +7,8 @@
 
 #include "menu_scene.h"
 
+#include "input/input_action.h"
+
 namespace ekoscape {
 
 MenuScene::Option MenuScene::Option::cycle(const CycleConfig& config) {

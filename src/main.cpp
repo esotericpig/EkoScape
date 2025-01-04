@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include "cybel/types/cybel_error.h"
+
 #include "ekoscape_game.h"
 
 // SDL2 requires standard main().

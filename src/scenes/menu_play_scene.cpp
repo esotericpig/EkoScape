@@ -7,6 +7,10 @@
 
 #include "menu_play_scene.h"
 
+#include "cybel/util/rando.h"
+
+#include "input/input_action.h"
+
 namespace ekoscape {
 
 MenuPlayScene::MapOption::MapOption(const StrUtf8& text)

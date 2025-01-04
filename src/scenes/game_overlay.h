@@ -11,14 +11,17 @@
 #include "common.h"
 
 #include "cybel/gfx/renderer.h"
+#include "cybel/types/color.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/frame_step.h"
+#include "cybel/types/size.h"
+#include "cybel/types/view_dimens.h"
 
-#include "input/input_action.h"
 #include "map/map.h"
-#include "scenes/scene_action.h"
 #include "world/star_sys.h"
 #include "game_context.h"
+
+#include <vector>
 
 namespace ekoscape {
 
@@ -53,7 +56,7 @@ private:
     OptionType type{};
     StrUtf8 text{};
 
-    explicit Option() noexcept = default;
+    explicit Option() = default;
     explicit Option(OptionType type,const StrUtf8& text);
   };
 

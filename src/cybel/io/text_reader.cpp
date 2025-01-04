@@ -39,6 +39,7 @@ bool TextReader::read(int& data) { return read_imp(data,0); }
 
 bool TextReader::get(char& data) {
   data = 0;
+
   return in_.get(data) ? true : false;
 }
 

@@ -16,13 +16,12 @@
 #include "cybel/input/input_man.h"
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_man.h"
-#include "cybel/types/cybel_error.h"
+#include "cybel/types/color.h"
 #include "cybel/types/duration.h"
+#include "cybel/types/frame_step.h"
+#include "cybel/types/size.h"
+#include "cybel/types/view_dimens.h"
 #include "cybel/util/timer.h"
-#include "cybel/util/util.h"
-
-#include <cmath>
-#include <unordered_set>
 
 namespace cybel {
 
@@ -57,7 +56,7 @@ public:
     Size2i target_size{0,0};
     int fps = kFallbackFps;
     bool vsync = false;
-    Color4f clear_color{};
+    Color4f clear_color{0.0f,1.0f};
     int max_input_id = 0;
 
     /**

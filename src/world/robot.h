@@ -10,11 +10,13 @@
 
 #include "common.h"
 
-#include "cybel/util/rando.h"
+#include "cybel/types/pos.h"
 
 #include "map/map.h"
 #include "map/space.h"
 #include "map/space_type.h"
+
+#include <vector>
 
 namespace ekoscape {
 

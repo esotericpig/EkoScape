@@ -7,6 +7,9 @@
 
 #include "texture.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 Texture::Texture(Image& img,bool make_weird) {
@@ -147,6 +150,7 @@ void Texture::destroy() noexcept {
 
 Texture& Texture::operator=(Texture&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
+
   return *this;
 }
 

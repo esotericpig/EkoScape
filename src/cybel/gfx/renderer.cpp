@@ -7,6 +7,9 @@
 
 #include "renderer.h"
 
+#include "cybel/types/cybel_error.h"
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& tex,const Pos4f& src)
@@ -31,6 +34,7 @@ Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos) {
 
 Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos,const Size2i& size) {
   ren.draw_quad(sprite.src(),pos,size);
+
   return *this;
 }
 
@@ -67,11 +71,13 @@ Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font
     ,const Size2i& char_size,const Size2i& spacing)
     : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color
+    ,const Size2i& str_size) {
   return draw_bg(color,str_size,Size2i{});
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size
+    ,const Size2i& padding) {
   ren.end_tex(); // Temporarily unbind the font texture.
     ren.wrap_color(color,[&] {
       ren.draw_quad(Pos3i{pos.x - padding.w,pos.y - padding.h,pos.z},calc_total_size(str_size,padding));
@@ -160,7 +166,7 @@ Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size,const 
 }
 
 Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)
-    : clear_color_(clear_color){
+    : clear_color_(clear_color) {
   // Avoid divides by 0.
   dimens_.init_size = Size2i{(size.w > 0) ? size.w : 1,(size.h > 0) ? size.h : 1};
   dimens_.size = dimens_.init_size;
@@ -253,10 +259,10 @@ Renderer& Renderer::begin_auto_center_scale() {
 }
 
 Renderer& Renderer::begin_auto_anchor_scale(const Pos2f& anchor) {
-  const float w = static_cast<float>(dimens_.size.w);
-  const float h = static_cast<float>(dimens_.size.h);
-  const float tw = static_cast<float>(dimens_.target_size.w);
-  const float th = static_cast<float>(dimens_.target_size.h);
+  const auto w = static_cast<float>(dimens_.size.w);
+  const auto h = static_cast<float>(dimens_.size.h);
+  const auto tw = static_cast<float>(dimens_.target_size.w);
+  const auto th = static_cast<float>(dimens_.target_size.h);
 
   scale_.x = dimens_.aspect_scale;
   scale_.y = dimens_.aspect_scale;
@@ -332,9 +338,9 @@ Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback
 }
 
 Renderer& Renderer::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
-  const GLfloat x = offset_.x + (static_cast<GLfloat>(pos.x) * scale_.x);
-  const GLfloat y = offset_.y + (static_cast<GLfloat>(pos.y) * scale_.y);
-  const GLfloat z = static_cast<GLfloat>(pos.z);
+  const auto x = offset_.x + (static_cast<GLfloat>(pos.x) * scale_.x);
+  const auto y = offset_.y + (static_cast<GLfloat>(pos.y) * scale_.y);
+  const auto z = static_cast<GLfloat>(pos.z);
 
   glPushMatrix();
     glTranslatef(x,y,z);
@@ -444,11 +450,11 @@ Renderer& Renderer::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& si
 }
 
 Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) {
-  float x1 = offset_.x + (static_cast<float>(pos.x) * scale_.x);
-  float y1 = offset_.y + (static_cast<float>(pos.y) * scale_.y);
-  float x2 = x1 + (static_cast<float>(size.w) * aspect_scale_);
-  float y2 = y1 + (static_cast<float>(size.h) * aspect_scale_);
-  float z = static_cast<float>(pos.z);
+  auto x1 = offset_.x + (static_cast<float>(pos.x) * scale_.x);
+  auto y1 = offset_.y + (static_cast<float>(pos.y) * scale_.y);
+  auto x2 = x1 + (static_cast<float>(size.w) * aspect_scale_);
+  auto y2 = y1 + (static_cast<float>(size.h) * aspect_scale_);
+  auto z = static_cast<float>(pos.z);
 
   return Pos5f{x1,y1,x2,y2,z};
 }

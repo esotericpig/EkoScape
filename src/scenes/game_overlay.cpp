@@ -7,6 +7,9 @@
 
 #include "game_overlay.h"
 
+#include "input/input_action.h"
+#include "scenes/scene_action.h"
+
 namespace ekoscape {
 
 GameOverlay::Option::Option(OptionType type,const StrUtf8& text)

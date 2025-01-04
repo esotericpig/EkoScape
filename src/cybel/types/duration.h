@@ -10,17 +10,16 @@
 
 #include "cybel/common.h"
 
-#include <cmath>
-
 namespace cybel {
 
 class Duration {
 public:
   static const Duration kZero; // Can't be inline since Duration is an incomplete type here.
 
-  explicit Duration() = default;
-  static Duration from_millis(double millis);
-  static Duration from_secs(double secs);
+  static Duration from_millis(double millis) noexcept;
+  static Duration from_secs(double secs) noexcept;
+
+  explicit Duration() noexcept = default;
 
   bool operator<(const Duration& other) const;
   bool operator<=(const Duration& other) const;
@@ -60,7 +59,7 @@ private:
    */
   double value_ = 0;
 
-  explicit Duration(double value);
+  explicit Duration(double value) noexcept;
 };
 
 } // Namespace.

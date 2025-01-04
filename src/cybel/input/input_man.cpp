@@ -7,6 +7,8 @@
 
 #include "input_man.h"
 
+#include "cybel/types/cybel_error.h"
+
 namespace cybel {
 
 InputMan::Wrapper::Wrapper(InputMan& input_man,int id)

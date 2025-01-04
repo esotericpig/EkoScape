@@ -11,14 +11,15 @@
 #include "common.h"
 
 #include "cybel/gfx/renderer.h"
+#include "cybel/types/color.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/frame_step.h"
-#include "cybel/util/util.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
+#include "cybel/types/view_dimens.h"
 
 #include "map/map.h"
 #include "game_context.h"
-
-#include <sstream>
 
 namespace ekoscape {
 

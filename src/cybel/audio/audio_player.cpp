@@ -7,6 +7,8 @@
 
 #include "audio_player.h"
 
+#include "cybel/util/util.h"
+
 namespace cybel {
 
 AudioPlayer::AudioPlayer(int music_types) {

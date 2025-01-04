@@ -12,6 +12,8 @@
 
 #include "cybel/gfx/sprite_atlas.h"
 #include "cybel/gfx/texture.h"
+#include "cybel/types/pos.h"
+#include "cybel/types/size.h"
 
 #include <unordered_map>
 #include <vector>
@@ -20,11 +22,11 @@ namespace cybel {
 
 class FontAtlas : public SpriteAtlas {
 public:
-  class Builder {
+  class Builder final {
   public:
     explicit Builder(Texture&& tex);
     explicit Builder(std::unique_ptr<Texture> tex);
-    explicit Builder(const std::shared_ptr<Texture>& tex);
+    explicit Builder(std::shared_ptr<Texture> tex);
 
     FontAtlas build();
 
