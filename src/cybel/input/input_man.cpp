@@ -14,35 +14,27 @@ namespace cybel {
 InputMan::Wrapper::Wrapper(InputMan& input_man,int id)
     : input_man_(input_man),id_(id) {}
 
-void InputMan::Wrapper::raw_key(const std::initializer_list<RawKey>& keys,KeyMods mods) {
+void InputMan::Wrapper::raw_key(std::initializer_list<RawKey> keys,KeyMods mods) {
   for(const auto& key: keys) {
-    raw_key(RawKeyInput{key,mods});
+    input_man_.raw_key_to_ids_[RawKeyInput{key,mods}].insert(id_);
   }
 }
 
-void InputMan::Wrapper::raw_key(const RawKeyInput& key) {
-  input_man_.raw_key_to_ids_[key].insert(id_);
-}
-
-void InputMan::Wrapper::raw_key(const std::initializer_list<RawKeyInput>& keys) {
+void InputMan::Wrapper::raw_key(std::initializer_list<RawKeyInput> keys) {
   for(const auto& key: keys) {
-    raw_key(key);
+    input_man_.raw_key_to_ids_[key].insert(id_);
   }
 }
 
-void InputMan::Wrapper::sym_key(const std::initializer_list<SymKey>& keys,KeyMods mods) {
+void InputMan::Wrapper::sym_key(std::initializer_list<SymKey> keys,KeyMods mods) {
   for(const auto& key: keys) {
-    sym_key(SymKeyInput{key,mods});
+    input_man_.sym_key_to_ids_[SymKeyInput{key,mods}].insert(id_);
   }
 }
 
-void InputMan::Wrapper::sym_key(const SymKeyInput& key) {
-  input_man_.sym_key_to_ids_[key].insert(id_);
-}
-
-void InputMan::Wrapper::sym_key(const std::initializer_list<SymKeyInput>& keys) {
+void InputMan::Wrapper::sym_key(std::initializer_list<SymKeyInput> keys) {
   for(const auto& key: keys) {
-    sym_key(key);
+    input_man_.sym_key_to_ids_[key].insert(id_);
   }
 }
 

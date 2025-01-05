@@ -27,13 +27,11 @@ public:
   public:
     explicit Wrapper(InputMan& input_man,int id);
 
-    void raw_key(const std::initializer_list<RawKey>& keys,KeyMods mods = 0);
-    void raw_key(const RawKeyInput& key);
-    void raw_key(const std::initializer_list<RawKeyInput>& keys);
+    void raw_key(std::initializer_list<RawKey> keys,KeyMods mods = 0);
+    void raw_key(std::initializer_list<RawKeyInput> keys);
 
-    void sym_key(const std::initializer_list<SymKey>& keys,KeyMods mods = 0);
-    void sym_key(const SymKeyInput& key);
-    void sym_key(const std::initializer_list<SymKeyInput>& keys);
+    void sym_key(std::initializer_list<SymKey> keys,KeyMods mods = 0);
+    void sym_key(std::initializer_list<SymKeyInput> keys);
 
   private:
     InputMan& input_man_;
