@@ -10,6 +10,10 @@ EkoScape is a simple 3D step-based game where you run through a maze rescuing yo
 
 ## Playing ##
 
+You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) and then simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
+
+You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
+
 **System Requirements:**
 - Linux x86_64 (AppImage)
   - glibc 2.14+ (Ubuntu 22.04+; Fedora 16+)
@@ -19,15 +23,11 @@ EkoScape is a simple 3D step-based game where you run through a maze rescuing yo
     - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
 - Windows x64
 
-You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) and then simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
-
-You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
-
 **Additional System Notes:**
 - Linux:
   - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file, `io.github.esotericpig.ekoscape.desktop`, in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/io.github.esotericpig.ekoscape.desktop).
 
-## Code Notes ##
+## Code History ##
 
 EkoScape is a remake of an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine: The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
 
@@ -58,16 +58,16 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
 
 This project uses **CMake**, [Ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages), and [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started). Please install these for your system.
 
-See the [GitHub Workflows](.github/workflows/) or the top of [CMakeLists.txt](CMakeLists.txt) for quickly getting started.
-
-If you have Ruby installed, there is also a script -- [scripts/dev.rb](scripts/dev.rb) -- for rapid development.
+- For quickly getting started, see the [GitHub Workflows](.github/workflows/) or the top of [CMakeLists.txt](CMakeLists.txt).
+- If you have Ruby installed, there is also a script -- [scripts/dev.rb](scripts/dev.rb) -- for rapid development.
 
 ### IDEs ###
 
 Optional stuff for IDEs.
 
 - **CLion**
-  - CMake Profiles are included. You'll need to edit them (Settings => Build, Execution, Deployment => CMake) to change the env var appropriately: `VCPKG_ROOT=/path/to/vcpkg`
+  - CMake Profiles are included.
+  - The env var `VCPKG_ROOT` is defaulted to `./vcpkg` so that you can just make a symlink to the actual path in the top of this project's folder, or instead, you'll need to edit the profiles (Settings => Build, Execution, Deployment => CMake) to change the env var appropriately: `VCPKG_ROOT=/path/to/vcpkg`.
 
 ### Configuring Build ###
 
@@ -211,6 +211,10 @@ There are various scripts in the [scripts/](scripts/) folder for development, bu
 
 Optional: To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
 
+Edit/Add the new version in the following places:
+- [src/ekoscape_game.h](src/ekoscape_game.h)
+- [res/io.github.esotericpig.ekoscape.metainfo.xml](res/io.github.esotericpig.ekoscape.metainfo.xml)
+
 With the [GH CLI](https://cli.github.com) (`gh`) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
 
 ```
@@ -239,7 +243,7 @@ Due to The Dantares Engine being licensed under GPL, I also had to license this 
 [GNU GPL v3+](LICENSE)
 
 > EkoScape (<https://github.com/esotericpig/EkoScape>)  
-> Copyright (c) 2004, 2024 Bradley Whited  
+> Copyright (c) 2004, 2024-2025 Bradley Whited  
 > 
 > EkoScape is free software: you can redistribute it and/or modify  
 > it under the terms of the GNU General Public License as published by  
