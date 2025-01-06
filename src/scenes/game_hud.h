@@ -67,7 +67,7 @@ private:
 
   Duration last_updated_speedrun_time_{};
   Duration last_speedrun_time_{};
-  StrUtf8 speedrun_time_str_ = "00.00";
+  StrUtf8 speedrun_time_str_{};
 
   void update_speedrun_time_str();
 

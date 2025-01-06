@@ -20,6 +20,8 @@ GameHud::GameHud(GameContext& ctx,const State& state)
   mini_map_portal_color_ = ctx_.assets.portal_color().with_a(kAlpha);
   mini_map_robot_color_ = ctx_.assets.robot_color().with_a(kAlpha);
   mini_map_walkable_color_.set(0.0f,kAlpha);
+
+  update_speedrun_time_str();
 }
 
 void GameHud::update(const FrameStep& step) {
