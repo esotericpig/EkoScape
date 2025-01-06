@@ -139,7 +139,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     tex.draw_quad(Pos3i{10,634,0},Size2i{300,256});
   });
   ren.wrap_sprite(ctx_.assets.keys_sprite(),[&](auto& s) {
-    s.draw_quad(Pos3i{849,670,0},Size2i{741,220}); // 1482x440.
+    s.draw_quad(Pos3i{804,560,0},Size2i{s.sprite.size().w / 2,s.sprite.size().h / 2});
   });
 
   ren.end_blend()
