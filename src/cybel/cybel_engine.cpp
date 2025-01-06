@@ -101,7 +101,7 @@ void CybelEngine::init_config(Config& config) {
 
   if(target_fps_ > 0) { // Avoid divide by 0.
     // Convert from FPS to Duration (milliseconds) Per Frame.
-    target_dpf_.set_from_millis(std::round(1000.0f / static_cast<float>(target_fps_)));
+    target_dpf_.set_from_millis(std::round(1000.0 / static_cast<double>(target_fps_)));
   }
 }
 
@@ -267,14 +267,14 @@ void CybelEngine::handle_keydown_event(const SDL_Event& event) {
   std::unordered_set<int> processed_ids{};
 
   for(auto id: input_man_->fetch_ids(raw_key)) {
-    // Not inserted (already processed)?
+    // Not inserted? (already processed)
     if(!processed_ids.insert(id).second) { continue; }
 
     main_scene_.on_input_event(id,renderer_->dimens());
     scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
   }
   for(auto id: input_man_->fetch_ids(sym_key)) {
-    // Not inserted (already processed)?
+    // Not inserted? (already processed)
     if(!processed_ids.insert(id).second) { continue; }
 
     main_scene_.on_input_event(id,renderer_->dimens());
