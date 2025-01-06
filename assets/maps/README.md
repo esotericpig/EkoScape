@@ -4,6 +4,10 @@ You can copy & rename [template_unix.txt](template_unix.txt) or [template_window
 
 The [user/](user/) folder was created for you. The [fanmade/](fanmade/) folder was created for single, community-submitted Map files.
 
+For making the Map Grids, it's recommended to use one of these visual/drawing editors:
+- [ASCII Map Editor](https://stmn.itch.io/ascii-map-editor) by stmn
+- [ASCII Mapper](https://notimetoplay.itch.io/ascii-mapper) by No Time To Play
+
 ## Submitting Your Map Files ##
 
 You can submit your Map files [here on GitHub Discussions](https://github.com/esotericpig/EkoScape/discussions/1) or as an [Issue](https://github.com/esotericpig/EkoScape/issues) to have them included in the next version! Or to simply share them for others to try.
