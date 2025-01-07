@@ -53,6 +53,11 @@ bool SpaceTypes::is_valid(SpaceType type) {
   return false;
 }
 
+bool SpaceTypes::is_valid_empty(SpaceType type) {
+  // Cannot have 2+ things on a single space.
+  return is_valid(type) && !is_player(type) && !is_thing(type);
+}
+
 bool SpaceTypes::is_player(SpaceType type) {
   switch(type) {
     case SpaceType::kPlayerNorth:
@@ -147,13 +152,13 @@ SpaceType SpaceTypes::to_player(Facing facing) {
 SpaceType SpaceTypes::to_space_type(char value) {
   const auto type = static_cast<SpaceType>(value);
 
-  return is_valid(type) ? type : SpaceType::kVoid;
+  return is_valid(type) ? type : kFallback;
 }
 
 SpaceType SpaceTypes::to_space_type(int value) { return to_space_type(static_cast<char>(value)); }
 
 char SpaceTypes::value_of(SpaceType type) {
-  if(!is_valid(type)) { type = SpaceType::kVoid; }
+  if(!is_valid(type)) { type = kFallback; }
 
   return static_cast<char>(type);
 }

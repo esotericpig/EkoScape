@@ -9,29 +9,29 @@
 
 namespace ekoscape {
 
-Space::Space(SpaceType empty_type) noexcept
-    : empty_type_(empty_type) {}
+Space::Space(SpaceType empty) noexcept
+    : empty_type_(empty) {}
 
-Space::Space(SpaceType empty_type,SpaceType thing_type) noexcept
-    : empty_type_(empty_type),thing_type_(thing_type) {}
+Space::Space(SpaceType empty,SpaceType thing) noexcept
+    : empty_type_(empty),thing_type_(thing) {}
 
-Space& Space::set(SpaceType empty_type,SpaceType thing_type) {
-  empty_type_ = empty_type;
-  thing_type_ = thing_type;
+Space& Space::set(SpaceType empty,SpaceType thing) {
+  empty_type_ = empty;
+  thing_type_ = thing;
 
   return *this;
 }
 
-SpaceType Space::set_empty(SpaceType type) {
+SpaceType Space::set_empty(SpaceType empty) {
   SpaceType old_empty = empty_type_;
-  empty_type_ = type;
+  empty_type_ = empty;
 
   return old_empty;
 }
 
-SpaceType Space::set_thing(SpaceType type) {
+SpaceType Space::set_thing(SpaceType thing) {
   SpaceType old_thing = thing_type_;
-  thing_type_ = type;
+  thing_type_ = thing;
 
   return old_thing;
 }

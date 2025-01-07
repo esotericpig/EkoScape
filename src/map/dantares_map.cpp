@@ -57,7 +57,7 @@ Map& DantaresMap::add_to_bridge() {
 
     for(Pos2i pos{0,0}; pos.y < size.h; ++pos.y) {
       for(pos.x = 0; pos.x < size.w; ++pos.x) {
-        Space& space = grid->raw_space(pos);
+        Space& space = grid->unsafe_space(pos);
         update_bridge_space(pos.x,pos.y,space.type());
       }
     }

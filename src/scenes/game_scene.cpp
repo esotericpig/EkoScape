@@ -17,15 +17,7 @@ namespace ekoscape {
 
 GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
     : ctx_(ctx),state_(state) {
-  map_.load_file(map_file
-    ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type); }
-    ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
-  );
-
-  std::cout << "[INFO] Map file ['" << map_file.string() << "'] with [" << map_.grid_count() << "] grid(s):\n"
-            << map_ << std::endl;
-
-  map_.add_to_bridge();
+  init_map(map_file);
 
   // Extra delay to give some time for the Player to initially orient/adjust.
   robot_move_time_ = map_.robot_delay() + kInitExtraRobotDelay;
@@ -40,39 +32,31 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
   overlay_ = std::make_unique<GameOverlay>(ctx,map_,player_hit_end_);
 }
 
-SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type) {
-  // For weird, flip Robots & Cells.
-  if(ctx_.assets.is_weird()) {
-    if(type == SpaceType::kCell) {
-      type = SpaceType::kRobot;
-    } else if(SpaceTypes::is_robot(type)) {
-      type = SpaceType::kCell;
-    }
-  }
+void GameScene::init_map(const std::filesystem::path& map_file) {
+  std::vector<Pos3i> cells{};
 
+  map_.load_file(map_file
+    ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type,cells); }
+    ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
+  );
+  if(ctx_.assets.is_weird()) { make_map_weird(cells); }
+
+  std::cout << "[INFO] Map file ['" << map_file.string() << "'] w/ grids [" << map_.grid_count() << "]:\n"
+            << map_ << std::endl;
+
+  map_.add_to_bridge();
+}
+
+SpaceType GameScene::init_map_space(const Pos3i& pos,SpaceType type,std::vector<Pos3i>& cells) {
   switch(type) {
-    case SpaceType::kRobot:
-      robots_.push_back(Robot::build_normal(pos));
-      break;
-
-    case SpaceType::kRobotGhost:
-      robots_.push_back(Robot::build_ghost(pos));
-      break;
-
-    case SpaceType::kRobotSnake:
-      robots_.push_back(Robot::build_snake(pos));
-      break;
-
-    case SpaceType::kRobotStatue:
-      robots_.push_back(Robot::build_statue(pos));
-      break;
-
-    case SpaceType::kRobotWorm:
-      robots_.push_back(Robot::build_worm(pos));
+    case SpaceType::kCell:
+      cells.push_back(pos);
       break;
 
     default:
-      if(SpaceTypes::is_portal(type)) {
+      if(SpaceTypes::is_robot(type)) {
+        robots_.push_back(Robot::build(type,pos));
+      } else if(SpaceTypes::is_portal(type)) {
         portal_to_pos_bag_[type].push_back(pos);
       }
       break;
@@ -85,6 +69,41 @@ void GameScene::init_map_default_empty(const Pos3i& pos,SpaceType type) {
   if(SpaceTypes::is_portal(type)) {
     portal_to_pos_bag_[type].push_back(pos);
   }
+}
+
+void GameScene::make_map_weird(std::vector<Pos3i>& cells) {
+  // For weird, flip Robots & Cells, where a random Cell becomes a random Robot.
+  // If we run out of Robots, then just use normal ones.
+
+  // First, flip all Robots to Cells in Map, because we might have more Robots than Cells.
+  for(auto& robot: robots_) {
+    map_.set_raw_thing(robot.pos(),SpaceType::kCell);
+  }
+
+  Rando::it().shuffle(robots_.begin(),robots_.end());
+  Rando::it().shuffle(cells.begin(),cells.end());
+
+  std::vector<Robot> new_robots{};
+
+  for(std::size_t robot_i = 0; const auto& cell_pos: cells) {
+    if(robot_i < robots_.size()) {
+      auto robot = std::move(robots_[robot_i]);
+      ++robot_i;
+
+      map_.set_raw_thing(cell_pos,robot.type());
+      robot.set_raw_pos(cell_pos);
+
+      new_robots.push_back(std::move(robot));
+    } else { // No Robots left.
+      auto robot = Robot::build_normal(cell_pos);
+
+      map_.set_raw_thing(cell_pos,robot.type());
+
+      new_robots.push_back(std::move(robot));
+    }
+  }
+
+  robots_ = std::move(new_robots);
 }
 
 void GameScene::init_map_texs() {

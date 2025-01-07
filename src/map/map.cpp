@@ -266,16 +266,10 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
           empty_type = type;
         }
 
-        switch(type) {
-          case SpaceType::kCell:
-            ++total_cells_;
-            break;
-
-          default: break;
-        }
+        on_raw_thing_updated(SpaceType::kNil,thing_type);
       }
 
-      grid->raw_space(dan_pos).set(empty_type,thing_type);
+      grid->unsafe_space(dan_pos).set(empty_type,thing_type);
     }
   }
 
@@ -297,10 +291,10 @@ Map& Map::shrink_grids_to_fit() {
 }
 
 bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
-  Space* from_space = this->mutable_space(from_pos);
+  Space* from_space = mutable_space(from_pos);
   if(from_space == nullptr || !from_space->has_thing()) { return false; }
 
-  Space* to_space = this->mutable_space(to_pos);
+  Space* to_space = mutable_space(to_pos);
   if(to_space == nullptr || to_space->has_thing()) { return false; }
 
   SpaceType thing_type = from_space->remove_thing();
@@ -313,7 +307,7 @@ bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
 }
 
 bool Map::remove_thing(const Pos3i& pos) {
-  Space* space = this->mutable_space(pos);
+  Space* space = mutable_space(pos);
 
   if(space == nullptr) { return false; }
   if(!space->has_thing()) { return true; } // Unlike move_thing(), this returns true.
@@ -331,14 +325,14 @@ bool Map::remove_thing(const Pos3i& pos) {
   return true;
 }
 
-bool Map::place_thing(SpaceType type,const Pos3i& pos) {
-  if(!SpaceTypes::is_thing(type)) { return false; }
+bool Map::place_thing(SpaceType thing,const Pos3i& pos) {
+  if(!SpaceTypes::is_thing(thing)) { return false; }
 
-  Space* space = this->mutable_space(pos);
+  Space* space = mutable_space(pos);
   if(space == nullptr || space->has_thing()) { return false; }
 
-  space->set_thing(type);
-  update_bridge_space(pos,type);
+  space->set_thing(thing);
+  update_bridge_space(pos,thing);
 
   return true;
 }
@@ -385,10 +379,9 @@ Map& Map::set_walking_speed(float speed) {
   return *this;
 }
 
-Map& Map::set_default_empty(SpaceType type) {
-  // Cannot have 2+ things on a single space.
-  if(SpaceTypes::is_valid(type) && !SpaceTypes::is_player(type) && !SpaceTypes::is_thing(type)) {
-    default_empty_ = type;
+Map& Map::set_default_empty(SpaceType empty) {
+  if(SpaceTypes::is_valid_empty(empty)) {
+    default_empty_ = empty;
   }
 
   return *this;
@@ -398,6 +391,77 @@ Map& Map::set_robot_delay(const Duration& duration) {
   robot_delay_ = (duration >= kMinRobotDelay) ? duration : kMinRobotDelay;
 
   return *this;
+}
+
+bool Map::set_raw_space(const Pos3i& pos,SpaceType empty,SpaceType thing) {
+  if(!SpaceTypes::is_valid_empty(empty) || !SpaceTypes::is_thing(thing)) {
+    return false;
+  }
+
+  Space* space = mutable_space(pos);
+  if(space == nullptr) { return false; }
+
+  const auto old_thing = space->thing_type();
+
+  space->set(empty,thing);
+  on_raw_thing_updated(old_thing,thing);
+
+  return true;
+}
+
+bool Map::set_raw_empty(const Pos3i& pos,SpaceType empty) {
+  if(!SpaceTypes::is_valid_empty(empty)) { return false; }
+
+  Space* space = mutable_space(pos);
+  if(space == nullptr) { return false; }
+
+  space->set_empty(empty);
+
+  return true;
+}
+
+bool Map::set_raw_thing(const Pos3i& pos,SpaceType thing) {
+  if(!SpaceTypes::is_thing(thing)) { return false; }
+
+  Space* space = mutable_space(pos);
+  if(space == nullptr) { return false; }
+
+  const auto old_thing = space->thing_type();
+
+  space->set_thing(thing);
+  on_raw_thing_updated(old_thing,thing);
+
+  return true;
+}
+
+bool Map::remove_raw_thing(const Pos3i& pos) {
+  Space* space = mutable_space(pos);
+  if(space == nullptr) { return false; }
+
+  const auto old_thing = space->remove_thing();
+  on_raw_thing_updated(old_thing,space->thing_type());
+
+  return true;
+}
+
+void Map::on_raw_thing_updated(SpaceType old_thing,SpaceType new_thing) {
+  switch(old_thing) {
+    case SpaceType::kCell:
+      if(total_cells_ > 0) {
+        --total_cells_;
+      }
+      break;
+
+    default: break;
+  }
+
+  switch(new_thing) {
+    case SpaceType::kCell:
+      ++total_cells_;
+      break;
+
+    default: break;
+  }
 }
 
 std::string Map::build_header() const {
@@ -451,9 +515,9 @@ const Space* Map::space(const Pos3i& pos) const {
   return grids_[pos.z]->space(pos);
 }
 
-Space& Map::raw_space(const Pos3i& pos) { return grids_.at(pos.z)->raw_space(pos); }
+Space& Map::unsafe_space(const Pos3i& pos) { return grids_.at(pos.z)->unsafe_space(pos); }
 
-const Space& Map::raw_space(const Pos3i& pos) const { return grids_.at(pos.z)->raw_space(pos); }
+const Space& Map::unsafe_space(const Pos3i& pos) const { return grids_.at(pos.z)->unsafe_space(pos); }
 
 int Map::total_cells() const { return total_cells_; }
 
@@ -490,7 +554,7 @@ std::ostream& Map::print(std::ostream& out,bool rstrip) const {
       if(rstrip) {
         // Find the last non-Void space to avoid printing trailing Voids.
         for(pos.x = width - 1; pos.x >= 0; --pos.x) {
-          SpaceType type = grid->raw_space(pos).type();
+          SpaceType type = grid->unsafe_space(pos).type();
 
           if(type != SpaceType::kVoid) {
             width = pos.x + 1;
@@ -508,7 +572,7 @@ std::ostream& Map::print(std::ostream& out,bool rstrip) const {
         if(z == player_init_pos_.z && pos.x == player_init_pos_.x && pos.y == player_init_pos_.y) {
           type = SpaceTypes::to_player(player_init_facing_);
         } else if(pos.x < grid->size().w) { // True width might be 0, but our adjusted width is 1.
-          type = grid->raw_space(pos).type();
+          type = grid->unsafe_space(pos).type();
         }
 
         out << SpaceTypes::value_of(type);

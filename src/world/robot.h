@@ -34,18 +34,22 @@ public:
     void refresh(bool player_ate_fruit);
   };
 
-  static Robot build_statue(const Pos3i& pos,float lifespan = kDefaultLifespan);
-  static Robot build_normal(const Pos3i& pos,float lifespan = kDefaultLifespan);
-  static Robot build_ghost(const Pos3i& pos,float lifespan = kDefaultLifespan);
-  static Robot build_snake(const Pos3i& pos,float lifespan = kDefaultLifespan);
-  static Robot build_worm(const Pos3i& pos,float lifespan = kDefaultLifespan);
+  static Robot build(SpaceType type,const Pos3i& pos,float lifespan = kDefaultLifespan) noexcept;
+  static Robot build_statue(const Pos3i& pos,float lifespan = kDefaultLifespan) noexcept;
+  static Robot build_normal(const Pos3i& pos,float lifespan = kDefaultLifespan) noexcept;
+  static Robot build_ghost(const Pos3i& pos,float lifespan = kDefaultLifespan) noexcept;
+  static Robot build_snake(const Pos3i& pos,float lifespan = kDefaultLifespan) noexcept;
+  static Robot build_worm(const Pos3i& pos,float lifespan = kDefaultLifespan) noexcept;
 
   bool move(MoveData& data);
   bool warp_to(MoveData& data,const Pos3i& to_pos);
   void age(double delta_time);
 
+  void set_raw_pos(const Pos3i& pos);
+
   bool is_alive() const;
   bool is_dead() const;
+  SpaceType type() const;
   const Pos3i& pos() const;
   SpaceType portal_type() const;
   bool warped() const;
@@ -66,6 +70,7 @@ private:
     Pos2i{-1, 0}, // West.
   };
 
+  SpaceType type_ = SpaceType::kNil;
   Pos3i pos_{};
   int moves_like_{};
   float lifespan_{};
@@ -75,7 +80,7 @@ private:
   SpaceType portal_type_ = SpaceType::kNil;
   bool warped_ = false;
 
-  explicit Robot(const Pos3i& pos,int moves_like,float lifespan);
+  explicit Robot(SpaceType type,const Pos3i& pos,int moves_like,float lifespan) noexcept;
 
   bool move_smart(MoveData& data);
   bool move_rand(MoveData& data);

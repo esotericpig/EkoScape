@@ -28,10 +28,11 @@ public:
   Space* space(const Pos3i& pos);
   const Space* space(const Pos2i& pos) const;
   const Space* space(const Pos3i& pos) const;
-  Space& raw_space(const Pos2i& pos);
-  Space& raw_space(const Pos3i& pos);
-  const Space& raw_space(const Pos2i& pos) const;
-  const Space& raw_space(const Pos3i& pos) const;
+
+  Space& unsafe_space(const Pos2i& pos);
+  Space& unsafe_space(const Pos3i& pos);
+  const Space& unsafe_space(const Pos2i& pos) const;
+  const Space& unsafe_space(const Pos3i& pos) const;
 
 private:
   Size2i size_{};

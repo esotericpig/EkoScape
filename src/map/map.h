@@ -65,6 +65,13 @@ namespace ekoscape {
  *
  *   map.add_to_bridge(); // Call this first before using in the game.
  *   @endcode
+ *
+ * Note that any `raw` function is meant to be used before calling add_to_bridge()
+ * and before using the Map in the game:
+ * - set_raw_space()
+ * - set_raw_empty()
+ * - set_raw_thing()
+ * - remove_raw_thing()
  */
 class Map {
 public:
@@ -91,7 +98,7 @@ public:
 
   bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
   bool remove_thing(const Pos3i& pos);
-  bool place_thing(SpaceType type,const Pos3i& pos);
+  bool place_thing(SpaceType thing,const Pos3i& pos);
 
   virtual bool move_player(const Pos3i& pos);
   virtual bool sync_player_pos();
@@ -101,8 +108,13 @@ public:
   Map& set_author(const std::string& author);
   Map& set_turning_speed(float speed);
   Map& set_walking_speed(float speed);
-  Map& set_default_empty(SpaceType type);
+  Map& set_default_empty(SpaceType empty);
   Map& set_robot_delay(const Duration& duration);
+
+  bool set_raw_space(const Pos3i& pos,SpaceType empty,SpaceType thing);
+  bool set_raw_empty(const Pos3i& pos,SpaceType empty);
+  bool set_raw_thing(const Pos3i& pos,SpaceType thing);
+  bool remove_raw_thing(const Pos3i& pos);
 
   std::string build_header() const;
   int version() const;
@@ -159,11 +171,12 @@ protected:
   void load_grids(TextReader& reader,const SpaceCallback& on_space,const DefaultEmptyCallback& on_def_empty
       ,const std::string& file);
 
+  void on_raw_thing_updated(SpaceType old_thing,SpaceType new_thing);
   virtual void update_bridge_space(const Pos3i& /*pos*/,SpaceType /*type*/) {}
 
   Space* mutable_space(const Pos3i& pos); // Can't use the name `space`, unfortunately.
-  Space& raw_space(const Pos3i& pos);
-  const Space& raw_space(const Pos3i& pos) const;
+  Space& unsafe_space(const Pos3i& pos);
+  const Space& unsafe_space(const Pos3i& pos) const;
 };
 
 } // Namespace.

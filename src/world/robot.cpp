@@ -19,28 +19,43 @@ void Robot::MoveData::refresh(bool player_ate_fruit) {
   this->player_ate_fruit = player_ate_fruit;
 }
 
-Robot Robot::build_statue(const Pos3i& pos,float lifespan) {
-  return Robot{pos,kLikeStatue,lifespan};
+Robot Robot::build(SpaceType type,const Pos3i& pos,float lifespan) noexcept {
+  switch(type) {
+    case SpaceType::kRobotStatue: return build_statue(pos,lifespan);
+    case SpaceType::kRobot: return build_normal(pos,lifespan);
+    case SpaceType::kRobotGhost: return build_ghost(pos,lifespan);
+    case SpaceType::kRobotSnake: return build_snake(pos,lifespan);
+    case SpaceType::kRobotWorm: return build_worm(pos,lifespan);
+
+    default:
+      std::cerr << "[WARN] Tried to build invalid Robot type [" << SpaceTypes::value_of(type)
+                << "]; building Normal instead." << std::endl;
+      return build_normal(pos,lifespan);
+  }
 }
 
-Robot Robot::build_normal(const Pos3i& pos,float lifespan) {
-  return Robot{pos,kLikeNormal,lifespan};
+Robot Robot::build_statue(const Pos3i& pos,float lifespan) noexcept {
+  return Robot{SpaceType::kRobotStatue,pos,kLikeStatue,lifespan};
 }
 
-Robot Robot::build_ghost(const Pos3i& pos,float lifespan) {
-  return Robot{pos,kLikeGhost,lifespan};
+Robot Robot::build_normal(const Pos3i& pos,float lifespan) noexcept {
+  return Robot{SpaceType::kRobot,pos,kLikeNormal,lifespan};
 }
 
-Robot Robot::build_snake(const Pos3i& pos,float lifespan) {
-  return Robot{pos,kLikeSnake,lifespan};
+Robot Robot::build_ghost(const Pos3i& pos,float lifespan) noexcept {
+  return Robot{SpaceType::kRobotGhost,pos,kLikeGhost,lifespan};
 }
 
-Robot Robot::build_worm(const Pos3i& pos,float lifespan) {
-  return Robot{pos,kLikeSnake | kLikeGhost,lifespan};
+Robot Robot::build_snake(const Pos3i& pos,float lifespan) noexcept {
+  return Robot{SpaceType::kRobotSnake,pos,kLikeSnake,lifespan};
 }
 
-Robot::Robot(const Pos3i& pos,int moves_like,float lifespan)
-    : pos_(pos),moves_like_(moves_like),lifespan_(lifespan) {}
+Robot Robot::build_worm(const Pos3i& pos,float lifespan) noexcept {
+  return Robot{SpaceType::kRobotWorm,pos,kLikeSnake | kLikeGhost,lifespan};
+}
+
+Robot::Robot(SpaceType type,const Pos3i& pos,int moves_like,float lifespan) noexcept
+    : type_(type),pos_(pos),moves_like_(moves_like),lifespan_(lifespan) {}
 
 bool Robot::move(MoveData& data) {
   if(moves_like_ & kLikeStatue) { return false; }
@@ -176,9 +191,13 @@ void Robot::age(double delta_time) {
   age_ += (static_cast<float>(delta_time) / lifespan_);
 }
 
+void Robot::set_raw_pos(const Pos3i& pos) { pos_ = pos; }
+
 bool Robot::is_alive() const { return lifespan_ <= 0.0f || age_ <= 1.0f; }
 
 bool Robot::is_dead() const { return !is_alive(); }
+
+SpaceType Robot::type() const { return type_; }
 
 const Pos3i& Robot::pos() const { return pos_; }
 

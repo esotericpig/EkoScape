@@ -16,10 +16,10 @@ namespace ekoscape {
 
 // If add a new type, need to update:
 // - assets/maps/README.md
-// - SpaceTypes.is_valid()
+// - SpaceTypes::is_valid()
 // - GameScene.init_map_texs()
-// - [maybe] SpaceTypes.is_walkable()
-// - [maybe] SpaceTypes.is_non_walkable()
+// - [maybe] SpaceTypes::is_walkable()
+// - [maybe] SpaceTypes::is_non_walkable()
 // - [maybe] Map.parse_grid()
 enum class SpaceType : char {
   kNil            =   0, // Not for game users.
@@ -58,7 +58,10 @@ enum class SpaceType : char {
 };
 
 namespace SpaceTypes {
+  inline const SpaceType kFallback = SpaceType::kVoid;
+
   bool is_valid(SpaceType type);
+  bool is_valid_empty(SpaceType type);
   bool is_player(SpaceType type);
   bool is_thing(SpaceType type);
   bool is_robot(SpaceType type);

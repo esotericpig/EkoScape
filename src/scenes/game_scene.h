@@ -97,8 +97,10 @@ private:
   std::unique_ptr<GameHud> hud_{};
   std::unique_ptr<GameOverlay> overlay_{};
 
-  SpaceType init_map_space(const Pos3i& pos,SpaceType type);
+  void init_map(const std::filesystem::path& map_file);
+  SpaceType init_map_space(const Pos3i& pos,SpaceType type,std::vector<Pos3i>& cells);
   void init_map_default_empty(const Pos3i& pos,SpaceType type);
+  void make_map_weird(std::vector<Pos3i>& cells);
 
   void update_player(const FrameStep& step);
   void game_over(bool hit_end);
@@ -106,7 +108,6 @@ private:
   void update_robots(const FrameStep& step);
   void move_robots(const FrameStep& step);
   void remove_robots_at(const Pos3i& pos);
-
   std::optional<Pos3i> fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
   void set_space_texs(SpaceType type,const Texture* tex);

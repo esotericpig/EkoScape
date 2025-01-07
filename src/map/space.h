@@ -17,20 +17,20 @@ namespace ekoscape {
 class Space {
 public:
   explicit Space() noexcept = default;
-  explicit Space(SpaceType empty_type) noexcept;
-  explicit Space(SpaceType empty_type,SpaceType thing_type) noexcept;
+  explicit Space(SpaceType empty) noexcept;
+  explicit Space(SpaceType empty,SpaceType thing) noexcept;
 
-  Space& set(SpaceType empty_type,SpaceType thing_type);
+  Space& set(SpaceType empty,SpaceType thing);
 
   /**
    * Returns previous empty, if there was one.
    */
-  SpaceType set_empty(SpaceType type);
+  SpaceType set_empty(SpaceType empty);
 
   /**
    * Returns previous thing, if there was one.
    */
-  SpaceType set_thing(SpaceType type);
+  SpaceType set_thing(SpaceType thing);
 
   /**
    * Returns thing, if there was one.
