@@ -120,7 +120,11 @@ SceneBag EkoScapeGame::build_scene(int action) {
       break;
 
     case SceneAction::kRestart:
-      scene_man_->restart_scene();
+      if(!scene_man_->restart_scene()) {
+        show_error(Util::build_str("Failed to restart scene [",scene_man_->curr_scene_type()
+            ,"]. Going back to the previous scene instead."));
+        pop_scene();
+      }
       break;
 
     case SceneAction::kGoToMenu:

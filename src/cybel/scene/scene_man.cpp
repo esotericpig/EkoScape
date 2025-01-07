@@ -44,7 +44,7 @@ bool SceneMan::pop_scene() {
     }
 
     set_scene(std::move(prev));
-    return true;
+    return true; // Success.
   } while(!prev_scene_bags_.empty());
 
   set_scene(kEmptySceneBag);
