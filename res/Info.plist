@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <!-- https://developer.apple.com/documentation/bundleresources/bundle-configuration -->
+  <dict>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.arcade-games</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>@RDNS_NAME@</string>
+    <key>CFBundleName</key>
+    <string>@PROJECT_NAME@</string>
+    <key>CFBundleDisplayName</key>
+    <string>@PROJECT_NAME@</string>
+    <key>CFBundleSpokenName</key>
+    <string>ee-ko-scape</string>
+
+    <key>CFBundleVersion</key>
+    <string>@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.0</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2004, 2024-2025 Bradley Whited</string>
+
+    <key>CFBundleIconFile</key>
+    <string>@PROJECT_NAME@</string>
+    <key>CFBundleExecutable</key>
+    <string>@BIN_NAME@</string>
+
+    <string>NSHighResolutionCapable</string>
+    <true/>
+  </dict>
+</plist>

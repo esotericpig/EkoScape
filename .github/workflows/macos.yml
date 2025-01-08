@@ -12,6 +12,14 @@ jobs:
   build:
     runs-on: macos-latest
 
+    strategy:
+      matrix:
+        include:
+          - arch: arm64
+            vcpkg_triplet: arm64-osx
+          - arch: x86_64
+            vcpkg_triplet: x64-osx
+
     steps:
       - name: Install sys deps
         run: |
@@ -31,73 +39,112 @@ jobs:
           vcpkgDirectory: "${{ env.VCPKG_ROOT }}"
           vcpkgJsonGlob: 'vcpkg.json'
 
-      - name: Configure build arm64
+      - name: Configure build ${{ matrix.arch }}
         run: >
           cmake --preset default
           -DBUILD_SHARED_LIBS=OFF
-          -DCMAKE_OSX_ARCHITECTURES=arm64
-          -DVCPKG_OSX_ARCHITECTURES=arm64
-          -DVCPKG_TARGET_TRIPLET="arm64-osx"
+          -DCMAKE_OSX_ARCHITECTURES='${{ matrix.arch }}'
+          -DVCPKG_OSX_ARCHITECTURES='${{ matrix.arch }}'
+          -DVCPKG_TARGET_TRIPLET='${{ matrix.vcpkg_triplet }}'
           -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
-          -DPKG_SUFFIX="-uni"
-          -DPKG_MACOS_BUILD_UNI_DIR=ON
-      - name: Build arm64
-        run: cmake --build --preset no-jobs --config Release
-      - name: Move bin arm64
-        run: |
-          set -x
-          mkdir -pv build_uni_temp
-          mv -v bin/Release/EkoScape build_uni_temp/EkoScape-arm64
-          set +x
-      - name: Clean arm64
-        run: |
-          set -x
-          rm -rf bin build
-          set +x
 
-      - name: Configure build x86_64
+      - name: Build ${{ matrix.arch }}
+        run: |
+          cmake --build --preset no-jobs --config Release
+          mv -v bin/Release/EkoScape 'bin/Release/EkoScape-${{ matrix.arch }}'
+
+      - name: Upload ${{ matrix.arch }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "macos-bin-${{ matrix.arch }}"
+          path: bin/Release/EkoScape-*
+          if-no-files-found: error
+          compression-level: 6
+          overwrite: true
+          include-hidden-files: false
+
+  # vcpkg doesn't currently support universal macOS binaries, so making manually.
+  # See `CMakeLists.txt` for `build_uni` config.
+  build_uni:
+    needs: build
+    runs-on: macos-latest
+
+    steps:
+      - name: Install sys deps
+        run: |
+          brew install glew
+
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install CMake & Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Install vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: "${{ env.VCPKG_ROOT }}"
+          vcpkgJsonGlob: 'vcpkg.json'
+
+      - name: Configure build
         run: >
           cmake --preset default
           -DBUILD_SHARED_LIBS=OFF
-          -DCMAKE_OSX_ARCHITECTURES=x86_64
-          -DVCPKG_OSX_ARCHITECTURES=x86_64
-          -DVCPKG_TARGET_TRIPLET="x64-osx"
           -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
-          -DPKG_SUFFIX="-uni"
+          -DPKG_SUFFIX='-universal'
           -DPKG_MACOS_BUILD_UNI_DIR=ON
-      - name: Build x86_64
-        run: cmake --build --preset no-jobs --config Release
-      - name: Move bin x86_64
-        run: |
-          set -x
-          mkdir -pv build_uni_temp
-          mv -v bin/Release/EkoScape build_uni_temp/EkoScape-x86_64
-          set +x
-      # Do NOT clean.
 
-      # vcpkg doesn't currently support universal macOS binaries, so making manually.
-      # See `CMakeLists.txt` for `build_uni` config.
+      - name: Download bins
+        uses: actions/download-artifact@v4
+        with:
+          path: build_uni_temp
+          pattern: 'macos-bin-*'
+          merge-multiple: true
+
       - name: Build uni
         run: |
           set -x
+          lipo -info build_uni_temp/EkoScape*
+          chmod +x build_uni_temp/EkoScape*
+
           mkdir -pv build_uni
           lipo -create build_uni_temp/EkoScape* -output build_uni/EkoScape
           lipo -info build_uni/EkoScape
           set +x
 
       - name: Package up
-        run: cmake --build --preset no-jobs --config Release --target package
+        run: cpack -C Release --config build/CPackConfig.cmake -B build --verbose
+
+      - name: Debug bundle
+        run: ls -alR 'build/_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal/EkoScape.app'
+
+      - name: Verify bundle
+        run: cmake --build --preset no-jobs --config Release --target check_macos_bundle
+
+      - name: Compress bundle
+        run: |
+          set -x
+          cd build
+          tar -czf 'EkoScape.app.tar.gz' \
+              -C '_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal' \
+              'EkoScape.app'
+          shasum -a 256 'EkoScape.app.tar.gz' > 'EkoScape.app.tar.gz.sha256'
+          cd -
+          set +x
 
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
           name: macos-uni
           path: |
-            build/*.zip
+            build/*.app.tar.gz
+            build/*.dmg
             build/*.sha256
           if-no-files-found: error
           compression-level: 0

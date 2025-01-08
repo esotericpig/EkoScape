@@ -1,6 +1,3 @@
-CMakeUserPresets.json
-/scratch
-
 *.a
 *.app
 *.AppImage
@@ -11,6 +8,7 @@ CMakeUserPresets.json
 *.exe
 *.gch
 *.gif
+*.icns
 *.ico
 *.jpeg
 *.jpg
@@ -29,10 +27,11 @@ CMakeUserPresets.json
 *.smod
 *.so
 
+CMakeUserPresets.json
+/vcpkg
+
 /.idea/*
 !/.idea/cmake.xml
-/AppDir/
 /bin/
 /build/
 /stock/
-/vcpkg

@@ -15,18 +15,26 @@ namespace ekoscape {
 std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
   std::vector<std::filesystem::path> dirs{};
   std::filesystem::path dir{};
+  std::error_code err_code{};
 
   // First, try current dir, so that the user can easily overwrite the assets.
   dirs.emplace_back(".");
 
-  // Try our AppImage's path.
+  // Try our Linux AppImage's path.
   const char* appimg_path = std::getenv("APPIMAGE");
 
   if(appimg_path != nullptr) {
     // parent_path() can throw exceptions.
     try {
       dir = appimg_path;
-      dirs.emplace_back(dir.parent_path());
+      dir = dir.parent_path();
+
+      if(is_directory(dir,err_code)) {
+        dirs.push_back(dir);
+      } else {
+        std::cerr << "[WARN] AppImage path [" << dir << ',' << appimg_path << "] isn't a folder."
+                  << std::endl;
+      }
     } catch(const std::exception& e) {
       std::cerr << "[WARN] Failed to get parent path of AppImage path [" << appimg_path << "]: "
                 << e.what() << '.' << std::endl;
@@ -34,24 +42,36 @@ std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
   }
 
   // Try our game's base dir.
-  // - NOTE: SDL_GetBasePath() is slow so should only be called once.
+  // - NOTE: SDL_GetBasePath() is an expensive operation so should only be called once.
+  // - On macOS, this is `Contents/Resources`.
   char* base_path = SDL_GetBasePath();
 
   if(base_path != NULL) {
-    dirs.emplace_back(base_path);
+    dir = base_path;
 
     SDL_free(base_path);
     base_path = NULL;
+
+    if(is_directory(dir,err_code)) {
+      dirs.push_back(dir);
+    } else {
+      std::cerr << "[WARN] Base path of game [" << dir << "] isn't a folder." << std::endl;
+    }
   } else {
     std::cerr << "[WARN] Failed to get base path of game: " + Util::get_sdl_error() + '.' << std::endl;
   }
 
-  // Make all paths absolute for Util::unique() (without throwing exceptions if path doesn't exist).
-  for(std::size_t i = 0; i < dirs.size(); ++i) {
-    dirs[i] = weakly_canonical(dirs[i]);
+  // Make all paths absolute for Util::unique().
+  for(auto& d: dirs) { d = canonical(d,err_code); }
+
+  if(dirs.empty()) {
+    std::cerr << "[ERROR] All base dirs failed for some reason." << std::endl;
+    dirs.emplace_back(".");
+
+    return dirs;
   }
 
-  return Util::unique(dirs);
+  return (dirs.size() == 1) ? dirs : Util::unique(dirs);
 }
 
 Assets::Assets(const StrUtf8& tex_style,bool has_audio_player,bool make_weird)

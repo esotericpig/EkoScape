@@ -59,6 +59,8 @@ std::size_t Util::build_hash(const Args&... args) {
 
 template <typename T>
 std::vector<T> Util::unique(const std::vector<T>& vec) {
+  if(vec.size() <= 1) { return vec; }
+
   std::unordered_set<T> seen{};
   std::vector<T> unique{};
 

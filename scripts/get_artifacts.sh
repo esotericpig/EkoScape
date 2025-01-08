@@ -21,5 +21,5 @@ mkdir -pv "${ARTIC_DIR}"
 
 # Download each one separately so that it won't create a sub dir.
 get_artifact 'linux-appimage-x64'
-get_artifact 'macos-uni'
+get_artifact 'macos-universal'
 get_artifact 'windows-x64'

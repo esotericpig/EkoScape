@@ -38,9 +38,10 @@ cmake_minimum_required(VERSION 3.20)
 # @author Bradley Whited
 ###
 
-message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.") # Gets rid of stupid warning.
+#message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.")
 
 project("EkoScape"
+    VERSION "2.0"
     HOMEPAGE_URL "https://github.com/esotericpig/EkoScape"
     LANGUAGES C CXX
 )
@@ -68,12 +69,24 @@ set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage
 
 set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
 option(PKG_MACOS_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
+set(PKG_RES_DIRS "${ASSETS_DIR}")
+set(PKG_RES_FILES
+    "${CMAKE_SOURCE_DIR}/README.md"
+    "${CMAKE_SOURCE_DIR}/LICENSE"
+)
+
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 set(CPACK_VERBATIM_VARIABLES ON)
 set(CPACK_MONOLITHIC_INSTALL OFF)
-set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENTS_ALL "cpack")
 set(CPACK_COMPONENTS_GROUPING "ALL_COMPONENTS_IN_ONE")
+
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_BUNDLE_COMPONENT_INSTALL ON)
+
+set(CPACK_BUNDLE_NAME "${PROJECT_NAME}")
+set(CPACK_BUNDLE_PLIST "${TEMPL_DIR}/Info.plist")
+set(CPACK_BUNDLE_ICON "${ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
 
 set(FETCHCONTENT_QUIET OFF)
 #set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
@@ -102,6 +115,9 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
+
+  # Statically link system libs.
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
   #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
 else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -227,7 +243,7 @@ target_sources("${BIN_NAME}" PRIVATE
 # Custom Targets                           #
 ############################################
 add_custom_target(run
-    COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BIN_NAME}"
+    COMMAND "$<TARGET_FILE:${BIN_NAME}>"
     DEPENDS "${BIN_NAME}"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     USES_TERMINAL # For terminal output during testing.
@@ -249,10 +265,15 @@ add_custom_target(check
     USES_TERMINAL
     VERBATIM
 )
-configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
 add_custom_target(appimage
     COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/appimage.cmake"
     DEPENDS "${BIN_NAME}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    USES_TERMINAL
+    VERBATIM
+)
+add_custom_target(check_macos_bundle
+    COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/check_macos_bundle.cmake"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -278,7 +299,7 @@ install(FILES "${RES_DIR}/${RDNS_NAME}.desktop"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
-install(FILES "${RES_DIR}/${RDNS_NAME}.metainfo.xml"
+install(FILES "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml"
     DESTINATION "share/metainfo"
     # FIXME: The official AppStream docs recommend `.metainfo.xml` now, but AppImage still only supports
     #        the older `.appdata.xml`. If AppImage possibly fixes this in the future, remove this.
@@ -287,40 +308,64 @@ install(FILES "${RES_DIR}/${RDNS_NAME}.metainfo.xml"
     EXCLUDE_FROM_ALL
 )
 
+configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
+
 ############################################
 # Package (CPack)                          #
 ############################################
 if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
-  set(CPACK_GENERATOR "ZIP")
+  set(CPACK_GENERATOR "Bundle")
+  set(PKG_MACOS_BIN_DIR "../MacOS")
+
+  # NOTE: Can't use EXCLUDE_FROM_ALL with Bundle generator.
 
   if(PKG_MACOS_BUILD_UNI_DIR)
     # vcpkg doesn't currently support universal macOS binaries,
     #     so making the universal binary manually on GitHub.
     # See: .github/workflows/macos.yml
-    # Must have a trailing slash! So that the dir is not created in the package.
-    install(DIRECTORY "${CMAKE_SOURCE_DIR}/build_uni/"
-        DESTINATION "."
-        FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                         GROUP_READ GROUP_EXECUTE
-                         WORLD_READ WORLD_EXECUTE
+
+    # NOTE: This also works, but doesn't appear in verbose output.
+#    set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/build_uni/${BIN_NAME}")
+
+    install(PROGRAMS "${CMAKE_SOURCE_DIR}/build_uni/${BIN_NAME}"
+        DESTINATION "${PKG_MACOS_BIN_DIR}"
         COMPONENT cpack
-        EXCLUDE_FROM_ALL
-        FILES_MATCHING PATTERN "*"
     )
   else()
     install(TARGETS "${BIN_NAME}"
-        RUNTIME DESTINATION "."
+        BUNDLE DESTINATION "${PKG_MACOS_BIN_DIR}"
         COMPONENT cpack
-        EXCLUDE_FROM_ALL
+        RUNTIME DESTINATION "${PKG_MACOS_BIN_DIR}"
+        COMPONENT cpack
     )
   endif()
+
+  install(DIRECTORY ${PKG_RES_DIRS}
+      DESTINATION "."
+      COMPONENT cpack
+  )
+  install(FILES ${PKG_RES_FILES}
+      DESTINATION "."
+      COMPONENT cpack
+  )
 elseif(WIN32)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-windows")
   set(CPACK_GENERATOR "ZIP")
 
   install(TARGETS "${BIN_NAME}"
       RUNTIME DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+
+  install(DIRECTORY ${PKG_RES_DIRS}
+      DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+  install(FILES ${PKG_RES_FILES}
+      DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
@@ -338,8 +383,19 @@ else()
       EXCLUDE_FROM_ALL
       FILES_MATCHING PATTERN "*.AppImage"
   )
-  # `PROGRAMS` because Desktop Entry files should be executable.
+  # Desktop Entry files should be executable.
   install(PROGRAMS "${RES_DIR}/${RDNS_NAME}.desktop"
+      DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+
+  install(DIRECTORY ${PKG_RES_DIRS}
+      DESTINATION "."
+      COMPONENT cpack
+      EXCLUDE_FROM_ALL
+  )
+  install(FILES ${PKG_RES_FILES}
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -348,17 +404,9 @@ endif()
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${PKG_SUFFIX}")
 
-install(DIRECTORY "${ASSETS_DIR}"
-    DESTINATION "."
-    COMPONENT cpack
-    EXCLUDE_FROM_ALL
-)
-install(FILES
-    "${CMAKE_SOURCE_DIR}/README.md"
-    "${CMAKE_SOURCE_DIR}/LICENSE"
-    DESTINATION "."
-    COMPONENT cpack
-    EXCLUDE_FROM_ALL
-)
+# NOTE: Must be configured before including CPack.
+configure_file("${TEMPL_CMAKE_DIR}/check_macos_bundle.cmake.in" "${TEMPL_DIR}/check_macos_bundle.cmake" @ONLY)
+configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml" @ONLY)
+configure_file("${RES_DIR}/Info.plist" "${TEMPL_DIR}/Info.plist" @ONLY)
 
 include(CPack)

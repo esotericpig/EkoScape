@@ -21,9 +21,9 @@ jobs:
       #   - TODO: On Ubuntu >= 24.04, use `libfuse2t64` instead of `libfuse2`.
       - name: Install sys deps
         run: |
-          set -x
           sudo apt-get update -y
           sudo apt-get install -y \
+            appstream \
             autoconf \
             automake \
             bash \
@@ -71,9 +71,6 @@ jobs:
             tar \
             unzip \
             zip
-          echo 'Check glibc version:'
-          ldd --version
-          set +x
 
       - name: Check out repo
         uses: actions/checkout@v4
@@ -94,13 +91,20 @@ jobs:
           cmake --preset default
           -DVCPKG_BUILD_TYPE=release
           -DLINUXDEPLOY_ARCH="x86_64"
-          -DPKG_SUFFIX="-x86_64"
+          -DPKG_SUFFIX="-x64"
 
       - name: Build
         run: cmake --build --preset no-jobs --config Release
 
       - name: Build AppImage
         run: cmake --build --preset no-jobs --config Release --target appimage
+
+      - name: Check min glibc version required (i.e., highest version number)
+        run: >
+          objdump -T build/AppImage/*.AppImage
+          | grep -i glibc
+          | grep -oP '[0-9]+\.[0-9.]+'
+          | sort -uV
 
       - name: Package up
         run: cmake --build --preset no-jobs --config Release --target package

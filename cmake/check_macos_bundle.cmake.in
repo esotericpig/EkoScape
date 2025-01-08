@@ -1,0 +1,49 @@
+###
+# Must be on macOS.
+#
+# Running:
+#   # CPack must have been run at least once before.
+#   cmake --build --preset default --config Release --target package
+#
+#   cmake --build --preset default --config Release --target check_macos_bundle
+#
+# @author Bradley Whited
+###
+
+set(MACOS_BUNDLE_DIR
+    "@CMAKE_BINARY_DIR@/_CPack_Packages/Darwin/Bundle/@CPACK_PACKAGE_FILE_NAME@/@CPACK_BUNDLE_NAME@.app")
+
+include(BundleUtilities)
+
+############################################
+# Fixup the Bundle                         #
+############################################
+message(STATUS "Using macOS bundle: '${MACOS_BUNDLE_DIR}'.")
+
+# Not using for now, as it changes the binary for some reason.
+#fixup_bundle("${MACOS_BUNDLE_DIR}" "" "")
+
+get_bundle_main_executable("${MACOS_BUNDLE_DIR}" MACOS_BUNDLE_BIN)
+message(STATUS "Main bin: '${MACOS_BUNDLE_BIN}'.")
+
+############################################
+# Verify the Bundle                        #
+############################################
+message("--------------------------------------------")
+verify_app("${MACOS_BUNDLE_DIR}" "" "")
+
+message("--------------------------------------------")
+verify_bundle_prerequisites("${MACOS_BUNDLE_DIR}" MACOS_BUNDLE_PREREQS MACOS_BUNDLE_PREREQS_INFO)
+message(STATUS "Pre-reqs: ${MACOS_BUNDLE_PREREQS_INFO}")
+
+if(NOT MACOS_BUNDLE_PREREQS)
+  message(FATAL_ERROR "Failed to verify macOS bundle pre-reqs.")
+endif()
+
+message("--------------------------------------------")
+verify_bundle_symlinks("${MACOS_BUNDLE_DIR}" MACOS_BUNDLE_SYMLINKS MACOS_BUNDLE_SYMLINKS_INFO)
+message(STATUS "Symlinks: ${MACOS_BUNDLE_SYMLINKS_INFO}")
+
+if(NOT MACOS_BUNDLE_SYMLINKS)
+  message(FATAL_ERROR "Failed to verify macOS bundle symlinks.")
+endif()

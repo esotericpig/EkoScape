@@ -1,72 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-NOTE: This file uses tabs.
-
 - https://docs.appimage.org/packaging-guide/optional/appstream.html
 - https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
 - https://www.freedesktop.org/software/appstream/docs/chap-Validation.html
 -->
 <component type="desktop-application">
-	<id>io.github.esotericpig.ekoscape</id>
-	<metadata_license>FSFAP</metadata_license>
-	<project_license>GPL-3.0-or-later</project_license>
-	<name>EkoScape</name>
-	<summary>Simple 3D step-based game, like a 3D Pac-Man</summary>
-	<icon type="stock">io.github.esotericpig.ekoscape</icon>
-	<!-- <icon type="cached">io.github.esotericpig.ekoscape.png</icon> -->
-	<description>
-		<p>
-		Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.0.
-		The <em>assets</em> folder should have been provided with this game, and in it,
-		you can edit the map files in <em>assets/maps/</em> or make your own!
-		<em>Enjoy!</em>
-		</p>
-	</description>
+  <id>@RDNS_NAME@</id>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>@PROJECT_NAME@</name>
+  <summary>Simple 3D step-based game, like a 3D Pac-Man</summary>
+  <icon type="stock">@RDNS_NAME@</icon>
+  <!-- <icon type="cached">@RDNS_NAME@.png</icon> -->
+  <description>
+    <p>
+    Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.0.
+    The <em>assets</em> folder should have been provided with this game, and in it,
+    you can edit the map files in <em>assets/maps/</em> or make your own!
+    <em>Enjoy!</em>
+    </p>
+  </description>
 
-	<categories>
-		<category>Game</category>
-		<category>ArcadeGame</category>
-	</categories>
-	<keywords>
-		<keyword>3D</keyword>
-		<keyword>game</keyword>
-		<keyword>games</keyword>
-		<keyword>arcade</keyword>
-	</keywords>
+  <categories>
+    <category>Game</category>
+    <category>ArcadeGame</category>
+  </categories>
+  <keywords>
+    <keyword>3D</keyword>
+    <keyword>game</keyword>
+    <keyword>games</keyword>
+    <keyword>arcade</keyword>
+  </keywords>
 
-	<url type="homepage">https://github.com/esotericpig/EkoScape</url>
-	<url type="bugtracker">https://github.com/esotericpig/EkoScape/issues</url>
-	<!-- <url type="vcs-browser">https://github.com/esotericpig/EkoScape</url> -->
-	<launchable type="desktop-id">io.github.esotericpig.ekoscape.desktop</launchable>
-	<releases>
-		<release version="2.0" date="2024-10-24" urgency="medium" />
-	</releases>
-	<provides>
-		<id>io.github.esotericpig.ekoscape.desktop</id>
-	</provides>
+  <url type="homepage">https://github.com/esotericpig/EkoScape</url>
+  <url type="bugtracker">https://github.com/esotericpig/EkoScape/issues</url>
+  <!-- <url type="vcs-browser">https://github.com/esotericpig/EkoScape</url> -->
+  <launchable type="desktop-id">@RDNS_NAME@.desktop</launchable>
+  <releases>
+    <release version="2.0" date="2024-10-24" urgency="medium" />
+  </releases>
+  <provides>
+    <id>@RDNS_NAME@.desktop</id>
+  </provides>
 
-	<!--
-	<requires>
-		<internet>offline-only</internet>
-	</requires>
-	-->
-	<developer id="io.github.esotericpig">
-		<name>Bradley Whited</name>
-	</developer>
+  <!--
+  <requires>
+    <internet>offline-only</internet>
+  </requires>
+  -->
+  <developer id="io.github.esotericpig">
+    <name>Bradley Whited</name>
+  </developer>
 
-	<!-- NOTE: Must be PNG! -->
-	<screenshots>
-		<screenshot type="default">
-			<caption>Playing the EkoScape game.</caption>
-			<image type="source" width="1600" height="900">https://github.com/user-attachments/assets/e07089d8-05ff-4fac-a84f-de024d78a1bf</image>
-		</screenshot>
-	</screenshots>
+  <!-- NOTE: Must be PNG! -->
+  <screenshots>
+    <screenshot type="default">
+      <caption>Playing the EkoScape game.</caption>
+      <image type="source" width="1600" height="900">https://github.com/user-attachments/assets/e07089d8-05ff-4fac-a84f-de024d78a1bf</image>
+    </screenshot>
+  </screenshots>
 
-	<!-- https://hughsie.github.io/oars/generate.html -->
-	<content_rating type="oars-1.0">
-		<content_attribute id="violence-cartoon">mild</content_attribute>
-		<content_attribute id="violence-fantasy">mild</content_attribute>
-		<content_attribute id="language-profanity">mild</content_attribute>
-		<content_attribute id="language-humor">mild</content_attribute>
-	</content_rating>
+  <!-- https://hughsie.github.io/oars/generate.html -->
+  <content_rating type="oars-1.0">
+    <content_attribute id="violence-cartoon">mild</content_attribute>
+    <content_attribute id="violence-fantasy">mild</content_attribute>
+    <content_attribute id="language-profanity">mild</content_attribute>
+    <content_attribute id="language-humor">mild</content_attribute>
+  </content_rating>
 </component>
