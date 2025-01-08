@@ -26,6 +26,9 @@
 
 #include "Dantares.h"
 
+#include<iomanip>
+#include<utility>
+
 Dantares::Dantares(float SquareSize, float FloorHeight, float CeilingHeight)
 {
     CurrentMap = -1;
@@ -612,13 +615,13 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
             for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
             {
                 glPushMatrix();
-                glTranslatef(float(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
 
                 for (int y=CameraY>HalfDistance?CameraY-HalfDistance:0; y<YBound && y<CameraY+Distance; y++)
                 {
                     if (y==CameraY-HalfDistance)
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
@@ -661,13 +664,13 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
             for (int x=CameraX>HalfDistance?CameraX-HalfDistance:0; x<XBound && x<CameraX+Distance; x++)
             {
                 glPushMatrix();
-                glTranslatef(float(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
 
                 for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
                 {
                     if (y==CameraY-Distance)
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
@@ -710,13 +713,13 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
             for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
             {
                 glPushMatrix();
-                glTranslatef(float(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
 
                 for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+HalfDistance; y++)
                 {
                     if (y==CameraY-Distance)
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
@@ -759,13 +762,13 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
             for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+HalfDistance; x++)
             {
                 glPushMatrix();
-                glTranslatef(float(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
 
                 for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
                 {
                     if (y==CameraY-Distance)
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*float(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
@@ -900,9 +903,9 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
     return true;
 }
 
-bool Dantares::StepForward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
+bool Dantares::StepForward(bool Force)
 {
-    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
+    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
     {
         return false;
     }
@@ -918,12 +921,8 @@ bool Dantares::StepForward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 1:
             if (CameraX+1<Maps[CurrentMap]->XSize &&
                 (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
@@ -933,12 +932,8 @@ bool Dantares::StepForward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 2:
             if (CameraY>0 &&
                 (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
@@ -948,12 +943,8 @@ bool Dantares::StepForward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 3:
             if (CameraX>0 &&
                 (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
@@ -963,20 +954,16 @@ bool Dantares::StepForward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
     }
 
     return false;
 }
 
-bool Dantares::StepBackward(bool Force, bool AllowIfWalking, bool AllowIfTurning)
+bool Dantares::StepBackward(bool Force)
 {
-    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
+    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
     {
         return false;
     }
@@ -992,12 +979,8 @@ bool Dantares::StepBackward(bool Force, bool AllowIfWalking, bool AllowIfTurning
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 1:
             if (CameraX>0 &&
                 (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
@@ -1007,12 +990,8 @@ bool Dantares::StepBackward(bool Force, bool AllowIfWalking, bool AllowIfTurning
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 2:
             if (CameraY+1<Maps[CurrentMap]->YSize &&
                 (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
@@ -1022,12 +1001,8 @@ bool Dantares::StepBackward(bool Force, bool AllowIfWalking, bool AllowIfTurning
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 3:
             if (CameraX+1<Maps[CurrentMap]->XSize &&
                 (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
@@ -1037,20 +1012,16 @@ bool Dantares::StepBackward(bool Force, bool AllowIfWalking, bool AllowIfTurning
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
     }
 
     return false;
 }
 
-bool Dantares::StepLeft(bool Force, bool AllowIfWalking, bool AllowIfTurning)
+bool Dantares::StepLeft(bool Force)
 {
-    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
+    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
     {
         return false;
     }
@@ -1066,12 +1037,8 @@ bool Dantares::StepLeft(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 1:
             if (CameraY+1<Maps[CurrentMap]->YSize &&
                 (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
@@ -1081,12 +1048,8 @@ bool Dantares::StepLeft(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 2:
             if (CameraX+1<Maps[CurrentMap]->XSize &&
                 (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
@@ -1096,12 +1059,8 @@ bool Dantares::StepLeft(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 3:
             if (CameraY>0 &&
                 (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
@@ -1111,20 +1070,16 @@ bool Dantares::StepLeft(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
     }
 
     return false;
 }
 
-bool Dantares::StepRight(bool Force, bool AllowIfWalking, bool AllowIfTurning)
+bool Dantares::StepRight(bool Force)
 {
-    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
+    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
     {
         return false;
     }
@@ -1140,12 +1095,8 @@ bool Dantares::StepRight(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 1:
             if (CameraY>0 &&
                 (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
@@ -1155,12 +1106,8 @@ bool Dantares::StepRight(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 2:
             if (CameraX>0 &&
                 (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
@@ -1170,12 +1117,8 @@ bool Dantares::StepRight(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
         case 3:
             if (CameraY+1<Maps[CurrentMap]->YSize &&
                 (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
@@ -1185,39 +1128,37 @@ bool Dantares::StepRight(bool Force, bool AllowIfWalking, bool AllowIfTurning)
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
 
-            break;
+            return false;
     }
 
     return false;
 }
 
-bool Dantares::TurnLeft(bool AllowIfWalking, bool AllowIfTurning)
+bool Dantares::TurnLeft()
 {
-    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
+    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
     {
         return false;
     }
 
     Turning=-1;
     TurnOffset=TurnOffset-TurnSpeed;
+    DegreesTurned=DegreesTurned+TurnSpeed;
 
     return true;
 }
 
-bool Dantares::TurnRight(bool AllowIfWalking, bool AllowIfTurning)
+bool Dantares::TurnRight()
 {
-    if ((!AllowIfWalking && Walking>-1) || (!AllowIfTurning && Turning!=0) || CurrentMap==-1)
+    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
     {
         return false;
     }
 
     Turning=1;
     TurnOffset=TurnOffset+TurnSpeed;
+    DegreesTurned=DegreesTurned+TurnSpeed;
 
     return true;
 }

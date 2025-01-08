@@ -16,7 +16,7 @@
  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/*  The Dantares Engine v1.2
+/*  The Dantares Engine v1.3
     All code written by Ryan Witmer in Apple Xcode
     ryan@averagesoftware.com
     www.averagesoftware.com
@@ -24,10 +24,13 @@
     https://phasercat.com
 
     Changelog
+    - v1.3
+        - Fixed TurnLeft() and TurnRight() to also update the DegreesTurned so that the MovePlayer
+          logic in Draw() doesn't go over 90 degrees, which caused a jerky drawing animation
+          when TurnSpeed wasn't a multiple of 10.
+        - Fixed IDE warnings.
     - v1.2
         - Changed SetPlayerPosition(int,int) to reuse the current CameraFacing.
-        - Added AllowIfWalking and AllowIfTurning to the movement functions.
-            - Without this, my game's controls felt unresponsive when trying to turn while walking.
     - v1.1
         - Changed MAXMAPS to be inside Dantares.
         - Changed to use smart pointers and vector.
@@ -71,10 +74,8 @@
     //#include<GL/glu.h>
 #endif
 
-#include<iomanip>
 #include<iostream>
 #include<memory>
-#include<utility>
 #include<vector>
 
 /**
@@ -367,7 +368,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepForward(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
+    bool StepForward(bool Force=false);
     /*  Moves the player forward one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -379,7 +380,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepBackward(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
+    bool StepBackward(bool Force=false);
     /*  Moves the player backward one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -391,7 +392,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepLeft(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
+    bool StepLeft(bool Force=false);
     /*  Sidesteps the player left one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -403,7 +404,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool StepRight(bool Force=false, bool AllowIfWalking=false, bool AllowIfTurning=false);
+    bool StepRight(bool Force=false);
     /*  Sidesteps the player right one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
 
@@ -415,13 +416,13 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool TurnLeft(bool AllowIfWalking=false, bool AllowIfTurning=false);
+    bool TurnLeft();
     /*  Turns the player 90 degrees to the left.
 
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool TurnRight(bool AllowIfWalking=false, bool AllowIfTurning=false);
+    bool TurnRight();
     /*  Turns the player 90 degrees to the right.
 
         Returns - Function returns true if successful, and false otherwise.
