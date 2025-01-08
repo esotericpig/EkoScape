@@ -290,6 +290,8 @@ Map& Map::shrink_grids_to_fit() {
   return *this;
 }
 
+Map& Map::add_to_bridge() { return *this; }
+
 bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
   Space* from_space = mutable_space(from_pos);
   if(from_space == nullptr || !from_space->has_thing()) { return false; }
@@ -366,14 +368,12 @@ Map& Map::set_author(const std::string& author) {
 }
 
 Map& Map::set_turning_speed(float speed) {
-  // 0 uses Dantares' default value.
-  turning_speed_ = (speed >= 0.0f) ? speed : 0.0f;
+  turning_speed_ = std::min(std::abs(speed),90.0f);
 
   return *this;
 }
 
 Map& Map::set_walking_speed(float speed) {
-  // 0 uses Dantares' default value.
   walking_speed_ = (speed >= 0.0f) ? speed : 0.0f;
 
   return *this;
@@ -464,6 +464,8 @@ void Map::on_raw_thing_updated(SpaceType old_thing,SpaceType new_thing) {
   }
 }
 
+void Map::update_bridge_space(const Pos3i& /*pos*/,SpaceType /*type*/) {}
+
 std::string Map::build_header() const {
   // FIXME: Temporary solution, because my compiler doesn't have <format>.
   const std::string placeholder = "{}";
@@ -526,6 +528,14 @@ int Map::total_rescues() const { return total_rescues_; }
 const Pos3i& Map::player_init_pos() const { return player_init_pos_; }
 
 Facing Map::player_init_facing() const { return player_init_facing_; }
+
+Pos3i Map::player_pos() const { return Pos3i{}; }
+
+const Space* Map::player_space() const { return nullptr; }
+
+SpaceType Map::player_space_type() const { return SpaceType::kNil; }
+
+Facing Map::player_facing() const { return Facings::kFallback; }
 
 std::ostream& Map::print(bool rstrip) const { return print(std::cout,rstrip); }
 

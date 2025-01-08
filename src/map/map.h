@@ -94,7 +94,7 @@ public:
   Map& parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space = nullptr
       ,const DefaultEmptyCallback& on_def_empty = nullptr,std::string file = "");
   Map& shrink_grids_to_fit();
-  virtual Map& add_to_bridge() { return *this; }
+  virtual Map& add_to_bridge();
 
   bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
   bool remove_thing(const Pos3i& pos);
@@ -106,8 +106,29 @@ public:
 
   Map& set_title(const std::string& title);
   Map& set_author(const std::string& author);
+
+  /**
+   * In degrees per frame from 0 to 90 degrees:
+   * - 1 degree turns the Player 1 degree per frame (very slow).
+   * - 90 degrees turns the Player instantaneously in one frame (very fast).
+   *
+   * 0 uses Dantares' default value.
+   */
   Map& set_turning_speed(float speed);
+
+  /**
+   * The number of frames it takes to complete walking one step,
+   * based on the formula `<seconds> = <speed> / FPS`.
+   *
+   * At 60 FPS:
+   * - 1 frame takes the Player ~0.017 seconds (1 / 60 FPS) to walk a step (instantaneous, very fast).
+   * - 60 frames takes the Player 1 second (60 / 60 FPS) to walk a step (very slow).
+   * - 120 frames takes the Player 2 seconds (120 / 60 FPS) to walk a step (super slow).
+   *
+   * 0 uses Dantares' default value.
+   */
   Map& set_walking_speed(float speed);
+
   Map& set_default_empty(SpaceType empty);
   Map& set_robot_delay(const Duration& duration);
 
@@ -136,10 +157,10 @@ public:
   const Pos3i& player_init_pos() const;
   Facing player_init_facing() const;
 
-  virtual Pos3i player_pos() const { return Pos3i{}; }
-  virtual const Space* player_space() const { return nullptr; }
-  virtual SpaceType player_space_type() const { return SpaceType::kNil; }
-  virtual Facing player_facing() const { return Facing::kSouth; }
+  virtual Pos3i player_pos() const;
+  virtual const Space* player_space() const;
+  virtual SpaceType player_space_type() const;
+  virtual Facing player_facing() const;
 
   std::ostream& print(bool rstrip = false) const;
   std::ostream& print(std::ostream& out,bool rstrip = false) const;
@@ -163,7 +184,7 @@ protected:
   int total_cells_ = 0;
   int total_rescues_ = 0;
   Pos3i player_init_pos_{};
-  Facing player_init_facing_ = Facing::kSouth;
+  Facing player_init_facing_ = Facings::kFallback;
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 
@@ -172,7 +193,7 @@ protected:
       ,const std::string& file);
 
   void on_raw_thing_updated(SpaceType old_thing,SpaceType new_thing);
-  virtual void update_bridge_space(const Pos3i& /*pos*/,SpaceType /*type*/) {}
+  virtual void update_bridge_space(const Pos3i& pos,SpaceType type);
 
   Space* mutable_space(const Pos3i& pos); // Can't use the name `space`, unfortunately.
   Space& unsafe_space(const Pos3i& pos);

@@ -134,7 +134,7 @@ Facing SpaceTypes::to_player_facing(SpaceType type) {
     case SpaceType::kPlayerEast:  return Facing::kEast;
     case SpaceType::kPlayerWest:  return Facing::kWest;
 
-    default: return Facing::kSouth;
+    default: return Facings::kFallback;
   }
 }
 

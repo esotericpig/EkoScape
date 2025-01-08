@@ -173,8 +173,6 @@ void GameScene::handle_input_states(const std::vector<bool>& states,const ViewDi
   // Input states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.
-  // In TurnLeft/Right() & StepForward/Backward(), you can pass in true to force this,
-  //     but then this makes the animation a tiny bit strange as you turn off a step.
   const bool is_up = states[InputAction::kUp];
   stored_inputs_.is_down = (stored_inputs_.is_down || states[InputAction::kDown]);
   stored_inputs_.is_left = (stored_inputs_.is_left || states[InputAction::kLeft]);

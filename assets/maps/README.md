@@ -44,9 +44,18 @@ Rundown:
   - Only the header matters, so you can use any (or no) file extension.
 - Lines **2** & **3** are self-explanatory.
 - Line **5** is the speed of the Player.
-  - The 1st number, **7**, is the turning speed of the Player. A **higher** number is faster.
-  - The 2nd number, **11**, is the walking speed of the Player. A **lower** number is faster.
-  - You can use decimal numbers (floats) such as **7.4** or **11.11**.
+  - The 1st number, **7**, is the **turning speed** of the Player in degrees per frame from **0.0** to **90.0** degrees.
+    - A lower number is **slower**, and a higher number is **faster**:
+      - `1` degree turns the Player 1 degree per frame (very slow).
+      - `90` degrees turns the Player instantaneously in one frame (very fast).
+    - A value of `0` uses the default turning speed.
+  - The 2nd number, **11**, is the **walking speed** of the Player, expressed as the number of frames it takes to complete walking one step (at 60 FPS), based on the formula `<seconds> = <speed> / 60 FPS`.
+    - A lower number is **faster**, and a higher number is **slower**:
+      - `1` frame takes the Player ~0.017 seconds (1 / 60 FPS) to walk a step (instantaneous, very fast).
+      - `60` frames takes the Player 1 second (60 / 60 FPS) to walk a step (very slow).
+      - `120` frames takes the Player 2 seconds (120 / 60 FPS) to walk a step (super slow).
+    - A value of `0` uses the default walking speed.
+  - For the speeds, you can use decimal numbers (floats) such as **7.4** or **11.11**.
 - Line **7** is the "floor" space, inside of single quotes, for Things that can move/disappear, such as the Player and Robots.
   - You cannot use a Thing as the space, but you can use a Wall or a Portal instead of a Floor space.
 - Line **8** is the delay, in milliseconds, of the Robots.
@@ -58,7 +67,7 @@ Rundown:
 
 Line separators are platform-independent, so you can use the ones on Linux (`\n`), Windows (`\r\n`), and/or Classic Mac (`\r`).
 
-You can place your Map files inside of any sub folder in `assets/maps/` or in a new sub folder, and it will be picked up by the game automatically.
+You can place your Map files inside of any sub folder in `assets/maps/` or in a new sub folder, and they will be picked up by the game automatically.
 
 ## Grid Space Types ##
 
