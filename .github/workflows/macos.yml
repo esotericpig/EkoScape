@@ -135,11 +135,10 @@ jobs:
       - name: Compress bundle
         run: |
           set -x
-          mkdir -v build_bundle
-          mv '${{ env.GHW_BUNDLE_DIR }}' build_bundle/
-          mv -v 'res/.itch.toml' build_bundle/
+          mv '${{ env.GHW_BUNDLE_DIR }}' build/
+          mv -v 'res/.itch.toml' build/
 
-          cd build_bundle
+          cd build
           tar -czf '${{ env.GHW_PKG_NAME }}.tar.gz' \
               '${{ env.GHW_BUNDLE_NAME }}' '.itch.toml'
           shasum -a 256 '${{ env.GHW_PKG_NAME }}.tar.gz' > '${{ env.GHW_PKG_NAME }}.tar.gz.sha256'
@@ -151,8 +150,9 @@ jobs:
         with:
           name: macos-uni
           path: |
-            build_bundle/*.tar.gz*
-            build/*.dmg*
+            build/*.tar.gz
+            build/*.dmg
+            build/*.sha256
           if-no-files-found: error
           compression-level: 0
           overwrite: true
