@@ -7,9 +7,9 @@
 #   $ ./scripts/pkg_assets.rb
 #
 # Clean, package up `assets/` (to `build/assets.zip`), & upload it to GitHub as `assets.zip`:
-#   $ ./scripts/pkg_assets.rb -c -p -g
+#   $ ./scripts/pkg_assets.rb -C -p -g
 #
-# @version 0.1.1
+# @version 0.1.2
 # @author Bradley Whited
 ###
 
@@ -38,7 +38,7 @@ class AssetsPkger
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.1'
+      op.version = '0.1.2'
       op.summary_width = 8
 
       # Opt indent.
@@ -49,7 +49,7 @@ class AssetsPkger
 
       op.separator ''
       op.separator 'Options'
-      op.on('-c',nil,"[clean] delete '#{ASSETS_ZIP}'")
+      op.on('-C',nil,"[clean] delete '#{ASSETS_ZIP}'")
       op.on('-p',nil,"[pkg] package up '#{ASSETS_DIR}/' into '#{ASSETS_ZIP}'" \
             "\n#{oi}       -- must have `#{ZIP_CMD[0]}` installed")
       op.on('-g',nil,'[gh] upload package to GitHub release (overwrites package)' \
@@ -71,13 +71,17 @@ class AssetsPkger
     @dry_run = opts[:n]
 
     # Order matters! Because user can specify all opts.
-    clean if opts[:c]
+    clean if opts[:C]
     pkg_assets if opts[:p]
     upload_to_gh if opts[:g]
   end
 
   def clean
-    FileUtils.rm(ASSETS_ZIP,noop: @dry_run,verbose: true) if File.file?(ASSETS_ZIP)
+    if File.file?(ASSETS_ZIP)
+      FileUtils.rm(ASSETS_ZIP,noop: @dry_run,verbose: true)
+    else
+      puts "Already gone: #{ASSETS_ZIP}"
+    end
   end
 
   def pkg_assets
@@ -96,7 +100,7 @@ class AssetsPkger
   end
 
   def run_cmd(*cmd)
-    cmd = cmd.flatten
+    cmd = cmd.flatten.compact.map(&:to_s)
 
     puts cmd.map(&Shellwords.method(:escape)).join(' ')
     system(*cmd) unless @dry_run

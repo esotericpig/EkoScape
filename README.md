@@ -218,7 +218,7 @@ Edit/Add the new version in the following places:
 With the [GH CLI](https://cli.github.com) (`gh`) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
 
 ```
-./scripts/get_artifacts.sh
+./scripts/artifacts.rb -g
 ```
 
 (On Linux, to test the Windows icon in the exe, you can use `wine explorer .` and then check it out.)
