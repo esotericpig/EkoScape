@@ -251,16 +251,16 @@ add_custom_target(run
 )
 add_custom_target(check
     COMMAND cppcheck --quiet --enable=all
-              --language=c++ "--std=c++${CMAKE_CXX_STANDARD}"
-              "--relative-paths=${CMAKE_SOURCE_DIR}"
+            --language=c++ "--std=c++${CMAKE_CXX_STANDARD}"
+            "--relative-paths=${CMAKE_SOURCE_DIR}"
 
-              --suppress=missingInclude
-              #"--suppress=noExplicitConstructor:src/cybel/types.h"
-              --suppress=unusedFunction
-              --suppress=unusedPrivateFunction
+            --suppress=missingInclude
+            #"--suppress=noExplicitConstructor:src/cybel/types.h"
+            --suppress=unusedFunction
+            --suppress=unusedPrivateFunction
 
-              "${TP_DIR}"
-              "${SRC_DIR}"
+            "${TP_DIR}"
+            "${SRC_DIR}"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -285,14 +285,16 @@ add_custom_target(check_macos_bundle
 install(TARGETS "${BIN_NAME}"
     # For AppImage, must use 'bin', cannot use 'games'.
     RUNTIME DESTINATION bin
-            COMPONENT appimage
-            EXCLUDE_FROM_ALL
+    COMPONENT appimage
+    EXCLUDE_FROM_ALL
+
     ARCHIVE DESTINATION lib  # For static libs.
-            COMPONENT appimage
-            EXCLUDE_FROM_ALL
+    COMPONENT appimage
+    EXCLUDE_FROM_ALL
+
     LIBRARY DESTINATION lib  # For shared libs.
-            COMPONENT appimage
-            EXCLUDE_FROM_ALL
+    COMPONENT appimage
+    EXCLUDE_FROM_ALL
 )
 install(FILES "${RES_DIR}/${RDNS_NAME}.desktop"
     DESTINATION "share/applications"
@@ -336,6 +338,7 @@ if(APPLE)
     install(TARGETS "${BIN_NAME}"
         BUNDLE DESTINATION "${PKG_MACOS_BIN_DIR}"
         COMPONENT cpack
+
         RUNTIME DESTINATION "${PKG_MACOS_BIN_DIR}"
         COMPONENT cpack
     )

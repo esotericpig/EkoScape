@@ -36,10 +36,7 @@ set(LINUXDEPLOY_BIN "${DOWNLOADS_DIR}/${LINUXDEPLOY_FILENAME}")
 ############################################
 if(NOT EXISTS "${LINUXDEPLOY_BIN}")
   message(STATUS "Downloading '${LINUXDEPLOY_URL}' to '${LINUXDEPLOY_BIN}'...")
-  file(DOWNLOAD
-      "${LINUXDEPLOY_URL}"
-      "${LINUXDEPLOY_BIN}"
-
+  file(DOWNLOAD "${LINUXDEPLOY_URL}" "${LINUXDEPLOY_BIN}"
       TLS_VERIFY ON
       SHOW_PROGRESS
   )
@@ -67,15 +64,15 @@ endif()
 ############################################
 execute_process(
     COMMAND "${CMAKE_COMMAND}" --install "${CMAKE_BINARY_DIR}" --config Release --prefix "${APPDIR_PREFIX}"
-              --component appimage
+            --component appimage
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
 file(MAKE_DIRECTORY "${APPIMG_DIR}")
 execute_process(
     COMMAND "${LINUXDEPLOY_BIN}" --appdir "${APPDIR_DIR}"
-              --icon-file "${ASSETS_DIR}/icons/${RDNS_NAME}.png"
-              --output appimage
+            --icon-file "${ASSETS_DIR}/icons/${RDNS_NAME}.png"
+            --output appimage
     WORKING_DIRECTORY "${APPIMG_DIR}"
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
