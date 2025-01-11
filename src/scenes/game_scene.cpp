@@ -360,17 +360,16 @@ void GameScene::game_over(bool hit_end) {
 
 void GameScene::update_robots(const FrameStep& step) {
   // Remove dead Robots and age living Robots (only if lifespan was set).
-  for(auto it = robots_.begin(); it != robots_.end();) {
-    Robot& robot = *it;
-
+  auto dead_robots = std::ranges::remove_if(robots_,[&](auto& robot) {
     if(robot.is_dead()) {
       map_.remove_thing(robot.pos());
-      it = robots_.erase(it);
-    } else {
-      robot.age(step.delta_time);
-      ++it;
+      return true;
     }
-  }
+
+    robot.age(step.delta_time);
+    return false;
+  });
+  robots_.erase(dead_robots.begin(),dead_robots.end());
 }
 
 void GameScene::move_robots(const FrameStep& step) {
@@ -407,10 +406,10 @@ void GameScene::move_robots(const FrameStep& step) {
 void GameScene::remove_robots_at(const Pos3i& pos) {
   map_.remove_thing(pos);
 
-  auto result = std::ranges::remove_if(robots_,[&](const auto& robot) {
+  auto dead_robots = std::ranges::remove_if(robots_,[&](const auto& robot) {
     return robot.pos() == pos;
   });
-  robots_.erase(result.begin(),result.end());
+  robots_.erase(dead_robots.begin(),dead_robots.end());
 }
 
 std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal
@@ -473,9 +472,9 @@ void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Textu
   const int space_id = SpaceTypes::value_of(type);
 
   // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
-  if(ceiling != nullptr) { dantares_.SetFloorTexture(space_id,ceiling->gl_id()); }
-  if(wall != nullptr) { dantares_.SetWallTexture(space_id,wall->gl_id()); }
-  if(floor != nullptr) { dantares_.SetCeilingTexture(space_id,floor->gl_id()); }
+  if(ceiling != nullptr) { dantares_.SetFloorTexture(space_id,static_cast<int>(ceiling->gl_id())); }
+  if(wall != nullptr) { dantares_.SetWallTexture(space_id,static_cast<int>(wall->gl_id())); }
+  if(floor != nullptr) { dantares_.SetCeilingTexture(space_id,static_cast<int>(floor->gl_id())); }
 }
 
 } // Namespace.
