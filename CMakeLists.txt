@@ -71,6 +71,7 @@ set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
 option(PKG_MACOS_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
 set(PKG_RES_DIRS "${ASSETS_DIR}")
 set(PKG_RES_FILES
+    "${RES_DIR}/.itch.toml"
     "${CMAKE_SOURCE_DIR}/README.md"
     "${CMAKE_SOURCE_DIR}/LICENSE"
 )
