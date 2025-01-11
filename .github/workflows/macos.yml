@@ -9,9 +9,9 @@ env:
   VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
 
   GHW_BIN_NAME: 'EkoScape'
-  GHW_PKG_NAME: "${{ env.GHW_BIN_NAME }}-macos-universal"
-  GHW_BUNDLE_NAME: "${{ env.GHW_BIN_NAME }}.app"
-  GHW_BUNDLE_DIR: "build/_CPack_Packages/Darwin/Bundle/${{ env.GHW_PKG_NAME }}/${{ env.GHW_BUNDLE_NAME }}"
+  GHW_PKG_NAME: 'EkoScape-macos-universal'
+  GHW_BUNDLE_NAME: 'EkoScape.app'
+  GHW_BUNDLE_DIR: 'build/_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal/EkoScape.app'
 
 jobs:
   build:
