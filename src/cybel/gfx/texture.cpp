@@ -14,10 +14,8 @@ namespace cybel {
 
 Texture::Texture(Image& img,bool make_weird) {
   const auto bpp = img.bpp();
-  bool is_red_first = img.is_red_first();
+  bool is_red_first = (make_weird) ? !img.is_red_first() : img.is_red_first();
   GLenum img_format = GL_RGBA;
-
-  if(make_weird) { is_red_first = !is_red_first; }
 
   switch(bpp) {
     case 4:
@@ -37,19 +35,16 @@ Texture::Texture(Image& img,bool make_weird) {
 
   // I didn't have any problems without this, but could be needed.
   // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_upload_and_pixel_reads
-  if(bpp == 3) {
+  if(bpp <= 3) {
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
   } else {
     glPixelStorei(GL_UNPACK_ALIGNMENT,4); // Should be the default.
   }
 
+  // NOTE: For OpenGL 3.0+.
   // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Creating_a_complete_texture
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
-
-  img.lock();
-  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,img.size().w,img.size().h,0,img_format,img.gl_type(),img.pixels());
-  img.unlock();
+  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
+  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
 
   // See: https://open.gl/textures
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -57,14 +52,22 @@ Texture::Texture(Image& img,bool make_weird) {
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 
+  img.lock();
+  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,img.size().w,img.size().h,0,img_format,img.gl_type(),img.pixels());
+  img.unlock();
+
   glBindTexture(GL_TEXTURE_2D,0); // Unbind texture.
 
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    destroy();
-    throw CybelError{"Failed to gen/bind texture for image [",img.id(),"]; error [",error,"]: "
-        ,Util::get_gl_error(error),'.'};
+    // Just eat error, so a blank texture is shown instead of crashing.
+    std::cerr << "[WARN] Failed to gen/bind texture for image [" << img.id()
+              << "]; error [" << error << "]: " << Util::get_gl_error(error) << '.' << std::endl;
+
+    // destroy();
+    // throw CybelError{"Failed to gen/bind texture for image [",img.id(),"]; error [",error,"]: "
+    //     ,Util::get_gl_error(error),'.'};
   }
 
   size_ = img.size();
@@ -101,25 +104,37 @@ Texture::Texture(const Color4f& color,bool make_weird) {
   glGenTextures(1,&gl_id_);
   glBindTexture(GL_TEXTURE_2D,gl_id_);
 
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
-
-  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+  // NOTE: For OpenGL 3.0+.
+  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
+  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
 
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
+  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+
   glBindTexture(GL_TEXTURE_2D,0); // Unbind texture.
 
   GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    destroy();
-    throw CybelError{"Failed to gen/bind texture for color ("
-        ,static_cast<int>(r),',',static_cast<int>(g),',',static_cast<int>(b),',',static_cast<int>(a)
-        ,"); error [",error,"]: ",Util::get_gl_error(error),'.'};
+    // Just eat error, so a blank texture is shown instead of crashing.
+    std::cerr << "[WARN] Failed to gen/bind texture for color ("
+              << static_cast<int>(r) << ','
+              << static_cast<int>(g) << ','
+              << static_cast<int>(b) << ','
+              << static_cast<int>(a)
+              << "); error [" << error << "]: " << Util::get_gl_error(error) << '.' << std::endl;
+
+    // destroy();
+    // throw CybelError{"Failed to gen/bind texture for color ("
+    //     ,static_cast<int>(r),','
+    //     ,static_cast<int>(g),','
+    //     ,static_cast<int>(b),','
+    //     ,static_cast<int>(a)
+    //     ,"); error [",error,"]: ",Util::get_gl_error(error),'.'};
   }
 
   size_.w = width;

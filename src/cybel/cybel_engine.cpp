@@ -52,7 +52,7 @@ void CybelEngine::init_hints() {
   //SDL_SetHint(SDL_HINT_APP_NAME,title_.c_str());
   SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,title_.c_str());
   // One of: nearest, linear, best.
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,"best");
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,"nearest");
   //SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
 }
 
@@ -107,9 +107,9 @@ void CybelEngine::init_config(Config& config) {
 
 void CybelEngine::init_gui(const Config& config) {
   // Use a 2004-2008 version.
-  // - Must be set before SDL_CreateWindow().
+  // - NOTE: Must be set before SDL_CreateWindow().
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
 
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
@@ -139,7 +139,29 @@ void CybelEngine::init_gui(const Config& config) {
     throw CybelError{"Failed to init OpenGL GLEW [",error,"]: ",Util::get_glew_error(error),'.'};
   }
 
+  check_gl_version();
   set_vsync(config.vsync);
+}
+
+void CybelEngine::check_gl_version() {
+  auto gl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  const std::string gl_version = (gl_version_cstr != nullptr)
+      ? gl_version_cstr : "Failed to get OpenGL version";
+
+  std::cerr << "[INFO] OpenGL version: " << gl_version << '.' << std::endl;
+
+  if(!GLEW_VERSION_2_1) {
+    std::cerr << "[WARN] OpenGL version < 2.1." << std::endl;
+
+    std::string msg = Util::build_str(
+      "This system's OpenGL version is less than 2.1.\n",
+      "The game may not function correctly.\n",
+      "Consider downloading & using Mesa for your platform.\n\n",
+      "OpenGL version: ",gl_version,'.'
+    );
+
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,title_.c_str(),msg.c_str(),res_.window);
+  }
 }
 
 void CybelEngine::init_scene(Scene& scene) {
