@@ -4,13 +4,13 @@
 
 ###
 # Show usage:
-#   $ ./scripts/glob_src.rb
+#   ./scripts/glob_src.rb
 #
 # Show source files to copy & paste (only crawls dirs):
-#   $ ./scripts/glob_src.rb -p
+#   ./scripts/glob_src.rb -p
 #
 # Update source files in 'CMakeLists.txt' (overwrites file):
-#   $ ./scripts/glob_src.rb -U
+#   ./scripts/glob_src.rb -U
 #
 # @version 0.1.2
 # @author Bradley Whited

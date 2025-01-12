@@ -51,6 +51,7 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
   - [Packaging Up](#packaging-up)
   - [Miscellaneous](#miscellaneous)
   - [New Release](#new-release)
+  - [Publishing](#publishing)
 - [Credits](#credits)
 - [License](#license)
 
@@ -211,12 +212,12 @@ There are various scripts in the [scripts/](scripts/) folder for development, bu
 
 Optional: To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
 
-Edit/Add the new version in the following places:
+Bump the version in the following places:
 - [CMakeLists.txt](CMakeLists.txt)
 - [src/ekoscape_game.h](src/ekoscape_game.h)
 - [res/io.github.esotericpig.ekoscape.metainfo.xml](res/io.github.esotericpig.ekoscape.metainfo.xml)
 
-With the [GH CLI](https://cli.github.com) (`gh`) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
+With the [GitHub CLI](https://cli.github.com) (`gh`) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
 
 ```
 ./scripts/artifacts.rb -g
@@ -228,6 +229,36 @@ Create a new release:
 
 ```
 gh release create --draft --generate-notes v2.0
+```
+
+### Publishing ###
+
+See [scripts/artifacts.rb](scripts/artifacts.rb) for all of your publishing needs.
+
+Example workflow:
+
+```
+# Use `-n` to only perform a dry-run.
+# Use `-c <channel>` to filter which artifacts/channels to use (fuzzy search).
+
+# Download GitHub artifacts to `build/artifacts/`.
+./scripts/artifacts.rb -g
+
+# Extract (decompress) artifacts to `build/artifacts/`.
+./scripts/artifacts.rb -x
+
+# Validate artifact folders for itch.io.
+./scripts/artifacts.rb -v -c lin
+./scripts/artifacts.rb -v -c mac
+./scripts/artifacts.rb -v -c win
+
+# Publish artifact folders to itch.io.
+./scripts/artifacts.rb -I -c lin
+./scripts/artifacts.rb -I -c mac
+./scripts/artifacts.rb -I -c win
+
+# Check status of itch.io builds.
+./scripts/artifacts.rb -s
 ```
 
 ## Credits ##

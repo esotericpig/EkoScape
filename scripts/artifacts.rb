@@ -4,9 +4,32 @@
 
 ###
 # Show usage:
-#   $ ./artifacts.rb
+#   ./scripts/artifacts.rb
 #
-# @version 0.1.1
+# Example usage:
+#   # Use `-n` to only perform a dry-run.
+#   # Use `-c <channel>` to filter which artifacts/channels to use (fuzzy search).
+#
+#   # Download GitHub artifacts to `build/artifacts/`.
+#   ./scripts/artifacts.rb -g
+#
+#   # Extract (decompress) artifacts to `build/artifacts/`.
+#   ./scripts/artifacts.rb -x
+#
+#   # Validate artifact folders for itch.io.
+#   ./scripts/artifacts.rb -v -c lin
+#   ./scripts/artifacts.rb -v -c mac
+#   ./scripts/artifacts.rb -v -c win
+#
+#   # Publish artifact folders to itch.io.
+#   ./scripts/artifacts.rb -I -c lin
+#   ./scripts/artifacts.rb -I -c mac
+#   ./scripts/artifacts.rb -I -c win
+#
+#   # Check status of itch.io builds.
+#   ./scripts/artifacts.rb -s
+#
+# @version 0.1.2
 # @author Bradley Whited
 ###
 
@@ -19,7 +42,9 @@ def main
   ArtifactsMan.new.run
 end
 
-Artifact = Struct.new(:name,:file,:to_dir,:channel,keyword_init: true) do
+class Artifact
+  attr_reader :name,:file,:to_dir,:channel,:platform
+
   def initialize(name:,file:,channel:,to_dir: nil)
     if to_dir.nil? || (to_dir = to_dir.to_s.strip).empty?
       to_dir = file.sub(/([^.])\..*$/,'\1')
@@ -27,10 +52,18 @@ Artifact = Struct.new(:name,:file,:to_dir,:channel,keyword_init: true) do
       raise "Invalid file/ext: #{file}." if to_dir.empty?
     end
 
-    self.name = name.strip
-    self.file = file.strip
-    self.to_dir = to_dir.strip
-    self.channel = channel.strip
+    platform = case channel
+               when /linux/i then 'linux'
+               when /macos/i then 'osx'
+               when /windows/i then 'windows'
+               else raise "Unknown platform: #{channel}."
+               end
+
+    @name = name.strip
+    @file = file.strip
+    @to_dir = to_dir.strip
+    @channel = channel.strip
+    @platform = platform
   end
 end
 
@@ -71,15 +104,17 @@ class ArtifactsMan
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.1'
+      op.version = '0.1.2'
       op.summary_width = 16
+
+      si = op.summary_indent
 
       op.separator ''
       op.separator "v#{op.version}"
 
       op.separator ''
       op.separator 'Options'
-      op.on('-c <channel>','filter which artifacts to use by fuzzy search on channel') do |channel|
+      op.on('-c <channel>','filter which artifacts to use (fuzzy search)') do |channel|
         channel = channel.strip
         @artifacts = @artifacts.filter { |a| a.channel.include?(channel) }
         channel
@@ -96,6 +131,11 @@ class ArtifactsMan
       op.separator ''
       op.separator 'Basic Options'
       op.on('-n',nil,'no-clobber dry run')
+
+      op.separator ''
+      op.separator 'Notes'
+      op.separator "#{si}# Any trailing options/args after '--' will be passed to the command directly:"
+      op.separator "#{si}#{op.program_name} -v -c lin -- --context-timeout=110"
     end
 
     args,@extra_args = parse_extra_args
@@ -153,8 +193,11 @@ class ArtifactsMan
   def check
     @artifacts.each do |artifact|
       file = File.join(ARTIFACTS_DIR,artifact.file)
+      sum_file = "#{file}.sha256"
 
-      check_file("#{file}.sha256")
+      next unless File.file?(sum_file)
+
+      verify_checksum_file(sum_file)
     end
   end
 
@@ -173,7 +216,7 @@ class ArtifactsMan
     @artifacts.each do |artifact|
       dir = File.join(ARTIFACTS_DIR,artifact.to_dir,'')
 
-      run_cmd(BUTLER_CMD,'validate',dir)
+      run_cmd(BUTLER_CMD,'validate','--platform',artifact.platform,dir)
       sleep(SLEEP_SECS)
       puts
     end
@@ -207,7 +250,9 @@ class ArtifactsMan
     end
   end
 
-  def check_file(sum_file)
+  def verify_checksum_file(sum_file)
+    fmt = '%-9s %s'
+
     File.foreach(sum_file,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8') do |line|
       parts = line.strip.split(/\s+\*?/,2)
       next if parts.length < 2
@@ -218,16 +263,32 @@ class ArtifactsMan
 
       file = File.join(ARTIFACTS_DIR,file)
       dig = Digest::SHA256.new
+      result = ''
+      details = nil
 
-      File.open(file,'rb') do |f|
-        buffer = ''.dup
-        while f.read(16_384,buffer)
-          dig.update(buffer)
+      if File.file?(file)
+        File.open(file,'rb') do |f|
+          buffer = ''.dup
+          while f.read(16_384,buffer)
+            dig.update(buffer)
+          end
         end
+
+        expected_sum = dig.hexdigest
+
+        if sum == expected_sum
+          result = '[ok]'
+        else
+          result = '[BAD hex]'
+          details = ["actual:   #{sum}",
+                     "expected: #{expected_sum}"]
+        end
+      else
+        result = '[NO file]'
       end
 
-      print (dig.hexdigest == sum) ? '[ok]' : '[BAD]'
-      puts " #{file}"
+      puts format(fmt,result,file)
+      puts details.map { |d| format(fmt,'',d) }.join("\n") unless details.nil?
     end
   end
 

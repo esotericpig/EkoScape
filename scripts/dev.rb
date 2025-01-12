@@ -6,7 +6,34 @@
 # For rapid development.
 #
 # Show usage:
-#   $ ./scripts/dev.rb
+#   ./scripts/dev.rb
+#
+# Example usage:
+#   # Use `-n` to only perform a dry-run.
+#   # Use `-j [jobs]` to set the number of jobs in parallel.
+#
+#   # Configure build.
+#   ./scripts/dev.rb -c
+#
+#   # Clean build files.
+#   ./scripts/dev.rb -C
+#
+#   # Build Release or Debug.
+#   ./scripts/dev.rb -b
+#   ./scripts/dev.rb -b -d
+#
+#   # Run Release or Debug.
+#   ./scripts/dev.rb -r
+#   ./scripts/dev.rb -r -d
+#
+#   # Check code quality.
+#   ./scripts/dev.rb -k
+#
+#   # Build Linux AppImage.
+#   ./scripts/dev.rb -A
+#
+#   # Package up.
+#   ./scripts/dev.rb -P
 #
 # @version 0.1.4
 # @author Bradley Whited
@@ -54,7 +81,7 @@ class DevApp
       op.separator ''
       op.on('-p <preset>','use <preset> for the preset') { |p| p.to_s.strip }
       op.on('-d',nil,"use 'Debug' config")
-      op.on('-j [jobs]','set number of jobs; if no number, uses 1') do |j|
+      op.on('-j [jobs]','set number of jobs in parallel; if no number, uses 1') do |j|
         j = j.to_s.strip
         j = j.empty? ? 1 : j.to_i
         @extra_build_args.push('-j',j)
@@ -67,8 +94,8 @@ class DevApp
 
       op.separator ''
       op.separator 'Notes'
-      op.separator "#{si}Any trailing options/args after '--' will be passed to the command directly:"
-      op.separator "#{si}$ #{op.program_name} -c -- --warn-uninitialized"
+      op.separator "#{si}# Any trailing options/args after '--' will be passed to the command directly:"
+      op.separator "#{si}#{op.program_name} -c -- --warn-uninitialized"
     end
 
     args = ARGV

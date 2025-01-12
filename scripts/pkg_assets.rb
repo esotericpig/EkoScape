@@ -4,10 +4,10 @@
 
 ###
 # Show usage:
-#   $ ./scripts/pkg_assets.rb
+#   ./scripts/pkg_assets.rb
 #
 # Clean, package up `assets/` (to `build/assets.zip`), & upload it to GitHub as `assets.zip`:
-#   $ ./scripts/pkg_assets.rb -C -p -G
+#   ./scripts/pkg_assets.rb -C -p -G
 #
 # @version 0.1.2
 # @author Bradley Whited
