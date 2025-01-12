@@ -212,6 +212,7 @@ There are various scripts in the [scripts/](scripts/) folder for development, bu
 Optional: To update dependencies, update your `vcpkg` clone and then run `vcpkg x-update-baseline` in this project's folder. Clean any build folders and then test building & playing the game.
 
 Edit/Add the new version in the following places:
+- [CMakeLists.txt](CMakeLists.txt)
 - [src/ekoscape_game.h](src/ekoscape_game.h)
 - [res/io.github.esotericpig.ekoscape.metainfo.xml](res/io.github.esotericpig.ekoscape.metainfo.xml)
 

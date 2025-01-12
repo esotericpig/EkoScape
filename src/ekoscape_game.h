@@ -28,7 +28,7 @@ class EkoScapeGame : public Scene {
   std::unique_ptr<CybelEngine> cybel_engine_{};
 
 public:
-  static inline const std::string kTitle = "EkoScape v2.0";
+  static inline const std::string kTitle = "EkoScape v2.1";
 
   explicit EkoScapeGame();
 
