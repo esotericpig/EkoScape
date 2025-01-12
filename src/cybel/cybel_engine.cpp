@@ -108,7 +108,7 @@ void CybelEngine::init_config(Config& config) {
 void CybelEngine::init_gui(const Config& config) {
   // Use a 2004-2008 version.
   // - Must be set before SDL_CreateWindow().
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
 
