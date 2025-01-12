@@ -141,8 +141,10 @@ jobs:
               -C '${{ env.GHW_PKG_DIR }}' \
               '${{ env.GHW_BUNDLE_NAME }}' \
               '.itch.toml'
-          shasum -a 256 'build/${{ env.GHW_PKG_NAME }}.tar.gz' \
-                 > 'build/${{ env.GHW_PKG_NAME }}.tar.gz.sha256'
+          cd build
+          shasum -a 256 '${{ env.GHW_PKG_NAME }}.tar.gz' \
+                 > '${{ env.GHW_PKG_NAME }}.tar.gz.sha256'
+          cd -
           set +x
 
       - name: Upload package
