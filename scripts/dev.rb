@@ -34,7 +34,7 @@ class DevApp
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
       op.version = '0.1.4'
-      op.summary_width = 14
+      op.summary_width = 16
 
       si = op.summary_indent
 

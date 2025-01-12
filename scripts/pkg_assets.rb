@@ -7,7 +7,7 @@
 #   $ ./scripts/pkg_assets.rb
 #
 # Clean, package up `assets/` (to `build/assets.zip`), & upload it to GitHub as `assets.zip`:
-#   $ ./scripts/pkg_assets.rb -C -p -g
+#   $ ./scripts/pkg_assets.rb -C -p -G
 #
 # @version 0.1.2
 # @author Bradley Whited
@@ -52,7 +52,7 @@ class AssetsPkger
       op.on('-C',nil,"[clean] delete '#{ASSETS_ZIP}'")
       op.on('-p',nil,"[pkg] package up '#{ASSETS_DIR}/' into '#{ASSETS_ZIP}'" \
             "\n#{oi}       -- must have `#{ZIP_CMD[0]}` installed")
-      op.on('-g',nil,'[gh] upload package to GitHub release (overwrites package)' \
+      op.on('-G',nil,'[gh] upload package to GitHub release (overwrites package)' \
             "\n#{oi}      -- must have `#{GH_CMD[0]}` installed")
 
       op.separator ''
@@ -73,7 +73,7 @@ class AssetsPkger
     # Order matters! Because user can specify all opts.
     clean if opts[:C]
     pkg_assets if opts[:p]
-    upload_to_gh if opts[:g]
+    upload_to_gh if opts[:G]
   end
 
   def clean
