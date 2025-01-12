@@ -3,9 +3,9 @@
 # == Install ==
 # To install manually, change these to absolute paths:
 #   Icon=/home/<username>/Applications/EkoScape/assets/icons/io.github.esotericpig.ekoscape.png
-#   Exec=/home/<username>/Applications/EkoScape/EkoScape-x86_64.AppImage
+#   Exec=/home/<username>/Applications/EkoScape/EkoScape.sh
 #
-# NOTE: The `assets/` folder must be in the same folder as the AppImage!
+# NOTE: The `assets/` folder must be in the same folder as the game!
 #
 # Finally, run this:
 #   # This will usually install to `~/.local/share/applications`.
@@ -29,7 +29,7 @@ Comment=Simple 3D step-based game, like a 3D Pac-Man
 #Icon=/home/<username>/Applications/EkoScape/assets/icons/io.github.esotericpig.ekoscape.png
 Icon=io.github.esotericpig.ekoscape
 #TryExec=EkoScape
-#Exec=/home/<username>/Applications/EkoScape/EkoScape-x86_64.AppImage
+#Exec=/home/<username>/Applications/EkoScape/EkoScape.sh
 Exec=EkoScape
 #Path=
 Terminal=false

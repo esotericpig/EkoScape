@@ -69,9 +69,9 @@ set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage
 
 set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
 option(PKG_MACOS_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
+set(PKG_BASE_FILES "${TEMPL_DIR}/.itch.toml")
 set(PKG_RES_DIRS "${ASSETS_DIR}")
 set(PKG_RES_FILES
-    "${RES_DIR}/.itch.toml"
     "${CMAKE_SOURCE_DIR}/README.md"
     "${CMAKE_SOURCE_DIR}/LICENSE"
 )
@@ -85,14 +85,23 @@ set(CPACK_COMPONENTS_GROUPING "ALL_COMPONENTS_IN_ONE")
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_BUNDLE_COMPONENT_INSTALL ON)
 
-set(CPACK_BUNDLE_NAME "${PROJECT_NAME}")
+set(CPACK_BUNDLE_NAME "${BIN_NAME}")
 set(CPACK_BUNDLE_PLIST "${TEMPL_DIR}/Info.plist")
 set(CPACK_BUNDLE_ICON "${ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
 
 set(FETCHCONTENT_QUIET OFF)
 #set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
 
-#include(FetchContent)
+if(APPLE)
+  set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.app")
+  set(PKG_ITCH_RES_PATH "${BIN_NAME}.app/Contents/Resources")
+elseif(WIN32)
+  set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.exe")
+  set(PKG_ITCH_RES_PATH ".")
+else()
+  set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.sh")
+  set(PKG_ITCH_RES_PATH ".")
+endif()
 
 ############################################
 # Compiler Config                          #
@@ -311,14 +320,14 @@ install(FILES "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml"
     EXCLUDE_FROM_ALL
 )
 
-configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
-
 ############################################
 # Package (CPack)                          #
 ############################################
 if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
   set(CPACK_GENERATOR "Bundle")
+
+  set(PKG_MACOS_BASE_DIR "../../..")
   set(PKG_MACOS_BIN_DIR "../MacOS")
 
   # NOTE: Can't use EXCLUDE_FROM_ALL with Bundle generator.
@@ -345,6 +354,10 @@ if(APPLE)
     )
   endif()
 
+  install(FILES ${PKG_BASE_FILES}
+      DESTINATION "${PKG_MACOS_BASE_DIR}"
+      COMPONENT cpack
+  )
   install(DIRECTORY ${PKG_RES_DIRS}
       DESTINATION "."
       COMPONENT cpack
@@ -368,7 +381,8 @@ elseif(WIN32)
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
-  install(FILES ${PKG_RES_FILES}
+  install(FILES ${PKG_BASE_FILES}
+                ${PKG_RES_FILES}
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -387,8 +401,9 @@ else()
       EXCLUDE_FROM_ALL
       FILES_MATCHING PATTERN "*.AppImage"
   )
-  # Desktop Entry files should be executable.
-  install(PROGRAMS "${RES_DIR}/${RDNS_NAME}.desktop"
+  # Desktop Entry files should also be executable.
+  install(PROGRAMS "${TEMPL_DIR}/${BIN_NAME}.sh"
+                   "${RES_DIR}/${RDNS_NAME}.desktop"
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -399,7 +414,8 @@ else()
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
-  install(FILES ${PKG_RES_FILES}
+  install(FILES ${PKG_BASE_FILES}
+                ${PKG_RES_FILES}
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -408,9 +424,16 @@ endif()
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${PKG_SUFFIX}")
 
+############################################
+# Configure Template Files                 #
+############################################
+configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
 # NOTE: Must be configured before including CPack.
 configure_file("${TEMPL_CMAKE_DIR}/check_macos_bundle.cmake.in" "${TEMPL_DIR}/check_macos_bundle.cmake" @ONLY)
+
+configure_file("${RES_DIR}/.itch.toml" "${TEMPL_DIR}/.itch.toml" @ONLY)
 configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml" @ONLY)
 configure_file("${RES_DIR}/Info.plist" "${TEMPL_DIR}/Info.plist" @ONLY)
+configure_file("${RES_DIR}/launcher.sh" "${TEMPL_DIR}/${BIN_NAME}.sh" @ONLY)
 
 include(CPack)

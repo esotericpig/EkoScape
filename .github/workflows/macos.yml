@@ -10,8 +10,8 @@ env:
 
   GHW_BIN_NAME: 'EkoScape'
   GHW_PKG_NAME: 'EkoScape-macos-universal'
+  GHW_PKG_DIR: 'build/_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal'
   GHW_BUNDLE_NAME: 'EkoScape.app'
-  GHW_BUNDLE_DIR: 'build/_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal/EkoScape.app'
 
 jobs:
   build:
@@ -58,7 +58,8 @@ jobs:
       - name: Build ${{ matrix.arch }}
         run: |
           cmake --build --preset no-jobs --config Release
-          mv -v 'bin/Release/${{ env.GHW_BIN_NAME }}' 'bin/Release/${{ env.GHW_BIN_NAME }}-${{ matrix.arch }}'
+          mv -v 'bin/Release/${{ env.GHW_BIN_NAME }}' \
+             'bin/Release/${{ env.GHW_BIN_NAME }}-${{ matrix.arch }}'
 
       - name: Upload ${{ matrix.arch }}
         uses: actions/upload-artifact@v4
@@ -119,7 +120,8 @@ jobs:
           lipo -info 'build_uni_temp/${{ env.GHW_BIN_NAME }}'*
 
           mkdir -v build_uni
-          lipo -create 'build_uni_temp/${{ env.GHW_BIN_NAME }}'* -output 'build_uni/${{ env.GHW_BIN_NAME }}'
+          lipo -create 'build_uni_temp/${{ env.GHW_BIN_NAME }}'* \
+               -output 'build_uni/${{ env.GHW_BIN_NAME }}'
           lipo -info 'build_uni/${{ env.GHW_BIN_NAME }}'
           set +x
 
@@ -127,7 +129,7 @@ jobs:
         run: cpack -C Release --config build/CPackConfig.cmake -B build --verbose
 
       - name: Debug bundle
-        run: ls -alR '${{ env.GHW_BUNDLE_DIR }}'
+        run: ls -alR '${{ env.GHW_PKG_DIR }}'
 
       - name: Verify bundle
         run: cmake --build --preset no-jobs --config Release --target check_macos_bundle
@@ -135,14 +137,12 @@ jobs:
       - name: Compress bundle
         run: |
           set -x
-          mv '${{ env.GHW_BUNDLE_DIR }}' build/
-          mv -v 'res/.itch.toml' build/
-
-          cd build
-          tar -czf '${{ env.GHW_PKG_NAME }}.tar.gz' \
-              '${{ env.GHW_BUNDLE_NAME }}' '.itch.toml'
-          shasum -a 256 '${{ env.GHW_PKG_NAME }}.tar.gz' > '${{ env.GHW_PKG_NAME }}.tar.gz.sha256'
-          cd -
+          tar -czf 'build/${{ env.GHW_PKG_NAME }}.tar.gz' \
+              -C '${{ env.GHW_PKG_DIR }}' \
+              '${{ env.GHW_BUNDLE_NAME }}' \
+              '.itch.toml'
+          shasum -a 256 'build/${{ env.GHW_PKG_NAME }}.tar.gz' \
+                 > 'build/${{ env.GHW_PKG_NAME }}.tar.gz.sha256'
           set +x
 
       - name: Upload package

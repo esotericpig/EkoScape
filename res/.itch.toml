@@ -1,18 +1,15 @@
 [[actions]]
-name = "Open Maps Folder"
-path = "assets/maps/"
-platform = "linux"
+name = "play"
+path = "@PKG_ITCH_PLAY_PATH@"
 
 [[actions]]
 name = "Open Maps Folder"
-path = "EkoScape.app/Contents/Resources/assets/maps/"
-platform = "osx"
+path = "@PKG_ITCH_RES_PATH@/assets/maps/"
 
 [[actions]]
-name = "Open Maps Folder"
-path = "assets/maps/"
-platform = "windows"
-
-[[actions]]
-name = "Maps Guide"
+name = "Open Online Maps Guide"
 path = "https://github.com/esotericpig/EkoScape/blob/main/assets/maps/README.md"
+
+[[actions]]
+name = "Open Offline Maps Guide"
+path = "@PKG_ITCH_RES_PATH@/assets/maps/README.md"
