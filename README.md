@@ -230,7 +230,7 @@ With the [GitHub CLI](https://cli.github.com) (`gh`) installed, run this script 
 Create a new release:
 
 ```
-gh release create --draft --generate-notes v2.0
+gh release create --draft --notes "$(git --no-pager log "$(git describe --tags --abbrev=0)"..HEAD --pretty=format:'- %B')" --title v2.1 v2.1
 ```
 
 ### Publishing ###
