@@ -15,6 +15,8 @@ You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) and
 You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
 
 **System Requirements:**
+- OpenGL 2.1+
+  - Use Mesa if you have a lower version.
 - Linux x86_64 (AppImage)
   - glibc 2.14+ (Ubuntu 22.04+; Fedora 16+)
   - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
@@ -31,7 +33,7 @@ You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See
 
 EkoScape is a remake of an old game I made back in 2004 (with minor edits in later years) using my friend's 3D step-based engine: The Dantares Engine by Ryan Witmer. You can find the original code in [relics/](relics/).
 
-Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SDL2 (multi-platform) using modern C++20. However, it still uses The Dantares Engine and legacy OpenGL 2.0+, as homage to the original game and engine.
+Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SDL2 (multi-platform) using modern C++20. However, it still uses The Dantares Engine and legacy OpenGL 2.1+, as homage to the original game and engine.
 
 In the beginning, I rewrote the original code for fun in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff (such as portals, fruit, and multiple grids), which took over a month.
 
