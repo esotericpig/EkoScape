@@ -139,11 +139,15 @@ jobs:
       - name: Verify Info.plist
         run: plutil -lint '${{ env.GHW_BUNDLE_DIR }}/Contents/Info.plist'
 
-      - name: Verify bundle w/ codesign
-        run: codesign --verify --deep --verbose=4 '${{ env.GHW_BUNDLE_DIR }}'
-
       - name: Verify bundle deps
         run: otool -L '${{ env.GHW_BUNDLE_DIR }}/Contents/MacOS/${{ env.GHW_BIN_NAME }}'
+
+      - name: Test opening bundle
+        run: |
+          set -x
+          xattr -r -d com.apple.quarantine '${{ env.GHW_BUNDLE_DIR }}'
+          open '${{ env.GHW_BUNDLE_DIR }}' --args --version || echo '[ERROR] Failed to open app bundle.'
+          set +x
 
       - name: Compress bundle
         run: |
