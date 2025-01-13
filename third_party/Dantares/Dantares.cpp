@@ -16,7 +16,7 @@
  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/*  Implementation of The Dantares Engine v1.0
+/*  Implementation of The Dantares Engine v1.3
     All code written by Ryan Witmer in Apple Xcode
     ryan@averagesoftware.com
     www.averagesoftware.com
