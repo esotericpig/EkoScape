@@ -11,7 +11,7 @@
     <key>CFBundleIdentifier</key>
     <string>@RDNS_NAME@</string>
     <key>CFBundleName</key>
-    <string>@PROJECT_NAME@</string>
+    <string>@BIN_NAME@</string>
     <key>CFBundleDisplayName</key>
     <string>@PROJECT_NAME@</string>
     <key>CFBundleSpokenName</key>
@@ -31,7 +31,7 @@
     <key>CFBundleExecutable</key>
     <string>@BIN_NAME@</string>
 
-    <string>NSHighResolutionCapable</string>
+    <key>NSHighResolutionCapable</key>
     <true/>
   </dict>
 </plist>

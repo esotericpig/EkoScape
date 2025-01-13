@@ -8,10 +8,12 @@ on:
 env:
   VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
 
+  # NOTE: Can't use env vars inside of env vars (Inception).
   GHW_BIN_NAME: 'EkoScape'
   GHW_PKG_NAME: 'EkoScape-macos-universal'
   GHW_PKG_DIR: 'build/_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal'
   GHW_BUNDLE_NAME: 'EkoScape.app'
+  GHW_BUNDLE_DIR: 'build/_CPack_Packages/Darwin/Bundle/EkoScape-macos-universal/EkoScape.app'
 
 jobs:
   build:
@@ -133,6 +135,15 @@ jobs:
 
       - name: Verify bundle
         run: cmake --build --preset no-jobs --config Release --target check_macos_bundle
+
+      - name: Verify Info.plist
+        run: plutil -lint '${{ env.GHW_BUNDLE_DIR }}/Contents/Info.plist'
+
+      - name: Verify bundle w/ codesign
+        run: codesign --verify --deep --verbose=4 '${{ env.GHW_BUNDLE_DIR }}'
+
+      - name: Verify bundle deps
+        run: otool -L '${{ env.GHW_BUNDLE_DIR }}/Contents/MacOS/${{ env.GHW_BIN_NAME }}'
 
       - name: Compress bundle
         run: |
