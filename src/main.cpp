@@ -11,8 +11,15 @@
 
 // SDL2 requires standard main().
 // - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_%2E%2E%2E
-int main(int /*argc*/,char** /*argv*/) {
+int main(int argc,char** argv) {
   using namespace ekoscape;
+
+  for(int i = 1; i < argc; ++i) {
+    if(std::string{argv[i]} == "--version") {
+      std::cout << EkoScapeGame::kTitle << std::endl;
+      return 0;
+    }
+  }
 
   try {
     EkoScapeGame eko{};
