@@ -146,6 +146,10 @@ jobs:
         run: |
           set -x
           xattr -r -d com.apple.quarantine '${{ env.GHW_BUNDLE_DIR }}'
+          file '${{ env.GHW_BUNDLE_DIR }}'
+          file '${{ env.GHW_BUNDLE_DIR }}/Contents/MacOS/${{ env.GHW_BIN_NAME }}'
+
+          '${{ env.GHW_BUNDLE_DIR }}/Contents/MacOS/${{ env.GHW_BIN_NAME }}' --version
           open '${{ env.GHW_BUNDLE_DIR }}' --args --version || echo '[ERROR] Failed to open app bundle.'
           set +x
 
