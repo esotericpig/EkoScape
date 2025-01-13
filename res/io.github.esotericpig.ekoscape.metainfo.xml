@@ -14,7 +14,7 @@
   <!-- <icon type="cached">@RDNS_NAME@.png</icon> -->
   <description>
     <p>
-    Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.0.
+    Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.1+.
     The <em>assets</em> folder should have been provided with this game, and in it,
     you can edit the map files in <em>assets/maps/</em> or make your own!
     <em>Enjoy!</em>
