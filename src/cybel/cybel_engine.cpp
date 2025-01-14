@@ -151,7 +151,7 @@ void CybelEngine::check_gl_version() {
   std::cerr << "[INFO] OpenGL version: " << gl_version << '.' << std::endl;
 
   if(!GLEW_VERSION_2_1) {
-    std::cerr << "[WARN] OpenGL version < 2.1." << std::endl;
+    std::cerr << "[WARN] OpenGL version is < 2.1." << std::endl;
 
     std::string msg = Util::build_str(
       "This system's OpenGL version is less than 2.1.\n",
@@ -320,9 +320,8 @@ void CybelEngine::handle_input_states() {
   const KeyMods mods = SDL_GetModState();
 
   for(int i = 0; i < num_keys; ++i) {
-    auto raw_key = static_cast<RawKey>(i);
-
     if(raw_keys[i] == 1) {
+      auto raw_key = static_cast<RawKey>(i);
       SymKey sym_key = SDL_GetKeyFromScancode(raw_key);
 
       input_man_->set_state(RawKeyInput{raw_key,mods},true);

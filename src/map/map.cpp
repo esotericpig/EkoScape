@@ -13,9 +13,9 @@
 namespace ekoscape {
 
 bool Map::is_map_file(const std::filesystem::path& file) {
-  std::error_code err{}; // For noexcept overload of is_regular_file().
+  std::error_code err_code{}; // For noexcept overload.
 
-  if(!is_regular_file(file,err)) { return false; }
+  if(!is_regular_file(file,err_code)) { return false; }
 
   try {
     TextReader reader{file,24}; // Buffer size based on: "[EkoScape/v1999]\r\n"

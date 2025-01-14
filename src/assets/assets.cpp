@@ -147,11 +147,12 @@ void Assets::reload_styled_texs_bag(const StrUtf8& tex_style) {
 
   std::unordered_set<std::filesystem::path> loaded_dirnames{};
   std::ostringstream errors{};
+  std::error_code err_code{};
 
   for(const auto& base_dir: kBaseDirs) {
     const auto texs_dir = base_dir / kTexsSubdir;
 
-    if(!is_directory(texs_dir)) { continue; } // ADL (Argument-Dependent Lookup).
+    if(!is_directory(texs_dir,err_code)) { continue; } // ADL (Argument-Dependent Lookup).
 
     try {
       for(const auto& style_entry: std::filesystem::directory_iterator(texs_dir)) {
@@ -294,9 +295,9 @@ void Assets::glob_maps_meta(const MapCallback& on_map) const {
 
   for(const auto& base_dir: kBaseDirs) {
     const auto maps_dir = base_dir / kMapsSubdir;
-    std::error_code err{}; // For noexcept overload.
+    std::error_code err_code{}; // For noexcept overload.
 
-    if(!is_directory(maps_dir,err)) { continue; }
+    if(!is_directory(maps_dir,err_code)) { continue; }
 
     try {
       for(const auto& group_entry: std::filesystem::directory_iterator(maps_dir)) {
