@@ -38,7 +38,8 @@ cmake_minimum_required(VERSION 3.20)
 # @author Bradley Whited
 ###
 
-#message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.")
+# Get rid of stupid warning on first run.
+message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.")
 
 project("EkoScape"
     VERSION "2.1"
