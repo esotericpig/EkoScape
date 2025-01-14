@@ -318,7 +318,7 @@ Renderer& Renderer::begin_tex(const Texture& tex) {
 
 Renderer& Renderer::end_tex() {
   glBindTexture(GL_TEXTURE_2D,0); // Unbind.
-  glDisable(GL_TEXTURE_2D);
+  // glDisable(GL_TEXTURE_2D);
 
   return *this;
 }
