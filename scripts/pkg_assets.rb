@@ -9,7 +9,6 @@
 # Clean, package up `assets/` (to `build/assets.zip`), & upload it to GitHub as `assets.zip`:
 #   ./scripts/pkg_assets.rb -C -p -G
 #
-# @version 0.1.2
 # @author Bradley Whited
 ###
 
@@ -22,6 +21,8 @@ def main
 end
 
 class AssetsPkger
+  VERSION = '0.1.2'
+
   BUILD_DIR = 'build'
   ASSETS_DIR = 'assets'
   ASSETS_ZIP = File.join(BUILD_DIR,"#{ASSETS_DIR}.zip")
@@ -38,7 +39,7 @@ class AssetsPkger
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.2'
+      op.version = VERSION
       op.summary_width = 8
 
       # Opt indent.

@@ -35,7 +35,6 @@
 #   # Package up.
 #   ./scripts/dev.rb -P
 #
-# @version 0.1.4
 # @author Bradley Whited
 ###
 
@@ -47,6 +46,8 @@ def main
 end
 
 class DevApp
+  VERSION = '0.1.4'
+
   CMAKE_CMD = %w[ cmake ].freeze
 
   def initialize
@@ -60,7 +61,7 @@ class DevApp
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.4'
+      op.version = VERSION
       op.summary_width = 16
 
       si = op.summary_indent

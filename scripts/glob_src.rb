@@ -12,7 +12,6 @@
 # Update source files in 'CMakeLists.txt' (overwrites file):
 #   ./scripts/glob_src.rb -U
 #
-# @version 0.1.2
 # @author Bradley Whited
 ###
 
@@ -25,6 +24,8 @@ def main
 end
 
 class SrcGlobber
+  VERSION = '0.1.2'
+
   # Must be all lower-cased for case-insensitive comparison.
   SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
 
@@ -38,7 +39,7 @@ class SrcGlobber
   def run
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.2'
+      op.version = VERSION
       op.summary_width = 8
 
       op.separator ''
