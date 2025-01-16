@@ -29,82 +29,102 @@
 #   # Check status of itch.io builds.
 #   ./scripts/artifacts.rb -s
 #
-# @version 0.1.2
 # @author Bradley Whited
 ###
 
 require 'digest'
 require 'fileutils'
 require 'optparse'
+require 'set'
 require 'shellwords'
 
 def main
   ArtifactsMan.new.run
 end
 
-class Artifact
-  attr_reader :name,:file,:to_dir,:channel,:platform
-
-  def initialize(name:,file:,channel:,to_dir: nil)
-    if to_dir.nil? || (to_dir = to_dir.to_s.strip).empty?
-      to_dir = file.sub(/([^.])\..*$/,'\1')
-
-      raise "Invalid file/ext: #{file}." if to_dir.empty?
-    end
-
-    platform = case channel
-               when /linux/i then 'linux'
-               when /macos/i then 'osx'
-               when /windows/i then 'windows'
-               else raise "Unknown platform: #{channel}."
-               end
-
-    @name = name.strip
-    @file = file.strip
-    @to_dir = to_dir.strip
-    @channel = channel.strip
-    @platform = platform
-  end
-end
-
 class ArtifactsMan
+  VERSION = '0.1.3'
+
   ARTIFACTS_DIR = File.join('build','artifacts')
   USER_GAME = 'esotericpig/ekoscape'
-  SLEEP_SECS = 0.500
 
   ARTIFACTS = [
-    Artifact.new(
+    {
       name: 'linux-appimage-x64',
       file: 'EkoScape-linux-x64.tar.gz',
       channel: 'linux-x64',
-    ),
-    Artifact.new(
+    },
+    {
       name: 'macos-uni',
       file: 'EkoScape-macos-universal.tar.gz',
       channel: 'macos-universal',
-    ),
-    Artifact.new(
+    },
+    {
       name: 'windows-x64',
       file: 'EkoScape-windows-x64.zip',
       channel: 'windows-x64',
-    ),
+    },
   ].freeze
+
+  SLEEP_SECS = 0.500
+  CHECKSUM_BUFFER_SIZE = 16_384
 
   GH_CMD = %w[ gh ].freeze
   TAR_CMD = %w[ tar ].freeze
   UNZIP_CMD = %w[ unzip ].freeze
   BUTLER_CMD = %w[ butler ].freeze
 
+  # Order matters! Because user can specify all actions.
+  ACTIONS = [
+    [:C,"[clean] delete '#{ARTIFACTS_DIR}/'",:clean],
+    [:g,"[get] download artifacts to '#{ARTIFACTS_DIR}/'",:fetch],
+    [:h,'[checksum] verify artifact checksums',:check],
+    [:x,'[extract] extract artifacts',:extract],
+    [:v,'[validate] validate artifacts for itch.io',:validate_for_itch],
+    [:I,'[itch] publish extracted artifacts to itch.io',:publish_to_itch],
+    [:s,'[status] check status of itch.io builds',:stat_itch_builds],
+  ].map do |action|
+    {opt: action[0],desc: action[1],method: action[2]}
+  end.freeze
+
   def initialize
-    @artifacts = ARTIFACTS
+    @artifacts = ARTIFACTS.map do |artifact|
+      Artifact.new(parent_dir: ARTIFACTS_DIR,**artifact)
+    end
     @dry_run = true
     @extra_args = []
   end
 
   def run
-    opt_parser = OptionParser.new do |op|
+    opts = {}
+    op = build_opt_parser(opts)
+    args,@extra_args = parse_extra_args
+
+    op.parse!(args,into: opts)
+
+    if opts.empty? || ACTIONS.none? { |action| opts[action[:opt]] }
+      puts op.help
+      exit
+    end
+
+    @dry_run = opts[:n]
+    channels = opts[:channel]
+
+    if !channels.nil? && !channels.empty?
+      @artifacts.filter! do |artifact|
+        channels.any? { |channel| artifact.channel.downcase.include?(channel.strip.downcase) }
+      end
+    end
+
+    ACTIONS.each do |action|
+      method(action[:method]).call if opts[action[:opt]]
+    end
+  end
+
+  def build_opt_parser(opts)
+    return OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
-      op.version = '0.1.2'
+      op.version = VERSION
       op.summary_width = 16
 
       si = op.summary_indent
@@ -115,18 +135,14 @@ class ArtifactsMan
       op.separator ''
       op.separator 'Options'
       op.on('-c <channel>','filter which artifacts to use (fuzzy search)') do |channel|
-        channel = channel.strip
-        @artifacts = @artifacts.filter { |a| a.channel.include?(channel) }
-        channel
+        c = opts.fetch(:channel) { |key| opts[key] = Set.new }
+        c << channel
+        c
       end
+
       op.separator ''
-      op.on('-C',nil,"[clean] delete '#{ARTIFACTS_DIR}/'")
-      op.on('-g',nil,"[get] download artifacts to '#{ARTIFACTS_DIR}/'")
-      op.on('-h',nil,'[checksum] verify artifact checksums')
-      op.on('-x',nil,'[extract] extract artifacts')
-      op.on('-v',nil,'[validate] validate artifacts for itch.io')
-      op.on('-I',nil,'[itch] publish extracted artifacts to itch.io')
-      op.on('-s',nil,'[status] check status of itch.io builds')
+      op.separator 'Actions'
+      ACTIONS.each { |action| op.on("-#{action[:opt]}",nil,action[:desc]) }
 
       op.separator ''
       op.separator 'Basic Options'
@@ -137,34 +153,17 @@ class ArtifactsMan
       op.separator "#{si}# Any trailing options/args after '--' will be passed to the command directly:"
       op.separator "#{si}#{op.program_name} -v -c lin -- --context-timeout=110"
     end
-
-    args,@extra_args = parse_extra_args
-    opts = {}
-    opt_parser.parse!(args,into: opts)
-
-    if opts.empty?
-      puts opt_parser.help
-      exit
-    end
-
-    @dry_run = opts[:n]
-
-    # Order matters! Because user can specify all opts.
-    clean if opts[:C]
-    fetch if opts[:g]
-    check if opts[:h]
-    extract if opts[:x]
-    validate_for_itch if opts[:v]
-    publish_to_itch if opts[:I]
-    stat_itch_builds if opts[:s]
   end
 
   def parse_extra_args(args=ARGV)
     dash_i = args.find_index('--')
-    return [args,[]] if dash_i.nil?
 
-    extra_args = args[dash_i + 1..]
-    args = args[0...dash_i]
+    if dash_i.nil?
+      extra_args = []
+    else
+      extra_args = args[dash_i + 1..]
+      args = args[0...dash_i]
+    end
 
     return [args,extra_args]
   end
@@ -181,19 +180,16 @@ class ArtifactsMan
     FileUtils.mkdir_p(ARTIFACTS_DIR,noop: @dry_run,verbose: true) unless File.directory?(ARTIFACTS_DIR)
 
     # NOTE: Must download each one separately so that it doesn't create subdirs.
-    @artifacts.each do |artifact|
+    each_artifact do |artifact|
       run_cmd(GH_CMD,'run','download','--dir',ARTIFACTS_DIR,'--name',artifact.name)
-      sleep(SLEEP_SECS)
-      puts
     end
 
     check
   end
 
   def check
-    @artifacts.each do |artifact|
-      file = File.join(ARTIFACTS_DIR,artifact.file)
-      sum_file = "#{file}.sha256"
+    each_artifact(pauses: false,newlines: false) do |artifact|
+      sum_file = "#{artifact.file}.sha256"
 
       next unless File.file?(sum_file)
 
@@ -202,37 +198,29 @@ class ArtifactsMan
   end
 
   def extract
-    @artifacts.each do |artifact|
-      file = File.join(ARTIFACTS_DIR,artifact.file)
-      to_dir = File.join(ARTIFACTS_DIR,artifact.to_dir)
-
-      extract_file(file,to_dir: to_dir)
-      sleep(SLEEP_SECS)
-      puts
+    each_artifact(show_result: true) do |artifact|
+      extract_file(artifact.file,dest_dir: artifact.dest_dir)
     end
   end
 
   def validate_for_itch
-    @artifacts.each do |artifact|
-      dir = File.join(ARTIFACTS_DIR,artifact.to_dir,'')
+    each_artifact(show_result: true) do |artifact|
+      cmd = [BUTLER_CMD,'validate']
+      cmd.push('--platform',artifact.platform) unless artifact.platform.nil?
+      cmd.push('--arch',artifact.arch) unless artifact.arch.nil?
+      cmd.push(artifact.dest_dir)
 
-      run_cmd(BUTLER_CMD,'validate','--platform',artifact.platform,dir)
-      sleep(SLEEP_SECS)
-      puts
+      run_cmd(cmd)
     end
   end
 
   def publish_to_itch
-    @artifacts.each do |artifact|
-      dir = File.join(ARTIFACTS_DIR,artifact.to_dir,'')
-
+    each_artifact do |artifact|
       cmd = [BUTLER_CMD,%w[ push --fix-permissions --dereference --if-changed ]]
       cmd.push('--dry-run') if @dry_run
-      cmd.push(dir,"#{USER_GAME}:#{artifact.channel}")
+      cmd.push(artifact.dest_dir,"#{USER_GAME}:#{artifact.channel}")
 
       run_cmd(cmd,dry_run: false) # Butler has own dry-run.
-      sleep(SLEEP_SECS)
-      puts
     end
   end
 
@@ -243,58 +231,107 @@ class ArtifactsMan
       return
     end
 
-    @artifacts.each do |artifact|
+    each_artifact do |artifact|
       run_cmd(BUTLER_CMD,'status',"#{USER_GAME}:#{artifact.channel}")
-      sleep(SLEEP_SECS)
-      puts
     end
   end
 
+  def each_artifact(pauses: true,newlines: true,show_result: false)
+    if @dry_run
+      pauses = false
+      show_result = false
+    end
+
+    @artifacts.each do |artifact|
+      result = yield artifact
+
+      if show_result
+        puts if newlines
+
+        if result
+          puts "=> Channel [#{artifact.channel}] succeeded!"
+        else
+          abort "=> Channel [#{artifact.channel}] failed!"
+        end
+      end
+
+      sleep(SLEEP_SECS) if pauses
+      puts if newlines
+    end
+
+    puts "=> All channels succeeded! [#{@artifacts.map(&:channel).join(',')}]" if show_result
+  end
+
   def verify_checksum_file(sum_file)
-    fmt = '%-9s %s'
+    raise "Invalid checksum file [#{sum_file}]." if sum_file.empty? || !File.file?(sum_file)
 
     File.foreach(sum_file,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8') do |line|
       parts = line.strip.split(/\s+\*?/,2)
+
       next if parts.length < 2
 
-      sum = parts[0].strip
+      hex = parts[0].strip
       file = parts[1].strip
-      next if sum.empty? || file.empty?
 
-      file = File.join(ARTIFACTS_DIR,file)
+      next if hex.empty? || file.empty?
+
+      file = File.join(File.dirname(sum_file),file)
+
+      verify_checksum(file,hex)
+    end
+  end
+
+  def verify_checksum(file,hex)
+    hex = hex.strip
+
+    result = ''
+    details = nil
+
+    if !file.empty? && File.file?(file)
       dig = Digest::SHA256.new
-      result = ''
-      details = nil
 
-      if File.file?(file)
+      if @dry_run
+        actual_hex = hex
+      else
         File.open(file,'rb') do |f|
           buffer = ''.dup
-          while f.read(16_384,buffer)
+
+          while f.read(CHECKSUM_BUFFER_SIZE,buffer)
             dig.update(buffer)
           end
         end
 
-        expected_sum = dig.hexdigest
-
-        if sum == expected_sum
-          result = '[ok]'
-        else
-          result = '[BAD hex]'
-          details = ["actual:   #{sum}",
-                     "expected: #{expected_sum}"]
-        end
-      else
-        result = '[NO file]'
+        actual_hex = dig.hexdigest
       end
 
-      puts format(fmt,result,file)
-      puts details.map { |d| format(fmt,'',d) }.join("\n") unless details.nil?
+      if actual_hex == hex
+        result = '[ok]'
+      else
+        result = '[BAD hex]'
+        diff = Array.new((hex.length >= actual_hex.length) ? hex.length : actual_hex.length)
+
+        (0..diff.length).each do |i|
+          diff[i] = (actual_hex[i] == hex[i]) ? ' ' : '^'
+        end
+
+        details = [
+          "expected: #{hex}",
+          "actual:   #{actual_hex}",
+          "diff:     #{diff.join}",
+        ]
+      end
+    else
+      result = '[NO file]'
     end
+
+    fmt = '%-9s %s'
+    puts format(fmt,result,file)
+    puts details.map { |d| format(fmt,'',d) }.join("\n") unless details.nil?
   end
 
-  def extract_file(file,to_dir: nil)
+  def extract_file(file,dest_dir: nil)
     raise 'Empty file.' if (file = file.strip).empty?
-    to_dir = nil if !to_dir.nil? && (to_dir = to_dir.strip).empty?
+    dest_dir = nil if !dest_dir.nil? && (dest_dir = dest_dir.strip).empty?
 
     cmd = []
 
@@ -303,16 +340,16 @@ class ArtifactsMan
     when /.tar.gz$/
       cmd.concat(TAR_CMD)
       cmd.push('-xzf',file,'--keep-old-files')
-      cmd.push('-C',to_dir) unless to_dir.nil?
+      cmd.push('-C',dest_dir) unless dest_dir.nil?
     when /.zip$/
       cmd.concat(UNZIP_CMD)
       cmd.push('-n',file)
-      cmd.push('-d',to_dir) unless to_dir.nil?
+      cmd.push('-d',dest_dir) unless dest_dir.nil?
     else
       raise "Invalid file type to extract: #{file}."
     end
 
-    FileUtils.mkdir(to_dir,noop: @dry_run,verbose: true) if !to_dir.nil? && !File.directory?(to_dir)
+    FileUtils.mkdir(dest_dir,noop: @dry_run,verbose: true) if !dest_dir.nil? && !File.directory?(dest_dir)
     run_cmd(cmd)
   end
 
@@ -321,7 +358,65 @@ class ArtifactsMan
     cmd = cmd.flatten.compact.map(&:to_s)
 
     puts cmd.map(&Shellwords.method(:escape)).join(' ')
-    system(*cmd) unless dry_run
+
+    return true if dry_run
+    return system(*cmd)
+  end
+end
+
+class Artifact
+  attr_reader :name,:file,:dest_dir,:channel,:platform,:arch
+
+  def initialize(name:,file:,channel:,parent_dir: nil,dest_dir: nil,platform: :parse,arch: :parse)
+    file = file.strip
+
+    if dest_dir.nil? || (dest_dir = dest_dir.to_s.strip).empty?
+      dest_dir = file.sub(/([^.])\..*$/,'\1')
+
+      raise "Invalid file/ext: #{file}." if dest_dir.empty?
+    end
+    if platform == :parse
+      # Channel can have multiple platforms.
+      platforms = []
+
+      # See: https://itch.io/docs/butler/pushing.html#channel-names
+      platforms << 'windows' if channel =~ /win|windows/i
+      platforms << 'linux' if channel =~ /linux/i
+      platforms << 'osx' if channel =~ /mac|osx/i
+
+      platform = (platforms.size == 1) ? platforms[0] : nil
+    end
+    if arch == :parse
+      # Channel can have multiple architectures.
+      arches = []
+
+      arches << '386' if channel =~ /386|686|x86[^_-]|32/i
+      arches << 'amd64' if channel =~ /amd64|x86[_-]64|64/i
+
+      arch = (arches.size == 1) ? arches[0] : nil
+    end
+
+    @name = name.strip
+    @channel = channel.strip
+    @platform = platform&.strip
+    @arch = arch&.strip
+
+    if parent_dir.nil?
+      @file = file
+      @dest_dir = dest_dir
+    else
+      @file = File.join(parent_dir,file)
+      @dest_dir = File.join(parent_dir,dest_dir)
+    end
+  end
+
+  def inspect
+    return "{#{@name.inspect},#{@file.inspect},#{@dest_dir.inspect}" \
+           ",#{@channel.inspect},#{@platform.inspect},#{@arch.inspect}}"
+  end
+
+  def to_s
+    return inspect
   end
 end
 
