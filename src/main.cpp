@@ -15,7 +15,7 @@ int main(int argc,char** argv) {
   using namespace ekoscape;
 
   for(int i = 1; i < argc; ++i) {
-    if(std::string{argv[i]} == "--version") {
+    if(std::string_view{argv[i]} == "--version") {
       std::cout << EkoScapeGame::kTitle << std::endl;
       return 0;
     }
