@@ -109,8 +109,8 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
         .cell_size(9,14)
         .cell_padding(2)
         .spacing(5,5)
-        .default_char(U'¿')
-        .index_to_char({
+        .default_rune(U'¿')
+        .index_to_rune({
           R"( !"#$%&'()*+,-./)",
           R"(0123456789:;<=>?)",
           R"(@ABCDEFGHIJKLMNO)",

@@ -114,10 +114,10 @@ public:
     const FontAtlas& font;
     Pos3i init_pos{};
     Pos3i pos{};
-    Size2i char_size{};
+    Size2i rune_size{};
     Size2i spacing{};
 
-    explicit FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
+    explicit FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
         ,const Size2i& spacing);
 
     FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size);
@@ -177,9 +177,9 @@ public:
   Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);
 
   Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
       ,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
       ,const Size2i& spacing,const WrapFontAtlasCallback& callback);
 
   Renderer& draw_quad(const Pos3i& pos,const Size2i& size);

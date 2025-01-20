@@ -73,7 +73,7 @@ private:
   const bool& player_hit_end_;
 
   std::string map_info_{};
-  Size2i map_info_size_{};
+  Size2i map_info_str_size_{};
   float map_info_age_ = 0.0f;
   Color4f flash_color_{};
   float flash_age_ = -1.0f;

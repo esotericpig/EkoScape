@@ -23,10 +23,10 @@ GameOverlay::GameOverlay(GameContext& ctx,const Map& map,const bool& player_hit_
   const std::string author = "  by " + map_.author();
 
   map_info_ = title + "\n" + author;
-  map_info_size_.w = static_cast<int>(
+  map_info_str_size_.w = static_cast<int>(
     std::max(utf8::StrUtil::count_runes(title),utf8::StrUtil::count_runes(author))
   );
-  map_info_size_.h = 2;
+  map_info_str_size_.h = 2;
 }
 
 void GameOverlay::flash(const Color4f& color) {
@@ -155,8 +155,18 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
 void GameOverlay::draw_map_info(Renderer& ren) {
   ren.begin_auto_center_scale();
 
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{395,395,0},[&](auto& font) {
-    font.draw_bg(kTextBgColor,map_info_size_,kTextBgPadding);
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
+    const auto true_size = font.font.calc_total_size(map_info_str_size_,kTextBgPadding);
+    const Pos3i pos{
+      std::max((ren.dimens().target_size.w - true_size.w) >> 1,0),
+      std::max((ren.dimens().target_size.h - true_size.h) >> 1,0),
+      0
+    };
+
+    font.font.init_pos = pos;
+    font.font.pos = pos;
+
+    font.draw_bg(kTextBgColor,map_info_str_size_,kTextBgPadding);
     font.puts(map_info_);
   });
 

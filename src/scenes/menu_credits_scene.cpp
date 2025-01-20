@@ -155,8 +155,8 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
       wtf.rebirth();
     }
 
-    // Adjust pos & size for number of chars in text,
-    //     since wtf.size is just for a single char [see init_wtfs()].
+    // Adjust pos & size for number of runes in text,
+    //     since wtf.size is just for a single rune [see init_wtfs()].
     wtf.true_size.w = (wtf.size.w * text_len) + total_spacing_w;
     wtf.true_size.h = wtf.size.h;
     wtf.true_pos.x = wtf.pos.x - (wtf.true_size.w / 2.0f);
@@ -178,7 +178,7 @@ void MenuCreditsScene::draw_wtfs(Renderer& ren) {
       WtfParticle& wtf = wtfs_[i];
 
       font.font.pos = wtf.true_pos.to_pos3<int>();
-      font.font.char_size = wtf.size.to_size2<int>();
+      font.font.rune_size = wtf.size.to_size2<int>();
       font.font_color = wtf.color;
 
       ren.wrap_rotate(wtf.pos.to_pos3<int>(),wtf.spin_angle,[&]() {

@@ -46,8 +46,8 @@ FontAtlas::Builder& FontAtlas::Builder::grid_size(int cols,int rows) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::spacing(int char_spacing,int line_spacing) {
-  spacing_.w = char_spacing;
+FontAtlas::Builder& FontAtlas::Builder::spacing(int rune_spacing,int line_spacing) {
+  spacing_.w = rune_spacing;
   spacing_.h = line_spacing;
 
   return *this;
@@ -57,7 +57,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int index) {
   default_index_ = index;
   default_cell_.x = 0;
   default_cell_.y = 0;
-  default_char_ = 0;
+  default_rune_ = 0;
 
   return *this;
 }
@@ -66,32 +66,32 @@ FontAtlas::Builder& FontAtlas::Builder::default_cell(int col,int row) {
   default_index_ = 0;
   default_cell_.x = col;
   default_cell_.y = row;
-  default_char_ = 0;
+  default_rune_ = 0;
 
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::default_char(char32_t rune) {
+FontAtlas::Builder& FontAtlas::Builder::default_rune(char32_t rune) {
   default_index_ = 0;
   default_cell_.x = 0;
   default_cell_.y = 0;
-  default_char_ = rune;
+  default_rune_ = rune;
 
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(std::string_view str) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::string_view str) {
   int index = 0;
 
   for(auto rune: utf8::RuneRange{str}) {
-    char_to_index_[rune] = index;
+    rune_to_index_[rune] = index;
     ++index;
   }
 
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(std::initializer_list<std::string_view> lines) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::initializer_list<std::string_view> lines) {
   int index = 0;
   int col_count = 0;
 
@@ -99,7 +99,7 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(std::initializer_list<std:
     int len = 0;
 
     for(auto rune: utf8::RuneRange{line}) {
-      char_to_index_[rune] = index;
+      rune_to_index_[rune] = index;
       ++index;
       ++len;
     }
@@ -120,27 +120,31 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_char(std::initializer_list<std:
 FontAtlas::FontAtlas(const Builder& builder)
     : SpriteAtlas(builder.sprite_atlas_)
       ,spacing_(builder.spacing_)
-      ,char_to_index_(builder.char_to_index_) {
+      ,rune_to_index_(builder.rune_to_index_) {
   if(builder.default_index_ > 0) {
     default_index_ = builder.default_index_;
   } else if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
     default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
-  } else if(builder.default_char_ != 0) {
-    for(auto [rune,index]: char_to_index_) {
-      if(rune == builder.default_char_) {
+  } else if(builder.default_rune_ != 0) {
+    for(auto [rune,index]: rune_to_index_) {
+      if(rune == builder.default_rune_) {
         default_index_ = index;
         break;
       }
     }
   }
+
+  if(default_index_ >= rune_to_index_.size()) {
+    default_index_ = !rune_to_index_.empty() ? (rune_to_index_.size() - 1) : 0;
+  }
 }
 
 const Size2i& FontAtlas::spacing() const { return spacing_; }
 
-int FontAtlas::char_index(char32_t rune) const {
-  auto it = char_to_index_.find(rune);
+int FontAtlas::rune_index(char32_t rune) const {
+  auto it = rune_to_index_.find(rune);
 
-  return (it != char_to_index_.end()) ? it->second : default_index_;
+  return (it != rune_to_index_.end()) ? it->second : default_index_;
 }
 
 } // Namespace.

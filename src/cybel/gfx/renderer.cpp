@@ -69,8 +69,8 @@ Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2
 }
 
 Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos
-    ,const Size2i& char_size,const Size2i& spacing)
-    : ren(ren),font(font),init_pos(pos),pos(pos),char_size(char_size),spacing(spacing) {}
+    ,const Size2i& rune_size,const Size2i& spacing)
+    : ren(ren),font(font),init_pos(pos),pos(pos),rune_size(rune_size),spacing(spacing) {}
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color
     ,const Size2i& str_size) {
@@ -91,9 +91,9 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& c
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() { return print_blanks(1); }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t rune) {
-  const Pos4f* src = font.src(font.char_index(rune));
+  const Pos4f* src = font.src(font.rune_index(rune));
 
-  if(src != nullptr) { ren.draw_quad(*src,pos,char_size); }
+  if(src != nullptr) { ren.draw_quad(*src,pos,rune_size); }
 
   return print();
 }
@@ -101,7 +101,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t rune) {
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view str) {
   if(str.empty()) { return print(); }
 
-  for(char32_t rune: utf8::RuneRange{str}) {
+  for(auto rune: utf8::RuneRange{str}) {
     if(rune == '\n') {
       puts();
       continue;
@@ -114,7 +114,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view s
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_blanks(int count) {
-  pos.x += ((char_size.w + spacing.w) * count);
+  pos.x += ((rune_size.w + spacing.w) * count);
 
   return *this;
 }
@@ -135,7 +135,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(std::string_view st
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {
   pos.x = init_pos.x;
-  pos.y += ((char_size.h + spacing.h) * count);
+  pos.y += ((rune_size.h + spacing.h) * count);
 
   return *this;
 }
@@ -146,8 +146,8 @@ Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size) {
 
 Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size,const Size2i& padding) {
   return Size2i{
-    (str_size.w * char_size.w) + ((str_size.w - 1) * font.spacing().w) + (padding.w << 1),
-    (str_size.h * char_size.h) + ((str_size.h - 1) * font.spacing().h) + (padding.h << 1)
+    (str_size.w * rune_size.w) + ((str_size.w - 1) * font.spacing().w) + (padding.w << 1),
+    (str_size.h * rune_size.h) + ((str_size.h - 1) * font.spacing().h) + (padding.h << 1)
   };
 }
 
@@ -397,14 +397,14 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos
   return wrap_font_atlas(font,pos,font.cell_size(),callback);
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
     ,const WrapFontAtlasCallback& callback) {
-  return wrap_font_atlas(font,pos,char_size,font.spacing(),callback);
+  return wrap_font_atlas(font,pos,rune_size,font.spacing(),callback);
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& char_size
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
     ,const Size2i& spacing,const WrapFontAtlasCallback& callback) {
-  FontAtlasWrapper wrapper{*this,font,pos,char_size,spacing};
+  FontAtlasWrapper wrapper{*this,font,pos,rune_size,spacing};
 
   return wrap_tex(font.tex(),[&]() { callback(wrapper); });
 }
