@@ -134,8 +134,8 @@ FontAtlas::FontAtlas(const Builder& builder)
     }
   }
 
-  if(default_index_ >= rune_to_index_.size()) {
-    default_index_ = !rune_to_index_.empty() ? (rune_to_index_.size() - 1) : 0;
+  if(default_index_ >= static_cast<int>(rune_to_index_.size())) {
+    default_index_ = !rune_to_index_.empty() ? static_cast<int>(rune_to_index_.size() - 1) : 0;
   }
 }
 
