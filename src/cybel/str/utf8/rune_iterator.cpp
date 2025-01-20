@@ -7,6 +7,8 @@
 
 #include "rune_iterator.h"
 
+#include <bit>
+
 namespace cybel::utf8 {
 
 char32_t RuneIterator::next_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count) {

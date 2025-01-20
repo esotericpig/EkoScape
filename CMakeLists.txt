@@ -116,6 +116,9 @@ if(APPLE)
   add_executable("${BIN_NAME}")
   target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_MACOS DANTARES_MACOS)
 elseif(WIN32)
+  # Statically link system libs.
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
   add_executable("${BIN_NAME}" WIN32 "${RES_DIR}/res.rc")
   target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_WINDOWS DANTARES_WINDOWS)
 else()
@@ -126,9 +129,6 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
-
-  # Statically link system libs.
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
   #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
 else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
