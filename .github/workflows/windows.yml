@@ -44,7 +44,7 @@ jobs:
           -DPKG_SUFFIX="-x64"
 
       - name: Build
-        run: cmake --build --preset no-jobs --config Release
+        run: cmake --build --preset no-jobs --config Release --verbose
 
       - name: Package up
         run: cmake --build --preset no-jobs --config Release --target package
