@@ -36,7 +36,8 @@ public:
 
     Builder& spacing(int char_spacing,int line_spacing);
     Builder& default_index(int index);
-    Builder& default_index(int col,int row);
+    Builder& default_cell(int col,int row);
+    Builder& default_char(char32_t rune);
     Builder& index_to_char(std::string_view str);
     Builder& index_to_char(std::initializer_list<std::string_view> lines);
 
@@ -45,8 +46,13 @@ public:
   private:
     SpriteAtlas::Builder sprite_atlas_;
     Size2i spacing_{};
+
+    // Since we don't know the final grid width & height until build,
+    //     we have to store both `default_index_` & `default_cell_`.
     int default_index_ = 0;
     Pos2i default_cell_{};
+    char32_t default_char_ = 0;
+
     std::unordered_map<char32_t,int> char_to_index_{};
   };
 

@@ -57,14 +57,25 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int index) {
   default_index_ = index;
   default_cell_.x = 0;
   default_cell_.y = 0;
+  default_char_ = 0;
 
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::default_index(int col,int row) {
+FontAtlas::Builder& FontAtlas::Builder::default_cell(int col,int row) {
   default_index_ = 0;
   default_cell_.x = col;
   default_cell_.y = row;
+  default_char_ = 0;
+
+  return *this;
+}
+
+FontAtlas::Builder& FontAtlas::Builder::default_char(char32_t rune) {
+  default_index_ = 0;
+  default_cell_.x = 0;
+  default_cell_.y = 0;
+  default_char_ = rune;
 
   return *this;
 }
@@ -110,10 +121,17 @@ FontAtlas::FontAtlas(const Builder& builder)
     : SpriteAtlas(builder.sprite_atlas_)
       ,spacing_(builder.spacing_)
       ,char_to_index_(builder.char_to_index_) {
-  if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
-    default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
-  } else {
+  if(builder.default_index_ > 0) {
     default_index_ = builder.default_index_;
+  } else if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
+    default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
+  } else if(builder.default_char_ != 0) {
+    for(auto [rune,index]: char_to_index_) {
+      if(rune == builder.default_char_) {
+        default_index_ = index;
+        break;
+      }
+    }
   }
 }
 
