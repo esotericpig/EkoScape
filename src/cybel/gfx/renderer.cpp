@@ -7,6 +7,7 @@
 
 #include "renderer.h"
 
+#include "cybel/str/utf8/rune_range.h"
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
 
@@ -89,33 +90,24 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& c
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print() { return print_blanks(1); }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t c) {
-  const Pos4f* src = font.src(font.char_index(c));
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t rune) {
+  const Pos4f* src = font.src(font.char_index(rune));
 
   if(src != nullptr) { ren.draw_quad(*src,pos,char_size); }
 
   return print();
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const StrUtf8& str) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view str) {
   if(str.empty()) { return print(); }
 
-  for(char32_t c: str) {
-    if(c == '\n') {
+  for(char32_t rune: utf8::RuneRange{str}) {
+    if(rune == '\n') {
       puts();
       continue;
     }
 
-    print(c);
-  }
-
-  return *this;
-}
-
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(const std::vector<StrUtf8>& strs) {
-  for(const auto& str: strs) {
-    print(str);
-    print(); // Space.
+    print(rune);
   }
 
   return *this;
@@ -129,22 +121,16 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_blanks(int count) 
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() { return puts_blanks(1); }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t c) {
-  print(c);
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t rune) {
+  print(rune);
 
   return puts();
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const StrUtf8& str) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(std::string_view str) {
   if(!str.empty()) { print(str); }
 
   return puts();
-}
-
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(const std::vector<StrUtf8>& lines) {
-  for(const auto& line: lines) { puts(line); }
-
-  return *this;
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {

@@ -50,7 +50,7 @@ private:
   StarSys star_sys_{};
   float avg_fps_age_{};
   double avg_fps_ = -1.0;
-  StrUtf8 avg_fps_str_{};
+  std::string avg_fps_str_{};
 
   MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};

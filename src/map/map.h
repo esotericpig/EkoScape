@@ -92,7 +92,7 @@ public:
   Map& parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space = nullptr
       ,const DefaultEmptyCallback& on_def_empty = nullptr);
   Map& parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space = nullptr
-      ,const DefaultEmptyCallback& on_def_empty = nullptr,std::string file = "");
+      ,const DefaultEmptyCallback& on_def_empty = nullptr,std::string_view file = "");
   Map& shrink_grids_to_fit();
   virtual Map& add_to_bridge();
 
@@ -104,8 +104,8 @@ public:
   virtual bool sync_player_pos();
   virtual bool change_grid(int z);
 
-  Map& set_title(const std::string& title);
-  Map& set_author(const std::string& author);
+  Map& set_title(std::string_view title);
+  Map& set_author(std::string_view author);
 
   /**
    * In degrees per frame from 0 to 90 degrees:
@@ -188,9 +188,9 @@ protected:
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 
-  void load_metadata(TextReader& reader,const std::string& file);
+  void load_metadata(TextReader& reader,std::string_view file);
   void load_grids(TextReader& reader,const SpaceCallback& on_space,const DefaultEmptyCallback& on_def_empty
-      ,const std::string& file);
+      ,std::string_view file);
 
   void on_raw_thing_updated(SpaceType old_thing,SpaceType new_thing);
   virtual void update_bridge_space(const Pos3i& pos,SpaceType type);

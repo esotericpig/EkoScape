@@ -40,10 +40,10 @@ private:
       OnSelect on_select_alt{};
     };
 
-    StrUtf8 text{};
+    std::string text{};
 
     static Option cycle(const CycleConfig& config);
-    explicit Option(const StrUtf8& text,const OnSelect& on_select);
+    explicit Option(std::string_view text,const OnSelect& on_select);
 
     void select();
     void select_alt();

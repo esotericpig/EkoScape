@@ -40,7 +40,7 @@ private:
     Size2f true_size{};
   };
 
-  static inline const StrUtf8 kWtfText = "wtf!?";
+  static inline const std::string kWtfText = "wtf!?";
 
   GameContext& ctx_;
   int scene_action_ = SceneAction::kNil;

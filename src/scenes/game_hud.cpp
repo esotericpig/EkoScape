@@ -90,7 +90,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w + fruit_padding_w,pos.y,pos.z};
 
     ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
-      const StrUtf8 fruit_text = std::to_string(state.player_fruit_time.round_secs());
+      const auto fruit_text = std::to_string(state.player_fruit_time.round_secs());
 
       font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1}
           ,Size2i{fruit_padding_w,0});

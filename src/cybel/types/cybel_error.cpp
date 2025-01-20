@@ -9,7 +9,7 @@
 
 namespace cybel {
 
-CybelError::CybelError(const std::string& msg)
+CybelError::CybelError(std::string_view msg)
     : msg_{msg} {}
 
 const char* CybelError::what() const noexcept { return msg_.c_str(); }

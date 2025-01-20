@@ -23,7 +23,7 @@ MenuScene::Option MenuScene::Option::cycle(const CycleConfig& config) {
   return opt;
 }
 
-MenuScene::Option::Option(const StrUtf8& text,const OnSelect& on_select)
+MenuScene::Option::Option(std::string_view text,const OnSelect& on_select)
     : text(text),on_select_(on_select) {}
 
 void MenuScene::Option::select() {

@@ -54,10 +54,10 @@ private:
   class Option {
   public:
     OptionType type{};
-    StrUtf8 text{};
+    std::string text{};
 
     explicit Option() = default;
-    explicit Option(OptionType type,const StrUtf8& text);
+    explicit Option(OptionType type,std::string_view text);
   };
 
   static inline const Color4f kTextBgColor{0.0f,0.5f};
@@ -72,6 +72,8 @@ private:
   const Map& map_;
   const bool& player_hit_end_;
 
+  std::string map_info_{};
+  Size2i map_info_size_{};
   float map_info_age_ = 0.0f;
   Color4f flash_color_{};
   float flash_age_ = -1.0f;

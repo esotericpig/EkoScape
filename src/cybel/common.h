@@ -47,23 +47,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
-// Disable warnings for the next includes.
-// - It's annoying to see warnings from third-party libraries,
-//   as it makes it difficult to determine if it's my code or theirs.
-#if defined(__GNUC__) && !defined(__clang__)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-
-#include <tinyutf8/tinyutf8.h>
-
-// Re-enable warnings.
-#if defined(__GNUC__) && !defined(__clang__)
-  #pragma GCC diagnostic pop
-#endif
-
 namespace cybel {
-  using StrUtf8 = tiny_utf8::string;
+  namespace utf8 {}
 }
 
 #endif

@@ -17,15 +17,10 @@
 namespace cybel {
 
 namespace Util {
+  std::string wrap_str(const std::string& str,std::size_t max_len);
+
   template <typename... Args>
   std::string build_str(const Args&... args);
-
-  std::string strip_str(const std::string& str);
-  StrUtf8 ellips_str(const StrUtf8& str,std::size_t max_len);
-  StrUtf8 pad_str(const StrUtf8& str,std::size_t len);
-  std::string wrap_str(const std::string& str,std::size_t max_len);
-  int comparei_str(const StrUtf8& str1,const StrUtf8& str2);
-
   template <typename... Args>
   std::size_t build_hash(const Args&... args);
 

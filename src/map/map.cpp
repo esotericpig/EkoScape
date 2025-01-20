@@ -7,8 +7,8 @@
 
 #include "map.h"
 
+#include "cybel/str/utf8/str_util.h"
 #include "cybel/types/cybel_error.h"
-#include "cybel/util/util.h"
 
 namespace ekoscape {
 
@@ -74,7 +74,7 @@ Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_sp
   return *this;
 }
 
-void Map::load_metadata(TextReader& reader,const std::string& file) {
+void Map::load_metadata(TextReader& reader,std::string_view file) {
   std::string line{};
   char data_c = 0;
   float data_f = 0.0f;
@@ -130,7 +130,7 @@ void Map::load_metadata(TextReader& reader,const std::string& file) {
 }
 
 void Map::load_grids(TextReader& reader,const SpaceCallback& on_space
-    ,const DefaultEmptyCallback& on_def_empty,const std::string& file) {
+    ,const DefaultEmptyCallback& on_def_empty,std::string_view file) {
   std::string line{};
   std::vector<std::string> lines{};
   Size2i size{};
@@ -199,7 +199,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& 
 }
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space
-    ,const DefaultEmptyCallback& on_def_empty,std::string file) {
+    ,const DefaultEmptyCallback& on_def_empty,std::string_view file) {
   if(file.empty()) { file = title_; }
 
   if(grids_.size() >= Dantares::MAXMAPS) {
@@ -355,14 +355,14 @@ bool Map::change_grid(int z) {
   return true;
 }
 
-Map& Map::set_title(const std::string& title) {
-  title_ = Util::strip_str(title);
+Map& Map::set_title(std::string_view title) {
+  title_ = utf8::StrUtil::strip(title);
 
   return *this;
 }
 
-Map& Map::set_author(const std::string& author) {
-  author_ = Util::strip_str(author);
+Map& Map::set_author(std::string_view author) {
+  author_ = utf8::StrUtil::strip(author);
 
   return *this;
 }

@@ -176,7 +176,7 @@ find_package(OpenGL REQUIRED) # GLU should be included.
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
-find_package(tinyutf8 CONFIG REQUIRED)
+#find_package(tinyutf8 CONFIG REQUIRED)
 
 target_link_libraries("${BIN_NAME}" PRIVATE
     GLEW::GLEW
@@ -186,7 +186,7 @@ target_link_libraries("${BIN_NAME}" PRIVATE
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
     $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
-    tinyutf8::tinyutf8
+#    tinyutf8::tinyutf8
 )
 
 ############################################

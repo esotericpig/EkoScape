@@ -16,7 +16,6 @@
 #include "cybel/types/size.h"
 
 #include <unordered_map>
-#include <vector>
 
 namespace cybel {
 
@@ -38,8 +37,8 @@ public:
     Builder& spacing(int char_spacing,int line_spacing);
     Builder& default_index(int index);
     Builder& default_index(int col,int row);
-    Builder& index_to_char(const StrUtf8& str);
-    Builder& index_to_char(const std::vector<StrUtf8>& lines);
+    Builder& index_to_char(std::string_view str);
+    Builder& index_to_char(std::initializer_list<std::string_view> lines);
 
     friend class FontAtlas;
 
@@ -52,7 +51,7 @@ public:
   };
 
   const Size2i& spacing() const;
-  int char_index(char32_t c) const;
+  int char_index(char32_t rune) const;
 
 protected:
   Size2i spacing_{};

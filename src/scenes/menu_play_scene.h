@@ -37,19 +37,19 @@ public:
 private:
   class MapOption {
   public:
-    StrUtf8 group{};
+    std::string group{};
     std::filesystem::path file{};
-    StrUtf8 title{};
-    StrUtf8 text{};
+    std::string title{};
+    std::string text{};
 
     explicit MapOption() = default;
-    explicit MapOption(const StrUtf8& text);
+    explicit MapOption(std::string_view text);
   };
 
   /**
    * Order of core groups.
    */
-  static inline std::unordered_map<StrUtf8,int> kCoreGroupToPriority{
+  static inline std::unordered_map<std::string,int> kCoreGroupToPriority{
     {"user",1},
     {"fanmade",2},
     {"neo",3},

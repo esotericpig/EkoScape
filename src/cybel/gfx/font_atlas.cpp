@@ -7,6 +7,8 @@
 
 #include "font_atlas.h"
 
+#include "cybel/str/utf8/rune_range.h"
+
 namespace cybel {
 
 FontAtlas::Builder::Builder(Texture&& tex)
@@ -67,29 +69,31 @@ FontAtlas::Builder& FontAtlas::Builder::default_index(int col,int row) {
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(const StrUtf8& str) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_char(std::string_view str) {
   int index = 0;
 
-  for(auto c: str) {
-    char_to_index_[c] = index;
+  for(auto rune: utf8::RuneRange{str}) {
+    char_to_index_[rune] = index;
     ++index;
   }
 
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::index_to_char(const std::vector<StrUtf8>& lines) {
+FontAtlas::Builder& FontAtlas::Builder::index_to_char(std::initializer_list<std::string_view> lines) {
   int index = 0;
   int col_count = 0;
 
   for(const auto& line: lines) {
-    int len = static_cast<int>(line.length());
-    if(len > col_count) { col_count = len; }
+    int len = 0;
 
-    for(auto c: line) {
-      char_to_index_[c] = index;
+    for(auto rune: utf8::RuneRange{line}) {
+      char_to_index_[rune] = index;
       ++index;
+      ++len;
     }
+
+    if(len > col_count) { col_count = len; }
   }
 
   auto grid_size = sprite_atlas_.grid_size();
@@ -115,8 +119,8 @@ FontAtlas::FontAtlas(const Builder& builder)
 
 const Size2i& FontAtlas::spacing() const { return spacing_; }
 
-int FontAtlas::char_index(char32_t c) const {
-  auto it = char_to_index_.find(c);
+int FontAtlas::char_index(char32_t rune) const {
+  auto it = char_to_index_.find(rune);
 
   return (it != char_to_index_.end()) ? it->second : default_index_;
 }

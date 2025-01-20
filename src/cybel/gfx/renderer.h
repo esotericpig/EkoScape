@@ -20,7 +20,6 @@
 #include "cybel/types/view_dimens.h"
 
 #include <functional>
-#include <vector>
 
 namespace cybel {
 
@@ -125,14 +124,12 @@ public:
     FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
 
     FontAtlasWrapper& print();
-    FontAtlasWrapper& print(char32_t c);
-    FontAtlasWrapper& print(const StrUtf8& str);
-    FontAtlasWrapper& print(const std::vector<StrUtf8>& strs);
+    FontAtlasWrapper& print(char32_t rune);
+    FontAtlasWrapper& print(std::string_view str);
     FontAtlasWrapper& print_blanks(int count);
     FontAtlasWrapper& puts();
-    FontAtlasWrapper& puts(char32_t c);
-    FontAtlasWrapper& puts(const StrUtf8& str);
-    FontAtlasWrapper& puts(const std::vector<StrUtf8>& lines);
+    FontAtlasWrapper& puts(char32_t rune);
+    FontAtlasWrapper& puts(std::string_view str);
     FontAtlasWrapper& puts_blanks(int count);
 
     Size2i calc_total_size(const Size2i& str_size);

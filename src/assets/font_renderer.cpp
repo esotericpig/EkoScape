@@ -26,7 +26,7 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(const StrUtf8& text,int styles) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(std::string_view text,int styles) {
   const bool is_selected = styles & kMenuStyleSelected;
   const bool is_cycle = styles & kMenuStyleCycle;
 
@@ -70,20 +70,14 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::print() {
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::print(char32_t c) {
-  font.ren.wrap_color(font_color,[&]() { font.print(c); });
+FontRenderer::Wrapper& FontRenderer::Wrapper::print(char32_t rune) {
+  font.ren.wrap_color(font_color,[&]() { font.print(rune); });
 
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::print(const StrUtf8& str) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::print(std::string_view str) {
   font.ren.wrap_color(font_color,[&]() { font.print(str); });
-
-  return *this;
-}
-
-FontRenderer::Wrapper& FontRenderer::Wrapper::print(const std::vector<StrUtf8>& strs) {
-  font.ren.wrap_color(font_color,[&]() { font.print(strs); });
 
   return *this;
 }
@@ -100,20 +94,14 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts() {
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::puts(char32_t c) {
-  font.ren.wrap_color(font_color,[&]() { font.puts(c); });
+FontRenderer::Wrapper& FontRenderer::Wrapper::puts(char32_t rune) {
+  font.ren.wrap_color(font_color,[&]() { font.puts(rune); });
 
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const StrUtf8& str) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::puts(std::string_view str) {
   font.ren.wrap_color(font_color,[&]() { font.puts(str); });
-
-  return *this;
-}
-
-FontRenderer::Wrapper& FontRenderer::Wrapper::puts(const std::vector<StrUtf8>& lines) {
-  font.ren.wrap_color(font_color,[&]() { font.puts(lines); });
 
   return *this;
 }

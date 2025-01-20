@@ -7,13 +7,14 @@
 
 #include "menu_play_scene.h"
 
+#include "cybel/str/utf8/str_util.h"
 #include "cybel/util/rando.h"
 
 #include "input/input_action.h"
 
 namespace ekoscape {
 
-MenuPlayScene::MapOption::MapOption(const StrUtf8& text)
+MenuPlayScene::MapOption::MapOption(std::string_view text)
     : text(text) {}
 
 MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
@@ -126,8 +127,8 @@ void MenuPlayScene::glob_maps() {
     opt.group = group;
     opt.file = map_file;
     opt.title = map.title();
-    opt.text = Util::pad_str(Util::ellips_str(opt.title,max_title_len),max_title_len)
-        + " [" + Util::ellips_str(opt.group,max_group_len) + ']';
+    opt.text = utf8::StrUtil::pad(utf8::StrUtil::ellipsize(opt.title,max_title_len),max_title_len)
+        + " [" + utf8::StrUtil::ellipsize(opt.group,max_group_len) + ']';
 
     map_opts_.push_back(opt);
   });
@@ -156,11 +157,11 @@ void MenuPlayScene::glob_maps() {
       if(is_core_group1 && is_core_group2) {
         group_cmp = kCoreGroupToPriority[opt1.group] - kCoreGroupToPriority[opt2.group];
       } else {
-        group_cmp = Util::comparei_str(opt1.group,opt2.group);
+        group_cmp = utf8::StrUtil::casecmp_ascii(opt1.group,opt2.group);
       }
 
       if(group_cmp != 0) { return group_cmp < 0; }
-      return Util::comparei_str(opt1.title,opt2.title) < 0;
+      return utf8::StrUtil::casecmp_ascii(opt1.title,opt2.title) < 0;
     }
   );
 

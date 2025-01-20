@@ -7,6 +7,7 @@
 
 #include "assets.h"
 
+#include "cybel/str/utf8/str_util.h"
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
 
@@ -74,7 +75,7 @@ std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
   return (dirs.size() == 1) ? dirs : Util::unique(dirs);
 }
 
-Assets::Assets(const StrUtf8& tex_style,bool has_audio_player,bool make_weird)
+Assets::Assets(std::string_view tex_style,bool has_audio_player,bool make_weird)
     : has_audio_player_(has_audio_player) {
   reload_gfx(tex_style,make_weird);
   reload_music();
@@ -84,7 +85,7 @@ void Assets::reload_gfx() { reload_gfx(is_weird_); }
 
 void Assets::reload_gfx(bool make_weird) { reload_gfx(styled_texs_bag_it_->dirname,make_weird); }
 
-void Assets::reload_gfx(const StrUtf8& tex_style,bool make_weird) {
+void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
   is_weird_ = make_weird;
 
   reload_styled_texs_bag(tex_style);
@@ -141,7 +142,7 @@ void Assets::reload_gfx(const StrUtf8& tex_style,bool make_weird) {
   }
 }
 
-void Assets::reload_styled_texs_bag(const StrUtf8& tex_style) {
+void Assets::reload_styled_texs_bag(std::string_view tex_style) {
   styled_texs_bag_.clear();
   styled_texs_bag_it_ = styled_texs_bag_.cbegin();
 
@@ -186,13 +187,13 @@ void Assets::reload_styled_texs_bag(const StrUtf8& tex_style) {
 
   // Sort the styles alphabetically, ignoring case.
   std::ranges::sort(styled_texs_bag_,[](const auto& style1, const auto& style2) {
-    return Util::comparei_str(style1.dirname,style2.dirname) < 0;
+    return utf8::StrUtil::casecmp_ascii(style1.dirname,style2.dirname) < 0;
   });
 
   // Auto-select the style that matches `tex_style`, ignoring case.
   for(styled_texs_bag_it_ = styled_texs_bag_.cbegin(); styled_texs_bag_it_ < styled_texs_bag_.cend();
       ++styled_texs_bag_it_) {
-    if(Util::comparei_str(styled_texs_bag_it_->dirname,tex_style) == 0) { break; }
+    if(utf8::StrUtil::casecmp_ascii(styled_texs_bag_it_->dirname,tex_style) == 0) { break; }
   }
 
   if(styled_texs_bag_it_ >= styled_texs_bag_.cend()) {
@@ -205,7 +206,7 @@ Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir
   StyledTextures st{};
 
   st.dirname = dir.filename().string();
-  st.name = Util::ellips_str(st.dirname,18);
+  st.name = utf8::StrUtil::ellipsize(st.dirname,18);
 
   st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png"},is_weird_);
   st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png"},is_weird_);
@@ -291,7 +292,7 @@ void Assets::make_weird() {
 }
 
 void Assets::glob_maps_meta(const MapCallback& on_map) const {
-  std::unordered_set<StrUtf8> loaded_maps{};
+  std::unordered_set<std::string> loaded_maps{};
 
   for(const auto& base_dir: kBaseDirs) {
     const auto maps_dir = base_dir / kMapsSubdir;
@@ -303,7 +304,7 @@ void Assets::glob_maps_meta(const MapCallback& on_map) const {
       for(const auto& group_entry: std::filesystem::directory_iterator(maps_dir)) {
         if(!group_entry.is_directory()) { continue; }
 
-        const StrUtf8 group = group_entry.path().filename().string();
+        const std::string group = group_entry.path().filename().string();
 
         for(const auto& map_entry: std::filesystem::directory_iterator(group_entry)) {
           const auto map_file = map_entry.path();
@@ -332,7 +333,7 @@ void Assets::glob_maps_meta(const MapCallback& on_map) const {
   }
 }
 
-const StrUtf8& Assets::prev_tex_style() {
+const std::string& Assets::prev_tex_style() {
   if(styled_texs_bag_it_ <= styled_texs_bag_.cbegin()) {
     styled_texs_bag_it_ = styled_texs_bag_.cend(); // Wrap to end.
   }
@@ -341,7 +342,7 @@ const StrUtf8& Assets::prev_tex_style() {
   return styled_texs_bag_it_->name;
 }
 
-const StrUtf8& Assets::next_tex_style() {
+const std::string& Assets::next_tex_style() {
   ++styled_texs_bag_it_;
   if(styled_texs_bag_it_ >= styled_texs_bag_.cend()) {
     styled_texs_bag_it_ = styled_texs_bag_.cbegin(); // Wrap to beginning.
@@ -352,7 +353,7 @@ const StrUtf8& Assets::next_tex_style() {
 
 bool Assets::is_weird() const { return is_weird_; }
 
-const StrUtf8& Assets::tex_style() const { return styled_texs_bag_it_->name; }
+const std::string& Assets::tex_style() const { return styled_texs_bag_it_->name; }
 
 const Texture& Assets::ceiling_tex() const { return *styled_texs_bag_it_->ceiling_tex; }
 

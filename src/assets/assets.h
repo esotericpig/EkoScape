@@ -28,7 +28,8 @@ namespace ekoscape {
 
 class Assets final {
 public:
-  using MapCallback = std::function<void(const StrUtf8& group,const std::filesystem::path& map_file,Map&)>;
+  using MapCallback = std::function<void(const std::string& group,const std::filesystem::path& map_file,
+                                         Map&)>;
 
   static inline const std::filesystem::path kAssetsSubdir{"assets"};
   static inline const std::filesystem::path kIconsSubdir{kAssetsSubdir / "icons"};
@@ -37,7 +38,7 @@ public:
   static inline const std::filesystem::path kMusicSubdir{kAssetsSubdir / "music"};
   static inline const std::filesystem::path kTexsSubdir{kAssetsSubdir / "textures"};
 
-  explicit Assets(const StrUtf8& tex_style,bool has_audio_player,bool make_weird = false);
+  explicit Assets(std::string_view tex_style,bool has_audio_player,bool make_weird = false);
 
   void reload_gfx();
   void reload_music();
@@ -45,11 +46,11 @@ public:
 
   void glob_maps_meta(const MapCallback& on_map) const;
 
-  const StrUtf8& prev_tex_style();
-  const StrUtf8& next_tex_style();
+  const std::string& prev_tex_style();
+  const std::string& next_tex_style();
 
   bool is_weird() const;
-  const StrUtf8& tex_style() const;
+  const std::string& tex_style() const;
 
   const Texture& ceiling_tex() const;
   const Texture& cell_tex() const;
@@ -89,8 +90,8 @@ public:
 
 private:
   struct StyledTextures {
-    StrUtf8 name{};
-    StrUtf8 dirname{};
+    std::string name{};
+    std::string dirname{};
 
     std::unique_ptr<Texture> ceiling_tex{};
     std::unique_ptr<Texture> cell_tex{};
@@ -148,8 +149,8 @@ private:
   std::unique_ptr<Music> music_{};
 
   void reload_gfx(bool make_weird);
-  void reload_gfx(const StrUtf8& tex_style,bool make_weird);
-  void reload_styled_texs_bag(const StrUtf8& tex_style);
+  void reload_gfx(std::string_view tex_style,bool make_weird);
+  void reload_styled_texs_bag(std::string_view tex_style);
   StyledTextures load_styled_texs(const std::filesystem::path& dir) const;
 
   void load_asset(const AssetLoader& load_from) const;

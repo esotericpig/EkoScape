@@ -7,16 +7,27 @@
 
 #include "game_overlay.h"
 
+#include "cybel/str/utf8/str_util.h"
+
 #include "input/input_action.h"
 #include "scenes/scene_action.h"
 
 namespace ekoscape {
 
-GameOverlay::Option::Option(OptionType type,const StrUtf8& text)
+GameOverlay::Option::Option(OptionType type,std::string_view text)
     : type(type),text(text) {}
 
 GameOverlay::GameOverlay(GameContext& ctx,const Map& map,const bool& player_hit_end)
-    : ctx_(ctx),map_(map),player_hit_end_(player_hit_end) {}
+    : ctx_(ctx),map_(map),player_hit_end_(player_hit_end) {
+  const std::string& title = map_.title();
+  const std::string author = "  by " + map_.author();
+
+  map_info_ = title + "\n" + author;
+  map_info_size_.w = static_cast<int>(
+    std::max(utf8::StrUtil::count_runes(title),utf8::StrUtil::count_runes(author))
+  );
+  map_info_size_.h = 2;
+}
 
 void GameOverlay::flash(const Color4f& color) {
   flash_color_ = color;
@@ -145,13 +156,8 @@ void GameOverlay::draw_map_info(Renderer& ren) {
   ren.begin_auto_center_scale();
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{395,395,0},[&](auto& font) {
-    const StrUtf8 title = map_.title();
-    const StrUtf8 author = "  by " + map_.author();
-    const auto bg_w = static_cast<int>(std::max(title.length(),author.length()));
-
-    font.draw_bg(kTextBgColor,Size2i{bg_w,2},kTextBgPadding);
-    font.puts(title);
-    font.puts(author);
+    font.draw_bg(kTextBgColor,map_info_size_,kTextBgPadding);
+    font.puts(map_info_);
   });
 
   ren.end_scale();
