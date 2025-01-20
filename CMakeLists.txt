@@ -124,8 +124,8 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG")
-  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
+  set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
+  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
 
   # Statically link system libs.
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
