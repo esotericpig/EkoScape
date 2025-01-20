@@ -43,7 +43,7 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.3'
+  VERSION = '0.1.4'
 
   ARTIFACTS_DIR = File.join('build','artifacts')
   USER_GAME = 'esotericpig/ekoscape'
@@ -78,7 +78,7 @@ class ArtifactsMan
   ACTIONS = [
     [:C,"[clean] delete '#{ARTIFACTS_DIR}/'",:clean],
     [:g,"[get] download artifacts to '#{ARTIFACTS_DIR}/'",:fetch],
-    [:h,'[checksum] verify artifact checksums',:check],
+    [:k,'[checksum] verify artifact checksums',:check],
     [:x,'[extract] extract artifacts',:extract],
     [:v,'[validate] validate artifacts for itch.io',:validate_for_itch],
     [:I,'[itch] publish extracted artifacts to itch.io',:publish_to_itch],
