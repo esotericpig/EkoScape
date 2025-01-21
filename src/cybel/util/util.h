@@ -27,6 +27,8 @@ namespace Util {
   template <typename T>
   std::vector<T> unique(const std::vector<T>& vec);
 
+  void clear_gl_errors();
+
   std::string get_sdl_error();
   std::string get_sdl_img_error();
   std::string get_sdl_mix_error();

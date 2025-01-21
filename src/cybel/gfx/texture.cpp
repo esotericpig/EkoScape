@@ -64,6 +64,7 @@ Texture::Texture(Image& img,bool make_weird) {
     // Just eat error, so a blank texture is shown instead of crashing.
     std::cerr << "[WARN] Failed to gen/bind texture for image [" << img.id()
               << "]; error [" << error << "]: " << Util::get_gl_error(error) << '.' << std::endl;
+    Util::clear_gl_errors();
 
     // destroy();
     // throw CybelError{"Failed to gen/bind texture for image [",img.id(),"]; error [",error,"]: "
@@ -127,6 +128,7 @@ Texture::Texture(const Color4f& color,bool make_weird) {
               << static_cast<int>(b) << ','
               << static_cast<int>(a)
               << "); error [" << error << "]: " << Util::get_gl_error(error) << '.' << std::endl;
+    Util::clear_gl_errors();
 
     // destroy();
     // throw CybelError{"Failed to gen/bind texture for color ("
