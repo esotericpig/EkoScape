@@ -10,7 +10,7 @@
 namespace cybel::utf8 {
 
 RuneRange::RuneRange(std::string_view str,std::size_t index)
-    : str_(str),index_(index) {}
+  : str_(str),index_(index) {}
 
 RuneIterator RuneRange::begin() const { return RuneIterator::begin(str_,index_); }
 RuneIterator RuneRange::end() const { return RuneIterator::end(str_); }

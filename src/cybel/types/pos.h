@@ -23,7 +23,7 @@ public:
 
   explicit Pos2() noexcept = default;
   explicit Pos2(T x,T y) noexcept
-      : x(x),y(y) {}
+    : x(x),y(y) {}
 
   bool operator==(const Pos2&) const = default;
 
@@ -54,7 +54,7 @@ public:
   explicit Pos3() noexcept = default;
   // NOTE: Not defaulting z to 0 on purpose, to help distinguish between Pos2.
   explicit Pos3(T x,T y,T z) noexcept
-      : x(x),y(y),z(z) {}
+    : x(x),y(y),z(z) {}
 
   bool operator==(const Pos3&) const = default;
 

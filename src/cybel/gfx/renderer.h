@@ -117,8 +117,8 @@ public:
     Size2i rune_size{};
     Size2i spacing{};
 
-    explicit FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
-        ,const Size2i& spacing);
+    explicit FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size,
+                              const Size2i& spacing);
 
     FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size);
     FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
@@ -177,10 +177,10 @@ public:
   Renderer& wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback);
 
   Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
-      ,const WrapFontAtlasCallback& callback);
-  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
-      ,const Size2i& spacing,const WrapFontAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size,
+                            const WrapFontAtlasCallback& callback);
+  Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size,
+                            const Size2i& spacing,const WrapFontAtlasCallback& callback);
 
   Renderer& draw_quad(const Pos3i& pos,const Size2i& size);
   Renderer& draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size);

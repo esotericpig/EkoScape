@@ -10,6 +10,6 @@
 namespace ekoscape {
 
 GameContext::GameContext(CybelEngine& cybel_engine,Assets& assets) noexcept
-    : cybel_engine(cybel_engine),audio_player(cybel_engine.audio_player()),assets(assets) {}
+  : cybel_engine(cybel_engine),audio_player(cybel_engine.audio_player()),assets(assets) {}
 
 } // Namespace.

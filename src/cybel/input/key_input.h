@@ -26,7 +26,7 @@ public:
   };
 
   explicit KeyInput(T key,KeyMods mods = KeyMods{}) noexcept
-      : key_(key),mods_(mods & kNormMods) {}
+    : key_(key),mods_(mods & kNormMods) {}
 
   bool operator==(const KeyInput& other) const {
     return key_ == other.key_ && mods_ == other.mods_;

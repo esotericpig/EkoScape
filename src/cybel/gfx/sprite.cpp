@@ -39,22 +39,22 @@ Pos4f Sprite::build_src(const Texture& tex,const Pos2i& offset,const Size2i& siz
 }
 
 Sprite::Sprite(Texture&& tex,int padding)
-    : Sprite(std::make_shared<Texture>(std::move(tex)),padding) {}
+  : Sprite(std::make_shared<Texture>(std::move(tex)),padding) {}
 
 Sprite::Sprite(Texture&& tex,const Pos2i& offset,const Size2i& size,int padding)
-    : Sprite(std::make_shared<Texture>(std::move(tex)),offset,size,padding) {}
+  : Sprite(std::make_shared<Texture>(std::move(tex)),offset,size,padding) {}
 
 Sprite::Sprite(std::unique_ptr<Texture> tex,int padding)
-    : Sprite(std::shared_ptr{std::move(tex)},padding) {}
+  : Sprite(std::shared_ptr{std::move(tex)},padding) {}
 
 Sprite::Sprite(std::unique_ptr<Texture> tex,const Pos2i& offset,const Size2i& size,int padding)
-    : Sprite(std::shared_ptr{std::move(tex)},offset,size,padding) {}
+  : Sprite(std::shared_ptr{std::move(tex)},offset,size,padding) {}
 
 Sprite::Sprite(std::shared_ptr<Texture> tex,int padding)
-    : Sprite(std::move(tex),Pos2i{0,0},Size2i{0,0},padding) {}
+  : Sprite(std::move(tex),Pos2i{0,0},Size2i{0,0},padding) {}
 
 Sprite::Sprite(std::shared_ptr<Texture> tex,const Pos2i& offset,const Size2i& size,int padding)
-    : tex_(std::move(tex)) {
+  : tex_(std::move(tex)) {
   const int p2 = padding * 2;
 
   size_.w = (size.w > 0) ? size.w : (tex_->size().w - p2 - offset.x);

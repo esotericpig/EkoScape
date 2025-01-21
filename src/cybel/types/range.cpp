@@ -10,7 +10,7 @@
 namespace cybel {
 
 Range2i::Range2i(int min,int max) noexcept
-    : min(min),max(max) {}
+  : min(min),max(max) {}
 
 bool Range2i::in_range(int value) const { return value >= min && value <= max; }
 

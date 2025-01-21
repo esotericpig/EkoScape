@@ -61,7 +61,7 @@ std::vector<T> Util::unique(const std::vector<T>& vec) {
   std::unordered_set<T> seen{};
   std::vector<T> unique{};
 
-  for(const auto& e: vec) {
+  for(const auto& e : vec) {
     bool is_unique = seen.insert(e).second; // Was inserted?
 
     if(is_unique) { unique.push_back(e); }

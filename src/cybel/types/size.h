@@ -22,11 +22,11 @@ public:
 
   explicit Size2() noexcept = default;
   explicit Size2(T w,T h) noexcept
-      : w(w),h(h) {}
+    : w(w),h(h) {}
 
   bool in_bounds(const Pos2<T>& pos,const Size2& size) const {
-    return (pos.x + size.w) >= 0 && pos.x < w
-        && (pos.y + size.h) >= 0 && pos.y < h;
+    return ((pos.x + size.w) >= 0 && pos.x < w) &&
+           ((pos.y + size.h) >= 0 && pos.y < h);
   }
 
   Size2& set(T w,T h) {

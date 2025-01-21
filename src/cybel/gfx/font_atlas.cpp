@@ -12,13 +12,13 @@
 namespace cybel {
 
 FontAtlas::Builder::Builder(Texture&& tex)
-    : sprite_atlas_(std::move(tex)) {}
+  : sprite_atlas_(std::move(tex)) {}
 
 FontAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
-    : sprite_atlas_(std::move(tex)) {}
+  : sprite_atlas_(std::move(tex)) {}
 
 FontAtlas::Builder::Builder(std::shared_ptr<Texture> tex)
-    : sprite_atlas_(std::move(tex)) {}
+  : sprite_atlas_(std::move(tex)) {}
 
 FontAtlas FontAtlas::Builder::build() { return FontAtlas{*this}; }
 
@@ -83,7 +83,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_rune(char32_t rune) {
 FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::string_view str) {
   int index = 0;
 
-  for(auto rune: utf8::RuneRange{str}) {
+  for(auto rune : utf8::RuneRange{str}) {
     rune_to_index_[rune] = index;
     ++index;
   }
@@ -95,10 +95,10 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::initializer_list<std:
   int index = 0;
   int col_count = 0;
 
-  for(const auto& line: lines) {
+  for(const auto& line : lines) {
     int len = 0;
 
-    for(auto rune: utf8::RuneRange{line}) {
+    for(auto rune : utf8::RuneRange{line}) {
       rune_to_index_[rune] = index;
       ++index;
       ++len;
@@ -118,15 +118,15 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::initializer_list<std:
 }
 
 FontAtlas::FontAtlas(const Builder& builder)
-    : SpriteAtlas(builder.sprite_atlas_)
-      ,spacing_(builder.spacing_)
-      ,rune_to_index_(builder.rune_to_index_) {
+  : SpriteAtlas(builder.sprite_atlas_),
+    spacing_(builder.spacing_),
+    rune_to_index_(builder.rune_to_index_) {
   if(builder.default_index_ > 0) {
     default_index_ = builder.default_index_;
   } else if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
     default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
   } else if(builder.default_rune_ != 0) {
-    for(auto [rune,index]: rune_to_index_) {
+    for(auto [rune,index] : rune_to_index_) {
       if(rune == builder.default_rune_) {
         default_index_ = index;
         break;

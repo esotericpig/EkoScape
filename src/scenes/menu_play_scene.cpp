@@ -15,10 +15,10 @@
 namespace ekoscape {
 
 MenuPlayScene::MapOption::MapOption(std::string_view text)
-    : text(text) {}
+  : text(text) {}
 
 MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
-    : ctx_(ctx),state_(state) {
+  : ctx_(ctx),state_(state) {
   refresh_maps();
 }
 
@@ -127,15 +127,15 @@ void MenuPlayScene::glob_maps() {
     opt.group = group;
     opt.file = map_file;
     opt.title = map.title();
-    opt.text = utf8::StrUtil::pad(utf8::StrUtil::ellipsize(opt.title,max_title_len),max_title_len)
-        + " [" + utf8::StrUtil::ellipsize(opt.group,max_group_len) + ']';
+    opt.text = utf8::StrUtil::pad(utf8::StrUtil::ellipsize(opt.title,max_title_len),max_title_len) +
+               " [" + utf8::StrUtil::ellipsize(opt.group,max_group_len) + ']';
 
     map_opts_.push_back(opt);
   });
 
   if(map_opts_.size() <= 1) { // Only has the random-map option?
-    ctx_.cybel_engine.show_error("No maps were found/loaded in the sub folders of the maps folder ["
-        + Assets::kMapsSubdir.string() + "].");
+    ctx_.cybel_engine.show_error("No maps were found/loaded in the sub folders of the maps folder [" +
+                                 Assets::kMapsSubdir.string() + "].");
     return;
   }
 

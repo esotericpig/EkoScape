@@ -21,7 +21,7 @@ void StarSys::init(const ViewDimens& view_dimens,bool is_flying) {
 
   stars_.resize(100);
 
-  for(auto& star: stars_) {
+  for(auto& star : stars_) {
     birth_star(star);
 
     // The following logic is only on init, not birth, else stars appear "popping" in & out.
@@ -70,7 +70,7 @@ void StarSys::clear() {
 }
 
 void StarSys::update(const FrameStep& step) {
-  for(auto& star: stars_) {
+  for(auto& star : stars_) {
     if(star.is_alive()) {
       star.age_by(static_cast<float>(step.delta_time));
     } else if(star.past_lives < 1) {
@@ -93,7 +93,7 @@ void StarSys::draw(Renderer& ren,const Texture& tex) {
   if(stars_.empty()) { return; }
 
   ren.wrap_tex(tex,[&](auto& t) {
-    for(auto& star: stars_) {
+    for(auto& star : stars_) {
       ren.wrap_rotate(star.pos.to_pos3<int>(),star.spin_angle,[&]() {
         ren.begin_color(star.color);
         t.draw_quad(star.render_pos.to_pos3<int>(),star.size.to_size2<int>());

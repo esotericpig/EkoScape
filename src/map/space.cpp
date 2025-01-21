@@ -10,10 +10,10 @@
 namespace ekoscape {
 
 Space::Space(SpaceType empty) noexcept
-    : empty_type_(empty) {}
+  : empty_type_(empty) {}
 
 Space::Space(SpaceType empty,SpaceType thing) noexcept
-    : empty_type_(empty),thing_type_(thing) {}
+  : empty_type_(empty),thing_type_(thing) {}
 
 Space& Space::set(SpaceType empty,SpaceType thing) {
   empty_type_ = empty;

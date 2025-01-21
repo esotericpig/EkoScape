@@ -24,7 +24,7 @@ MenuScene::Option MenuScene::Option::cycle(const CycleConfig& config) {
 }
 
 MenuScene::Option::Option(std::string_view text,const OnSelect& on_select)
-    : text(text),on_select_(on_select) {}
+  : text(text),on_select_(on_select) {}
 
 void MenuScene::Option::select() {
   if(on_select_) { on_select_(); }
@@ -43,7 +43,7 @@ void MenuScene::Option::select_alt() {
 bool MenuScene::Option::is_cycle() const { return is_cycle_; }
 
 MenuScene::MenuScene(GameContext& ctx)
-    : ctx_(ctx) {
+  : ctx_(ctx) {
   auto gfx_opt = Option::cycle({
     .on_update = [&](auto& opt) { opt.text = "gfx: " + ctx_.assets.tex_style(); },
     .on_select = [&]() { ctx_.assets.next_tex_style(); },

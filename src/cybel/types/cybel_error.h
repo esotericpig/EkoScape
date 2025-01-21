@@ -21,12 +21,12 @@ public:
 
   template <typename... MsgArgs>
   explicit CybelError(const MsgArgs&... msg_args)
-      : msg_(Util::build_str(msg_args...)) {}
+    : msg_(Util::build_str(msg_args...)) {}
 
   const char* what() const noexcept override;
 
 private:
-    std::string msg_{};
+  std::string msg_{};
 };
 
 } // Namespace.

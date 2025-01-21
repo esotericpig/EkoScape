@@ -75,7 +75,7 @@ Texture::Texture(Image& img,bool make_weird) {
 }
 
 Texture::Texture(Image&& img,bool make_weird)
-    : Texture(img,make_weird) {}
+  : Texture(img,make_weird) {}
 
 Texture::Texture(const Color4f& color,bool make_weird) {
   auto r = static_cast<GLubyte>(std::round(color.r * 255.0f));

@@ -16,7 +16,7 @@
 namespace ekoscape {
 
 GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
-    : ctx_(ctx),state_(state) {
+  : ctx_(ctx),state_(state) {
   init_map(map_file);
 
   // Extra delay to give some time for the Player to initially orient/adjust.
@@ -35,9 +35,10 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
 void GameScene::init_map(const std::filesystem::path& map_file) {
   std::vector<Pos3i> cells{};
 
-  map_.load_file(map_file
-    ,[&](const auto& pos,SpaceType type) { return init_map_space(pos,type,cells); }
-    ,[&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
+  map_.load_file(
+    map_file,
+    [&](const auto& pos,SpaceType type) { return init_map_space(pos,type,cells); },
+    [&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
   );
   if(ctx_.assets.is_weird()) { make_map_weird(cells); }
 
@@ -76,7 +77,7 @@ void GameScene::make_map_weird(std::vector<Pos3i>& cells) {
   // If we run out of Robots, then just use normal ones.
 
   // First, flip all Robots to Cells in Map, because we might have more Robots than Cells.
-  for(auto& robot: robots_) {
+  for(auto& robot : robots_) {
     map_.set_raw_thing(robot.pos(),SpaceType::kCell);
   }
 
@@ -85,7 +86,7 @@ void GameScene::make_map_weird(std::vector<Pos3i>& cells) {
 
   std::vector<Robot> new_robots{};
 
-  for(std::size_t robot_i = 0; const auto& cell_pos: cells) {
+  for(std::size_t robot_i = 0; const auto& cell_pos : cells) {
     if(robot_i < robots_.size()) {
       auto robot = std::move(robots_[robot_i]);
       ++robot_i;
@@ -382,7 +383,7 @@ void GameScene::move_robots(const FrameStep& step) {
   // Move Robots.
   robot_move_data_.refresh(player_fruit_time_ > Duration::kZero);
 
-  for(auto& robot: robots_) {
+  for(auto& robot : robots_) {
     robot.move(robot_move_data_);
 
     // Warp Robots that are on Portals.
@@ -412,8 +413,8 @@ void GameScene::remove_robots_at(const Pos3i& pos) {
   robots_.erase(dead_robots.begin(),dead_robots.end());
 }
 
-std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal
-    ,const MoveChecker& can_move_to) {
+std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal,
+                                                 const MoveChecker& can_move_to) {
   auto it = portal_to_pos_bag_.find(portal);
   if(it == portal_to_pos_bag_.end()) { return std::nullopt; }
 
@@ -424,7 +425,7 @@ std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType port
     Rando::it().shuffle(bros.begin(),bros.end());
   }
 
-  for(auto& bro_pos: bros) { // Find Luigi.
+  for(auto& bro_pos : bros) { // Find Luigi.
     if(bro_pos != pos && can_move_to(bro_pos)) { return bro_pos; }
   }
 
@@ -467,8 +468,8 @@ void GameScene::set_space_texs(SpaceType type,const Texture* tex) {
 }
 
 // ReSharper disable once CppDFAUnreachableFunctionCall
-void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall
-    ,const Texture* floor) {
+void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,
+                               const Texture* floor) {
   const int space_id = SpaceTypes::value_of(type);
 
   // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.

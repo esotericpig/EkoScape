@@ -63,8 +63,8 @@ Map& Map::clear_grids() {
   return *this;
 }
 
-Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space
-    ,const DefaultEmptyCallback& on_def_empty,bool meta_only) {
+Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space,
+                    const DefaultEmptyCallback& on_def_empty,bool meta_only) {
   TextReader reader{file};
 
   load_metadata(reader,file.string());
@@ -111,9 +111,9 @@ void Map::load_metadata(TextReader& reader,std::string_view file) {
   }
   set_walking_speed(data_f);
 
-  if(!reader.seek_and_destroy('\'')
-      || !reader.get(data_c)
-      || !reader.seek_and_destroy('\'')) {
+  if(!reader.seek_and_destroy('\'') ||
+     !reader.get(data_c) ||
+     !reader.seek_and_destroy('\'')) {
     throw CybelError{"Missing default empty space in map [",file,"]."};
   }
   set_default_empty(SpaceTypes::to_space_type(data_c));
@@ -129,8 +129,8 @@ void Map::load_metadata(TextReader& reader,std::string_view file) {
   }
 }
 
-void Map::load_grids(TextReader& reader,const SpaceCallback& on_space
-    ,const DefaultEmptyCallback& on_def_empty,std::string_view file) {
+void Map::load_grids(TextReader& reader,const SpaceCallback& on_space,
+                     const DefaultEmptyCallback& on_def_empty,std::string_view file) {
   std::string line{};
   std::vector<std::string> lines{};
   Size2i size{};
@@ -175,17 +175,17 @@ void Map::load_grids(TextReader& reader,const SpaceCallback& on_space
   }
   if(!has_player) {
     throw CybelError{
-      "Missing a Player space {"
-      ,SpaceTypes::value_of(SpaceType::kPlayerNorth)
-      ,',',SpaceTypes::value_of(SpaceType::kPlayerSouth)
-      ,',',SpaceTypes::value_of(SpaceType::kPlayerEast)
-      ,',',SpaceTypes::value_of(SpaceType::kPlayerWest)
-      ,"} in a grid of map [",file,"]."
+      "Missing a Player space {",
+      SpaceTypes::value_of(SpaceType::kPlayerNorth),',',
+      SpaceTypes::value_of(SpaceType::kPlayerSouth),',',
+      SpaceTypes::value_of(SpaceType::kPlayerEast),',',
+      SpaceTypes::value_of(SpaceType::kPlayerWest),
+      "} in a grid of map [",file,"]."
     };
   }
   if(!has_end) {
-    throw CybelError{"Missing an End space [",SpaceTypes::value_of(SpaceType::kEnd)
-        ,"] in a grid of map [",file,"]."};
+    throw CybelError{"Missing an End space [",SpaceTypes::value_of(SpaceType::kEnd),
+                     "] in a grid of map [",file,"]."};
   }
 }
 
@@ -193,13 +193,13 @@ Map& Map::load_file_meta(const std::filesystem::path& file) {
   return load_file(file,nullptr,nullptr,true);
 }
 
-Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space
-    ,const DefaultEmptyCallback& on_def_empty) {
+Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space,
+                     const DefaultEmptyCallback& on_def_empty) {
   return parse_grid(lines,Size2i{},on_space,on_def_empty);
 }
 
-Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space
-    ,const DefaultEmptyCallback& on_def_empty,std::string_view file) {
+Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space,
+                     const DefaultEmptyCallback& on_def_empty,std::string_view file) {
   if(file.empty()) { file = title_; }
 
   if(grids_.size() >= Dantares::MAXMAPS) {
@@ -210,7 +210,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
     // Find max line length for width.
     size.w = 0;
 
-    for(const auto& line: lines) {
+    for(const auto& line : lines) {
       const int len = static_cast<int>(line.length());
       if(len > size.w) { size.w = len; }
     }
@@ -546,7 +546,7 @@ std::ostream& Map::print(std::ostream& out,bool rstrip) const {
       << '\n'
       << turning_speed_ << ' ' << walking_speed_ << '\n'
       << '\n'
-      <<  "'" << SpaceTypes::value_of(default_empty_) << "'\n"
+      << "'" << SpaceTypes::value_of(default_empty_) << "'\n"
       << robot_delay_.round_millis();
 
   for(int z = 0; z < static_cast<int>(grids_.size()); ++z) {

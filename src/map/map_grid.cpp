@@ -10,7 +10,7 @@
 namespace ekoscape {
 
 MapGrid::MapGrid(const Size2i& size)
-    : size_(size),spaces_(size_.w * size_.h,Space{}) {}
+  : size_(size),spaces_(size_.w * size_.h,Space{}) {}
 
 const Size2i& MapGrid::size() const { return size_; }
 

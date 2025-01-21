@@ -10,10 +10,10 @@
 namespace cybel {
 
 TextReader::TextReader(const std::filesystem::path& file)
-    : buf_(file),in_(&buf_) {}
+  : buf_(file),in_(&buf_) {}
 
 TextReader::TextReader(const std::filesystem::path& file,std::size_t buffer_size)
-    : buf_(file,buffer_size),in_(&buf_) {}
+  : buf_(file,buffer_size),in_(&buf_) {}
 
 bool TextReader::read_line(std::string& line) {
   line.clear(); // Match user expectations.

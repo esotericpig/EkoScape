@@ -12,13 +12,13 @@
 namespace cybel {
 
 SpriteAtlas::Builder::Builder(Texture&& tex)
-    : Builder(std::make_shared<Texture>(std::move(tex))) {}
+  : Builder(std::make_shared<Texture>(std::move(tex))) {}
 
 SpriteAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
-    : Builder(std::shared_ptr{std::move(tex)}) {}
+  : Builder(std::shared_ptr{std::move(tex)}) {}
 
 SpriteAtlas::Builder::Builder(std::shared_ptr<Texture> tex)
-    : tex_(std::move(tex)) {}
+  : tex_(std::move(tex)) {}
 
 SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas(*this); }
 
@@ -60,10 +60,10 @@ int SpriteAtlas::Builder::cell_padding() const { return cell_padding_; }
 const Size2i& SpriteAtlas::Builder::grid_size() const { return grid_size_; }
 
 SpriteAtlas::SpriteAtlas(const Builder& builder)
-    : tex_(builder.tex_)
-      ,grid_size_(builder.grid_size_)
-      ,cell_count_(grid_size_.w * grid_size_.h)
-      ,index_to_src_(cell_count_,Pos4f{}) {
+  : tex_(builder.tex_),
+    grid_size_(builder.grid_size_),
+    cell_count_(grid_size_.w * grid_size_.h),
+    index_to_src_(cell_count_,Pos4f{}) {
   const int p2 = builder.cell_padding_ * 2;
 
   cell_size_.w = builder.cell_size_.w - p2;

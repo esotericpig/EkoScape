@@ -20,7 +20,7 @@ Color4f MenuCreditsScene::rand_color() {
 }
 
 MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
-    : ctx_(ctx),wtfs_(75,WtfParticle{}) {}
+  : ctx_(ctx),wtfs_(75,WtfParticle{}) {}
 
 void MenuCreditsScene::on_input_event(int action,const ViewDimens& dimens) {
   switch(action) {

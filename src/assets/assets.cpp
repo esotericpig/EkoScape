@@ -63,7 +63,7 @@ std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
   }
 
   // Make all paths absolute for Util::unique().
-  for(auto& d: dirs) { d = canonical(d,err_code); }
+  for(auto& d : dirs) { d = canonical(d,err_code); }
 
   if(dirs.empty()) {
     std::cerr << "[ERROR] All base dirs failed for some reason." << std::endl;
@@ -76,7 +76,7 @@ std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
 }
 
 Assets::Assets(std::string_view tex_style,bool has_audio_player,bool make_weird)
-    : has_audio_player_(has_audio_player) {
+  : has_audio_player_(has_audio_player) {
   reload_gfx(tex_style,make_weird);
   reload_music();
 }
@@ -150,13 +150,13 @@ void Assets::reload_styled_texs_bag(std::string_view tex_style) {
   std::ostringstream errors{};
   std::error_code err_code{};
 
-  for(const auto& base_dir: kBaseDirs) {
+  for(const auto& base_dir : kBaseDirs) {
     const auto texs_dir = base_dir / kTexsSubdir;
 
     if(!is_directory(texs_dir,err_code)) { continue; } // ADL (Argument-Dependent Lookup).
 
     try {
-      for(const auto& style_entry: std::filesystem::directory_iterator(texs_dir)) {
+      for(const auto& style_entry : std::filesystem::directory_iterator(texs_dir)) {
         if(!style_entry.is_directory()) { continue; }
 
         const auto style_dir = style_entry.path();
@@ -181,12 +181,14 @@ void Assets::reload_styled_texs_bag(std::string_view tex_style) {
   styled_texs_bag_it_ = styled_texs_bag_.cbegin();
 
   if(styled_texs_bag_.empty()) {
-    throw CybelError{"Failed to find/load any graphics styles in textures folder [",kTexsSubdir.string(),"]."
-        ,errors.str()};
+    throw CybelError{
+      "Failed to find/load any graphics styles in textures folder [",kTexsSubdir.string(),"].",
+      errors.str()
+    };
   }
 
   // Sort the styles alphabetically, ignoring case.
-  std::ranges::sort(styled_texs_bag_,[](const auto& style1, const auto& style2) {
+  std::ranges::sort(styled_texs_bag_,[](const auto& style1,const auto& style2) {
     return utf8::StrUtil::casecmp_ascii(style1.dirname,style2.dirname) < 0;
   });
 
@@ -242,7 +244,7 @@ void Assets::reload_music() {
 void Assets::load_asset(const AssetLoader& load_from) const {
   std::string error{};
 
-  for(const auto& base_dir: kBaseDirs) {
+  for(const auto& base_dir : kBaseDirs) {
     try {
       load_from(base_dir);
       return; // Success.
@@ -294,19 +296,19 @@ void Assets::make_weird() {
 void Assets::glob_maps_meta(const MapCallback& on_map) const {
   std::unordered_set<std::string> loaded_maps{};
 
-  for(const auto& base_dir: kBaseDirs) {
+  for(const auto& base_dir : kBaseDirs) {
     const auto maps_dir = base_dir / kMapsSubdir;
     std::error_code err_code{}; // For noexcept overload.
 
     if(!is_directory(maps_dir,err_code)) { continue; }
 
     try {
-      for(const auto& group_entry: std::filesystem::directory_iterator(maps_dir)) {
+      for(const auto& group_entry : std::filesystem::directory_iterator(maps_dir)) {
         if(!group_entry.is_directory()) { continue; }
 
         const std::string group = group_entry.path().filename().string();
 
-        for(const auto& map_entry: std::filesystem::directory_iterator(group_entry)) {
+        for(const auto& map_entry : std::filesystem::directory_iterator(group_entry)) {
           const auto map_file = map_entry.path();
           const auto map_key = group + '/' + map_file.filename().string();
 

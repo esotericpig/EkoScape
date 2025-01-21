@@ -13,7 +13,7 @@
 namespace cybel {
 
 Music::Music(const std::filesystem::path& file)
-    : id_(file.string()) {
+  : id_(file.string()) {
   const auto file_str = file.u8string();
   auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 

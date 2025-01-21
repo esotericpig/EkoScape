@@ -12,7 +12,7 @@
 namespace ekoscape {
 
 GameHud::GameHud(GameContext& ctx,const State& state)
-    : state(state),ctx_(ctx) {
+  : state(state),ctx_(ctx) {
   mini_map_eko_color_ = ctx_.assets.eko_color().with_a(kAlpha);
   mini_map_end_color_ = ctx_.assets.end_color().with_a(kAlpha);
   mini_map_fruit_color_ = ctx_.assets.fruit_color().with_a(kAlpha);
@@ -26,8 +26,8 @@ GameHud::GameHud(GameContext& ctx,const State& state)
 
 void GameHud::update(const FrameStep& step) {
   // Update the speedrun time str on Game Over or at an interval.
-  if(state.speedrun_time != last_speedrun_time_
-      && (state.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
+  if(state.speedrun_time != last_speedrun_time_ &&
+     (state.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
     last_updated_speedrun_time_.zero();
     last_speedrun_time_ = state.speedrun_time;
     update_speedrun_time_str();
@@ -80,7 +80,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
 
     font.print();
     font.font_color = (state.map.total_rescues() < state.map.total_cells())
-        ? mini_map_eko_color_ : mini_map_end_color_;
+                      ? mini_map_eko_color_ : mini_map_end_color_;
     font.print(std::to_string(state.map.total_rescues()));
     font.font_color = font_color;
     font.print(Util::build_str('/',state.map.total_cells()," ekos"));
@@ -92,8 +92,8 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
       const auto fruit_text = std::to_string(state.player_fruit_time.round_secs());
 
-      font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1}
-          ,Size2i{fruit_padding_w,0});
+      font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1},
+                   Size2i{fruit_padding_w,0});
       font.font_color = mini_map_fruit_color_.with_a(1.0f);
       font.print(fruit_text);
     });
@@ -171,10 +171,10 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i& pos) {
 
       if(!state.player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
-        ren.wrap_font_atlas(ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0}
-            ,[&](auto& font) {
-          font.print("↑");
-        });
+        ren.wrap_font_atlas(
+          ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0},
+          [&](auto& font) { font.print("↑"); }
+        );
       }
     }
 

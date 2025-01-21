@@ -12,7 +12,7 @@
 namespace cybel {
 
 SceneMan::SceneMan(const SceneBuilder& build_scene,const SceneIniter& init_scene)
-    : build_scene_(build_scene),init_scene_(init_scene) {}
+  : build_scene_(build_scene),init_scene_(init_scene) {}
 
 bool SceneMan::push_scene(int type) {
   SceneBag scene = build_scene_(type);

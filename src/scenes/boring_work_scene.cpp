@@ -12,7 +12,7 @@
 namespace ekoscape {
 
 BoringWorkScene::BoringWorkScene(GameContext& ctx) noexcept
-    : ctx_(ctx) {}
+  : ctx_(ctx) {}
 
 void BoringWorkScene::init_scene(const ViewDimens& /*dimens*/) {
   ctx_.cybel_engine.set_title("robots.xlsx - EkoOffice Calc");

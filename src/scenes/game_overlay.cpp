@@ -15,10 +15,10 @@
 namespace ekoscape {
 
 GameOverlay::Option::Option(OptionType type,std::string_view text)
-    : type(type),text(text) {}
+  : type(type),text(text) {}
 
 GameOverlay::GameOverlay(GameContext& ctx,const Map& map,const bool& player_hit_end)
-    : ctx_(ctx),map_(map),player_hit_end_(player_hit_end) {
+  : ctx_(ctx),map_(map),player_hit_end_(player_hit_end) {
   const std::string& title = map_.title();
   const std::string author = "  by " + map_.author();
 

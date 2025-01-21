@@ -16,7 +16,7 @@ Duration Duration::from_millis(double millis) noexcept { return Duration{}.set_f
 Duration Duration::from_secs(double secs) noexcept { return Duration{}.set_from_secs(secs); }
 
 Duration::Duration(double value) noexcept
-    : value_(value) {}
+  : value_(value) {}
 
 bool Duration::operator<(const Duration& other) const { return value_ < other.value_; }
 

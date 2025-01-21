@@ -12,7 +12,7 @@
 namespace ekoscape {
 
 Robot::MoveData::MoveData(Map& map)
-    : map(map) {}
+  : map(map) {}
 
 void Robot::MoveData::refresh(bool player_ate_fruit) {
   player_pos = map.player_pos();
@@ -55,7 +55,7 @@ Robot Robot::build_worm(const Pos3i& pos,float lifespan) noexcept {
 }
 
 Robot::Robot(SpaceType type,const Pos3i& pos,int moves_like,float lifespan) noexcept
-    : type_(type),pos_(pos),moves_like_(moves_like),lifespan_(lifespan) {}
+  : type_(type),pos_(pos),moves_like_(moves_like),lifespan_(lifespan) {}
 
 bool Robot::move(MoveData& data) {
   if(moves_like_ & kLikeStatue) { return false; }
@@ -141,7 +141,7 @@ bool Robot::move_smart(MoveData& data) {
 bool Robot::move_rand(MoveData& data) {
   Rando::it().shuffle(rand_move_vels_.begin(),rand_move_vels_.end());
 
-  for(const auto& move_vel: rand_move_vels_) {
+  for(const auto& move_vel : rand_move_vels_) {
     if(try_move(data,move_vel.x,move_vel.y)) { return true; }
   }
 

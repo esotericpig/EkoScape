@@ -28,7 +28,7 @@ CybelEngine::Resources::~Resources() noexcept {
 }
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
-    : title_(config.title),main_scene_(main_scene) {
+  : title_(config.title),main_scene_(main_scene) {
   init_hints();
 
   // Don't use SDL_INIT_AUDIO here, since audio is optional.
@@ -74,8 +74,8 @@ void CybelEngine::init_config(Config& config) {
 
       // If target size set, preserve aspect ratio of target size.
       if(config.target_size.w > 0 && config.target_size.h > 0) {
-        const float aspect_ratio = static_cast<float>(config.target_size.w)
-            / static_cast<float>(config.target_size.h);
+        const float aspect_ratio = static_cast<float>(config.target_size.w) /
+                                   static_cast<float>(config.target_size.h);
         const float ar_h = std::round(sw / aspect_ratio);
 
         if(ar_h <= std::round(sh)) {
@@ -146,7 +146,7 @@ void CybelEngine::init_gui(const Config& config) {
 void CybelEngine::check_gl_version() {
   auto gl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
   const std::string gl_version = (gl_version_cstr != nullptr)
-      ? gl_version_cstr : "Failed to get OpenGL version";
+                                 ? gl_version_cstr : "Failed to get OpenGL version";
 
   std::cerr << "[INFO] OpenGL version: " << gl_version << '.' << std::endl;
 
@@ -288,14 +288,14 @@ void CybelEngine::handle_keydown_event(const SDL_Event& event) {
 
   std::unordered_set<int> processed_ids{};
 
-  for(auto id: input_man_->fetch_ids(raw_key)) {
+  for(auto id : input_man_->fetch_ids(raw_key)) {
     // Not inserted? (already processed)
     if(!processed_ids.insert(id).second) { continue; }
 
     main_scene_.on_input_event(id,renderer_->dimens());
     scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
   }
-  for(auto id: input_man_->fetch_ids(sym_key)) {
+  for(auto id : input_man_->fetch_ids(sym_key)) {
     // Not inserted? (already processed)
     if(!processed_ids.insert(id).second) { continue; }
 

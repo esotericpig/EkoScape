@@ -12,34 +12,34 @@
 namespace cybel {
 
 InputMan::Wrapper::Wrapper(InputMan& input_man,int id)
-    : input_man_(input_man),id_(id) {}
+  : input_man_(input_man),id_(id) {}
 
 void InputMan::Wrapper::raw_key(std::initializer_list<RawKey> keys,KeyMods mods) {
-  for(const auto& key: keys) {
+  for(const auto& key : keys) {
     input_man_.raw_key_to_ids_[RawKeyInput{key,mods}].insert(id_);
   }
 }
 
 void InputMan::Wrapper::raw_key(std::initializer_list<RawKeyInput> keys) {
-  for(const auto& key: keys) {
+  for(const auto& key : keys) {
     input_man_.raw_key_to_ids_[key].insert(id_);
   }
 }
 
 void InputMan::Wrapper::sym_key(std::initializer_list<SymKey> keys,KeyMods mods) {
-  for(const auto& key: keys) {
+  for(const auto& key : keys) {
     input_man_.sym_key_to_ids_[SymKeyInput{key,mods}].insert(id_);
   }
 }
 
 void InputMan::Wrapper::sym_key(std::initializer_list<SymKeyInput> keys) {
-  for(const auto& key: keys) {
+  for(const auto& key : keys) {
     input_man_.sym_key_to_ids_[key].insert(id_);
   }
 }
 
 InputMan::InputMan(int max_id)
-    : max_id_(max_id),id_to_state_((max_id > 0) ? (max_id + 1) : 25,false) {}
+  : max_id_(max_id),id_to_state_((max_id > 0) ? (max_id + 1) : 25,false) {}
 
 void InputMan::map_input(int id,const WrapCallback& callback) {
   if(id < 0) { throw CybelError{"Invalid input ID [",id,"] is < 0."}; }
@@ -53,8 +53,8 @@ void InputMan::map_input(int id,const WrapCallback& callback) {
   }
   // Not `else if`, in case of casting overflow.
   if(id >= static_cast<int>(id_to_state_.size())) {
-    throw CybelError{"Invalid input ID [",id,"] is >= maximum ID count ["
-        ,static_cast<int>(id_to_state_.size()),',',id_to_state_.size(),"]."};
+    throw CybelError{"Invalid input ID [",id,"] is >= maximum ID count [",
+                     static_cast<int>(id_to_state_.size()),',',id_to_state_.size(),"]."};
   }
 
   Wrapper wrapper{*this,id};
@@ -71,7 +71,7 @@ void InputMan::set_state(const RawKeyInput& key,bool state) {
   auto it = raw_key_to_ids_.find(key);
   if(it == raw_key_to_ids_.end()) { return; }
 
-  for(auto id: it->second) {
+  for(auto id : it->second) {
     id_to_state_[id] = state;
   }
 }
@@ -80,7 +80,7 @@ void InputMan::set_state(const SymKeyInput& key,bool state) {
   auto it = sym_key_to_ids_.find(key);
   if(it == sym_key_to_ids_.end()) { return; }
 
-  for(auto id: it->second) {
+  for(auto id : it->second) {
     id_to_state_[id] = state;
   }
 }

@@ -29,7 +29,7 @@ namespace cybel {
  */
 class TextReaderBuf : public std::streambuf {
 public:
-  explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = 1024);
+  explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = 4 * 1024);
 
   TextReaderBuf(const TextReaderBuf& other) = delete;
   TextReaderBuf(TextReaderBuf&& other) noexcept;

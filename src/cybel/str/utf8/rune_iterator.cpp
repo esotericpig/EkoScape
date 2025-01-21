@@ -192,7 +192,7 @@ RuneIterator RuneIterator::end(std::string_view str,std::size_t relative_count) 
 }
 
 RuneIterator::RuneIterator(std::string_view str,std::size_t index)
-    : str_(str),index_(index) {
+  : str_(str),index_(index) {
   next_rune();
 }
 

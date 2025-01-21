@@ -9,9 +9,9 @@
 
 namespace ekoscape {
 
-FontRenderer::Wrapper::Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font
-    ,const Color4f& font_color)
-    : font_ren(font_ren),font(font),font_color(font_color) {}
+FontRenderer::Wrapper::Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font,
+                               const Color4f& font_color)
+  : font_ren(font_ren),font(font),font_color(font_color) {}
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
   font.draw_bg(color,str_size);
@@ -19,8 +19,8 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size
-    ,const Size2i& padding) {
+FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size,
+                                                      const Size2i& padding) {
   font.draw_bg(color,str_size,padding);
 
   return *this;
@@ -113,7 +113,7 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts_blanks(int count) {
 }
 
 FontRenderer::FontRenderer(const FontAtlas& font_atlas,bool make_weird)
-    : font_atlas_(font_atlas) {
+  : font_atlas_(font_atlas) {
   if(make_weird) {
     font_color_.set_bytes(255,192,203);
     arrow_color_.set_bytes(0,252,252);

@@ -12,12 +12,12 @@
 namespace ekoscape {
 
 DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_texs)
-    : dantares_(dantares),set_texs_(set_texs) {}
+  : dantares_(dantares),set_texs_(set_texs) {}
 
 Map& DantaresMap::clear_grids() {
   Map::clear_grids();
 
-  for(auto id: grid_ids_) {
+  for(auto id : grid_ids_) {
     dantares_.DeleteMap(id);
   }
   grid_ids_.clear();
@@ -28,12 +28,12 @@ Map& DantaresMap::clear_grids() {
 Map& DantaresMap::add_to_bridge() {
   if(grids_.empty()) { throw CybelError{"No grids in map [",title_,"]."}; }
   if(grid_index_ < 0 || grid_index_ >= static_cast<int>(grids_.size())) {
-    throw CybelError{"Invalid grid index [",grid_index_,"] for map [",title_,"] of size ["
-        ,grids_.size(),"]."};
+    throw CybelError{"Invalid grid index [",grid_index_,"] for map [",title_,"] of size [",
+                     grids_.size(),"]."};
   }
   if(player_init_pos_.z < 0 || player_init_pos_.z >= static_cast<int>(grids_.size())) {
-    throw CybelError{"Invalid player Z [",player_init_pos_.z,"] for map [",title_,"] of size ["
-        ,grids_.size(),"]."};
+    throw CybelError{"Invalid player Z [",player_init_pos_.z,"] for map [",title_,"] of size [",
+                     grids_.size(),"]."};
   }
 
   grid_ids_.resize(grids_.size(),-1);
@@ -78,8 +78,8 @@ Map& DantaresMap::add_to_bridge() {
     throw CybelError{"Failed to change to map grid [",z,',',id,':',title_,"] in Dantares."};
   }
   if(!dantares_.SetPlayerPosition(player_init_pos_.x,player_init_pos_.y,dan_facing)) {
-    throw CybelError{"Failed to set player pos [",dan_facing,":(",player_init_pos_.x,',',player_init_pos_.y
-        ,")] for map grid [",z,',',id,':',title_,"] in Dantares."};
+    throw CybelError{"Failed to set player pos [",dan_facing,":(",player_init_pos_.x,',',player_init_pos_.y,
+                     ")] for map grid [",z,',',id,':',title_,"] in Dantares."};
   }
   if(!dantares_.SetTurningSpeed(turning_speed_)) {
     std::cerr << "[WARN] Failed to set turning speed [" << turning_speed_ << "] for map grid ["
@@ -135,8 +135,8 @@ bool DantaresMap::change_grid(int z,bool force) {
   const Size2i& grid_size = grids_[z]->size();
   const Pos3i player_pos = this->player_pos();
 
-  if(player_pos.x < 0 || player_pos.x >= grid_size.w
-      || player_pos.y < 0 || player_pos.y >= grid_size.h) {
+  if((player_pos.x < 0 || player_pos.x >= grid_size.w) ||
+     (player_pos.y < 0 || player_pos.y >= grid_size.h)) {
     dantares_.SetPlayerPosition(0,0);
   }
 

@@ -14,7 +14,7 @@
 namespace cybel {
 
 Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& tex,const Pos4f& src)
-    : ren(ren),tex(tex),src(src) {}
+  : ren(ren),tex(tex),src(src) {}
 
 Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(const Pos3i& pos) {
   return draw_quad(pos,tex.size());
@@ -27,7 +27,7 @@ Renderer::TextureWrapper& Renderer::TextureWrapper::draw_quad(const Pos3i& pos,c
 }
 
 Renderer::SpriteWrapper::SpriteWrapper(Renderer& ren,const Sprite& sprite)
-    : ren(ren),sprite(sprite) {}
+  : ren(ren),sprite(sprite) {}
 
 Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos) {
   return draw_quad(pos,sprite.size());
@@ -40,14 +40,14 @@ Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos,con
 }
 
 Renderer::SpriteAtlasWrapper::SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas)
-    : ren(ren),atlas(atlas) {}
+  : ren(ren),atlas(atlas) {}
 
 Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos) {
   return draw_quad(index,pos,atlas.cell_size());
 }
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos
-    ,const Size2i& size) {
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos,
+                                                                      const Size2i& size) {
   const Pos4f* src = atlas.src(index);
 
   if(src != nullptr) { ren.draw_quad(*src,pos,size); }
@@ -59,8 +59,8 @@ Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2
   return draw_quad(cell,pos,atlas.cell_size());
 }
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2i& cell,const Pos3i& pos
-    ,const Size2i& size) {
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2i& cell,const Pos3i& pos,
+                                                                      const Size2i& size) {
   const Pos4f* src = atlas.src(cell);
 
   if(src != nullptr) { ren.draw_quad(*src,pos,size); }
@@ -68,17 +68,17 @@ Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(const Pos2
   return *this;
 }
 
-Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos
-    ,const Size2i& rune_size,const Size2i& spacing)
-    : ren(ren),font(font),init_pos(pos),pos(pos),rune_size(rune_size),spacing(spacing) {}
+Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font,const Pos3i& pos,
+                                             const Size2i& rune_size,const Size2i& spacing)
+  : ren(ren),font(font),init_pos(pos),pos(pos),rune_size(rune_size),spacing(spacing) {}
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color
-    ,const Size2i& str_size) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,
+                                                                const Size2i& str_size) {
   return draw_bg(color,str_size,Size2i{});
 }
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size
-    ,const Size2i& padding) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size,
+                                                                const Size2i& padding) {
   ren.end_tex(); // Temporarily unbind the font texture.
     ren.wrap_color(color,[&] {
       ren.draw_quad(Pos3i{pos.x - padding.w,pos.y - padding.h,pos.z},calc_total_size(str_size,padding));
@@ -101,7 +101,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t rune) {
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view str) {
   if(str.empty()) { return print(); }
 
-  for(auto rune: utf8::RuneRange{str}) {
+  for(auto rune : utf8::RuneRange{str}) {
     if(rune == '\n') {
       puts();
       continue;
@@ -152,7 +152,7 @@ Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size,const 
 }
 
 Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)
-    : clear_color_(clear_color) {
+  : clear_color_(clear_color) {
   // Avoid divides by 0.
   dimens_.init_size = Size2i{(size.w > 0) ? size.w : 1,(size.h > 0) ? size.h : 1};
   dimens_.size = dimens_.init_size;
@@ -392,18 +392,18 @@ Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteA
   return wrap_tex(atlas.tex(),[&]() { callback(wrapper); });
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos
-    ,const WrapFontAtlasCallback& callback) {
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,
+                                    const WrapFontAtlasCallback& callback) {
   return wrap_font_atlas(font,pos,font.cell_size(),callback);
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
-    ,const WrapFontAtlasCallback& callback) {
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size,
+                                    const WrapFontAtlasCallback& callback) {
   return wrap_font_atlas(font,pos,rune_size,font.spacing(),callback);
 }
 
-Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size
-    ,const Size2i& spacing,const WrapFontAtlasCallback& callback) {
+Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size,
+                                    const Size2i& spacing,const WrapFontAtlasCallback& callback) {
   FontAtlasWrapper wrapper{*this,font,pos,rune_size,spacing};
 
   return wrap_tex(font.tex(),[&]() { callback(wrapper); });
