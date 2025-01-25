@@ -14,7 +14,7 @@ namespace cybel {
 
 Texture::Texture(Image& img,bool make_weird) {
   const auto bpp = img.bpp();
-  bool is_red_first = (make_weird) ? !img.is_red_first() : img.is_red_first();
+  const bool is_red_first = (make_weird) ? !img.is_red_first() : img.is_red_first();
   GLenum img_format = GL_RGBA;
 
   switch(bpp) {
@@ -41,10 +41,11 @@ Texture::Texture(Image& img,bool make_weird) {
     glPixelStorei(GL_UNPACK_ALIGNMENT,4); // Should be the default.
   }
 
-  // NOTE: For OpenGL 3.0+.
-  // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Creating_a_complete_texture
-  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
-  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
+  if(GLEW_VERSION_3_0) {
+    // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Creating_a_complete_texture
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
+  }
 
   // See: https://open.gl/textures
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -58,7 +59,7 @@ Texture::Texture(Image& img,bool make_weird) {
 
   glBindTexture(GL_TEXTURE_2D,0); // Unbind texture.
 
-  GLenum error = glGetError();
+  const GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
     // Just eat error, so a blank texture is shown instead of crashing.
@@ -105,9 +106,10 @@ Texture::Texture(const Color4f& color,bool make_weird) {
   glGenTextures(1,&gl_id_);
   glBindTexture(GL_TEXTURE_2D,gl_id_);
 
-  // NOTE: For OpenGL 3.0+.
-  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
-  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
+  if(GLEW_VERSION_3_0) {
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,0);
+  }
 
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -118,7 +120,7 @@ Texture::Texture(const Color4f& color,bool make_weird) {
 
   glBindTexture(GL_TEXTURE_2D,0); // Unbind texture.
 
-  GLenum error = glGetError();
+  const GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
     // Just eat error, so a blank texture is shown instead of crashing.
