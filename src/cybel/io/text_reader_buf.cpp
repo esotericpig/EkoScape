@@ -13,7 +13,7 @@
 namespace cybel {
 
 TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size)
-  : buffer_(buffer_size,0) {
+  : buffer_(std::max<std::size_t>(buffer_size,1),0) {
   const std::u8string file_str = file.u8string();
   auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 
