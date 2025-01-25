@@ -58,7 +58,7 @@ private:
   void init_input_map();
 
   void play_music();
-  void stop_music(bool on_boring_work = false);
+  void stop_music(bool going_to_boring_work = false);
 
   SceneBag build_scene(int type);
   void pop_scene();

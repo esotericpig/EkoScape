@@ -305,9 +305,9 @@ void EkoScapeGame::play_music() {
   }
 }
 
-void EkoScapeGame::stop_music(bool on_boring_work) {
+void EkoScapeGame::stop_music(bool going_to_boring_work) {
   ctx_->audio_player.pause_music();
-  if(!on_boring_work) { was_music_playing_ = false; }
+  if(!going_to_boring_work) { was_music_playing_ = false; }
 }
 
 void EkoScapeGame::show_error(const std::string& error) {
