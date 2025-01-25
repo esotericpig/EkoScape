@@ -67,7 +67,7 @@ class ArtifactsMan
   ].freeze
 
   SLEEP_SECS = 0.500
-  CHECKSUM_BUFFER_SIZE = 16_384
+  CHECKSUM_BUFFER_SIZE = 16 * 1024
 
   GH_CMD = %w[ gh ].freeze
   TAR_CMD = %w[ tar ].freeze
