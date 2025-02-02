@@ -197,15 +197,25 @@ RuneIterator::RuneIterator(std::string_view str,std::size_t index)
 }
 
 bool RuneIterator::operator!=(const RuneIterator& other) const {
-  return str_ != other.str_ || index_ != other.index_;
+  return !(*this == other);
 }
 
 bool RuneIterator::operator==(const RuneIterator& other) const {
-  return !(*this != other);
+  return str_.data() == other.str_.data() &&
+         str_.size() == other.str_.size() &&
+         index_ == other.index_;
 }
 
 std::strong_ordering RuneIterator::operator<=>(const RuneIterator& other) const {
-  return (str_ == other.str_) ? (index_ <=> other.index_) : (index_ <=> str_.size());
+  auto order = str_.data() <=> other.str_.data();
+
+  if(order != std::strong_ordering::equal) { return order; }
+
+  order = str_.size() <=> other.str_.size();
+
+  if(order != std::strong_ordering::equal) { return order; }
+
+  return index_ <=> other.index_;
 }
 
 char32_t RuneIterator::operator*() const { return rune_; }
@@ -217,7 +227,7 @@ RuneIterator& RuneIterator::operator++() {
 }
 
 RuneIterator RuneIterator::operator++(int) {
-  RuneIterator temp = *this;
+  const RuneIterator temp = *this;
 
   next_rune();
 
@@ -231,7 +241,7 @@ RuneIterator& RuneIterator::operator--() {
 }
 
 RuneIterator RuneIterator::operator--(int) {
-  RuneIterator temp = *this;
+  const RuneIterator temp = *this;
 
   prev_rune();
 
