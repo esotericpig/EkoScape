@@ -16,7 +16,7 @@ namespace StrUtil {
   int casecmp_ascii(std::string_view str1,std::string_view str2);
   std::size_t count_runes(std::string_view str);
   std::string ellipsize(std::string_view str,std::size_t max_len);
-  std::string pad(std::string_view str,std::size_t new_len);
+  std::string ljust(std::string_view str,std::size_t new_len);
   std::string strip(std::string_view str);
 }
 

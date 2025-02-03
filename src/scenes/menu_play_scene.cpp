@@ -127,7 +127,7 @@ void MenuPlayScene::glob_maps() {
     opt.group = group;
     opt.file = map_file;
     opt.title = map.title();
-    opt.text = utf8::StrUtil::pad(utf8::StrUtil::ellipsize(opt.title,max_title_len),max_title_len) +
+    opt.text = utf8::StrUtil::ljust(utf8::StrUtil::ellipsize(opt.title,max_title_len),max_title_len) +
                " [" + utf8::StrUtil::ellipsize(opt.group,max_group_len) + ']';
 
     map_opts_.push_back(opt);

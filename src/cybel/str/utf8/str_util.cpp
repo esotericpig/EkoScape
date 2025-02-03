@@ -70,7 +70,7 @@ std::string StrUtil::ellipsize(std::string_view str,std::size_t max_len) {
     if(byte_count < last_index) {
       last_index -= byte_count;
     } else {
-      // Show the one little char left w/o ellipsis.
+      // Show the one little rune left w/o ellipsis.
       return std::string{str.substr(0,last_index + 1)};
     }
   }
@@ -78,7 +78,7 @@ std::string StrUtil::ellipsize(std::string_view str,std::size_t max_len) {
   return std::string{str.substr(0,last_index + 1)} + "…";
 }
 
-std::string StrUtil::pad(std::string_view str,std::size_t new_len) {
+std::string StrUtil::ljust(std::string_view str,std::size_t new_len) {
   if(new_len == 0 || (new_len == 1 && !str.empty())) { return std::string{str}; }
 
   const auto len = count_runes(str);
@@ -96,7 +96,7 @@ std::string StrUtil::strip(std::string_view str) {
   std::uint8_t byte_count = 0;
 
   for(; first_index < str.size(); first_index += byte_count) {
-    auto rune = RuneIterator::next_rune(str,first_index,byte_count);
+    const auto rune = RuneIterator::next_rune(str,first_index,byte_count);
 
     if(byte_count == 0 || !RuneUtil::is_whitespace(rune)) { break; }
   }
@@ -105,9 +105,10 @@ std::string StrUtil::strip(std::string_view str) {
 
   // rstrip().
   std::size_t last_pos = str.size();
+  byte_count = 0;
 
   while(last_pos > first_index) {
-    auto rune = RuneIterator::prev_rune(str,last_pos - 1,byte_count);
+    const auto rune = RuneIterator::prev_rune(str,last_pos - 1,byte_count);
 
     if(byte_count == 0 || !RuneUtil::is_whitespace(rune)) { break; }
 
