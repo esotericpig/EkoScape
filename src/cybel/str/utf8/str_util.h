@@ -18,6 +18,7 @@ namespace StrUtil {
   std::string ellipsize(std::string_view str,std::size_t max_len);
   std::string ljust(std::string_view str,std::size_t new_len);
   std::string strip(std::string_view str);
+  std::string wrap_words(std::string_view str,std::size_t max_len);
 }
 
 } // Namespace.

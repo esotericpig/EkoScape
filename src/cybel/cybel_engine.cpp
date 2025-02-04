@@ -7,6 +7,7 @@
 
 #include "cybel_engine.h"
 
+#include "cybel/str/utf8/str_util.h"
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
 
@@ -133,7 +134,7 @@ void CybelEngine::init_gui(const Config& config) {
     throw CybelError{"Failed to create OpenGL context: ",Util::get_sdl_error(),'.'};
   }
 
-  GLenum error = glewInit();
+  const GLenum error = glewInit();
 
   if(error != GLEW_OK) {
     throw CybelError{"Failed to init OpenGL GLEW [",error,"]: ",Util::get_glew_error(error),'.'};
@@ -153,7 +154,7 @@ void CybelEngine::check_gl_version() {
   if(!GLEW_VERSION_2_1) {
     std::cerr << "[WARN] OpenGL version is < 2.1." << std::endl;
 
-    std::string msg = Util::build_str(
+    const std::string msg = Util::build_str(
       "This system's OpenGL version is less than 2.1.\n",
       "The game may not function correctly.\n",
       "Consider downloading & using Mesa for your platform.\n\n",
@@ -321,8 +322,8 @@ void CybelEngine::handle_input_states() {
 
   for(int i = 0; i < num_keys; ++i) {
     if(raw_keys[i] == 1) {
-      auto raw_key = static_cast<RawKey>(i);
-      SymKey sym_key = SDL_GetKeyFromScancode(raw_key);
+      const auto raw_key = static_cast<RawKey>(i);
+      const auto sym_key = SDL_GetKeyFromScancode(raw_key);
 
       input_man_->set_state(RawKeyInput{raw_key,mods},true);
       input_man_->set_state(SymKeyInput{sym_key,mods},true);
@@ -355,7 +356,7 @@ void CybelEngine::show_error_global(const std::string& title,const std::string& 
     // SDL_ShowSimpleMessageBox() can be called before/after SDL_Init()/SDL_Quit().
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),error.c_str(),window);
   } else {
-    const auto wrapped_error = Util::wrap_str(error,max_len);
+    const auto wrapped_error = utf8::StrUtil::wrap_words(error,max_len);
 
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title.c_str(),wrapped_error.c_str(),window);
   }
@@ -374,7 +375,7 @@ void CybelEngine::set_fullscreen(bool fullscreen,bool windowed) {
   );
 
   if(result != 0) {
-    std::string desc = fullscreen ? (windowed ? "windowed fullscreen" : "fullscreen") : "windowed";
+    const std::string desc = fullscreen ? (windowed ? "windowed fullscreen" : "fullscreen") : "windowed";
     std::cerr << "[WARN] Failed to set window to [" << desc << "] with error [" << result << "]: "
               << Util::get_sdl_error() << '.' << std::endl;
   }

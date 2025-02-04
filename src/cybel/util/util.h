@@ -17,8 +17,6 @@
 namespace cybel {
 
 namespace Util {
-  std::string wrap_str(const std::string& str,std::size_t max_len);
-
   template <typename... Args>
   std::string build_str(const Args&... args);
   template <typename... Args>

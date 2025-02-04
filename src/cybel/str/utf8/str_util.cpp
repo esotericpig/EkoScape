@@ -10,6 +10,8 @@
 #include "cybel/str/utf8/rune_iterator.h"
 #include "cybel/str/utf8/rune_util.h"
 
+#include <sstream>
+
 namespace cybel::utf8 {
 
 int StrUtil::casecmp_ascii(std::string_view str1,std::string_view str2) {
@@ -124,6 +126,94 @@ std::string StrUtil::strip(std::string_view str) {
   if(last_pos < first_index) { return ""; }
 
   return std::string{str.substr(first_index,last_pos - first_index)};
+}
+
+std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
+  if(max_len == 0) { max_len = 1; }
+  if(str.length() <= max_len) { return std::string{str}; }
+
+  std::ostringstream result{};
+  char32_t rune = 0;
+  std::uint8_t byte_count = 0;
+  bool is_line_start = true;
+  std::size_t line_len = 0;
+  std::size_t word_i = 0;
+  std::size_t word_len = 0;
+  std::string_view word{};
+
+  for(std::size_t i = 0; i < str.size(); i += byte_count) {
+    // First, read/eat all spaces.
+    for(; i < str.size(); i += byte_count) {
+      rune = RuneIterator::next_rune(str,i,byte_count);
+
+      if(byte_count == 0) { break; }
+      if(rune == '\n' || rune == '\r' || !RuneUtil::is_whitespace(rune)) { break; }
+
+      if(is_line_start) {
+        result << str.substr(i,byte_count);
+        ++line_len;
+      }
+    }
+
+    // Second, gather the word.
+    word_i = i;
+    word_len = 0;
+
+    for(; i < str.size(); i += byte_count) {
+      rune = RuneIterator::next_rune(str,i,byte_count);
+
+      if(byte_count == 0) { break; }
+      if(rune == '\n' || rune == '\r' || RuneUtil::is_whitespace(rune)) { break; }
+
+      ++word_len;
+    }
+
+    word = str.substr(word_i,i - word_i);
+
+    // Third, append the word appropriately.
+    if(is_line_start) {
+      result << word;
+      is_line_start = false;
+      line_len += word_len;
+    } else if(word_len > 0) {
+      line_len += 1 + word_len; // +1 for space between words.
+
+      if(line_len <= max_len) {
+        result << ' '; // Space between words, if not first word.
+      } else {
+        result << '\n';
+        line_len = word_len;
+      }
+
+      result << word;
+    }
+
+    // Fourth, check for newline.
+    if(rune == '\n' || rune == '\r') {
+      // Check for CRLF.
+      if(rune == '\r') {
+        const std::size_t peek_i = i + byte_count;
+
+        if(peek_i < str.size()) {
+          std::uint8_t peek_byte_count = 0;
+          rune = RuneIterator::next_rune(str,peek_i,peek_byte_count);
+
+          if(rune == '\n') {
+            i = peek_i;
+            byte_count = peek_byte_count;
+          }
+        }
+      }
+
+      result << '\n';
+      is_line_start = true;
+      line_len = 0;
+    }
+
+    if(byte_count == 0) { break; }
+  }
+
+  return result.str();
 }
 
 } // Namespace.
