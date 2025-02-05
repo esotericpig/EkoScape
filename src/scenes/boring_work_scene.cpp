@@ -16,10 +16,18 @@ BoringWorkScene::BoringWorkScene(GameContext& ctx) noexcept
 
 void BoringWorkScene::init_scene(const ViewDimens& /*dimens*/) {
   ctx_.cybel_engine.set_title("robots.xlsx - EkoOffice Calc");
+
+  if(!ctx_.cybel_engine.is_cursor_visible()) {
+    ctx_.cybel_engine.set_cursor_visible(true);
+  }
 }
 
 void BoringWorkScene::on_scene_exit() {
   ctx_.cybel_engine.reset_title();
+
+  if(ctx_.cybel_engine.is_fullscreen()) {
+    ctx_.cybel_engine.set_cursor_visible(false);
+  }
 }
 
 void BoringWorkScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
