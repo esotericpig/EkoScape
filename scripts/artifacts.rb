@@ -43,7 +43,7 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.4'
+  VERSION = '0.1.5'
 
   ARTIFACTS_DIR = File.join('build','artifacts')
   USER_GAME = 'esotericpig/ekoscape'
@@ -191,7 +191,7 @@ class ArtifactsMan
     each_artifact(pauses: false,newlines: false) do |artifact|
       sum_file = "#{artifact.file}.sha256"
 
-      next unless File.file?(sum_file)
+      next true unless File.file?(sum_file)
 
       verify_checksum_file(sum_file)
     end
@@ -247,13 +247,9 @@ class ArtifactsMan
 
       if show_result
         puts if newlines
-
-        if result
-          puts "=> Channel [#{artifact.channel}] succeeded!"
-        else
-          abort "=> Channel [#{artifact.channel}] failed!"
-        end
+        puts "=> Channel [#{artifact.channel}] succeeded!" if result
       end
+      abort "=> Channel [#{artifact.channel}] failed!" unless result
 
       sleep(SLEEP_SECS) if pauses
       puts if newlines
@@ -264,6 +260,8 @@ class ArtifactsMan
 
   def verify_checksum_file(sum_file)
     raise "Invalid checksum file [#{sum_file}]." if sum_file.empty? || !File.file?(sum_file)
+
+    result = true
 
     File.foreach(sum_file,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8') do |line|
       parts = line.strip.split(/\s+\*?/,2)
@@ -276,15 +274,17 @@ class ArtifactsMan
       next if hex.empty? || file.empty?
 
       file = File.join(File.dirname(sum_file),file)
-
-      verify_checksum(file,hex)
+      result &&= verify_checksum(file,hex)
     end
+
+    return result
   end
 
   def verify_checksum(file,hex)
     hex = hex.strip
 
-    result = ''
+    result = false
+    summary = ''
     details = nil
 
     if !file.empty? && File.file?(file)
@@ -305,9 +305,11 @@ class ArtifactsMan
       end
 
       if actual_hex == hex
-        result = '[ok]'
+        result = true
+        summary = '[ok]'
       else
-        result = '[BAD hex]'
+        result = false
+        summary = '[BAD hex]'
         diff = Array.new((hex.length >= actual_hex.length) ? hex.length : actual_hex.length)
 
         (0..diff.length).each do |i|
@@ -321,12 +323,15 @@ class ArtifactsMan
         ]
       end
     else
-      result = '[NO file]'
+      result = false
+      summary = '[NO file]'
     end
 
     fmt = '%-9s %s'
-    puts format(fmt,result,file)
+    puts format(fmt,summary,file)
     puts details.map { |d| format(fmt,'',d) }.join("\n") unless details.nil?
+
+    return result
   end
 
   def extract_file(file,dest_dir: nil)
@@ -350,7 +355,8 @@ class ArtifactsMan
     end
 
     FileUtils.mkdir(dest_dir,noop: @dry_run,verbose: true) if !dest_dir.nil? && !File.directory?(dest_dir)
-    run_cmd(cmd)
+
+    return run_cmd(cmd)
   end
 
   def run_cmd(*cmd,dry_run: @dry_run)
