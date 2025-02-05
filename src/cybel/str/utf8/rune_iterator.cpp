@@ -12,12 +12,11 @@
 namespace cybel::utf8 {
 
 char32_t RuneIterator::next_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count) {
-  if(index >= str.size()) {
-    byte_count = 0;
-    return RuneUtil::kInvalidRune;
-  }
-
+  // Always set to 1 to avoid infinite loops.
   byte_count = 1;
+
+  if(index >= str.size()) { return RuneUtil::kInvalidRune; }
+
   const auto octet1 = static_cast<unsigned char>(str[index]);
 
   // UTF8-1 = 0x00-7F.
@@ -30,7 +29,6 @@ char32_t RuneIterator::next_rune(std::string_view str,std::size_t index,std::uin
   // The unpack_seq*() funcs update `byte_count` instead of us updating it here to `octet_count` if the
   //     resulting rune is valid, because a trickster could use the literal `kInvalidRune` in the text,
   //     in which case the `byte_count` should be 3, not 1.
-  // This is the same in prev_rune().
   switch(octet_count) {
     case 2: return unpack_seq2(str,index,byte_count,octet1);
     case 3: return unpack_seq3(str,index,byte_count,octet1);
@@ -41,12 +39,11 @@ char32_t RuneIterator::next_rune(std::string_view str,std::size_t index,std::uin
 }
 
 char32_t RuneIterator::prev_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count) {
-  if(index >= str.size()) {
-    byte_count = 0;
-    return RuneUtil::kInvalidRune;
-  }
-
+  // Always set to 1 to avoid infinite loops.
   byte_count = 1;
+
+  if(index >= str.size()) { return RuneUtil::kInvalidRune; }
+
   auto octet = static_cast<unsigned char>(str[index]);
 
   // UTF8-1 = 0x00-7F.
@@ -61,6 +58,9 @@ char32_t RuneIterator::prev_rune(std::string_view str,std::size_t index,std::uin
       // Double check sequence count.
       if(std::countl_one(octet) != octet_count) { break; }
 
+      // The unpack_seq*() funcs update `byte_count` instead of us updating it here to `octet_count` if the
+      //     resulting rune is valid, because a trickster could use the literal `kInvalidRune` in the text,
+      //     in which case the `byte_count` should be 3, not 1.
       switch(octet_count) {
         case 2: return unpack_seq2(str,index,byte_count,octet);
         case 3: return unpack_seq3(str,index,byte_count,octet);
@@ -251,9 +251,6 @@ RuneIterator RuneIterator::operator--(int) {
 void RuneIterator::next_rune() {
   index_ = std::min(index_ + byte_count_,str_.size());
   rune_ = next_rune(str_,index_,byte_count_);
-
-  // Shouldn't happen, but Justin Case.
-  if(byte_count_ == 0) { index_ = str_.size(); }
 }
 
 void RuneIterator::prev_rune() {
@@ -262,13 +259,7 @@ void RuneIterator::prev_rune() {
   }
 
   rune_ = prev_rune(str_,index_,byte_count_);
-
-  // Shouldn't happen, but Justin Case.
-  if(byte_count_ == 0) {
-    index_ = 0;
-  } else if(byte_count_ <= index_) {
-    index_ -= byte_count_;
-  }
+  index_ = (byte_count_ <= index_) ? (index_ - byte_count_) : 0;
 }
 
 std::string_view RuneIterator::str() const { return str_; }

@@ -44,8 +44,6 @@ std::size_t StrUtil::count_runes(std::string_view str) {
 
   for(std::size_t i = 0; i < str.size(); i += byte_count,++rune_count) {
     RuneIterator::next_rune(str,i,byte_count);
-
-    if(byte_count == 0) { break; }
   }
 
   return rune_count;
@@ -66,8 +64,6 @@ std::string StrUtil::ellipsize(std::string_view str,std::size_t max_len) {
 
   for(; len > max_len; --len) {
     RuneIterator::prev_rune(str,last_index,byte_count);
-
-    if(byte_count == 0) { break; }
 
     if(byte_count < last_index) {
       last_index -= byte_count;
@@ -100,7 +96,7 @@ std::string StrUtil::strip(std::string_view str) {
   for(; first_index < str.size(); first_index += byte_count) {
     const auto rune = RuneIterator::next_rune(str,first_index,byte_count);
 
-    if(byte_count == 0 || !RuneUtil::is_whitespace(rune)) { break; }
+    if(!RuneUtil::is_whitespace(rune)) { break; }
   }
 
   if(first_index >= str.size()) { return ""; }
@@ -112,7 +108,7 @@ std::string StrUtil::strip(std::string_view str) {
   while(last_pos > first_index) {
     const auto rune = RuneIterator::prev_rune(str,last_pos - 1,byte_count);
 
-    if(byte_count == 0 || !RuneUtil::is_whitespace(rune)) { break; }
+    if(!RuneUtil::is_whitespace(rune)) { break; }
 
     if(byte_count < last_pos) {
       last_pos -= byte_count;
@@ -146,7 +142,6 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
     for(; i < str.size(); i += byte_count) {
       rune = RuneIterator::next_rune(str,i,byte_count);
 
-      if(byte_count == 0) { break; }
       if(rune == '\n' || rune == '\r' || !RuneUtil::is_whitespace(rune)) { break; }
 
       if(is_line_start) {
@@ -162,7 +157,6 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
     for(; i < str.size(); i += byte_count) {
       rune = RuneIterator::next_rune(str,i,byte_count);
 
-      if(byte_count == 0) { break; }
       if(rune == '\n' || rune == '\r' || RuneUtil::is_whitespace(rune)) { break; }
 
       ++word_len;
@@ -209,8 +203,6 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
       is_line_start = true;
       line_len = 0;
     }
-
-    if(byte_count == 0) { break; }
   }
 
   return result.str();
