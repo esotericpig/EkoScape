@@ -24,22 +24,22 @@ Timer& Timer::start() {
 
 Timer& Timer::resume() {
   start_time_ = now();
-  has_ended_ = false;
+  is_paused_ = false;
 
   return *this;
 }
 
 Duration Timer::peek() const {
-  if(has_ended_) { return duration_; }
+  if(is_paused_) { return duration_; }
 
   const auto dur = raw_duration_ + (now() - start_time_);
 
   return Duration::from_millis(static_cast<double>(dur));
 }
 
-const Duration& Timer::end() {
-  if(!has_ended_) {
-    has_ended_ = true;
+const Duration& Timer::pause() {
+  if(!is_paused_) {
+    is_paused_ = true;
     raw_duration_ += (now() - start_time_); // `+=` for resuming.
     duration_.set_from_millis(static_cast<double>(raw_duration_));
   }

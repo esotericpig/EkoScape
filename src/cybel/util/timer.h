@@ -21,7 +21,7 @@ public:
   Timer& start();
   Timer& resume();
   Duration peek() const;
-  const Duration& end();
+  const Duration& pause();
 
   const Duration& duration() const;
 
@@ -29,7 +29,7 @@ private:
   using Timestamp = Uint64;
 
   Timestamp start_time_{};
-  bool has_ended_ = false;
+  bool is_paused_ = false;
   Timestamp raw_duration_{};
   Duration duration_{};
 

@@ -148,7 +148,7 @@ private:
   void init_scene(Scene& scene);
 
   void start_frame_timer();
-  void end_frame_timer();
+  void stop_frame_timer();
   void handle_events();
   void handle_keydown_event(const SDL_Event& event);
   void handle_keyup_event(const SDL_Event& event);

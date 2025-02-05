@@ -97,7 +97,7 @@ void CybelEngine::init_config(Config& config) {
   config.target_size.h = (config.target_size.h > 0) ? config.target_size.h : config.size.h;
 
   // Allow 0 if the user wants to use delta time only (no delay).
-  // - See: end_frame_timer()
+  // - See: stop_frame_timer()
   target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
 
   if(target_fps_ > 0) { // Avoid divide by 0.
@@ -200,7 +200,7 @@ void CybelEngine::run() {
     scene_man_->curr_scene().draw_scene(*renderer_,renderer_->dimens());
     SDL_GL_SwapWindow(res_.window);
 
-    end_frame_timer();
+    stop_frame_timer();
   }
 
   std::cerr << "[INFO] Stopping gracefully." << std::endl;
@@ -229,13 +229,13 @@ void CybelEngine::start_frame_timer() {
   frame_timer_.start();
 }
 
-void CybelEngine::end_frame_timer() {
+void CybelEngine::stop_frame_timer() {
   frame_step_.dpf = frame_timer_.peek();
 
   // If target_dpf_ (target_fps_) is 0, then will use delta time only (no delay).
   if(frame_step_.dpf < target_dpf_) {
     SDL_Delay((target_dpf_ - frame_step_.dpf).round_millis());
-    frame_step_.dpf = frame_timer_.end();
+    frame_step_.dpf = frame_timer_.peek();
   }
 
   frame_step_.delta_time = frame_step_.dpf.secs(); // Delta time should be in fractional seconds.

@@ -149,7 +149,7 @@ void GameScene::init_scene(const ViewDimens& /*dimens*/) {
 
 void GameScene::on_scene_exit() {
   if(game_phase_ == GamePhase::kPlay) {
-    speedrun_timer_.end();
+    speedrun_timer_.pause();
   }
 }
 
@@ -344,7 +344,7 @@ void GameScene::update_player(const FrameStep& step) {
 }
 
 void GameScene::game_over(bool hit_end) {
-  hud_->state.speedrun_time = speedrun_timer_.end();
+  hud_->state.speedrun_time = speedrun_timer_.pause();
   hud_->state.is_game_over = true;
 
   game_phase_ = GamePhase::kGameOver;
