@@ -265,12 +265,16 @@ add_custom_target(run
     VERBATIM
 )
 add_custom_target(check
-    COMMAND cppcheck --quiet --enable=all
+    COMMAND cppcheck --quiet --enable=all --check-level=exhaustive
             --language=c++ "--std=c++${CMAKE_CXX_STANDARD}"
             "--relative-paths=${CMAKE_SOURCE_DIR}"
+            "--checkers-report=${CMAKE_BINARY_DIR}/cppcheck_checkers_report.txt"
 
             --suppress=missingInclude
+            --suppress=missingIncludeSystem
             #"--suppress=noExplicitConstructor:src/cybel/types.h"
+            --suppress=shadowFunction
+            --suppress=unmatchedSuppression
             --suppress=unusedFunction
             --suppress=unusedPrivateFunction
 

@@ -626,7 +626,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture!=-1)
                     {
@@ -724,7 +724,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture!=-1)
                     {
@@ -1340,7 +1340,7 @@ Dantares::SpaceClass::SpaceClass(int Type)
     FloorTexture = -1;
     CeilingTexture = -1;
     WallTexture = -1;
-    DisplayList = glGenLists(DISPLAY_LIST_RANGE);
+    DisplayList = static_cast<int>(glGenLists(DISPLAY_LIST_RANGE));
 }
 
 Dantares::SpaceClass::SpaceClass(SpaceClass &&Other) noexcept
@@ -1386,7 +1386,7 @@ void Dantares::SpaceClass::DeleteDisplayList() noexcept
 void Dantares::SpaceClass::ResetDisplayList()
 {
     DeleteDisplayList();
-    DisplayList = glGenLists(DISPLAY_LIST_RANGE);
+    DisplayList = static_cast<int>(glGenLists(DISPLAY_LIST_RANGE));
 }
 
 void Dantares::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
@@ -1440,7 +1440,7 @@ void Dantares::MapClass::MoveFrom(MapClass &&Other) noexcept
 
 bool Dantares::MapClass::SpaceDefined(int Space)
 {
-    for (auto &Seeker: SpaceInfo)
+    for (const auto &Seeker: SpaceInfo)
     {
         if (Seeker.SpaceType==Space)
         {
