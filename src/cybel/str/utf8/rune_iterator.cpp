@@ -51,10 +51,10 @@ char32_t RuneIterator::prev_rune(std::string_view str,std::size_t index,std::uin
 
   for(int octet_count = 2; index > 0 && octet_count <= 4; --index,++octet_count) {
     octet = static_cast<unsigned char>(str[index - 1]);
-    const auto head_bits2 = octet & 0b1100'0000;
+    const auto type = octet & 0b1100'0000;
 
     // Head/Lead octet?
-    if(head_bits2 == 0b1100'0000) {
+    if(type == 0b1100'0000) {
       // Double check sequence count.
       if(std::countl_one(octet) != octet_count) { break; }
 
@@ -71,7 +71,7 @@ char32_t RuneIterator::prev_rune(std::string_view str,std::size_t index,std::uin
     }
 
     // Not a body/continuation octet?
-    if(head_bits2 != 0b1000'0000) { break; }
+    if(type != RuneUtil::kOctetBodyType) { break; }
   }
 
   return RuneUtil::kInvalidRune;

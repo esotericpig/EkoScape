@@ -9,6 +9,54 @@
 
 namespace cybel::utf8 {
 
+std::string RuneUtil::pack(char32_t rune) {
+  std::string result{};
+
+  // UTF8-1.
+  if(rune <= kMaxAsciiOctet) {
+    result += static_cast<char>(rune);
+  }
+  // UTF8-2.
+  else if(rune >= 0x0080 && rune <= 0x07FF) {
+    const auto octet1 = static_cast<char>(0b1100'0000 | ((rune >> 6) & 0b0001'1111));
+    const auto octet2 = static_cast<char>(kOctetBodyType | (rune & kOctetBodyMask));
+
+    result += octet1;
+    result += octet2;
+  }
+  // UTF8-3.
+  else if((rune >= 0x0800 && rune <= 0x0FFF) ||
+          (rune >= 0x1000 && rune <= 0xCFFF) ||
+          (rune >= 0xD000 && rune <= 0xD7FF) ||
+          (rune >= 0xE000 && rune <= 0xFFFF)) {
+    const auto octet1 = static_cast<char>(0b1110'0000 | ((rune >> 12) & 0b0000'1111));
+    const auto octet2 = static_cast<char>(kOctetBodyType | ((rune >> 6) & kOctetBodyMask));
+    const auto octet3 = static_cast<char>(kOctetBodyType | (rune & kOctetBodyMask));
+
+    result += octet1;
+    result += octet2;
+    result += octet3;
+  }
+  // UTF8-4.
+  else if((rune >= 0x01'0000 && rune <= 0x03'FFFF) ||
+          (rune >= 0x04'0000 && rune <= 0x0F'FFFF) ||
+          (rune >= 0x10'0000 && rune <= 0x10'FFFF)) {
+    const auto octet1 = static_cast<char>(0b1111'0000 | ((rune >> 18) & 0b0000'0111));
+    const auto octet2 = static_cast<char>(kOctetBodyType | ((rune >> 12) & kOctetBodyMask));
+    const auto octet3 = static_cast<char>(kOctetBodyType | ((rune >> 6) & kOctetBodyMask));
+    const auto octet4 = static_cast<char>(kOctetBodyType | (rune & kOctetBodyMask));
+
+    result += octet1;
+    result += octet2;
+    result += octet3;
+    result += octet4;
+  } else {
+    return kInvalidRunePacked;
+  }
+
+  return result;
+}
+
 bool RuneUtil::is_whitespace(char32_t rune) {
   switch(rune) {
     case 0x0020: // SPACE.

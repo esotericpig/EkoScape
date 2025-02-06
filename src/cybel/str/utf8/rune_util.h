@@ -8,6 +8,8 @@
 #ifndef CYBEL_STR_UTF8_RUNE_UTIL_H_
 #define CYBEL_STR_UTF8_RUNE_UTIL_H_
 
+#include "cybel/common.h"
+
 namespace cybel::utf8 {
 
 /**
@@ -16,11 +18,15 @@ namespace cybel::utf8 {
  */
 namespace RuneUtil {
   inline const char32_t kInvalidRune = U'�'; // \uFFFD.
+  inline const std::string kInvalidRunePacked = "\xEF\xBF\xBD"; // Result of `pack(kInvalidRune)`.
 
   inline const unsigned char kMaxAsciiOctet = 0x7F;
   inline const unsigned char kMinOctetTail = 0x80; // 0b1000'0000.
   inline const unsigned char kMaxOctetTail = 0xBF; // 0b1011'1111.
+  inline const unsigned char kOctetBodyType = 0b1000'0000; // 0b10xxxxxx.
   inline const unsigned char kOctetBodyMask = 0b0011'1111; // 0b10xxxxxx.
+
+  std::string pack(char32_t rune);
 
   bool is_whitespace(char32_t rune);
 }
