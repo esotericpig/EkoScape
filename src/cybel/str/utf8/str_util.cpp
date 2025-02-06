@@ -126,7 +126,7 @@ std::string StrUtil::strip(std::string_view str) {
 
 std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
   if(max_len == 0) { max_len = 1; }
-  if(str.length() <= max_len) { return std::string{str}; }
+  if(str.size() <= max_len) { return std::string{str}; }
 
   std::ostringstream result{};
   char32_t rune = 0;
@@ -137,39 +137,49 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
   std::size_t word_len = 0;
   std::string_view word{};
 
-  for(std::size_t i = 0; i < str.size(); i += byte_count) {
-    // First, read/eat all spaces.
-    for(; i < str.size(); i += byte_count) {
-      rune = RuneIterator::next_rune(str,i,byte_count);
+  // Bunch of funky logic here, just to avoid calling next_rune() more than necessary.
+  rune = RuneIterator::next_rune(str,0,byte_count);
 
-      if(rune == '\n' || rune == '\r' || !RuneUtil::is_whitespace(rune)) { break; }
+  for(std::size_t i = 0; i < str.size();) {
+    // First, read/eat all spaces.
+    while(true) {
+      if(rune == '\n' || rune == '\r') { goto handle_newlines; }
+      if(!RuneUtil::is_whitespace(rune)) { break; }
 
       if(is_line_start) {
         result << str.substr(i,byte_count);
         ++line_len;
       }
+
+      i += byte_count;
+      if(i >= str.size()) { break; }
+
+      rune = RuneIterator::next_rune(str,i,byte_count);
     }
 
-    // Second, gather the word.
-    word_i = i;
-    word_len = 0;
+    // Second, gather word.
+    if(i >= str.size()) { break; }
 
-    for(; i < str.size(); i += byte_count) {
+    word_i = i;
+    word_len = 1;
+
+    for(i += byte_count; i < str.size(); i += byte_count) {
       rune = RuneIterator::next_rune(str,i,byte_count);
 
-      if(rune == '\n' || rune == '\r' || RuneUtil::is_whitespace(rune)) { break; }
+      if(rune == '\n' || rune == '\r') { break; } // Append word.
+      if(RuneUtil::is_whitespace(rune)) { break; }
 
       ++word_len;
     }
 
     word = str.substr(word_i,i - word_i);
 
-    // Third, append the word appropriately.
+    // Third, append word appropriately.
     if(is_line_start) {
       result << word;
       is_line_start = false;
       line_len += word_len;
-    } else if(word_len > 0) {
+    } else {
       line_len += 1 + word_len; // +1 for space between words.
 
       if(line_len <= max_len) {
@@ -182,8 +192,9 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
       result << word;
     }
 
-    // Fourth, check for newline.
-    if(rune == '\n' || rune == '\r') {
+    // Fourth, check for newlines.
+  handle_newlines:
+    while(rune == '\n' || rune == '\r') {
       // Check for CRLF.
       if(rune == '\r') {
         const std::size_t peek_i = i + byte_count;
@@ -202,6 +213,11 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
       result << '\n';
       is_line_start = true;
       line_len = 0;
+
+      i += byte_count;
+      if(i >= str.size()) { break; }
+
+      rune = RuneIterator::next_rune(str,i,byte_count);
     }
   }
 
