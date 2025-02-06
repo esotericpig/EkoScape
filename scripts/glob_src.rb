@@ -24,7 +24,7 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.1.2'
+  VERSION = '0.1.3'
 
   # Must be all lower-cased for case-insensitive comparison.
   SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
@@ -47,7 +47,7 @@ class SrcGlobber
 
       op.separator ''
       op.separator 'Options'
-      op.on('-p',nil,'[print] print source files')
+      op.on('-p',nil,'[print] show source files')
       op.on('-U',nil,"[update] update '#{CMAKE_FILE}'; overwrites lines in #{CMAKE_FUNC}()")
 
       op.separator ''
@@ -78,13 +78,12 @@ class SrcGlobber
 
   def update_cmake
     src = glob_all_src
-    data = File.read(CMAKE_FILE,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8')
+    data,new_data = sub_cmake_file do |md|
+      fb = md[:func_begin]
+      fe = md[:func_end]
 
-    new_data = data.sub(
-      # `^func(...)$ ... ^)$`
-      /(^\s*#{Regexp.quote(CMAKE_FUNC)}\s*\(.+?$).+?(^\s*\)\s*$)/im,
-      "\\1\n#{src}\n\\2"
-    )
+      "#{fb}\n#{src}\n#{fe}"
+    end
 
     if new_data == data
       puts "No change: '#{CMAKE_FILE}'"
@@ -103,8 +102,13 @@ class SrcGlobber
     str << "\n\n"
     str << glob_src('src','${SRC_DIR}') do |path1,path2|
       # Bubble Cybel files to top.
-      if path1.to_s.include?('cybel') && !path2.to_s.include?('cybel')
+      is_cybel1 = path1.to_s.include?('cybel')
+      is_cybel2 = path2.to_s.include?('cybel')
+
+      if is_cybel1 && !is_cybel2
         -1
+      elsif !is_cybel1 && is_cybel2
+        1
       else
         0
       end
@@ -157,6 +161,19 @@ class SrcGlobber
     end
 
     return result.rstrip # Remove last newline.
+  end
+
+  def sub_cmake_file
+    data = File.read(CMAKE_FILE,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8')
+
+    new_data = data.sub(
+      # `^func(...)$ ... ^)$`
+      /(?<func_begin>^\s*#{Regexp.quote(CMAKE_FUNC)}\s*\(.+?$)(?<src>.+?)(?<func_end>^\s*\)\s*$)/im,
+    ) do
+      yield Regexp.last_match
+    end
+
+    return [data,new_data]
   end
 end
 
