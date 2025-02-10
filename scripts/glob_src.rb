@@ -24,7 +24,7 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.1.3'
+  VERSION = '0.1.4'
 
   # Must be all lower-cased for case-insensitive comparison.
   SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
@@ -165,13 +165,27 @@ class SrcGlobber
 
   def sub_cmake_file
     data = File.read(CMAKE_FILE,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8')
+    found = false
 
-    new_data = data.sub(
+    new_data = data.gsub(
       # `^func(...)$ ... ^)$`
-      /(?<func_begin>^\s*#{Regexp.quote(CMAKE_FUNC)}\s*\(.+?$)(?<src>.+?)(?<func_end>^\s*\)\s*$)/im,
-    ) do
-      yield Regexp.last_match
+      /(?<func_begin>^\s*#{Regexp.quote(CMAKE_FUNC)}\s*\([^\)]+?$)(?<src>.+?)(?<func_end>^\s*\)\s*$)/im,
+    ) do |m|
+      if found
+        m
+      else
+        md = Regexp.last_match
+
+        if md[:src].count("\n") >= 10
+          found = true
+          yield md
+        else
+          m
+        end
+      end
     end
+
+    raise "Failed to find CMake function [#{CMAKE_FUNC}] in file [#{CMAKE_FILE}]." if !found
 
     return [data,new_data]
   end

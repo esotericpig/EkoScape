@@ -1,10 +1,10 @@
 {
+  "builtin-baseline": "f0c8848cde589649bca3ab3649668540403786ce",
   "dependencies": [
-    "glew",
-    "opengl",
-    "sdl2",
-    "sdl2-image",
-    "sdl2-mixer"
-  ],
-  "builtin-baseline": "f0c8848cde589649bca3ab3649668540403786ce"
+    {"name": "glew"      ,"platform": "!wasm32"},
+    {"name": "opengl"    ,"platform": "!wasm32"},
+    {"name": "sdl2"      ,"platform": "!wasm32"},
+    {"name": "sdl2-image","platform": "!wasm32"},
+    {"name": "sdl2-mixer","platform": "!wasm32"}
+  ]
 }

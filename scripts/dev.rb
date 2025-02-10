@@ -46,7 +46,7 @@ def main
 end
 
 class DevApp
-  VERSION = '0.1.4'
+  VERSION = '0.1.5'
 
   CMAKE_CMD = %w[ cmake ].freeze
 
@@ -55,7 +55,7 @@ class DevApp
     @preset = 'default'
     @config = 'Release'
     @extra_args = []
-    @extra_build_args = []
+    @extra_build_args = {'-j' => 5}
   end
 
   def run
@@ -85,7 +85,7 @@ class DevApp
       op.on('-j [jobs]','set number of jobs in parallel; if no number, uses 1') do |j|
         j = j.to_s.strip
         j = j.empty? ? 1 : j.to_i
-        @extra_build_args.push('-j',j)
+        @extra_build_args['-j'] = j
         j
       end
 
@@ -142,7 +142,10 @@ class DevApp
   end
 
   def build(target: nil)
-    cmd = [CMAKE_CMD,'--build','--preset',@preset,'--config',@config,@extra_build_args]
+    extra = @extra_build_args.delete_if { |_k,v| v == false }
+                             .transform_values { |v| (v == true) ? nil : v }
+                             .to_a.flatten.compact
+    cmd = [CMAKE_CMD,'--build','--preset',@preset,'--config',@config,*extra]
     cmd.push('--target',target) unless target.nil?
 
     run_cmd(cmd)

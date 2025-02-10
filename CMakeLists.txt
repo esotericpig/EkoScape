@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 
 ###
 # Configurable params w/ defaults:
+#   -DRENDER=GL
 #   -DLINUXDEPLOY_ARCH=x86_64      # See: cmake/appimage.cmake.in
 #   -DPKG_SUFFIX=""
 #   -DPKG_MACOS_BUILD_UNI_DIR=OFF  # See: .github/workflows/macos.yml
@@ -50,10 +51,11 @@ project("EkoScape"
 string(TOLOWER "${PROJECT_NAME}" PROJ_ID)
 set(RDNS_NAME "io.github.esotericpig.${PROJ_ID}")
 set(BIN_NAME "${PROJECT_NAME}")
-set(BIN_DIRNAME "bin")
+set(BIN_DIRNAME "bin" CACHE STRING "Dirname to output the binary file to.")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
+set(RENDER "GL" CACHE STRING "Renderer to use: GL or GLES.")
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(RES_DIR "${CMAKE_SOURCE_DIR}/res")
 
@@ -112,18 +114,41 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(APPLE)
-  add_executable("${BIN_NAME}")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_MACOS DANTARES_MACOS)
-elseif(WIN32)
+if(WIN32)
   # Statically link system libs.
+  # NOTE: Must be before add_executable().
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
-  add_executable("${BIN_NAME}" WIN32 "${RES_DIR}/res.rc")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_WINDOWS DANTARES_WINDOWS)
+add_executable("${BIN_NAME}")
+
+if(EMSCRIPTEN)
+  message(FATAL_ERROR "TODO: Implement emscripten code.")
+elseif(APPLE)
+  target_compile_definitions("${BIN_NAME}" PRIVATE
+      CYBEL_PLATFORM_MACOS
+      DANTARES_PLATFORM_MACOS
+  )
+elseif(WIN32)
+  set_target_properties("${BIN_NAME}" PROPERTIES
+      WIN32_EXECUTABLE ON
+  )
+  target_compile_definitions("${BIN_NAME}" PRIVATE
+      CYBEL_PLATFORM_WINDOWS
+      DANTARES_PLATFORM_WINDOWS
+  )
+  target_sources("${BIN_NAME}" PRIVATE "${RES_DIR}/res.rc")
 else()
-  add_executable("${BIN_NAME}")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_LINUX DANTARES_LINUX)
+  target_compile_definitions("${BIN_NAME}" PRIVATE
+      CYBEL_PLATFORM_LINUX
+      DANTARES_PLATFORM_LINUX
+  )
+endif()
+
+if(RENDER MATCHES "GLES")
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_RENDER_GLES)
+else() # GL.
+  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_RENDER_GL)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -135,7 +160,7 @@ else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-  if(NOT APPLE)
+  if(NOT APPLE AND NOT EMSCRIPTEN)
     target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
   endif()
 endif()
@@ -170,24 +195,24 @@ endif()
 ############################################
 # Libraries                                #
 ############################################
-# See 'vcpkg.json' & output of CMake for usage.
-find_package(GLEW REQUIRED)
-find_package(OpenGL REQUIRED) # GLU should be included.
-find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2_image CONFIG REQUIRED)
-find_package(SDL2_mixer CONFIG REQUIRED)
-#find_package(tinyutf8 CONFIG REQUIRED)
+if(NOT EMSCRIPTEN)
+  # See 'vcpkg.json' & output of CMake for usage.
+  find_package(GLEW REQUIRED)
+  find_package(OpenGL REQUIRED) # GLU should be included.
+  find_package(SDL2 CONFIG REQUIRED)
+  find_package(SDL2_image CONFIG REQUIRED)
+  find_package(SDL2_mixer CONFIG REQUIRED)
 
-target_link_libraries("${BIN_NAME}" PRIVATE
-    GLEW::GLEW
-    OpenGL::GL
-    OpenGL::GLU
-    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-    $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
-    $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
-#    tinyutf8::tinyutf8
-)
+  target_link_libraries("${BIN_NAME}" PRIVATE
+      GLEW::GLEW
+      OpenGL::GL
+      OpenGL::GLU
+      $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+      $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+      $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+      $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
+  )
+endif()
 
 ############################################
 # Source Code                              #
@@ -205,6 +230,8 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/cybel/gfx/font_atlas.cpp"
     "${SRC_DIR}/cybel/gfx/image.cpp"
     "${SRC_DIR}/cybel/gfx/renderer.cpp"
+    "${SRC_DIR}/cybel/gfx/renderer_gl.cpp"
+    "${SRC_DIR}/cybel/gfx/renderer_gles.cpp"
     "${SRC_DIR}/cybel/gfx/sprite.cpp"
     "${SRC_DIR}/cybel/gfx/sprite_atlas.cpp"
     "${SRC_DIR}/cybel/gfx/texture.cpp"
@@ -217,6 +244,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/cybel/str/utf8/rune_range.cpp"
     "${SRC_DIR}/cybel/str/utf8/rune_util.cpp"
     "${SRC_DIR}/cybel/str/utf8/str_util.cpp"
+    "${SRC_DIR}/cybel/stubs/glew_stub.cpp"
     "${SRC_DIR}/cybel/types/color.cpp"
     "${SRC_DIR}/cybel/types/cybel_error.cpp"
     "${SRC_DIR}/cybel/types/duration.cpp"
@@ -262,6 +290,13 @@ add_custom_target(run
     DEPENDS "${BIN_NAME}"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     USES_TERMINAL # For terminal output during testing.
+    VERBATIM
+)
+add_custom_target(run_web
+    COMMAND emrun --verbose --browser firefox "$<TARGET_FILE:${BIN_NAME}>"
+    DEPENDS "${BIN_NAME}"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    USES_TERMINAL
     VERBATIM
 )
 add_custom_target(check

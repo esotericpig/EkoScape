@@ -9,12 +9,24 @@
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_CXX_STANDARD": "20",
         "CMAKE_CXX_STANDARD_REQUIRED": true,
-        "CMAKE_CXX_EXTENSIONS": false
+        "CMAKE_CXX_EXTENSIONS": false,
+        "RENDER": "GL"
       },
       "warnings": {
         "dev": true,
         "deprecated": true,
         "uninitialized": false
+      }
+    },
+    {
+      "name": "web",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build_web",
+      "cacheVariables": {
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten",
+        "BIN_DIRNAME": "bin_web",
+        "RENDER": "GLES"
       }
     }
   ],
@@ -22,12 +34,11 @@
     {
       "name": "default",
       "configurePreset": "default",
-      "jobs": 5,
       "nativeToolOptions": []
     },
     {
-      "name": "no-jobs",
-      "configurePreset": "default",
+      "name": "web",
+      "configurePreset": "web",
       "nativeToolOptions": []
     }
   ]

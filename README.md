@@ -136,12 +136,11 @@ cmake --build --preset default --config Release
 cmake --build --preset default --config Debug
 ```
 
-This defaults to 5 parallel jobs. Instead, you can either use the preset `no-jobs` (which causes Ninja to use the max number of jobs) or use the `-j` option:
+By default, Ninja uses the maximum number of parallel jobs for your system (which can cause your computer to run like crazy). Instead, you can use the `-j` option to use less jobs in parallel:
 
 ```
-cmake --build --preset no-jobs --config Release
-
 cmake --build --preset default --config Release -j 1
+cmake --build --preset default --config Release -j 5
 ```
 
 ### Running ###

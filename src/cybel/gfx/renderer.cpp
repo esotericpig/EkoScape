@@ -101,7 +101,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t rune) {
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view str) {
   if(str.empty()) { return print(); }
 
-  for(auto rune : utf8::RuneRange{str}) {
+  for(const auto rune : utf8::RuneRange{str}) {
     if(rune == '\n') {
       puts();
       continue;
@@ -165,28 +165,18 @@ Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& c
 }
 
 void Renderer::init_gl() {
+  SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE,&depth_bits_);
+  std::cerr << "[INFO] OpenGL depth bits: " << depth_bits_ << '.' << std::endl;
+
   glClearColor(clear_color_.r,clear_color_.g,clear_color_.b,clear_color_.a);
-  glClearDepth(1.0);
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
 
-  glEnable(GL_TEXTURE_2D);
-
   glEnable(GL_BLEND);
   begin_blend(curr_blend_mode_);
 
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
-
-  glShadeModel(GL_SMOOTH); // GL_SMOOTH, GL_FLAT
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  GLenum error = glGetError();
+  const GLenum error = glGetError();
 
   if(error != GL_NO_ERROR) {
     throw CybelError{"Failed to init OpenGL [",error,"]: ",Util::get_gl_error(error),'.'};
@@ -210,34 +200,6 @@ void Renderer::resize(const Size2i& size) {
 
 void Renderer::clear_view() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-}
-
-Renderer& Renderer::begin_2d_scene() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  glOrtho(0.0,dimens_.size.w,dimens_.size.h,0.0,-5.0,5.0);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  return *this;
-}
-
-Renderer& Renderer::begin_3d_scene() {
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  // With (...,0.1,100.0), it had some weird clipping on the edges for 1600x900 for some reason.
-  gluPerspective(45.0,static_cast<GLdouble>(dimens_.size.w) / dimens_.size.h,0.01,5.0);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  return *this;
 }
 
 Renderer& Renderer::begin_auto_center_scale() {
@@ -277,12 +239,6 @@ Renderer& Renderer::end_scale() {
   return *this;
 }
 
-Renderer& Renderer::begin_color(const Color4f& color) {
-  glColor4f(color.r,color.g,color.b,color.a);
-
-  return *this;
-}
-
 Renderer& Renderer::end_color() { return begin_color(Color4f{1.0f}); }
 
 Renderer& Renderer::begin_blend(const BlendMode& mode) {
@@ -295,20 +251,6 @@ Renderer& Renderer::begin_add_blend() { return begin_blend(kAddBlendMode); }
 
 Renderer& Renderer::end_blend() { return begin_blend(kDefaultBlendMode); }
 
-Renderer& Renderer::begin_tex(const Texture& tex) {
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D,tex.gl_id());
-
-  return *this;
-}
-
-Renderer& Renderer::end_tex() {
-  glBindTexture(GL_TEXTURE_2D,0); // Unbind.
-  // glDisable(GL_TEXTURE_2D);
-
-  return *this;
-}
-
 Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback) {
   const auto prev_color = curr_color_;
 
@@ -319,21 +261,6 @@ Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback
 
   begin_color(prev_color);
   curr_color_ = prev_color;
-
-  return *this;
-}
-
-Renderer& Renderer::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
-  const auto x = offset_.x + (static_cast<GLfloat>(pos.x) * scale_.x);
-  const auto y = offset_.y + (static_cast<GLfloat>(pos.y) * scale_.y);
-  const auto z = static_cast<GLfloat>(pos.z);
-
-  glPushMatrix();
-    glTranslatef(x,y,z);
-    glRotatef(angle,0.0f,0.0f,1.0f);
-    glTranslatef(-x,-y,-z);
-    callback();
-  glPopMatrix();
 
   return *this;
 }
@@ -409,38 +336,12 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const
   return wrap_tex(font.tex(),[&]() { callback(wrapper); });
 }
 
-Renderer& Renderer::draw_quad(const Pos3i& pos,const Size2i& size) {
-  Pos5f dest = build_dest_pos5f(pos,size);
-
-  glBegin(GL_QUADS);
-    glVertex3f(dest.x1,dest.y1,dest.z);
-    glVertex3f(dest.x2,dest.y1,dest.z);
-    glVertex3f(dest.x2,dest.y2,dest.z);
-    glVertex3f(dest.x1,dest.y2,dest.z);
-  glEnd();
-
-  return *this;
-}
-
-Renderer& Renderer::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size) {
-  Pos5f dest = build_dest_pos5f(pos,size);
-
-  glBegin(GL_QUADS);
-    glTexCoord2f(src.x1,src.y1); glVertex3f(dest.x1,dest.y1,dest.z);
-    glTexCoord2f(src.x2,src.y1); glVertex3f(dest.x2,dest.y1,dest.z);
-    glTexCoord2f(src.x2,src.y2); glVertex3f(dest.x2,dest.y2,dest.z);
-    glTexCoord2f(src.x1,src.y2); glVertex3f(dest.x1,dest.y2,dest.z);
-  glEnd();
-
-  return *this;
-}
-
-Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) {
-  auto x1 = offset_.x + (static_cast<float>(pos.x) * scale_.x);
-  auto y1 = offset_.y + (static_cast<float>(pos.y) * scale_.y);
-  auto x2 = x1 + (static_cast<float>(size.w) * aspect_scale_);
-  auto y2 = y1 + (static_cast<float>(size.h) * aspect_scale_);
-  auto z = static_cast<float>(pos.z);
+Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) const {
+  const auto x1 = offset_.x + (static_cast<float>(pos.x) * scale_.x);
+  const auto y1 = offset_.y + (static_cast<float>(pos.y) * scale_.y);
+  const auto x2 = x1 + (static_cast<float>(size.w) * aspect_scale_);
+  const auto y2 = y1 + (static_cast<float>(size.h) * aspect_scale_);
+  const auto z = static_cast<float>(pos.z);
 
   return Pos5f{x1,y1,x2,y2,z};
 }

@@ -11,6 +11,12 @@
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
 
+#if defined(CYBEL_RENDER_GLES)
+  #include "cybel/gfx/renderer_gles.h"
+#else // CYBEL_RENDER_GL.
+  #include "cybel/gfx/renderer_gl.h"
+#endif
+
 namespace cybel {
 
 CybelEngine::Resources::~Resources() noexcept {
@@ -43,7 +49,12 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
   init_config(config);
   init_gui(config);
 
-  renderer_ = std::make_unique<Renderer>(config.size,config.target_size,config.clear_color);
+  #if defined(CYBEL_RENDER_GLES)
+    renderer_ = std::make_unique<RendererGles>(config.size,config.target_size,config.clear_color);
+  #else // CYBEL_RENDER_GL.
+    renderer_ = std::make_unique<RendererGl>(config.size,config.target_size,config.clear_color);
+  #endif
+
   scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
   input_man_ = std::make_unique<InputMan>(config.max_input_id);
   audio_player_ = std::make_unique<AudioPlayer>(config.music_types);
@@ -107,11 +118,23 @@ void CybelEngine::init_config(Config& config) {
 }
 
 void CybelEngine::init_gui(const Config& config) {
-  // Use a 2004-2008 version.
-  // - NOTE: Must be set before SDL_CreateWindow().
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
+  // NOTE: Must set GL attrs after SDL_Init() and before SDL_CreateWindow().
+  #if defined(CYBEL_RENDER_GLES)
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
+  #else // CYBEL_RENDER_GL.
+    // Use a 2004-2008 version.
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
+  #endif
+
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+
+  if(SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24) != 0) {
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
+  }
 
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
   //     we call sync_size() later, which we do in run().
@@ -145,7 +168,7 @@ void CybelEngine::init_gui(const Config& config) {
 }
 
 void CybelEngine::check_gl_version() {
-  auto gl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  const auto gl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
   const std::string gl_version = (gl_version_cstr != nullptr)
                                  ? gl_version_cstr : "Failed to get OpenGL version";
 

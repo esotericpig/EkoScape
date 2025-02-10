@@ -146,28 +146,30 @@ public:
 
   explicit Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
+  virtual ~Renderer() = default;
+
   void resize(const Size2i& size);
   void clear_view();
 
-  Renderer& begin_2d_scene();
-  Renderer& begin_3d_scene();
+  virtual Renderer& begin_2d_scene() = 0;
+  virtual Renderer& begin_3d_scene() = 0;
 
   Renderer& begin_auto_center_scale();
   Renderer& begin_auto_anchor_scale(const Pos2f& anchor);
   Renderer& begin_auto_scale();
   Renderer& end_scale();
 
-  Renderer& begin_color(const Color4f& color);
-  Renderer& end_color();
+  virtual Renderer& begin_color(const Color4f& color) = 0;
+  virtual Renderer& end_color();
 
   Renderer& begin_add_blend();
   Renderer& end_blend();
 
-  Renderer& begin_tex(const Texture& tex);
-  Renderer& end_tex();
+  virtual Renderer& begin_tex(const Texture& tex) = 0;
+  virtual Renderer& end_tex() = 0;
 
   Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
-  Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback);
+  virtual Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) = 0;
   Renderer& wrap_add_blend(const WrapCallback& callback);
 
   Renderer& wrap_tex(const Texture& tex,const WrapTextureCallback& callback);
@@ -182,15 +184,15 @@ public:
   Renderer& wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const Size2i& rune_size,
                             const Size2i& spacing,const WrapFontAtlasCallback& callback);
 
-  Renderer& draw_quad(const Pos3i& pos,const Size2i& size);
-  Renderer& draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size);
+  virtual Renderer& draw_quad(const Pos3i& pos,const Size2i& size) = 0;
+  virtual Renderer& draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size) = 0;
 
-  Pos5f build_dest_pos5f(const Pos3i& pos,const Size2i& size);
+  Pos5f build_dest_pos5f(const Pos3i& pos,const Size2i& size) const;
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();
 
-private:
+protected:
   struct BlendMode {
     GLenum src_factor{};
     GLenum dst_factor{};
@@ -200,6 +202,7 @@ private:
   static inline const BlendMode kAddBlendMode{GL_ONE,GL_ONE};
 
   ViewDimens dimens_{};
+  int depth_bits_ = 0;
   Pos2f scale_{1.0f,1.0f};
   float aspect_scale_ = 1.0f;
   Pos2f offset_{0.0f,0.0f};

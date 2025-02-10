@@ -8,27 +8,54 @@
 #ifndef CYBEL_COMMON_H_
 #define CYBEL_COMMON_H_
 
-#if defined(CYBEL_MACOS)
-  #ifndef GL_SILENCE_DEPRECATION
-  #define GL_SILENCE_DEPRECATION
+#if !(defined(CYBEL_RENDER_GL) || defined(CYBEL_RENDER_GLES))
+  #if defined(__EMSCRIPTEN__)
+    #define CYBEL_RENDER_GLES
+  #else
+    #define CYBEL_RENDER_GL
   #endif
+#endif
 
-  #include <GL/glew.h>
-  #include <OpenGL/glu.h>
-#elif defined(CYBEL_WINDOWS)
-  #ifndef WIN32_LEAN_AND_MEAN
-  #define WIN32_LEAN_AND_MEAN
-  #endif
-  #ifndef NOMINMAX
-  #define NOMINMAX
-  #endif
+#if defined(__EMSCRIPTEN__)
+  #include <emscripten.h>
+  #include <emscripten/html5.h>
+#endif
 
-  #include <windows.h>
-  #include <GL/glew.h>
-  #include <GL/glu.h>
-#else
-  #include <GL/glew.h>
-  #include <GL/glu.h>
+#if defined(CYBEL_RENDER_GL)
+  #if defined(CYBEL_PLATFORM_MACOS)
+    #ifndef GL_SILENCE_DEPRECATION
+    #define GL_SILENCE_DEPRECATION
+    #endif
+
+    #include <GL/glew.h>
+    #include <OpenGL/glu.h>
+  #elif defined(CYBEL_PLATFORM_WINDOWS)
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+
+    #include <windows.h>
+    #include <GL/glew.h>
+    #include <GL/glu.h>
+  #else // CYBEL_PLATFORM_LINUX.
+    #include <GL/glew.h>
+    #include <GL/glu.h>
+  #endif
+#endif
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+
+#if defined(CYBEL_RENDER_GLES)
+  #include <GLES3/gl3.h>
+
+  // Can't use GLEW in GLES, so using a dummy stub.
+  #include "cybel/stubs/glew_stub.h"
 #endif
 
 #include <algorithm>
@@ -41,11 +68,6 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
 
 namespace cybel {
   namespace utf8 {}

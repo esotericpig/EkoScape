@@ -8,17 +8,17 @@
 #ifndef EKOSCAPE_COMMON_H_
 #define EKOSCAPE_COMMON_H_
 
-#if defined(CYBEL_MACOS)
-  #ifndef DANTARES_MACOS
-  #define DANTARES_MACOS
+#if defined(CYBEL_PLATFORM_MACOS)
+  #ifndef DANTARES_PLATFORM_MACOS
+  #define DANTARES_PLATFORM_MACOS
   #endif
-#elif defined(CYBEL_WINDOWS)
-  #ifndef DANTARES_WINDOWS
-  #define DANTARES_WINDOWS
+#elif defined(CYBEL_PLATFORM_WINDOWS)
+  #ifndef DANTARES_PLATFORM_WINDOWS
+  #define DANTARES_PLATFORM_WINDOWS
   #endif
-#else
-  #ifndef DANTARES_LINUX
-  #define DANTARES_LINUX
+#else // CYBEL_PLATFORM_LINUX.
+  #ifndef DANTARES_PLATFORM_LINUX
+  #define DANTARES_PLATFORM_LINUX
   #endif
 #endif
 

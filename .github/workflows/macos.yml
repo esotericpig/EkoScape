@@ -58,7 +58,7 @@ jobs:
           -DVCPKG_BUILD_TYPE=release
 
       - name: Build ${{ matrix.arch }}
-        run: cmake --build --preset no-jobs --config Release --verbose
+        run: cmake --build --preset default --config Release --verbose
 
       - name: Rename ${{ matrix.arch }}
         run: |
@@ -136,7 +136,7 @@ jobs:
         run: ls -alR '${{ env.GHW_PKG_DIR }}'
 
       - name: Verify bundle
-        run: cmake --build --preset no-jobs --config Release --target check_macos_bundle
+        run: cmake --build --preset default --config Release --target check_macos_bundle
 
       - name: Verify Info.plist
         run: plutil -lint '${{ env.GHW_BUNDLE_DIR }}/Contents/Info.plist'

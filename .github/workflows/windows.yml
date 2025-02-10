@@ -44,10 +44,10 @@ jobs:
           -DPKG_SUFFIX="-x64"
 
       - name: Build
-        run: cmake --build --preset no-jobs --config Release --verbose
+        run: cmake --build --preset default --config Release --verbose
 
       - name: Package up
-        run: cmake --build --preset no-jobs --config Release --target package
+        run: cmake --build --preset default --config Release --target package
 
       - name: Upload package
         uses: actions/upload-artifact@v4
