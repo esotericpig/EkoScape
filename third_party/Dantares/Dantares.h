@@ -46,7 +46,7 @@
 #ifndef DANTARES_H
 #define DANTARES_H
 
-#if defined(DANTARES_MACOS)
+#if defined(DANTARES_PLATFORM_MACOS)
     #ifndef GL_SILENCE_DEPRECATION
     #define GL_SILENCE_DEPRECATION
     #endif
@@ -55,7 +55,7 @@
     //#include<OpenGL/OpenGL.h>
     #include<OpenGL/gl.h>
     //#include<OpenGL/glu.h>
-#elif defined(DANTARES_WINDOWS)
+#elif defined(DANTARES_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
     #endif
