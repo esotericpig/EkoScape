@@ -18,7 +18,7 @@ namespace cybel::utf8 {
  */
 namespace RuneUtil {
   inline const char32_t kInvalidRune = U'�'; // \uFFFD.
-  inline const std::string kInvalidRunePacked = "\xEF\xBF\xBD"; // Result of `pack(kInvalidRune)`.
+  inline const std::string kInvalidRunePacked = "�"; // \xEF\xBF\xBD.
 
   inline const unsigned char kMaxAsciiOctet = 0x7F;
   inline const unsigned char kMinOctetTail = 0x80; // 0b1000'0000.
