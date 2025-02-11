@@ -146,7 +146,7 @@ public:
 
   explicit Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
-  virtual ~Renderer() = default;
+  virtual ~Renderer() noexcept = default;
 
   void resize(const Size2i& size);
   void clear_view();
@@ -193,6 +193,14 @@ public:
   Color4f& clear_color();
 
 protected:
+  ViewDimens dimens_{};
+  int depth_bits_ = 0;
+  Pos2f scale_{1.0f,1.0f};
+  float aspect_scale_ = 1.0f;
+  Pos2f offset_{0.0f,0.0f};
+  Color4f clear_color_{};
+
+private:
   struct BlendMode {
     GLenum src_factor{};
     GLenum dst_factor{};
@@ -200,13 +208,6 @@ protected:
 
   static inline const BlendMode kDefaultBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
   static inline const BlendMode kAddBlendMode{GL_ONE,GL_ONE};
-
-  ViewDimens dimens_{};
-  int depth_bits_ = 0;
-  Pos2f scale_{1.0f,1.0f};
-  float aspect_scale_ = 1.0f;
-  Pos2f offset_{0.0f,0.0f};
-  Color4f clear_color_{};
 
   Color4f curr_color_{1.0f};
   BlendMode curr_blend_mode_ = kDefaultBlendMode;
