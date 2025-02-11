@@ -9,8 +9,8 @@
 # Show source files to copy & paste (only crawls dirs):
 #   ./scripts/glob_src.rb -p
 #
-# Update source files in 'CMakeLists.txt' (overwrites file):
-#   ./scripts/glob_src.rb -U
+# Show diff of source files in 'CMakeLists.txt' (only reads):
+#   ./scripts/glob_src.rb -d
 #
 # @author Bradley Whited
 ###
@@ -24,17 +24,13 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.1.4'
+  VERSION = '0.2.0'
 
   # Must be all lower-cased for case-insensitive comparison.
   SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
 
   CMAKE_FILE = 'CMakeLists.txt'
   CMAKE_FUNC = 'target_sources'
-
-  def initialize
-    @dry_run = true
-  end
 
   def run
     opt_parser = OptionParser.new do |op|
@@ -48,11 +44,7 @@ class SrcGlobber
       op.separator ''
       op.separator 'Options'
       op.on('-p',nil,'[print] show source files')
-      op.on('-U',nil,"[update] update '#{CMAKE_FILE}'; overwrites lines in #{CMAKE_FUNC}()")
-
-      op.separator ''
-      op.separator 'Basic Options'
-      op.on('-n',nil,'no-clobber dry run')
+      op.on('-d',nil,"[diff] show diff of source files in '#{CMAKE_FILE}' in func #{CMAKE_FUNC}()")
     end
 
     opts = {}
@@ -63,12 +55,10 @@ class SrcGlobber
       exit
     end
 
-    @dry_run = opts[:n]
-
     if opts[:p]
       print_src
-    elsif opts[:U]
-      update_cmake
+    elsif opts[:d]
+      print_src_diff
     end
   end
 
@@ -76,22 +66,61 @@ class SrcGlobber
     puts glob_all_src
   end
 
-  def update_cmake
-    src = glob_all_src
-    data,new_data = sub_cmake_file do |md|
-      fb = md[:func_begin]
-      fe = md[:func_end]
+  def print_src_diff
+    old_src = src_to_lines(read_cmake_src)
+    new_src = src_to_lines(glob_all_src)
 
-      "#{fb}\n#{src}\n#{fe}"
+    matches = true
+    i = 0
+    j = 0
+
+    while i < old_src.size || j < new_src.size
+      if i >= old_src.size
+        puts "    #{new_src[j]}"
+        j += 1
+        matches = false
+        next
+      end
+      if j >= new_src.size
+        puts "-   #{old_src[i]}"
+        i += 1
+        matches = false
+        next
+      end
+
+      old_line = old_src[i]
+      new_line = new_src[j]
+
+      if old_line == new_line
+        i += 1
+        j += 1
+        next
+      end
+
+      matches = false
+
+      # Check if the src file has been either added or removed.
+      is_new_src_file = true
+
+      (i + 1...old_src.size).each do |k|
+        if old_src[k] == new_line
+          is_new_src_file = false
+          break
+        end
+      end
+
+      if is_new_src_file
+        puts "    #{new_line}"
+        j += 1
+        next
+      end
+
+      puts "-   #{old_line}"
+      i += 1
     end
 
-    if new_data == data
-      puts "No change: '#{CMAKE_FILE}'"
-    elsif @dry_run
-      puts new_data
-    else
-      File.write(CMAKE_FILE,new_data,mode: 'wt',encoding: 'UTF-8')
-      puts "Updated: '#{CMAKE_FILE}'"
+    if matches
+      puts "> No changes in '#{CMAKE_FILE}'."
     end
   end
 
@@ -163,31 +192,25 @@ class SrcGlobber
     return result.rstrip # Remove last newline.
   end
 
-  def sub_cmake_file
+  def read_cmake_src
+    src = ''.dup
     data = File.read(CMAKE_FILE,mode: 'rt',encoding: 'BOM|UTF-8:UTF-8')
-    found = false
 
-    new_data = data.gsub(
+    data.scan(
       # `^func(...)$ ... ^)$`
-      /(?<func_begin>^\s*#{Regexp.quote(CMAKE_FUNC)}\s*\([^\)]+?$)(?<src>.+?)(?<func_end>^\s*\)\s*$)/im,
-    ) do |m|
-      if found
-        m
-      else
-        md = Regexp.last_match
-
-        if md[:src].count("\n") >= 10
-          found = true
-          yield md
-        else
-          m
-        end
-      end
+      /(?<func_begin>^\s*#{Regexp.quote(CMAKE_FUNC)}\s*\([^\)]+?$)(?<src>.+?)(?<func_end>^\s*\)\s*$)/im
+    ) do
+      md = Regexp.last_match
+      src << md[:src] << "\n"
     end
 
-    raise "Failed to find CMake function [#{CMAKE_FUNC}] in file [#{CMAKE_FILE}]." if !found
+    return src
+  end
 
-    return [data,new_data]
+  def src_to_lines(src)
+    return src.split(/[\r\n]+/m)
+              .map { |line| line.sub(/^\s*\#+/,'').strip }
+              .reject(&:empty?)
   end
 end
 

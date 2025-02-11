@@ -221,7 +221,7 @@ target_include_directories("${BIN_NAME}" PRIVATE
     "${TP_DIR}"
     "${SRC_DIR}"
 )
-# Run `./scripts/glob_src.rb -u` to auto-update list of source files here.
+# Run `./scripts/glob_src.rb -d` to show source files to add/remove here.
 target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares.cpp"
 
