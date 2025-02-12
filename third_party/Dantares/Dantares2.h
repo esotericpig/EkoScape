@@ -544,7 +544,13 @@ protected:
     class SpaceClass
     {
     public:
-        static constexpr GLsizei DISPLAY_LIST_RANGE = 6;
+        static constexpr int FACE_COUNT      = 6;
+        static constexpr int FACE_WALL_FAR   = 0;                        //North/Back.
+        static constexpr int FACE_WALL_RIGHT = 1;                        //East.
+        static constexpr int FACE_WALL_NEAR  = 2;                        //South/Front.
+        static constexpr int FACE_WALL_LEFT  = 3;                        //West.
+        static constexpr int FACE_FLOOR      = 4;
+        static constexpr int FACE_CEILING    = 5;
 
         explicit SpaceClass(int Type);
 
@@ -552,9 +558,10 @@ protected:
         SpaceClass(SpaceClass &&Other) noexcept;
         SpaceClass &operator = (const SpaceClass &Copy) = delete;
         SpaceClass &operator = (SpaceClass &&Other) noexcept;
-        virtual ~SpaceClass() noexcept;
+        virtual ~SpaceClass() noexcept = default;
 
-        void ResetDisplayList();
+        virtual void GenerateFaces(float SquareOffset, float FloorHeight, float CeilingHeight) = 0;
+        virtual void DrawFace(int Face) = 0;
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
@@ -562,11 +569,9 @@ protected:
         GLuint FloorTexture = 0;                                         //Floor texture ID.
         GLuint CeilingTexture = 0;                                       //Ceiling texture ID.
         GLuint WallTexture = 0;                                          //Wall texture ID.
-        int DisplayList = -1;                                            //Display list for the space.
 
     private:
         void MoveFrom(SpaceClass &&Other) noexcept;
-        void DeleteDisplayList() noexcept;
     };
 
     //Class for storing maps.
@@ -598,6 +603,14 @@ protected:
     };
 
     virtual std::unique_ptr<SpaceClass> BuildSpace(int SpaceID) = 0;
+
+    virtual void BeginDraw() = 0;
+    virtual void EndDraw() = 0;
+    virtual void TranslateModelMatrix(float X, float Y, float Z) = 0;
+    virtual void RotateModelMatrix(float Angle, float X, float Y, float Z) = 0;
+    virtual void UpdateModelMatrix() = 0;
+    virtual void PushModelMatrix() = 0;
+    virtual void PopModelMatrix() = 0;
 
     int CurrentMap = -1;
     //The ID number of the currently active map.

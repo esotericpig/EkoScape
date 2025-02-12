@@ -359,126 +359,9 @@ bool Dantares2::GenerateMap()
 
     const float Offset = SqSize / 2.0f;
 
-    for (auto &[_Type, Seeker]: Maps[CurrentMap]->SpaceInfo)
+    for (auto &[_, Seeker]: Maps[CurrentMap]->SpaceInfo)
     {
-        Seeker->ResetDisplayList();
-
-        if (Seeker->CeilingTexture != 0)
-        {
-            glNewList(Seeker->DisplayList + 5, GL_COMPILE);
-                glEnable(GL_TEXTURE_2D);
-
-                glBindTexture(GL_TEXTURE_2D, Seeker->CeilingTexture);
-
-                glBegin(GL_QUADS);
-                    glNormal3f(0.0f, -1.0f, 0.0f);
-                    glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(-Offset, Ceiling, -Offset);
-                    glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(Offset, Ceiling, -Offset);
-                    glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(Offset, Ceiling, Offset);
-                    glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(-Offset, Ceiling, Offset);
-                glEnd();
-            glEndList();
-        }
-
-        if (Seeker->FloorTexture != 0)
-        {
-            glNewList(Seeker->DisplayList + 4, GL_COMPILE);
-                glEnable(GL_TEXTURE_2D);
-
-                glBindTexture(GL_TEXTURE_2D, Seeker->FloorTexture);
-
-                glBegin(GL_QUADS);
-                    glNormal3f(0.0f, 1.0f, 0.0f);
-                    glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(-Offset, Floor, -Offset);
-                    glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(Offset, Floor, -Offset);
-                    glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(Offset, Floor, Offset);
-                    glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(-Offset, Floor, Offset);
-                glEnd();
-            glEndList();
-        }
-
-        if (Seeker->WallTexture != 0)
-        {
-            glNewList(Seeker->DisplayList + 2, GL_COMPILE);
-                glEnable(GL_TEXTURE_2D);
-
-                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
-
-                glBegin(GL_QUADS);
-                    glNormal3f(0.0f, 0.0f, 1.0f);
-                    glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(-Offset, Floor, Offset);
-                    glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(Offset, Floor, Offset);
-                    glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(Offset, Ceiling, Offset);
-                    glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(-Offset, Ceiling, Offset);
-                glEnd();
-            glEndList();
-
-            glNewList(Seeker->DisplayList + 1, GL_COMPILE);
-                glEnable(GL_TEXTURE_2D);
-
-                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
-
-                glBegin(GL_QUADS);
-                    glNormal3f(1.0f, 0.0f, 0.0f);
-                    glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(Offset, Floor, Offset);
-                    glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(Offset, Floor, -Offset);
-                    glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(Offset, Ceiling, -Offset);
-                    glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(Offset, Ceiling, Offset);
-                glEnd();
-            glEndList();
-
-            glNewList(Seeker->DisplayList, GL_COMPILE);
-                glEnable(GL_TEXTURE_2D);
-
-                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
-
-                glBegin(GL_QUADS);
-                    glNormal3f(0.0f, 0.0f, -1.0f);
-                    glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(Offset, Floor, -Offset);
-                    glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(-Offset, Floor, -Offset);
-                    glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(-Offset, Ceiling, -Offset);
-                    glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(Offset, Ceiling, -Offset);
-                glEnd();
-            glEndList();
-
-            glNewList(Seeker->DisplayList + 3, GL_COMPILE);
-                glEnable(GL_TEXTURE_2D);
-
-                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
-
-                glBegin(GL_QUADS);
-                    glNormal3f(-1.0f, 0.0f, 0.0f);
-                    glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(-Offset, Floor, -Offset);
-                    glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(-Offset, Floor, Offset);
-                    glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(-Offset, Ceiling, Offset);
-                    glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(-Offset, Ceiling, -Offset);
-                glEnd();
-            glEndList();
-        }
+        Seeker->GenerateFaces(Offset, Floor, Ceiling);
     }
 
     return true;
@@ -497,11 +380,10 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
     const auto CameraXf = static_cast<float>(CameraX);
     const auto CameraYf = static_cast<float>(CameraY);
 
-    glPushAttrib(GL_ENABLE_BIT);
-    glEnable(GL_TEXTURE_2D);
+    BeginDraw();
 
-    glTranslatef(0.0f, 0.0f, -(SqSize / 2.0f));
-    glRotatef(static_cast<float>(CameraFacing) * 90.0f + TurnOffset, 0.0f, 1.0f, 0.0f);
+    TranslateModelMatrix(0.0f, 0.0f, -(SqSize / 2.0f));
+    RotateModelMatrix(static_cast<float>(CameraFacing) * 90.0f + TurnOffset, 0.0f, 1.0f, 0.0f);
 
     switch (CameraFacing)
     {
@@ -509,11 +391,11 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
         case DIR_SOUTH:
             if (Walking == DIR_EAST || Walking == DIR_WEST)
             {
-                glTranslatef(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
+                TranslateModelMatrix(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
             else
             {
-                glTranslatef(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
+                TranslateModelMatrix(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
             break;
 
@@ -521,11 +403,11 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
         case DIR_WEST:
             if (Walking == DIR_NORTH || Walking == DIR_SOUTH)
             {
-                glTranslatef(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
+                TranslateModelMatrix(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
             else
             {
-                glTranslatef(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
+                TranslateModelMatrix(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
             break;
     }
@@ -536,50 +418,51 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
-                glPushMatrix();
-                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                PushModelMatrix();
+                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > HalfDistance) ? (CameraY - HalfDistance) : 0;
                      y < YBound && y < (CameraY + Distance); y++)
                 {
                     if (y == (CameraY - HalfDistance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    glTranslatef(0.0f, 0.0f, -SqSize);
+                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (y >= CameraY)
                         {
-                            glCallList(Seeker->DisplayList + 2);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_NEAR);
                         }
 
                         if (x < CameraX)
                         {
-                            glCallList(Seeker->DisplayList + 1);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_RIGHT);
                         }
                         else if (x > CameraX)
                         {
-                            glCallList(Seeker->DisplayList + 3);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_LEFT);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 4);
+                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 5);
+                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
                     }
                 }
 
-                glPopMatrix();
+                PopModelMatrix();
             }
             break;
 
@@ -587,50 +470,51 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > HalfDistance) ? (CameraX - HalfDistance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
-                glPushMatrix();
-                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                PushModelMatrix();
+                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
                      y < YBound && y < (CameraY + Distance); y++)
                 {
                     if (y == (CameraY - Distance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    glTranslatef(0.0f, 0.0f, -SqSize);
+                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (x >= CameraX)
                         {
-                            glCallList(Seeker->DisplayList + 3);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_LEFT);
                         }
 
                         if (y > CameraY)
                         {
-                            glCallList(Seeker->DisplayList + 2);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_NEAR);
                         }
                         else if (y < CameraY)
                         {
-                            glCallList(Seeker->DisplayList);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_FAR);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 4);
+                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 5);
+                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
                     }
                 }
 
-                glPopMatrix();
+                PopModelMatrix();
             }
             break;
 
@@ -638,50 +522,51 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
-                glPushMatrix();
-                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                PushModelMatrix();
+                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
                      y < YBound && y < (CameraY + HalfDistance); y++)
                 {
                     if (y == (CameraY - Distance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    glTranslatef(0.0f, 0.0f, -SqSize);
+                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (y <= CameraY)
                         {
-                            glCallList(Seeker->DisplayList + 0);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_FAR);
                         }
 
                         if (x > CameraX)
                         {
-                            glCallList(Seeker->DisplayList + 3);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_LEFT);
                         }
                         else if (x < CameraX)
                         {
-                            glCallList(Seeker->DisplayList + 1);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_RIGHT);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 4);
+                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 5);
+                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
                     }
                 }
 
-                glPopMatrix();
+                PopModelMatrix();
             }
             break;
 
@@ -689,60 +574,61 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + HalfDistance); x++)
             {
-                glPushMatrix();
-                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                PushModelMatrix();
+                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
                      y < YBound && y < (CameraY + Distance); y++)
                 {
                     if (y == (CameraY - Distance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    glTranslatef(0.0f, 0.0f, -SqSize);
+                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (x <= CameraX)
                         {
-                            glCallList(Seeker->DisplayList + 1);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_RIGHT);
                         }
 
                         if (y < CameraY)
                         {
-                            glCallList(Seeker->DisplayList);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_FAR);
                         }
                         else if (y > CameraY)
                         {
-                            glCallList(Seeker->DisplayList + 2);
+                            Seeker->DrawFace(SpaceClass::FACE_WALL_NEAR);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 4);
+                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        glCallList(Seeker->DisplayList + 5);
+                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
                     }
                 }
 
-                glPopMatrix();
+                PopModelMatrix();
             }
             break;
     }
+
+    EndDraw();
 
     if (MovePlayer)
     {
         this->MovePlayer();
     }
-
-    glPopAttrib();
 
     return true;
 }
@@ -1276,8 +1162,7 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
 }
 
 Dantares2::SpaceClass::SpaceClass(int Type)
-    : SpaceType(Type),
-      DisplayList(static_cast<int>(glGenLists(DISPLAY_LIST_RANGE)))
+    : SpaceType(Type)
 {
 }
 
@@ -1298,33 +1183,10 @@ Dantares2::SpaceClass &Dantares2::SpaceClass::operator = (SpaceClass &&Other) no
 
 void Dantares2::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
 {
-    DeleteDisplayList();
-
     SpaceType = std::exchange(Other.SpaceType, 0);
     FloorTexture = std::exchange(Other.FloorTexture, 0);
     CeilingTexture = std::exchange(Other.CeilingTexture, 0);
     WallTexture = std::exchange(Other.WallTexture, 0);
-    DisplayList = std::exchange(Other.DisplayList, -1);
-}
-
-Dantares2::SpaceClass::~SpaceClass() noexcept
-{
-    DeleteDisplayList();
-}
-
-void Dantares2::SpaceClass::DeleteDisplayList() noexcept
-{
-    if (DisplayList != -1)
-    {
-        glDeleteLists(DisplayList, DISPLAY_LIST_RANGE);
-        DisplayList = -1;
-    }
-}
-
-void Dantares2::SpaceClass::ResetDisplayList()
-{
-    DeleteDisplayList();
-    DisplayList = static_cast<int>(glGenLists(DISPLAY_LIST_RANGE));
 }
 
 void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
@@ -1336,12 +1198,11 @@ void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
         << Indl << "FloorTexture:      " << FloorTexture
         << Indl << "CeilingTexture:    " << CeilingTexture
         << Indl << "WallTexture:       " << WallTexture
-        << Indl << "DisplayList:       " << DisplayList
         ;
     Out.flush();
 }
 
-Dantares2::MapClass::MapClass(Dantares2 &Dan,int MaxX, int MaxY)
+Dantares2::MapClass::MapClass(Dantares2 &Dan, int MaxX, int MaxY)
     : Parent(Dan),
       MapArray(MaxX, std::vector(MaxY, 0)),
       WalkArray(MaxX, std::vector(MaxY, true)),
