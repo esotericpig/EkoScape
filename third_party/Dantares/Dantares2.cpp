@@ -176,7 +176,7 @@ bool Dantares2::IsMap(int MapID) const
     return Maps[MapID] ? true : false;
 }
 
-bool Dantares2::SetWallTexture(int SpaceID, int TextureID, bool Delete)
+bool Dantares2::SetWallTexture(int SpaceID, GLuint TextureID, bool Delete)
 {
     if (CurrentMap == -1)
     {
@@ -187,7 +187,7 @@ bool Dantares2::SetWallTexture(int SpaceID, int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID = -1;
+        TextureID = 0;
     }
 
     Space.WallTexture = TextureID;
@@ -195,7 +195,7 @@ bool Dantares2::SetWallTexture(int SpaceID, int TextureID, bool Delete)
     return true;
 }
 
-bool Dantares2::SetFloorTexture(int SpaceID, int TextureID, bool Delete)
+bool Dantares2::SetFloorTexture(int SpaceID, GLuint TextureID, bool Delete)
 {
     if (CurrentMap == -1)
     {
@@ -206,7 +206,7 @@ bool Dantares2::SetFloorTexture(int SpaceID, int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID = -1;
+        TextureID = 0;
     }
 
     Space.FloorTexture = TextureID;
@@ -214,7 +214,7 @@ bool Dantares2::SetFloorTexture(int SpaceID, int TextureID, bool Delete)
     return true;
 }
 
-bool Dantares2::SetCeilingTexture(int SpaceID, int TextureID, bool Delete)
+bool Dantares2::SetCeilingTexture(int SpaceID, GLuint TextureID, bool Delete)
 {
     if (CurrentMap == -1)
     {
@@ -225,7 +225,7 @@ bool Dantares2::SetCeilingTexture(int SpaceID, int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID = -1;
+        TextureID = 0;
     }
 
     Space.CeilingTexture = TextureID;
@@ -233,12 +233,12 @@ bool Dantares2::SetCeilingTexture(int SpaceID, int TextureID, bool Delete)
     return true;
 }
 
-bool Dantares2::SetMasterFloorTexture(int TextureID, bool Delete)
+bool Dantares2::SetMasterFloorTexture(GLuint TextureID, bool Delete)
 {
     return SetFloorTexture(0, TextureID, Delete);
 }
 
-bool Dantares2::SetMasterCeilingTexture(int TextureID, bool Delete)
+bool Dantares2::SetMasterCeilingTexture(GLuint TextureID, bool Delete)
 {
     return SetCeilingTexture(0, TextureID, Delete);
 }
@@ -363,7 +363,7 @@ bool Dantares2::GenerateMap()
     {
         Seeker->ResetDisplayList();
 
-        if (Seeker->CeilingTexture != -1)
+        if (Seeker->CeilingTexture != 0)
         {
             glNewList(Seeker->DisplayList + 5, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
@@ -384,7 +384,7 @@ bool Dantares2::GenerateMap()
             glEndList();
         }
 
-        if (Seeker->FloorTexture != -1)
+        if (Seeker->FloorTexture != 0)
         {
             glNewList(Seeker->DisplayList + 4, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
@@ -405,7 +405,7 @@ bool Dantares2::GenerateMap()
             glEndList();
         }
 
-        if (Seeker->WallTexture != -1)
+        if (Seeker->WallTexture != 0)
         {
             glNewList(Seeker->DisplayList + 2, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
@@ -551,7 +551,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
                     const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture != -1)
+                    if (Seeker->WallTexture != 0)
                     {
                         if (y >= CameraY)
                         {
@@ -568,12 +568,12 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                         }
                     }
 
-                    if (Seeker->FloorTexture != -1)
+                    if (Seeker->FloorTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture != -1)
+                    if (Seeker->CeilingTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 5);
                     }
@@ -602,7 +602,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
                     const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture != -1)
+                    if (Seeker->WallTexture != 0)
                     {
                         if (x >= CameraX)
                         {
@@ -619,12 +619,12 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                         }
                     }
 
-                    if (Seeker->FloorTexture != -1)
+                    if (Seeker->FloorTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture != -1)
+                    if (Seeker->CeilingTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 5);
                     }
@@ -653,7 +653,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
                     const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture != -1)
+                    if (Seeker->WallTexture != 0)
                     {
                         if (y <= CameraY)
                         {
@@ -670,12 +670,12 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                         }
                     }
 
-                    if (Seeker->FloorTexture != -1)
+                    if (Seeker->FloorTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture != -1)
+                    if (Seeker->CeilingTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 5);
                     }
@@ -704,7 +704,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
                     const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture != -1)
+                    if (Seeker->WallTexture != 0)
                     {
                         if (x <= CameraX)
                         {
@@ -721,12 +721,12 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                         }
                     }
 
-                    if (Seeker->FloorTexture != -1)
+                    if (Seeker->FloorTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture != -1)
+                    if (Seeker->CeilingTexture != 0)
                     {
                         glCallList(Seeker->DisplayList + 5);
                     }
@@ -1249,7 +1249,7 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
     {
         Out << Indl << "{Map[" << i << "]} = ";
 
-        if(Maps[i])
+        if (Maps[i])
         {
             Out << Maps[i].get() << '\n';
             Maps[i]->PrintDebugInfo(Out, Indent);
@@ -1289,9 +1289,9 @@ void Dantares2::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
     DeleteDisplayList();
 
     SpaceType = std::exchange(Other.SpaceType, 0);
-    FloorTexture = std::exchange(Other.FloorTexture, -1);
-    CeilingTexture = std::exchange(Other.CeilingTexture, -1);
-    WallTexture = std::exchange(Other.WallTexture, -1);
+    FloorTexture = std::exchange(Other.FloorTexture, 0);
+    CeilingTexture = std::exchange(Other.CeilingTexture, 0);
+    WallTexture = std::exchange(Other.WallTexture, 0);
     DisplayList = std::exchange(Other.DisplayList, -1);
 }
 
@@ -1367,7 +1367,7 @@ Dantares2::SpaceClass &Dantares2::MapClass::AddSpaceIfAbsent(int SpaceID)
 {
     auto [It, IsNew] = SpaceInfo.try_emplace(SpaceID);
 
-    if(IsNew)
+    if (IsNew)
     {
         It->second = std::move(Parent.BuildSpace(SpaceID));
     }

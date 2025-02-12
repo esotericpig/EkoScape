@@ -125,7 +125,7 @@ public:
                   Returns false otherwise.
     */
 
-    bool SetWallTexture(int SpaceID, int TextureID, bool Delete=false);
+    bool SetWallTexture(int SpaceID, GLuint TextureID, bool Delete=false);
     /*  Applies a texture to a space number.
 
         Parameters:
@@ -133,8 +133,8 @@ public:
                       number corresponds to the numbers in the map array.  If a texture is
                       already assigned to that space type, it will be replaced by the new
                       texture.
-        int TextureID - The texture ID of the 2D OpenGL texture that will be applied to the
-                        space type.
+        GLuint TextureID - The texture ID of the 2D OpenGL texture that will be applied to the
+                           space type.
         bool Delete=false - Delete is false by default, and need not be passed.  If Delete is
                             passed as true, the texture assignment currently held by SpaceID
                             will be removed, and TextureID will be disregarded.
@@ -142,7 +142,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool SetFloorTexture(int SpaceID, int TextureID, bool Delete=false);
+    bool SetFloorTexture(int SpaceID, GLuint TextureID, bool Delete=false);
     /*  Applies a floor texture to a space number.
 
         Parameters:
@@ -150,8 +150,8 @@ public:
                       number corresponds to the numbers in the map array.  If a texture is
                       already assigned to that space type, it will be replaced by the new
                       texture.
-        int TextureID - The texture ID of the 2D OpenGL texture that will be applied to the
-                        space type.
+        GLuint TextureID - The texture ID of the 2D OpenGL texture that will be applied to the
+                           space type.
         bool Delete=false - Delete is false by default, and need not be passed.  If Delete is
                             passed as true, the texture assignment currently held by SpaceID
                             will be removed, and TextureID will be disregarded.
@@ -159,7 +159,7 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool SetCeilingTexture(int SpaceID, int TextureID, bool Delete=false);
+    bool SetCeilingTexture(int SpaceID, GLuint TextureID, bool Delete=false);
     /*  Applies a ceiling texture to a space number.
 
         Parameters:
@@ -167,8 +167,8 @@ public:
                       number corresponds to the numbers in the map array.  If a texture is
                       already assigned to that space type, it will be replaced by the new
                       texture.
-        int TextureID - The texture ID of the 2D OpenGL texture that will be applied to the
-                        space type.
+        GLuint TextureID - The texture ID of the 2D OpenGL texture that will be applied to the
+                           space type.
         bool Delete=false - Delete is false by default, and need not be passed.  If Delete is
                             passed as true, the texture assignment currently held by SpaceID
                             will be removed, and TextureID will be disregarded.
@@ -176,12 +176,12 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool SetMasterFloorTexture(int TextureID, bool Delete=false);
+    bool SetMasterFloorTexture(GLuint TextureID, bool Delete=false);
     /*  Applies a texture to the floor of all empty (0) spaces on the map.
 
         Parameters:
-        int TextureID - The texture ID of the 2D OpenGL texture that will be applied to
-                        the floor.
+        GLuint TextureID - The texture ID of the 2D OpenGL texture that will be applied to
+                           the floor.
         bool Delete=false - Delete is false by default, and need not be passed.  If Delete is
                             passed as true, the texture assigned for the floor will be removed,
                             and TextureID will be disregarded.
@@ -189,12 +189,12 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
-    bool SetMasterCeilingTexture(int TextureID, bool Delete=false);
+    bool SetMasterCeilingTexture(GLuint TextureID, bool Delete=false);
     /*  Applies a texture to the ceiling of all empty (0) spaces on the map.
 
         Parameters:
-        int TextureID - The texture ID of the 2D OpenGL texture that will be applied to
-                        the ceiling.
+        GLuint TextureID - The texture ID of the 2D OpenGL texture that will be applied to
+                           the ceiling.
         bool Delete=false - Delete is false by default, and need not be passed.  If Delete is
                             passed as true, the texture assigned for the ceiling will be removed,
                             and TextureID will be disregarded.
@@ -536,9 +536,9 @@ protected:
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
         int SpaceType = 0;                                               //The type of the space.
-        int FloorTexture = -1;                                           //Floor texture ID.
-        int CeilingTexture = -1;                                         //Ceiling texture ID.
-        int WallTexture = -1;                                            //Wall texture ID.
+        GLuint FloorTexture = 0;                                         //Floor texture ID.
+        GLuint CeilingTexture = 0;                                       //Ceiling texture ID.
+        GLuint WallTexture = 0;                                          //Wall texture ID.
         int DisplayList = -1;                                            //Display list for the space.
 
     private:
