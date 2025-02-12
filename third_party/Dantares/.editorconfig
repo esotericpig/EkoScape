@@ -1,4 +1,8 @@
 [*]
 indent_size = 4
 
+ij_any_block_brace_style = next_line
+ij_any_class_brace_style = next_line
+ij_any_method_brace_style = next_line
+ij_any_space_after_comma = true
 ij_continuation_indent_size = 4

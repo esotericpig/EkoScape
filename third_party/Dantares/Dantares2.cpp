@@ -71,40 +71,40 @@ void Dantares2::MoveFrom(Dantares2 &&Other) noexcept
 
 int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
 {
-    const int NewMapID=NextMapID;
+    const int NewMapID = NextMapID;
 
-    if (NextMapID>=MAXMAPS)                                         //All map slots are taken.
+    if (NextMapID >= MAXMAPS)                                       //All map slots are taken.
     {
         return -1;
     }
 
-    Maps[NewMapID]=std::make_unique<MapClass>(SizeX, SizeY);        //Generate new map.
-    NextMapID=MAXMAPS;
+    Maps[NewMapID] = std::make_unique<MapClass>(SizeX, SizeY);      //Generate new map.
+    NextMapID = MAXMAPS;
 
-    for (int x=0; x<MAXMAPS; x++)                                   //Find the next map ID.
+    for (int x = 0; x < MAXMAPS; x++)                               //Find the next map ID.
     {
         if (!Maps[x])
         {
-            NextMapID=x;
+            NextMapID = x;
             break;
         }
     }
 
-    for (int x=0, y=0, z=0; z<SizeX*SizeY; z++)                     //Insert map info.
+    for (int x = 0, y = 0, z = 0; z < (SizeX * SizeY); z++)         //Insert map info.
     {
-        const int Space = *(static_cast<const int*>(Map)+z);
+        const int Space = *(static_cast<const int*>(Map) + z);
 
         if (!Maps[NewMapID]->SpaceDefined(Space))
         {
             Maps[NewMapID]->AddSpace(Space);
         }
 
-        Maps[NewMapID]->MapArray[x][y]=Space;
-        Maps[NewMapID]->WalkArray[x][y]=Space==0?true:false;
+        Maps[NewMapID]->MapArray[x][y] = Space;
+        Maps[NewMapID]->WalkArray[x][y] = (Space == 0);
 
-        if (++y>=SizeY)
+        if (++y >= SizeY)
         {
-            y=0;
+            y = 0;
             x++;
         }
     }
@@ -114,36 +114,36 @@ int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
 
 int Dantares2::AddMap(const int* const *Map, int SizeX, int SizeY)
 {
-    const int NewMapID=NextMapID;
+    const int NewMapID = NextMapID;
 
-    if (NextMapID>=MAXMAPS)                                         //All map slots are taken.
+    if (NextMapID >= MAXMAPS)                                       //All map slots are taken.
     {
         return -1;
     }
 
-    Maps[NewMapID]=std::make_unique<MapClass>(SizeX, SizeY);        //Generate new map.
-    NextMapID=MAXMAPS;
+    Maps[NewMapID] = std::make_unique<MapClass>(SizeX, SizeY);      //Generate new map.
+    NextMapID = MAXMAPS;
 
-    for (int x=0; x<MAXMAPS; x++)                                   //Find the next map ID.
+    for (int x = 0; x < MAXMAPS; x++)                               //Find the next map ID.
     {
         if (!Maps[x])
         {
-            NextMapID=x;
+            NextMapID = x;
             break;
         }
     }
 
-    for (int x=0; x<SizeX; x++)                                     //Insert map info.
+    for (int x = 0; x < SizeX; x++)                                 //Insert map info.
     {
-        for (int y=0; y<SizeY; y++)
+        for (int y = 0; y < SizeY; y++)
         {
             if (!Maps[NewMapID]->SpaceDefined(Map[x][y]))
             {
                 Maps[NewMapID]->AddSpace(Map[x][y]);
             }
 
-            Maps[NewMapID]->MapArray[x][y]=Map[x][y];
-            Maps[NewMapID]->WalkArray[x][y]=Map[x][y]==0?true:false;
+            Maps[NewMapID]->MapArray[x][y] = Map[x][y];
+            Maps[NewMapID]->WalkArray[x][y] = (Map[x][y] == 0);
         }
     }
 
@@ -154,21 +154,21 @@ bool Dantares2::DeleteMap(int MapID)
 {
     if (Maps[MapID])
     {
-        Maps[MapID].reset();                                    //Delete the map.
+        Maps[MapID].reset();                                        //Delete the map.
     }
     else
     {
-        return false;                                           //Map doesn't exist.
+        return false;                                               //Map doesn't exist.
     }
 
-    if (NextMapID>=MAXMAPS)
+    if (NextMapID >= MAXMAPS)
     {
-        NextMapID=MapID;
+        NextMapID = MapID;
     }
 
-    if (MapID==CurrentMap)
+    if (MapID == CurrentMap)
     {
-        CurrentMap=-1;
+        CurrentMap = -1;
     }
 
     return true;
@@ -176,19 +176,19 @@ bool Dantares2::DeleteMap(int MapID)
 
 bool Dantares2::IsMap(int MapID) const
 {
-    if (MapID<0 || MapID>=MAXMAPS)                                //MapID out of range.
+    if (MapID < 0 || MapID >= MAXMAPS)                              //MapID out of range.
     {
         return false;
     }
 
-    return Maps[MapID]?true:false;
+    return Maps[MapID] ? true : false;
 }
 
 bool Dantares2::SetWallTexture(int SpaceID, int TextureID, bool Delete)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
     if (!Maps[CurrentMap]->SpaceDefined(SpaceID))
@@ -198,19 +198,19 @@ bool Dantares2::SetWallTexture(int SpaceID, int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID=-1;
+        TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(SpaceID)->WallTexture=TextureID;
+    Maps[CurrentMap]->FindSpace(SpaceID)->WallTexture = TextureID;
 
     return true;
 }
 
 bool Dantares2::SetFloorTexture(int SpaceID, int TextureID, bool Delete)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
     if (!Maps[CurrentMap]->SpaceDefined(SpaceID))
@@ -220,19 +220,19 @@ bool Dantares2::SetFloorTexture(int SpaceID, int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID=-1;
+        TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(SpaceID)->FloorTexture=TextureID;
+    Maps[CurrentMap]->FindSpace(SpaceID)->FloorTexture = TextureID;
 
     return true;
 }
 
 bool Dantares2::SetCeilingTexture(int SpaceID, int TextureID, bool Delete)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
     if (!Maps[CurrentMap]->SpaceDefined(SpaceID))
@@ -242,19 +242,19 @@ bool Dantares2::SetCeilingTexture(int SpaceID, int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID=-1;
+        TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(SpaceID)->CeilingTexture=TextureID;
+    Maps[CurrentMap]->FindSpace(SpaceID)->CeilingTexture = TextureID;
 
     return true;
 }
 
 bool Dantares2::SetMasterFloorTexture(int TextureID, bool Delete)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
     if (!Maps[CurrentMap]->SpaceDefined(0))
@@ -264,19 +264,19 @@ bool Dantares2::SetMasterFloorTexture(int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID=-1;
+        TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(0)->FloorTexture=TextureID;
+    Maps[CurrentMap]->FindSpace(0)->FloorTexture = TextureID;
 
     return true;
 }
 
 bool Dantares2::SetMasterCeilingTexture(int TextureID, bool Delete)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
     if (!Maps[CurrentMap]->SpaceDefined(0))
@@ -286,22 +286,22 @@ bool Dantares2::SetMasterCeilingTexture(int TextureID, bool Delete)
 
     if (Delete)
     {
-        TextureID=-1;
+        TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(0)->CeilingTexture=TextureID;
+    Maps[CurrentMap]->FindSpace(0)->CeilingTexture = TextureID;
 
     return true;
 }
 
 bool Dantares2::SetCurrentMap(int MapID)
 {
-    if (MapID>=MAXMAPS || MapID<0 || !Maps[MapID])               //MapID is out of range, or
-    {                                                            //map doesn't exist.
+    if (MapID >= MAXMAPS || MapID < 0 || !Maps[MapID])              //MapID is out of range, or
+    {                                                               //map doesn't exist.
         return false;
     }
 
-    CurrentMap=MapID;
+    CurrentMap = MapID;
 
     return true;
 }
@@ -313,20 +313,20 @@ int Dantares2::GetCurrentMap() const
 
 bool Dantares2::ChangeSquare(int XCoord, int YCoord, int NewType)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
-    if (XCoord<0 || YCoord<0 ||                                  //Space out of range.
-        XCoord>Maps[CurrentMap]->XSize ||
-        YCoord>Maps[CurrentMap]->YSize)
+    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range.
+        XCoord > Maps[CurrentMap]->XSize ||
+        YCoord > Maps[CurrentMap]->YSize)
     {
         return false;
     }
 
-    Maps[CurrentMap]->MapArray[XCoord][YCoord]=NewType;
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord]=NewType==0?true:false;
+    Maps[CurrentMap]->MapArray[XCoord][YCoord] = NewType;
+    Maps[CurrentMap]->WalkArray[XCoord][YCoord] = (NewType == 0);
 
     if (!Maps[CurrentMap]->SpaceDefined(NewType))
     {
@@ -338,38 +338,38 @@ bool Dantares2::ChangeSquare(int XCoord, int YCoord, int NewType)
 
 bool Dantares2::MakeSpaceNonWalkable(int XCoord, int YCoord)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
-    if (XCoord<0 || YCoord<0 ||                                  //Space out of range.
-        XCoord>Maps[CurrentMap]->XSize ||
-        YCoord>Maps[CurrentMap]->YSize)
+    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range.
+        XCoord > Maps[CurrentMap]->XSize ||
+        YCoord > Maps[CurrentMap]->YSize)
     {
         return false;
     }
 
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord]=false;
+    Maps[CurrentMap]->WalkArray[XCoord][YCoord] = false;
 
     return true;
 }
 
 bool Dantares2::MakeSpaceWalkable(int XCoord, int YCoord)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                            //No active map.
+        return false;                                               //No active map.
     }
 
-    if (XCoord<0 || YCoord<0 ||                                  //Space out of range.
-        XCoord>Maps[CurrentMap]->XSize ||
-        YCoord>Maps[CurrentMap]->YSize)
+    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range.
+        XCoord > Maps[CurrentMap]->XSize ||
+        YCoord > Maps[CurrentMap]->YSize)
     {
         return false;
     }
 
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord]=true;
+    Maps[CurrentMap]->WalkArray[XCoord][YCoord] = true;
 
     return true;
 }
@@ -381,46 +381,46 @@ bool Dantares2::SetPlayerPosition(int XCoord, int YCoord)
 
 bool Dantares2::SetPlayerPosition(int XCoord, int YCoord, int Facing)
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
-        return false;                                           //No active map.
+        return false;                                               //No active map.
     }
 
-    if (XCoord<0 || YCoord<0 ||                                 //Space out of range,
-        XCoord >= Maps[CurrentMap]->XSize ||                    //or illegal direction.
+    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range,
+        XCoord >= Maps[CurrentMap]->XSize ||                        //or illegal direction.
         YCoord >= Maps[CurrentMap]->YSize ||
-        Facing<0 || Facing>3)
+        Facing < 0 || Facing > 3)
     {
         return false;
     }
 
-    CameraX=XCoord;
-    CameraY=YCoord;
-    CameraFacing=Facing;
-    Walking=-1;
-    WalkOffset=0.0f;
-    Turning=0;
-    TurnOffset=0.0f;
+    CameraX = XCoord;
+    CameraY = YCoord;
+    CameraFacing = Facing;
+    Walking = -1;
+    WalkOffset = 0.0f;
+    Turning = 0;
+    TurnOffset = 0.0f;
 
     return true;
 }
 
 bool Dantares2::GenerateMap()
 {
-    if (CurrentMap==-1)                                            //No active map.
+    if (CurrentMap == -1)                                           //No active map.
     {
         return false;
     }
 
-    const float Offset=SqSize/2.0f;
+    const float Offset = SqSize / 2.0f;
 
     for (auto &Seeker: Maps[CurrentMap]->SpaceInfo)
     {
         Seeker.ResetDisplayList();
 
-        if (Seeker.CeilingTexture!=-1)
+        if (Seeker.CeilingTexture != -1)
         {
-            glNewList(Seeker.DisplayList+5, GL_COMPILE);
+            glNewList(Seeker.DisplayList + 5, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
                 glBindTexture(GL_TEXTURE_2D, Seeker.CeilingTexture);
@@ -439,9 +439,9 @@ bool Dantares2::GenerateMap()
             glEndList();
         }
 
-        if (Seeker.FloorTexture!=-1)
+        if (Seeker.FloorTexture != -1)
         {
-            glNewList(Seeker.DisplayList+4, GL_COMPILE);
+            glNewList(Seeker.DisplayList + 4, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
                 glBindTexture(GL_TEXTURE_2D, Seeker.FloorTexture);
@@ -460,9 +460,9 @@ bool Dantares2::GenerateMap()
             glEndList();
         }
 
-        if (Seeker.WallTexture!=-1)
+        if (Seeker.WallTexture != -1)
         {
-            glNewList(Seeker.DisplayList+2, GL_COMPILE);
+            glNewList(Seeker.DisplayList + 2, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
                 glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
@@ -480,7 +480,7 @@ bool Dantares2::GenerateMap()
                 glEnd();
             glEndList();
 
-            glNewList(Seeker.DisplayList+1, GL_COMPILE);
+            glNewList(Seeker.DisplayList + 1, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
                 glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
@@ -516,7 +516,7 @@ bool Dantares2::GenerateMap()
                 glEnd();
             glEndList();
 
-            glNewList(Seeker.DisplayList+3, GL_COMPILE);
+            glNewList(Seeker.DisplayList + 3, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
                 glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
@@ -541,258 +541,264 @@ bool Dantares2::GenerateMap()
 
 bool Dantares2::Draw(int Distance, bool MovePlayer)
 {
-    if (CurrentMap==-1)                                                //No active map.
+    if (CurrentMap == -1)                                           //No active map.
     {
         return false;
     }
 
-    const int XBound=Maps[CurrentMap]->XSize;
-    const int YBound=Maps[CurrentMap]->YSize;
-    const int HalfDistance=Distance/2;
+    const int XBound = Maps[CurrentMap]->XSize;
+    const int YBound = Maps[CurrentMap]->YSize;
+    const int HalfDistance = Distance / 2;
     const auto CameraXf = static_cast<float>(CameraX);
     const auto CameraYf = static_cast<float>(CameraY);
 
     glPushAttrib(GL_ENABLE_BIT);
     glEnable(GL_TEXTURE_2D);
 
-    glTranslatef(0.0f, 0.0f, -(SqSize/2.0f));
-    glRotatef(static_cast<float>(CameraFacing)*90.0f+TurnOffset, 0.0f, 1.0f, 0.0f);
+    glTranslatef(0.0f, 0.0f, -(SqSize / 2.0f));
+    glRotatef(static_cast<float>(CameraFacing) * 90.0f + TurnOffset, 0.0f, 1.0f, 0.0f);
 
     switch (CameraFacing)
     {
         case 0:
         case 2:
-            if (Walking==1 || Walking==3)
+            if (Walking == 1 || Walking == 3)
             {
-                glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0f, CameraYf*SqSize);
+                glTranslatef(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
             else
             {
-                glTranslatef(-(CameraXf*SqSize), 0.0f, CameraYf*SqSize+WalkOffset);
+                glTranslatef(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
-
             break;
+
         case 1:
         case 3:
-            if (Walking==0 || Walking==2)
+            if (Walking == 0 || Walking == 2)
             {
-                glTranslatef(-(CameraXf*SqSize), 0.0f, CameraYf*SqSize+WalkOffset);
+                glTranslatef(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
             else
             {
-                glTranslatef(-(CameraXf*SqSize+WalkOffset), 0.0f, CameraYf*SqSize);
+                glTranslatef(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
-
             break;
     }
 
     switch (CameraFacing)
     {
         case 0:
-            for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
+            for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
+                 x < XBound && x < (CameraX + Distance); x++)
             {
                 glPushMatrix();
-                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
-                for (int y=CameraY>HalfDistance?CameraY-HalfDistance:0; y<YBound && y<CameraY+Distance; y++)
+                for (int y = (CameraY > HalfDistance) ? (CameraY - HalfDistance) : 0;
+                     y < YBound && y < (CameraY + Distance); y++)
                 {
-                    if (y==CameraY-HalfDistance)
+                    if (y == (CameraY - HalfDistance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture!=-1)
+                    if (Seeker->WallTexture != -1)
                     {
-                        if (y>=CameraY)
+                        if (y >= CameraY)
                         {
-                            glCallList(Seeker->DisplayList+2);
+                            glCallList(Seeker->DisplayList + 2);
                         }
 
-                        if (x<CameraX)
+                        if (x < CameraX)
                         {
-                            glCallList(Seeker->DisplayList+1);
+                            glCallList(Seeker->DisplayList + 1);
                         }
-                        else if (x>CameraX)
+                        else if (x > CameraX)
                         {
-                            glCallList(Seeker->DisplayList+3);
+                            glCallList(Seeker->DisplayList + 3);
                         }
                     }
 
-                    if (Seeker->FloorTexture!=-1)
+                    if (Seeker->FloorTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+4);
+                        glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture!=-1)
+                    if (Seeker->CeilingTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+5);
+                        glCallList(Seeker->DisplayList + 5);
                     }
                 }
 
                 glPopMatrix();
             }
-
             break;
+
         case 1:
-            for (int x=CameraX>HalfDistance?CameraX-HalfDistance:0; x<XBound && x<CameraX+Distance; x++)
+            for (int x = (CameraX > HalfDistance) ? (CameraX - HalfDistance) : 0;
+                 x < XBound && x < (CameraX + Distance); x++)
             {
                 glPushMatrix();
-                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
-                for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
+                for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
+                     y < YBound && y < (CameraY + Distance); y++)
                 {
-                    if (y==CameraY-Distance)
+                    if (y == (CameraY - Distance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture!=-1)
+                    if (Seeker->WallTexture != -1)
                     {
-                        if (x>=CameraX)
+                        if (x >= CameraX)
                         {
-                            glCallList(Seeker->DisplayList+3);
+                            glCallList(Seeker->DisplayList + 3);
                         }
 
-                        if (y>CameraY)
+                        if (y > CameraY)
                         {
-                            glCallList(Seeker->DisplayList+2);
+                            glCallList(Seeker->DisplayList + 2);
                         }
-                        else if (y<CameraY)
+                        else if (y < CameraY)
                         {
                             glCallList(Seeker->DisplayList);
                         }
                     }
 
-                    if (Seeker->FloorTexture!=-1)
+                    if (Seeker->FloorTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+4);
+                        glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture!=-1)
+                    if (Seeker->CeilingTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+5);
+                        glCallList(Seeker->DisplayList + 5);
                     }
                 }
 
                 glPopMatrix();
             }
-
             break;
+
         case 2:
-            for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+Distance; x++)
+            for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
+                 x < XBound && x < (CameraX + Distance); x++)
             {
                 glPushMatrix();
-                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
-                for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+HalfDistance; y++)
+                for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
+                     y < YBound && y < (CameraY + HalfDistance); y++)
                 {
-                    if (y==CameraY-Distance)
+                    if (y == (CameraY - Distance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture!=-1)
+                    if (Seeker->WallTexture != -1)
                     {
-                        if (y<=CameraY)
+                        if (y <= CameraY)
                         {
-                            glCallList(Seeker->DisplayList+0);
+                            glCallList(Seeker->DisplayList + 0);
                         }
 
-                        if (x>CameraX)
+                        if (x > CameraX)
                         {
-                            glCallList(Seeker->DisplayList+3);
+                            glCallList(Seeker->DisplayList + 3);
                         }
-                        else if (x<CameraX)
+                        else if (x < CameraX)
                         {
-                            glCallList(Seeker->DisplayList+1);
+                            glCallList(Seeker->DisplayList + 1);
                         }
                     }
 
-                    if (Seeker->FloorTexture!=-1)
+                    if (Seeker->FloorTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+4);
+                        glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture!=-1)
+                    if (Seeker->CeilingTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+5);
+                        glCallList(Seeker->DisplayList + 5);
                     }
                 }
 
                 glPopMatrix();
             }
-
             break;
+
         case 3:
-            for (int x=CameraX>Distance?CameraX-Distance:0; x<XBound && x<CameraX+HalfDistance; x++)
+            for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
+                 x < XBound && x < (CameraX + HalfDistance); x++)
             {
                 glPushMatrix();
-                glTranslatef(static_cast<float>(x)*SqSize, 0.0f, SqSize);
+                glTranslatef(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
-                for (int y=CameraY>Distance?CameraY-Distance:0; y<YBound && y<CameraY+Distance; y++)
+                for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
+                     y < YBound && y < (CameraY + Distance); y++)
                 {
-                    if (y==CameraY-Distance)
+                    if (y == (CameraY - Distance))
                     {
-                        glTranslatef(0.0f, 0.0f, -(SqSize*static_cast<float>(y)));
+                        glTranslatef(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
-                    if (Seeker->WallTexture!=-1)
+                    if (Seeker->WallTexture != -1)
                     {
-                        if (x<=CameraX)
+                        if (x <= CameraX)
                         {
-                            glCallList(Seeker->DisplayList+1);
+                            glCallList(Seeker->DisplayList + 1);
                         }
 
-                        if (y<CameraY)
+                        if (y < CameraY)
                         {
                             glCallList(Seeker->DisplayList);
                         }
-                        else if (y>CameraY)
+                        else if (y > CameraY)
                         {
-                            glCallList(Seeker->DisplayList+2);
+                            glCallList(Seeker->DisplayList + 2);
                         }
                     }
 
-                    if (Seeker->FloorTexture!=-1)
+                    if (Seeker->FloorTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+4);
+                        glCallList(Seeker->DisplayList + 4);
                     }
 
-                    if (Seeker->CeilingTexture!=-1)
+                    if (Seeker->CeilingTexture != -1)
                     {
-                        glCallList(Seeker->DisplayList+5);
+                        glCallList(Seeker->DisplayList + 5);
                     }
                 }
 
                 glPopMatrix();
             }
-
             break;
     }
 
     if (MovePlayer)
     {
-        if (WalkOffset>=SqSize)
+        if (WalkOffset >= SqSize)
         {
-            WalkOffset=0;
+            WalkOffset = 0;
 
-            if (Walking==0)
+            if (Walking == 0)
             {
                 CameraY++;
             }
@@ -801,13 +807,13 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                 CameraX++;
             }
 
-            Walking=-1;
+            Walking = -1;
         }
-        else if (WalkOffset<=-SqSize)
+        else if (WalkOffset <= -SqSize)
         {
-            WalkOffset=0;
+            WalkOffset = 0;
 
-            if (Walking==2)
+            if (Walking == 2)
             {
                 CameraY--;
             }
@@ -816,62 +822,62 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                 CameraX--;
             }
 
-            Walking=-1;
+            Walking = -1;
         }
-        else if (WalkOffset>0.0f)
+        else if (WalkOffset > 0.0f)
         {
-            WalkOffset=WalkOffset+WalkSpeed;
+            WalkOffset = WalkOffset + WalkSpeed;
 
-            if (WalkOffset>SqSize)
+            if (WalkOffset > SqSize)
             {
-                WalkOffset=SqSize;
+                WalkOffset = SqSize;
             }
         }
-        else if (WalkOffset<0.0f)
+        else if (WalkOffset < 0.0f)
         {
-            WalkOffset=WalkOffset-WalkSpeed;
+            WalkOffset = WalkOffset - WalkSpeed;
 
-            if (WalkOffset<-SqSize)
+            if (WalkOffset < -SqSize)
             {
-                WalkOffset=-SqSize;
+                WalkOffset = -SqSize;
             }
         }
 
-        if (Turning>0)
+        if (Turning > 0)
         {
-            TurnOffset=TurnOffset+TurnSpeed;
-            DegreesTurned=DegreesTurned+TurnSpeed;
+            TurnOffset = TurnOffset + TurnSpeed;
+            DegreesTurned = DegreesTurned + TurnSpeed;
         }
-        else if (Turning<0)
+        else if (Turning < 0)
         {
-            TurnOffset=TurnOffset-TurnSpeed;
-            DegreesTurned=DegreesTurned+TurnSpeed;
-        }
-
-        if (TurnOffset>45.0f && Turning==1)
-        {
-            Turning=2;
-            CameraFacing=(CameraFacing+1)%4;
-            TurnOffset=-90.0f+TurnOffset;
+            TurnOffset = TurnOffset - TurnSpeed;
+            DegreesTurned = DegreesTurned + TurnSpeed;
         }
 
-        if (TurnOffset<-45.0f && Turning==-1)
+        if (TurnOffset > 45.0f && Turning == 1)
         {
-            Turning=-2;
+            Turning = 2;
+            CameraFacing = (CameraFacing + 1) % 4;
+            TurnOffset = -90.0f + TurnOffset;
+        }
 
-            if (--CameraFacing==-1)
+        if (TurnOffset < -45.0f && Turning == -1)
+        {
+            Turning = -2;
+
+            if (--CameraFacing == -1)
             {
-                CameraFacing=3;
+                CameraFacing = 3;
             }
 
-            TurnOffset=90.0f+TurnOffset;
+            TurnOffset = 90.0f + TurnOffset;
         }
 
-        if (DegreesTurned>=90.0f)
+        if (DegreesTurned >= 90.0f)
         {
-            Turning=0;
-            TurnOffset=0.0f;
-            DegreesTurned=0.0f;
+            Turning = 0;
+            TurnOffset = 0.0f;
+            DegreesTurned = 0.0f;
         }
     }
 
@@ -882,7 +888,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
 bool Dantares2::StepForward(bool Force)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if (Walking > -1 || Turning != 0 || CurrentMap == -1)
     {
         return false;
     }
@@ -890,48 +896,47 @@ bool Dantares2::StepForward(bool Force)
     switch (CameraFacing)
     {
         case 0:
-            if (CameraY+1<Maps[CurrentMap]->YSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
+            if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking=0;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 0;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 1:
-            if (CameraX+1<Maps[CurrentMap]->XSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
+            if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking=1;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 1;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 2:
-            if (CameraY>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
+            if (CameraY > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking=2;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 2;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 3:
-            if (CameraX>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
+            if (CameraX > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking=3;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 3;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
     }
 
@@ -940,7 +945,7 @@ bool Dantares2::StepForward(bool Force)
 
 bool Dantares2::StepBackward(bool Force)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if (Walking > -1 || Turning != 0 || CurrentMap == -1)
     {
         return false;
     }
@@ -948,48 +953,47 @@ bool Dantares2::StepBackward(bool Force)
     switch (CameraFacing)
     {
         case 0:
-            if (CameraY>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
+            if (CameraY > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking=2;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 2;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 1:
-            if (CameraX>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
+            if (CameraX > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking=3;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 3;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 2:
-            if (CameraY+1<Maps[CurrentMap]->YSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
+            if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking=0;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 0;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 3:
-            if (CameraX+1<Maps[CurrentMap]->XSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
+            if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking=1;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 1;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
     }
 
@@ -998,7 +1002,7 @@ bool Dantares2::StepBackward(bool Force)
 
 bool Dantares2::StepLeft(bool Force)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if (Walking > -1 || Turning != 0 || CurrentMap == -1)
     {
         return false;
     }
@@ -1006,48 +1010,47 @@ bool Dantares2::StepLeft(bool Force)
     switch (CameraFacing)
     {
         case 0:
-            if (CameraX>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
+            if (CameraX > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking=3;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 3;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 1:
-            if (CameraY+1<Maps[CurrentMap]->YSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
+            if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking=0;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 0;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 2:
-            if (CameraX+1<Maps[CurrentMap]->XSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
+            if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking=1;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 1;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 3:
-            if (CameraY>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
+            if (CameraY > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking=2;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 2;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
     }
 
@@ -1056,7 +1059,7 @@ bool Dantares2::StepLeft(bool Force)
 
 bool Dantares2::StepRight(bool Force)
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if (Walking > -1 || Turning != 0 || CurrentMap == -1)
     {
         return false;
     }
@@ -1064,48 +1067,47 @@ bool Dantares2::StepRight(bool Force)
     switch (CameraFacing)
     {
         case 0:
-            if (CameraX+1<Maps[CurrentMap]->XSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX+1][CameraY] || Force))
+            if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking=1;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 1;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 1:
-            if (CameraY>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY-1] || Force))
+            if (CameraY > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking=2;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 2;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 2:
-            if (CameraX>0 &&
-                (Maps[CurrentMap]->WalkArray[CameraX-1][CameraY] || Force))
+            if (CameraX > 0 &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking=3;
-                WalkOffset=WalkOffset-WalkSpeed;
+                Walking = 3;
+                WalkOffset = WalkOffset - WalkSpeed;
 
                 return true;
             }
-
             return false;
+
         case 3:
-            if (CameraY+1<Maps[CurrentMap]->YSize &&
-                (Maps[CurrentMap]->WalkArray[CameraX][CameraY+1] || Force))
+            if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
+                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking=0;
-                WalkOffset=WalkOffset+WalkSpeed;
+                Walking = 0;
+                WalkOffset = WalkOffset + WalkSpeed;
 
                 return true;
             }
-
             return false;
     }
 
@@ -1114,61 +1116,66 @@ bool Dantares2::StepRight(bool Force)
 
 bool Dantares2::TurnLeft()
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if (Walking > -1 || Turning != 0 || CurrentMap == -1)
     {
         return false;
     }
 
-    Turning=-1;
-    TurnOffset=TurnOffset-TurnSpeed;
-    DegreesTurned=DegreesTurned+TurnSpeed;
+    Turning = -1;
+    TurnOffset = TurnOffset - TurnSpeed;
+    DegreesTurned = DegreesTurned + TurnSpeed;
 
     return true;
 }
 
 bool Dantares2::TurnRight()
 {
-    if (Walking>-1 || Turning!=0 || CurrentMap==-1)
+    if (Walking > -1 || Turning != 0 || CurrentMap == -1)
     {
         return false;
     }
 
-    Turning=1;
-    TurnOffset=TurnOffset+TurnSpeed;
-    DegreesTurned=DegreesTurned+TurnSpeed;
+    Turning = 1;
+    TurnOffset = TurnOffset + TurnSpeed;
+    DegreesTurned = DegreesTurned + TurnSpeed;
 
     return true;
 }
 
 bool Dantares2::SetWalkingSpeed(float WSpeed)
 {
-    if (WSpeed==0.0f)
+    if (WSpeed == 0.0f)
     {
-        WalkSpeed=SqSize/15.0f;
+        WalkSpeed = SqSize / 15.0f;
 
         return true;
     }
 
-    WalkSpeed=SqSize/WSpeed;
+    if (WSpeed < 0.0f)
+    {
+        return false;
+    }
+
+    WalkSpeed = SqSize / WSpeed;
 
     return true;
 }
 
 bool Dantares2::SetTurningSpeed(float TSpeed)
 {
-    if (TSpeed==0.0f)
+    if (TSpeed == 0.0f)
     {
-        TurnSpeed=5.0f;
+        TurnSpeed = 5.0f;
 
         return true;
     }
 
-    if (TSpeed<0.0f || TSpeed>90.0f)
+    if (TSpeed < 0.0f || TSpeed > 90.0f)
     {
         return false;
     }
 
-    TurnSpeed=TSpeed;
+    TurnSpeed = TSpeed;
 
     return true;
 }
@@ -1185,12 +1192,12 @@ float Dantares2::GetWalkOffset() const
 
 int Dantares2::IsTurning() const
 {
-    if (Turning<0)
+    if (Turning < 0)
     {
         return -1;
     }
 
-    if (Turning>0)
+    if (Turning > 0)
     {
         return 1;
     }
@@ -1205,7 +1212,7 @@ float Dantares2::GetTurnOffset() const
 
 int Dantares2::GetPlayerX() const
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
         return -1;
     }
@@ -1215,7 +1222,7 @@ int Dantares2::GetPlayerX() const
 
 int Dantares2::GetPlayerY() const
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
         return -1;
     }
@@ -1225,7 +1232,7 @@ int Dantares2::GetPlayerY() const
 
 int Dantares2::GetPlayerFacing() const
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
         return -1;
     }
@@ -1235,7 +1242,7 @@ int Dantares2::GetPlayerFacing() const
 
 int Dantares2::GetCurrentSpace() const
 {
-    if (CurrentMap==-1)
+    if (CurrentMap == -1)
     {
         return -1;
     }
@@ -1269,7 +1276,7 @@ bool Dantares2::SpaceIsWalkable(int XCoord, int YCoord) const
 
 void Dantares2::PrintDebugInfo(std::ostream &Out) const
 {
-    const int Indent = 4;
+    constexpr int Indent = 4;
 
     Out << "{Dantares2}"
         << "\nCurrentMap:       " << CurrentMap
@@ -1365,10 +1372,10 @@ void Dantares2::SpaceClass::ResetDisplayList()
 
 void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 {
-    const std::string Indl = '\n' + std::string(Indent, ' ');
+    const std::string Ind(Indent, ' ');
+    const std::string Indl = '\n' + Ind;
 
-    Out << std::string(Indent, ' ')
-                << "SpaceType:         " << SpaceType
+    Out << Ind  << "SpaceType:         " << SpaceType
         << Indl << "FloorTexture:      " << FloorTexture
         << Indl << "CeilingTexture:    " << CeilingTexture
         << Indl << "WallTexture:       " << WallTexture
@@ -1378,9 +1385,8 @@ void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 }
 
 Dantares2::MapClass::MapClass(int MaxX, int MaxY)
-    : MapArray(MaxX, std::vector<int>(MaxY)),
-      WalkArray(MaxX, std::vector<bool>(MaxY)),
-      SpaceInfo{SpaceClass{0}},
+    : MapArray(MaxX, std::vector(MaxY, 0)),
+      WalkArray(MaxX, std::vector(MaxY, true)),
       XSize(MaxX),
       YSize(MaxY)
 {
@@ -1414,7 +1420,7 @@ bool Dantares2::MapClass::SpaceDefined(int Space)
 {
     for (const auto &Seeker: SpaceInfo)
     {
-        if (Seeker.SpaceType==Space)
+        if (Seeker.SpaceType == Space)
         {
             return true;
         }
@@ -1432,7 +1438,7 @@ Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int Space)
 {
     for (auto &Seeker: SpaceInfo)
     {
-        if (Seeker.SpaceType==Space)
+        if (Seeker.SpaceType == Space)
         {
             return &Seeker;
         }
@@ -1443,10 +1449,10 @@ Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int Space)
 
 void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 {
-    std::string Indl = '\n' + std::string(Indent, ' ');
+    const std::string Ind(Indent, ' ');
+    std::string Indl = '\n' + Ind;
 
-    Out << std::string(Indent, ' ')
-                << "XSize:    " << XSize
+    Out << Ind  << "XSize:    " << XSize
         << Indl << "YSize:    " << YSize
         ;
 
@@ -1477,7 +1483,7 @@ void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     if (!SpaceInfo.empty())
     {
         Out << '\n';
-        SpaceInfo[0].PrintDebugInfo(Out, Indent); //Just print the first one.
+        SpaceInfo[0].PrintDebugInfo(Out, Indent);                   //Just print the first one.
     }
 
     Out.flush();

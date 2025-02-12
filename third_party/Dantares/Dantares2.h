@@ -50,7 +50,7 @@
 class Dantares2
 {
 public:
-    static inline const int MAXMAPS = 10;
+    static constexpr int MAXMAPS = 10;
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
 
@@ -523,12 +523,15 @@ private:
         static inline const GLsizei DISPLAY_LIST_RANGE = 6;
 
         explicit SpaceClass(int Type);
+
         SpaceClass(const SpaceClass &Copy) = delete;
         SpaceClass(SpaceClass &&Other) noexcept;
         SpaceClass &operator = (const SpaceClass &Copy) = delete;
         SpaceClass &operator = (SpaceClass &&Other) noexcept;
         virtual ~SpaceClass() noexcept;
+
         void ResetDisplayList();
+
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
         int SpaceType = 0;               //The type of the space.
@@ -547,14 +550,17 @@ private:
     {
     public:
         explicit MapClass(int MaxX, int MaxY);       //Constructor sets map size.
+
         MapClass(const MapClass &Copy) = delete;
         MapClass(MapClass &&Other) noexcept;
         MapClass &operator = (const MapClass &Copy) = delete;
         MapClass &operator = (MapClass &&Other) noexcept;
-        virtual ~MapClass() noexcept = default;      //Destructor for cleanup.
+        virtual ~MapClass() noexcept = default;
+
         bool SpaceDefined(int Space);
         void AddSpace(int Space);
         SpaceClass *FindSpace(int Space);
+
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
         std::vector<std::vector<int>> MapArray{};    //Array for the map.
