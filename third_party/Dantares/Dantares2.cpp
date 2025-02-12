@@ -505,9 +505,9 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
     switch (CameraFacing)
     {
-        case 0:
-        case 2:
-            if (Walking == 1 || Walking == 3)
+        case DIR_NORTH:
+        case DIR_SOUTH:
+            if (Walking == DIR_EAST || Walking == DIR_WEST)
             {
                 glTranslatef(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
@@ -517,9 +517,9 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             }
             break;
 
-        case 1:
-        case 3:
-            if (Walking == 0 || Walking == 2)
+        case DIR_EAST:
+        case DIR_WEST:
+            if (Walking == DIR_NORTH || Walking == DIR_SOUTH)
             {
                 glTranslatef(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
@@ -532,7 +532,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
     switch (CameraFacing)
     {
-        case 0:
+        case DIR_NORTH:
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
@@ -583,7 +583,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             }
             break;
 
-        case 1:
+        case DIR_EAST:
             for (int x = (CameraX > HalfDistance) ? (CameraX - HalfDistance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
@@ -634,7 +634,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             }
             break;
 
-        case 2:
+        case DIR_SOUTH:
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
@@ -685,7 +685,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             }
             break;
 
-        case 3:
+        case DIR_WEST:
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + HalfDistance); x++)
             {
@@ -739,94 +739,100 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
 
     if (MovePlayer)
     {
-        if (WalkOffset >= SqSize)
-        {
-            WalkOffset = 0;
-
-            if (Walking == 0)
-            {
-                CameraY++;
-            }
-            else
-            {
-                CameraX++;
-            }
-
-            Walking = -1;
-        }
-        else if (WalkOffset <= -SqSize)
-        {
-            WalkOffset = 0;
-
-            if (Walking == 2)
-            {
-                CameraY--;
-            }
-            else
-            {
-                CameraX--;
-            }
-
-            Walking = -1;
-        }
-        else if (WalkOffset > 0.0f)
-        {
-            WalkOffset = WalkOffset + WalkSpeed;
-
-            if (WalkOffset > SqSize)
-            {
-                WalkOffset = SqSize;
-            }
-        }
-        else if (WalkOffset < 0.0f)
-        {
-            WalkOffset = WalkOffset - WalkSpeed;
-
-            if (WalkOffset < -SqSize)
-            {
-                WalkOffset = -SqSize;
-            }
-        }
-
-        if (Turning > 0)
-        {
-            TurnOffset = TurnOffset + TurnSpeed;
-            DegreesTurned = DegreesTurned + TurnSpeed;
-        }
-        else if (Turning < 0)
-        {
-            TurnOffset = TurnOffset - TurnSpeed;
-            DegreesTurned = DegreesTurned + TurnSpeed;
-        }
-
-        if (TurnOffset > 45.0f && Turning == 1)
-        {
-            Turning = 2;
-            CameraFacing = (CameraFacing + 1) % 4;
-            TurnOffset = -90.0f + TurnOffset;
-        }
-
-        if (TurnOffset < -45.0f && Turning == -1)
-        {
-            Turning = -2;
-
-            if (--CameraFacing == -1)
-            {
-                CameraFacing = 3;
-            }
-
-            TurnOffset = 90.0f + TurnOffset;
-        }
-
-        if (DegreesTurned >= 90.0f)
-        {
-            Turning = 0;
-            TurnOffset = 0.0f;
-            DegreesTurned = 0.0f;
-        }
+        this->MovePlayer();
     }
 
     glPopAttrib();
+
+    return true;
+}
+
+bool Dantares2::MovePlayer()
+{
+    if (CurrentMap == -1)
+    {
+        return false;
+    }
+
+    if (WalkOffset >= SqSize)
+    {
+        WalkOffset = 0;
+
+        if (Walking == DIR_NORTH)
+        {
+            CameraY++;
+        }
+        else
+        {
+            CameraX++;
+        }
+
+        Walking = -1;
+    }
+    else if (WalkOffset <= -SqSize)
+    {
+        WalkOffset = 0;
+
+        if (Walking == DIR_SOUTH)
+        {
+            CameraY--;
+        }
+        else
+        {
+            CameraX--;
+        }
+
+        Walking = -1;
+    }
+    else if (WalkOffset > 0.0f)
+    {
+        WalkOffset += WalkSpeed;
+
+        if (WalkOffset > SqSize)
+        {
+            WalkOffset = SqSize;
+        }
+    }
+    else if (WalkOffset < 0.0f)
+    {
+        WalkOffset -= WalkSpeed;
+
+        if (WalkOffset < -SqSize)
+        {
+            WalkOffset = -SqSize;
+        }
+    }
+
+    if (Turning > 0)
+    {
+        TurnOffset += TurnSpeed;
+        DegreesTurned += TurnSpeed;
+    }
+    else if (Turning < 0)
+    {
+        TurnOffset -= TurnSpeed;
+        DegreesTurned += TurnSpeed;
+    }
+
+    if (TurnOffset > 45.0f && Turning == 1)
+    {
+        Turning = 2;
+        CameraFacing = (CameraFacing + 1) % 4;
+        TurnOffset -= 90.0f;
+    }
+    else if (TurnOffset < -45.0f && Turning == -1)
+    {
+        Turning = -2;
+        CameraFacing = (CameraFacing > 0) ? (CameraFacing - 1) : 3;
+        TurnOffset += 90.0f;
+    }
+
+    if (DegreesTurned >= 90.0f)
+    {
+        Turning = 0;
+        TurnOffset = 0.0f;
+        DegreesTurned = 0.0f;
+    }
 
     return true;
 }
@@ -840,45 +846,45 @@ bool Dantares2::StepForward(bool Force)
 
     switch (CameraFacing)
     {
-        case 0:
+        case DIR_NORTH:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking = 0;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_NORTH;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 1:
+        case DIR_EAST:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking = 1;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_EAST;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 2:
+        case DIR_SOUTH:
             if (CameraY > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking = 2;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_SOUTH;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 3:
+        case DIR_WEST:
             if (CameraX > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking = 3;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_WEST;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
@@ -897,45 +903,45 @@ bool Dantares2::StepBackward(bool Force)
 
     switch (CameraFacing)
     {
-        case 0:
+        case DIR_NORTH:
             if (CameraY > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking = 2;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_SOUTH;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 1:
+        case DIR_EAST:
             if (CameraX > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking = 3;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_WEST;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 2:
+        case DIR_SOUTH:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking = 0;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_NORTH;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 3:
+        case DIR_WEST:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking = 1;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_EAST;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
@@ -954,45 +960,45 @@ bool Dantares2::StepLeft(bool Force)
 
     switch (CameraFacing)
     {
-        case 0:
+        case DIR_NORTH:
             if (CameraX > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking = 3;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_WEST;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 1:
+        case DIR_EAST:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking = 0;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_NORTH;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 2:
+        case DIR_SOUTH:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking = 1;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_EAST;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 3:
+        case DIR_WEST:
             if (CameraY > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking = 2;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_SOUTH;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
@@ -1011,45 +1017,45 @@ bool Dantares2::StepRight(bool Force)
 
     switch (CameraFacing)
     {
-        case 0:
+        case DIR_NORTH:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
-                Walking = 1;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_EAST;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 1:
+        case DIR_EAST:
             if (CameraY > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
-                Walking = 2;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_SOUTH;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 2:
+        case DIR_SOUTH:
             if (CameraX > 0 &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
-                Walking = 3;
-                WalkOffset = WalkOffset - WalkSpeed;
+                Walking = DIR_WEST;
+                WalkOffset -= WalkSpeed;
 
                 return true;
             }
             return false;
 
-        case 3:
+        case DIR_WEST:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
-                Walking = 0;
-                WalkOffset = WalkOffset + WalkSpeed;
+                Walking = DIR_NORTH;
+                WalkOffset += WalkSpeed;
 
                 return true;
             }
@@ -1067,8 +1073,8 @@ bool Dantares2::TurnLeft()
     }
 
     Turning = -1;
-    TurnOffset = TurnOffset - TurnSpeed;
-    DegreesTurned = DegreesTurned + TurnSpeed;
+    TurnOffset -= TurnSpeed;
+    DegreesTurned += TurnSpeed;
 
     return true;
 }
@@ -1081,24 +1087,22 @@ bool Dantares2::TurnRight()
     }
 
     Turning = 1;
-    TurnOffset = TurnOffset + TurnSpeed;
-    DegreesTurned = DegreesTurned + TurnSpeed;
+    TurnOffset += TurnSpeed;
+    DegreesTurned += TurnSpeed;
 
     return true;
 }
 
 bool Dantares2::SetWalkingSpeed(float WSpeed)
 {
-    if (WSpeed == 0.0f)
-    {
-        WalkSpeed = SqSize / 15.0f;
-
-        return true;
-    }
-
     if (WSpeed < 0.0f)
     {
         return false;
+    }
+
+    if (WSpeed == 0.0f)
+    {
+        WSpeed = 15.0f;
     }
 
     WalkSpeed = SqSize / WSpeed;
@@ -1108,16 +1112,14 @@ bool Dantares2::SetWalkingSpeed(float WSpeed)
 
 bool Dantares2::SetTurningSpeed(float TSpeed)
 {
-    if (TSpeed == 0.0f)
-    {
-        TurnSpeed = 5.0f;
-
-        return true;
-    }
-
     if (TSpeed < 0.0f || TSpeed > 90.0f)
     {
         return false;
+    }
+
+    if (TSpeed == 0.0f)
+    {
+        TSpeed = 5.0f;
     }
 
     TurnSpeed = TSpeed;
@@ -1125,7 +1127,12 @@ bool Dantares2::SetTurningSpeed(float TSpeed)
     return true;
 }
 
-int Dantares2::IsWalking() const
+bool Dantares2::IsWalking() const
+{
+    return Walking >= 0;
+}
+
+int Dantares2::GetWalkDirection() const
 {
     return Walking;
 }
@@ -1135,7 +1142,12 @@ float Dantares2::GetWalkOffset() const
     return WalkOffset;
 }
 
-int Dantares2::IsTurning() const
+bool Dantares2::IsTurning() const
+{
+    return Turning != 0;
+}
+
+int Dantares2::GetTurnDirection() const
 {
     if (Turning < 0)
     {

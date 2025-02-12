@@ -55,6 +55,11 @@ public:
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
 
+    static constexpr int DIR_NORTH = 0;
+    static constexpr int DIR_EAST  = 1;
+    static constexpr int DIR_SOUTH = 2;
+    static constexpr int DIR_WEST  = 3;
+
     explicit Dantares2(float SquareSize, float FloorHeight, float CeilingHeight);
     /*  Constructor takes three parameters to initialize the engine.
 
@@ -332,6 +337,12 @@ public:
         Returns - Function returns true if successful, and false otherwise.
     */
 
+    bool MovePlayer();
+    /*  Increments the player's movement.
+
+        Returns - Function returns true if successful, and false otherwise.
+    */
+
     bool StepForward(bool Force=false);
     /*  Moves the player forward one space.  The player will not enter spaces flagged
         as non-walkable, or spaces off the edge of the map.
@@ -417,7 +428,13 @@ public:
                   passed to the function.
     */
 
-    int IsWalking() const;
+    bool IsWalking() const;
+    /*  Determines if the player is walking or not.
+
+        Returns - Function returns true if the player is walking, and false otherwise.
+    */
+
+    int GetWalkDirection() const;
     /*  Determines if the player is walking, and in which direction.
 
         Returns - Function returns -1 if the player is not walking and one of the following
@@ -436,7 +453,13 @@ public:
                   walking.
     */
 
-    int IsTurning() const;
+    bool IsTurning() const;
+    /*  Determines if the player is turning or not.
+
+        Returns - Function returns true if the player is turning, and false otherwise.
+    */
+
+    int GetTurnDirection() const;
     /*  Determines if the player is turning, and in which direction.
 
         Returns - Function returns 0 if the player is not turning.  Returns -1 if the player is
@@ -521,7 +544,7 @@ protected:
     class SpaceClass
     {
     public:
-        static inline const GLsizei DISPLAY_LIST_RANGE = 6;
+        static constexpr GLsizei DISPLAY_LIST_RANGE = 6;
 
         explicit SpaceClass(int Type);
 
