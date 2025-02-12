@@ -73,15 +73,15 @@ int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
 {
     const int NewMapID = NextMapID;
 
-    if (NextMapID >= MAXMAPS)                                       //All map slots are taken.
+    if (NextMapID >= MAXMAPS)                                            //All map slots are taken.
     {
         return -1;
     }
 
-    Maps[NewMapID] = std::make_unique<MapClass>(SizeX, SizeY);      //Generate new map.
+    Maps[NewMapID] = std::make_unique<MapClass>(*this, SizeX, SizeY);    //Generate new map.
     NextMapID = MAXMAPS;
 
-    for (int x = 0; x < MAXMAPS; x++)                               //Find the next map ID.
+    for (int x = 0; x < MAXMAPS; x++)                                    //Find the next map ID.
     {
         if (!Maps[x])
         {
@@ -90,15 +90,11 @@ int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
         }
     }
 
-    for (int x = 0, y = 0, z = 0; z < (SizeX * SizeY); z++)         //Insert map info.
+    for (int x = 0, y = 0, z = 0; z < (SizeX * SizeY); z++)              //Insert map info.
     {
         const int Space = *(static_cast<const int*>(Map) + z);
 
-        if (!Maps[NewMapID]->SpaceDefined(Space))
-        {
-            Maps[NewMapID]->AddSpace(Space);
-        }
-
+        Maps[NewMapID]->AddSpaceIfAbsent(Space);
         Maps[NewMapID]->MapArray[x][y] = Space;
         Maps[NewMapID]->WalkArray[x][y] = (Space == 0);
 
@@ -109,22 +105,22 @@ int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
         }
     }
 
-    return NewMapID;                                                //Return the new map ID.
+    return NewMapID;                                                     //Return the new map ID.
 }
 
 int Dantares2::AddMap(const int* const *Map, int SizeX, int SizeY)
 {
     const int NewMapID = NextMapID;
 
-    if (NextMapID >= MAXMAPS)                                       //All map slots are taken.
+    if (NextMapID >= MAXMAPS)                                            //All map slots are taken.
     {
         return -1;
     }
 
-    Maps[NewMapID] = std::make_unique<MapClass>(SizeX, SizeY);      //Generate new map.
+    Maps[NewMapID] = std::make_unique<MapClass>(*this, SizeX, SizeY);    //Generate new map.
     NextMapID = MAXMAPS;
 
-    for (int x = 0; x < MAXMAPS; x++)                               //Find the next map ID.
+    for (int x = 0; x < MAXMAPS; x++)                                    //Find the next map ID.
     {
         if (!Maps[x])
         {
@@ -133,32 +129,28 @@ int Dantares2::AddMap(const int* const *Map, int SizeX, int SizeY)
         }
     }
 
-    for (int x = 0; x < SizeX; x++)                                 //Insert map info.
+    for (int x = 0; x < SizeX; x++)                                      //Insert map info.
     {
         for (int y = 0; y < SizeY; y++)
         {
-            if (!Maps[NewMapID]->SpaceDefined(Map[x][y]))
-            {
-                Maps[NewMapID]->AddSpace(Map[x][y]);
-            }
-
+            Maps[NewMapID]->AddSpaceIfAbsent(Map[x][y]);
             Maps[NewMapID]->MapArray[x][y] = Map[x][y];
             Maps[NewMapID]->WalkArray[x][y] = (Map[x][y] == 0);
         }
     }
 
-    return NewMapID;                                                //Return the new map ID.
+    return NewMapID;                                                     //Return the new map ID.
 }
 
 bool Dantares2::DeleteMap(int MapID)
 {
     if (Maps[MapID])
     {
-        Maps[MapID].reset();                                        //Delete the map.
+        Maps[MapID].reset();                                             //Delete the map.
     }
     else
     {
-        return false;                                               //Map doesn't exist.
+        return false;                                                    //Map doesn't exist.
     }
 
     if (NextMapID >= MAXMAPS)
@@ -176,7 +168,7 @@ bool Dantares2::DeleteMap(int MapID)
 
 bool Dantares2::IsMap(int MapID) const
 {
-    if (MapID < 0 || MapID >= MAXMAPS)                              //MapID out of range.
+    if (MapID < 0 || MapID >= MAXMAPS)                                   //MapID out of range.
     {
         return false;
     }
@@ -188,20 +180,17 @@ bool Dantares2::SetWallTexture(int SpaceID, int TextureID, bool Delete)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (!Maps[CurrentMap]->SpaceDefined(SpaceID))
-    {
-        Maps[CurrentMap]->AddSpace(SpaceID);
-    }
+    auto &Space = Maps[CurrentMap]->AddSpaceIfAbsent(SpaceID);
 
     if (Delete)
     {
         TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(SpaceID)->WallTexture = TextureID;
+    Space.WallTexture = TextureID;
 
     return true;
 }
@@ -210,20 +199,17 @@ bool Dantares2::SetFloorTexture(int SpaceID, int TextureID, bool Delete)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (!Maps[CurrentMap]->SpaceDefined(SpaceID))
-    {
-        Maps[CurrentMap]->AddSpace(SpaceID);
-    }
+    auto &Space = Maps[CurrentMap]->AddSpaceIfAbsent(SpaceID);
 
     if (Delete)
     {
         TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(SpaceID)->FloorTexture = TextureID;
+    Space.FloorTexture = TextureID;
 
     return true;
 }
@@ -232,72 +218,35 @@ bool Dantares2::SetCeilingTexture(int SpaceID, int TextureID, bool Delete)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (!Maps[CurrentMap]->SpaceDefined(SpaceID))
-    {
-        Maps[CurrentMap]->AddSpace(SpaceID);
-    }
+    auto &Space = Maps[CurrentMap]->AddSpaceIfAbsent(SpaceID);
 
     if (Delete)
     {
         TextureID = -1;
     }
 
-    Maps[CurrentMap]->FindSpace(SpaceID)->CeilingTexture = TextureID;
+    Space.CeilingTexture = TextureID;
 
     return true;
 }
 
 bool Dantares2::SetMasterFloorTexture(int TextureID, bool Delete)
 {
-    if (CurrentMap == -1)
-    {
-        return false;                                               //No active map.
-    }
-
-    if (!Maps[CurrentMap]->SpaceDefined(0))
-    {
-        Maps[CurrentMap]->AddSpace(0);
-    }
-
-    if (Delete)
-    {
-        TextureID = -1;
-    }
-
-    Maps[CurrentMap]->FindSpace(0)->FloorTexture = TextureID;
-
-    return true;
+    return SetFloorTexture(0, TextureID, Delete);
 }
 
 bool Dantares2::SetMasterCeilingTexture(int TextureID, bool Delete)
 {
-    if (CurrentMap == -1)
-    {
-        return false;                                               //No active map.
-    }
-
-    if (!Maps[CurrentMap]->SpaceDefined(0))
-    {
-        Maps[CurrentMap]->AddSpace(0);
-    }
-
-    if (Delete)
-    {
-        TextureID = -1;
-    }
-
-    Maps[CurrentMap]->FindSpace(0)->CeilingTexture = TextureID;
-
-    return true;
+    return SetCeilingTexture(0, TextureID, Delete);
 }
 
 bool Dantares2::SetCurrentMap(int MapID)
 {
-    if (MapID >= MAXMAPS || MapID < 0 || !Maps[MapID])              //MapID is out of range, or
-    {                                                               //map doesn't exist.
+    if (MapID >= MAXMAPS || MapID < 0 || !Maps[MapID])                   //MapID is out of range, or
+    {                                                                    //map doesn't exist.
         return false;
     }
 
@@ -315,23 +264,19 @@ bool Dantares2::ChangeSquare(int XCoord, int YCoord, int NewType)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range.
+    if (XCoord < 0 || YCoord < 0 ||                                      //Space out of range.
         XCoord > Maps[CurrentMap]->XSize ||
         YCoord > Maps[CurrentMap]->YSize)
     {
         return false;
     }
 
+    Maps[CurrentMap]->AddSpaceIfAbsent(NewType);
     Maps[CurrentMap]->MapArray[XCoord][YCoord] = NewType;
     Maps[CurrentMap]->WalkArray[XCoord][YCoord] = (NewType == 0);
-
-    if (!Maps[CurrentMap]->SpaceDefined(NewType))
-    {
-        Maps[CurrentMap]->AddSpace(NewType);
-    }
 
     return true;
 }
@@ -340,10 +285,10 @@ bool Dantares2::MakeSpaceNonWalkable(int XCoord, int YCoord)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range.
+    if (XCoord < 0 || YCoord < 0 ||                                      //Space out of range.
         XCoord > Maps[CurrentMap]->XSize ||
         YCoord > Maps[CurrentMap]->YSize)
     {
@@ -359,10 +304,10 @@ bool Dantares2::MakeSpaceWalkable(int XCoord, int YCoord)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range.
+    if (XCoord < 0 || YCoord < 0 ||                                      //Space out of range.
         XCoord > Maps[CurrentMap]->XSize ||
         YCoord > Maps[CurrentMap]->YSize)
     {
@@ -383,11 +328,11 @@ bool Dantares2::SetPlayerPosition(int XCoord, int YCoord, int Facing)
 {
     if (CurrentMap == -1)
     {
-        return false;                                               //No active map.
+        return false;                                                    //No active map.
     }
 
-    if (XCoord < 0 || YCoord < 0 ||                                 //Space out of range,
-        XCoord >= Maps[CurrentMap]->XSize ||                        //or illegal direction.
+    if (XCoord < 0 || YCoord < 0 ||                                      //Space out of range,
+        XCoord >= Maps[CurrentMap]->XSize ||                             //or illegal direction.
         YCoord >= Maps[CurrentMap]->YSize ||
         Facing < 0 || Facing > 3)
     {
@@ -407,23 +352,23 @@ bool Dantares2::SetPlayerPosition(int XCoord, int YCoord, int Facing)
 
 bool Dantares2::GenerateMap()
 {
-    if (CurrentMap == -1)                                           //No active map.
+    if (CurrentMap == -1)                                                //No active map.
     {
         return false;
     }
 
     const float Offset = SqSize / 2.0f;
 
-    for (auto &Seeker: Maps[CurrentMap]->SpaceInfo)
+    for (auto &[_Type, Seeker]: Maps[CurrentMap]->SpaceInfo)
     {
-        Seeker.ResetDisplayList();
+        Seeker->ResetDisplayList();
 
-        if (Seeker.CeilingTexture != -1)
+        if (Seeker->CeilingTexture != -1)
         {
-            glNewList(Seeker.DisplayList + 5, GL_COMPILE);
+            glNewList(Seeker->DisplayList + 5, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
-                glBindTexture(GL_TEXTURE_2D, Seeker.CeilingTexture);
+                glBindTexture(GL_TEXTURE_2D, Seeker->CeilingTexture);
 
                 glBegin(GL_QUADS);
                     glNormal3f(0.0f, -1.0f, 0.0f);
@@ -439,12 +384,12 @@ bool Dantares2::GenerateMap()
             glEndList();
         }
 
-        if (Seeker.FloorTexture != -1)
+        if (Seeker->FloorTexture != -1)
         {
-            glNewList(Seeker.DisplayList + 4, GL_COMPILE);
+            glNewList(Seeker->DisplayList + 4, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
-                glBindTexture(GL_TEXTURE_2D, Seeker.FloorTexture);
+                glBindTexture(GL_TEXTURE_2D, Seeker->FloorTexture);
 
                 glBegin(GL_QUADS);
                     glNormal3f(0.0f, 1.0f, 0.0f);
@@ -460,12 +405,12 @@ bool Dantares2::GenerateMap()
             glEndList();
         }
 
-        if (Seeker.WallTexture != -1)
+        if (Seeker->WallTexture != -1)
         {
-            glNewList(Seeker.DisplayList + 2, GL_COMPILE);
+            glNewList(Seeker->DisplayList + 2, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
-                glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
+                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
 
                 glBegin(GL_QUADS);
                     glNormal3f(0.0f, 0.0f, 1.0f);
@@ -480,10 +425,10 @@ bool Dantares2::GenerateMap()
                 glEnd();
             glEndList();
 
-            glNewList(Seeker.DisplayList + 1, GL_COMPILE);
+            glNewList(Seeker->DisplayList + 1, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
-                glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
+                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
 
                 glBegin(GL_QUADS);
                     glNormal3f(1.0f, 0.0f, 0.0f);
@@ -498,10 +443,10 @@ bool Dantares2::GenerateMap()
                 glEnd();
             glEndList();
 
-            glNewList(Seeker.DisplayList, GL_COMPILE);
+            glNewList(Seeker->DisplayList, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
-                glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
+                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
 
                 glBegin(GL_QUADS);
                     glNormal3f(0.0f, 0.0f, -1.0f);
@@ -516,10 +461,10 @@ bool Dantares2::GenerateMap()
                 glEnd();
             glEndList();
 
-            glNewList(Seeker.DisplayList + 3, GL_COMPILE);
+            glNewList(Seeker->DisplayList + 3, GL_COMPILE);
                 glEnable(GL_TEXTURE_2D);
 
-                glBindTexture(GL_TEXTURE_2D, Seeker.WallTexture);
+                glBindTexture(GL_TEXTURE_2D, Seeker->WallTexture);
 
                 glBegin(GL_QUADS);
                     glNormal3f(-1.0f, 0.0f, 0.0f);
@@ -541,7 +486,7 @@ bool Dantares2::GenerateMap()
 
 bool Dantares2::Draw(int Distance, bool MovePlayer)
 {
-    if (CurrentMap == -1)                                           //No active map.
+    if (CurrentMap == -1)                                                //No active map.
     {
         return false;
     }
@@ -1384,8 +1329,9 @@ void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     Out.flush();
 }
 
-Dantares2::MapClass::MapClass(int MaxX, int MaxY)
-    : MapArray(MaxX, std::vector(MaxY, 0)),
+Dantares2::MapClass::MapClass(Dantares2 &Dan,int MaxX, int MaxY)
+    : Parent(Dan),
+      MapArray(MaxX, std::vector(MaxY, 0)),
       WalkArray(MaxX, std::vector(MaxY, true)),
       XSize(MaxX),
       YSize(MaxY)
@@ -1393,6 +1339,7 @@ Dantares2::MapClass::MapClass(int MaxX, int MaxY)
 }
 
 Dantares2::MapClass::MapClass(MapClass &&Other) noexcept
+    : Parent(Other.Parent)
 {
     MoveFrom(std::move(Other));
 }
@@ -1416,35 +1363,28 @@ void Dantares2::MapClass::MoveFrom(MapClass &&Other) noexcept
     YSize = std::exchange(Other.YSize, 0);
 }
 
-bool Dantares2::MapClass::SpaceDefined(int Space)
+Dantares2::SpaceClass &Dantares2::MapClass::AddSpaceIfAbsent(int SpaceID)
 {
-    for (const auto &Seeker: SpaceInfo)
+    auto [It, IsNew] = SpaceInfo.try_emplace(SpaceID);
+
+    if(IsNew)
     {
-        if (Seeker.SpaceType == Space)
-        {
-            return true;
-        }
+        It->second = std::move(Parent.BuildSpace(SpaceID));
     }
 
-    return false;
+    return *It->second;
 }
 
-void Dantares2::MapClass::AddSpace(int Space)
+Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int SpaceID)
 {
-    SpaceInfo.emplace_back(Space);
-}
+    const auto It = SpaceInfo.find(SpaceID);
 
-Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int Space)
-{
-    for (auto &Seeker: SpaceInfo)
+    if (It == SpaceInfo.end())
     {
-        if (Seeker.SpaceType == Space)
-        {
-            return &Seeker;
-        }
+        return nullptr;
     }
 
-    return nullptr;
+    return It->second.get();
 }
 
 void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
@@ -1475,15 +1415,18 @@ void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
         Out << Indl;
         for (int x = 0; x < XSize; x++)
         {
-            Out << (WalkArray[x][y]?' ':'1') << ' ';
+            Out << (WalkArray[x][y] ? ' ' : '1') << ' ';
         }
     }
 
-    Out << Indl << "{SpaceInfo} = " << SpaceInfo.data() << ", " << SpaceInfo.size() << " spaces";
+    Out << Indl << "{SpaceInfo} = " << SpaceInfo.size() << " spaces";
     if (!SpaceInfo.empty())
     {
-        Out << '\n';
-        SpaceInfo[0].PrintDebugInfo(Out, Indent);                   //Just print the first one.
+        const auto *Space = SpaceInfo.begin()->second.get();
+
+        Out << Indl << "{Space} = " << Space
+            << '\n';
+        Space->PrintDebugInfo(Out, Indent);
     }
 
     Out.flush();

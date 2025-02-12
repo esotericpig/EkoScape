@@ -45,6 +45,7 @@
 
 #include<iostream>
 #include<memory>
+#include<unordered_map>
 #include<vector>
 
 class Dantares2
@@ -515,7 +516,7 @@ public:
     /*  For testing purposes.
     */
 
-private:
+protected:
     //Class for describing spaces.
     class SpaceClass
     {
@@ -534,11 +535,11 @@ private:
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
-        int SpaceType = 0;               //The type of the space.
-        int FloorTexture = -1;           //Floor texture ID.
-        int CeilingTexture = -1;         //Ceiling texture ID.
-        int WallTexture = -1;            //Wall texture ID.
-        int DisplayList = -1;            //Display list for the space.
+        int SpaceType = 0;                                               //The type of the space.
+        int FloorTexture = -1;                                           //Floor texture ID.
+        int CeilingTexture = -1;                                         //Ceiling texture ID.
+        int WallTexture = -1;                                            //Wall texture ID.
+        int DisplayList = -1;                                            //Display list for the space.
 
     private:
         void MoveFrom(SpaceClass &&Other) noexcept;
@@ -549,7 +550,7 @@ private:
     class MapClass
     {
     public:
-        explicit MapClass(int MaxX, int MaxY);       //Constructor sets map size.
+        explicit MapClass(Dantares2 &Dan, int MaxX, int MaxY);           //Constructor sets map size.
 
         MapClass(const MapClass &Copy) = delete;
         MapClass(MapClass &&Other) noexcept;
@@ -557,23 +558,23 @@ private:
         MapClass &operator = (MapClass &&Other) noexcept;
         virtual ~MapClass() noexcept = default;
 
-        bool SpaceDefined(int Space);
-        void AddSpace(int Space);
-        SpaceClass *FindSpace(int Space);
+        SpaceClass &AddSpaceIfAbsent(int SpaceID);
+        SpaceClass *FindSpace(int SpaceID);
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
-        std::vector<std::vector<int>> MapArray{};    //Array for the map.
-        std::vector<std::vector<bool>> WalkArray{};  //Array for walkability.
-        std::vector<SpaceClass> SpaceInfo{};         //Array of space information.
-        int XSize = 0;                               //Map width.
-        int YSize = 0;                               //Map height.
+        Dantares2 &Parent;
+        std::vector<std::vector<int>> MapArray{};                        //Array for the map.
+        std::vector<std::vector<bool>> WalkArray{};                      //Array for walkability.
+        std::unordered_map<int,std::unique_ptr<SpaceClass>> SpaceInfo{}; //Map of space information.
+        int XSize = 0;                                                   //Map width.
+        int YSize = 0;                                                   //Map height.
 
     private:
         void MoveFrom(MapClass &&Other) noexcept;
     };
 
-    void MoveFrom(Dantares2 &&Other) noexcept;
+    virtual std::unique_ptr<SpaceClass> BuildSpace(int SpaceID) = 0;
 
     int CurrentMap = -1;
     //The ID number of the currently active map.
@@ -607,6 +608,9 @@ private:
     //Tracking variable for surface hiding while turning.
     std::unique_ptr<MapClass> Maps[MAXMAPS]{};
     //Pointers to the stored maps.
+
+private:
+    void MoveFrom(Dantares2 &&Other) noexcept;
 };
 
 #endif
