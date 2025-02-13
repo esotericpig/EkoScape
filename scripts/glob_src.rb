@@ -6,11 +6,11 @@
 # Show usage:
 #   ./scripts/glob_src.rb
 #
+# Show diff of source files in 'CMakeLists.txt' (only reads):
+#   ./scripts/glob_src.rb
+#
 # Show source files to copy & paste (only crawls dirs):
 #   ./scripts/glob_src.rb -p
-#
-# Show diff of source files in 'CMakeLists.txt' (only reads):
-#   ./scripts/glob_src.rb -d
 #
 # @author Bradley Whited
 ###
@@ -24,7 +24,7 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.2.0'
+  VERSION = '0.2.1'
 
   # Must be all lower-cased for case-insensitive comparison.
   SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
@@ -36,28 +36,31 @@ class SrcGlobber
     opt_parser = OptionParser.new do |op|
       op.program_name = File.basename($PROGRAM_NAME)
       op.version = VERSION
-      op.summary_width = 8
+      op.summary_width = 16
 
       op.separator ''
       op.separator "v#{op.version}"
+      op.separator ''
+      op.separator "By default, shows diff of source files in '#{CMAKE_FILE}' in func #{CMAKE_FUNC}()."
 
       op.separator ''
       op.separator 'Options'
       op.on('-p',nil,'[print] show source files')
-      op.on('-d',nil,"[diff] show diff of source files in '#{CMAKE_FILE}' in func #{CMAKE_FUNC}()")
+
+      op.separator ''
+      op.separator 'Basic Options'
+      op.on('-h','--help','show help') do
+        puts op.help
+        exit
+      end
     end
 
     opts = {}
     opt_parser.parse!(into: opts)
 
-    if opts.empty?
-      puts opt_parser.help
-      exit
-    end
-
     if opts[:p]
       print_src
-    elsif opts[:d]
+    else
       print_src_diff
     end
   end
