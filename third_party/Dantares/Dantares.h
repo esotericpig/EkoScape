@@ -87,7 +87,7 @@
 class Dantares
 {
 public:
-    static inline const int MAXMAPS = 10;
+    static constexpr int MAXMAPS = 10;
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
 
@@ -557,7 +557,7 @@ private:
     class SpaceClass
     {
     public:
-        static inline const GLsizei DISPLAY_LIST_RANGE = 6;
+        static constexpr GLsizei DISPLAY_LIST_RANGE = 6;
 
         explicit SpaceClass(int Type);
         SpaceClass(const SpaceClass &Copy) = delete;
@@ -568,10 +568,10 @@ private:
         void ResetDisplayList();
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
-        int SpaceType;                   //The type of the space.
-        int FloorTexture;                //Floor texture ID.
-        int CeilingTexture;              //Ceiling texture ID.
-        int WallTexture;                 //Wall texture ID.
+        int SpaceType = 0;               //The type of the space.
+        int FloorTexture = -1;           //Floor texture ID.
+        int CeilingTexture = -1;         //Ceiling texture ID.
+        int WallTexture = -1;            //Wall texture ID.
         int DisplayList = -1;            //Display list for the space.
 
     private:
@@ -594,11 +594,11 @@ private:
         SpaceClass *FindSpace(int Space);
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
-        std::vector<std::vector<int>> MapArray;      //Array for the map.
-        std::vector<std::vector<bool>> WalkArray;    //Array for walkability.
-        std::vector<SpaceClass> SpaceInfo;           //Array of space information.
-        int XSize;                                   //Map width.
-        int YSize;                                   //Map height.
+        std::vector<std::vector<int>> MapArray{};    //Array for the map.
+        std::vector<std::vector<bool>> WalkArray{};  //Array for walkability.
+        std::vector<SpaceClass> SpaceInfo{};         //Array of space information.
+        int XSize{};                                 //Map width.
+        int YSize{};                                 //Map height.
 
     private:
         void MoveFrom(MapClass &&Other) noexcept;
@@ -606,37 +606,37 @@ private:
 
     void MoveFrom(Dantares &&Other) noexcept;
 
-    int CurrentMap;
+    int CurrentMap{};
     //The ID number of the currently active map.
-    int NextMapID;
+    int NextMapID{};
     //The next map ID number to be assigned.
-    float SqSize;
+    float SqSize{};
     //Size of the map squares.
-    float Floor;
+    float Floor{};
     //Floor height.
-    float Ceiling;
+    float Ceiling{};
     //Ceiling height.
-    int CameraX;
+    int CameraX{};
     //X coordinate of the camera.
-    int CameraY;
+    int CameraY{};
     //Y coordinate of the camera.
-    int CameraFacing;
+    int CameraFacing{};
     //Direction the camera is facing.
-    int Walking;
+    int Walking{};
     //Flag that indicates whether or not the player is moving, and which direction.
-    int Turning;
+    int Turning{};
     //Flag that indicates whether or not the player is turning, and which direction.
-    float WalkSpeed;
+    float WalkSpeed{};
     //Walking distance covered per frame.
-    float TurnSpeed;
+    float TurnSpeed{};
     //Degrees turned per frame.
-    float WalkOffset;
+    float WalkOffset{};
     //Distance between squares when walking.
-    float TurnOffset;
+    float TurnOffset{};
     //Degrees between directions when turning.
-    float DegreesTurned;
+    float DegreesTurned{};
     //Tracking variable for surface hiding while turning.
-    std::unique_ptr<MapClass> Maps[MAXMAPS];
+    std::unique_ptr<MapClass> Maps[MAXMAPS]{};
     //Pointers to the stored maps.
 };
 

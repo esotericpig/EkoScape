@@ -94,7 +94,7 @@ void Dantares::MoveFrom(Dantares &&Other) noexcept
 
 int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 {
-    int NewMapID=NextMapID;
+    const int NewMapID=NextMapID;
 
     if (NextMapID>=MAXMAPS)                                         //All map slots are taken.
     {
@@ -115,7 +115,7 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 
     for (int x=0, y=0, z=0; z<SizeX*SizeY; z++)                     //Insert map info.
     {
-        int Space = *(static_cast<const int*>(Map)+z);
+        const int Space = *(static_cast<const int*>(Map)+z);
 
         if (!Maps[NewMapID]->SpaceDefined(Space))
         {
@@ -123,7 +123,7 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
         }
 
         Maps[NewMapID]->MapArray[x][y]=Space;
-        Maps[NewMapID]->WalkArray[x][y]=Space==0?true:false;
+        Maps[NewMapID]->WalkArray[x][y]=Space==0;
 
         if (++y>=SizeY)
         {
@@ -137,7 +137,7 @@ int Dantares::AddMap(const void *Map, int SizeX, int SizeY)
 
 int Dantares::AddMap(const int* const *Map, int SizeX, int SizeY)
 {
-    int NewMapID=NextMapID;
+    const int NewMapID=NextMapID;
 
     if (NextMapID>=MAXMAPS)                                         //All map slots are taken.
     {
@@ -166,7 +166,7 @@ int Dantares::AddMap(const int* const *Map, int SizeX, int SizeY)
             }
 
             Maps[NewMapID]->MapArray[x][y]=Map[x][y];
-            Maps[NewMapID]->WalkArray[x][y]=Map[x][y]==0?true:false;
+            Maps[NewMapID]->WalkArray[x][y]=Map[x][y]==0;
         }
     }
 
@@ -349,7 +349,7 @@ bool Dantares::ChangeSquare(int XCoord, int YCoord, int NewType)
     }
 
     Maps[CurrentMap]->MapArray[XCoord][YCoord]=NewType;
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord]=NewType==0?true:false;
+    Maps[CurrentMap]->WalkArray[XCoord][YCoord]=NewType==0;
 
     if (!Maps[CurrentMap]->SpaceDefined(NewType))
     {
@@ -435,7 +435,7 @@ bool Dantares::GenerateMap()
         return false;
     }
 
-    float Offset=SqSize/2.0f;
+    const float Offset=SqSize/2.0f;
 
     for (auto &Seeker: Maps[CurrentMap]->SpaceInfo)
     {
@@ -572,8 +572,8 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
     const int XBound=Maps[CurrentMap]->XSize;
     const int YBound=Maps[CurrentMap]->YSize;
     const int HalfDistance=Distance/2;
-    const float CameraXf = static_cast<float>(CameraX);
-    const float CameraYf = static_cast<float>(CameraY);
+    const auto CameraXf = static_cast<float>(CameraX);
+    const auto CameraYf = static_cast<float>(CameraY);
 
     glPushAttrib(GL_ENABLE_BIT);
     glEnable(GL_TEXTURE_2D);
@@ -675,7 +675,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture!=-1)
                     {
@@ -773,7 +773,7 @@ bool Dantares::Draw(int Distance, bool MovePlayer)
 
                     glTranslatef(0.0f, 0.0f, -SqSize);
 
-                    SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker=Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture!=-1)
                     {
@@ -1292,7 +1292,7 @@ bool Dantares::SpaceIsWalkable(int XCoord, int YCoord) const
 
 void Dantares::PrintDebugInfo(std::ostream &Out) const
 {
-    const int Indent = 4;
+    constexpr int Indent = 4;
 
     Out << "{Dantares}"
         << "\nCurrentMap:       " << CurrentMap
@@ -1312,7 +1312,7 @@ void Dantares::PrintDebugInfo(std::ostream &Out) const
         << "\nDegreesTurned:    " << DegreesTurned
         ;
 
-    std::string Indl = '\n' + std::string(Indent, ' ');
+    const std::string Indl = '\n' + std::string(Indent, ' ');
 
     std::cout << "\nMaps:";
 
@@ -1320,7 +1320,7 @@ void Dantares::PrintDebugInfo(std::ostream &Out) const
     {
         Out << Indl << "{Map[" << i << "]} = ";
 
-        if(Maps[i])
+        if (Maps[i])
         {
             Out << Maps[i].get() << '\n';
             Maps[i]->PrintDebugInfo(Out, Indent);
@@ -1335,12 +1335,8 @@ void Dantares::PrintDebugInfo(std::ostream &Out) const
 }
 
 Dantares::SpaceClass::SpaceClass(int Type)
+    : SpaceType(Type)
 {
-    SpaceType = Type;
-    FloorTexture = -1;
-    CeilingTexture = -1;
-    WallTexture = -1;
-    DisplayList = static_cast<int>(glGenLists(DISPLAY_LIST_RANGE));
 }
 
 Dantares::SpaceClass::SpaceClass(SpaceClass &&Other) noexcept
@@ -1360,8 +1356,6 @@ Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r) noexcept
 
 void Dantares::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
 {
-    DeleteDisplayList();
-
     SpaceType = std::exchange(Other.SpaceType, 0);
     FloorTexture = std::exchange(Other.FloorTexture, -1);
     CeilingTexture = std::exchange(Other.CeilingTexture, -1);
@@ -1391,7 +1385,7 @@ void Dantares::SpaceClass::ResetDisplayList()
 
 void Dantares::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 {
-    std::string Indl = '\n' + std::string(Indent, ' ');
+    const std::string Indl = '\n' + std::string(Indent, ' ');
 
     Out << std::string(Indent, ' ')
                 << "SpaceType:         " << SpaceType
@@ -1403,15 +1397,12 @@ void Dantares::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     Out.flush();
 }
 
-Dantares::MapClass::MapClass(int MaxX, int MaxY) :
-        MapArray(MaxX, std::vector<int>(MaxY)),
-        WalkArray(MaxX, std::vector<bool>(MaxY)),
-        SpaceInfo()
+Dantares::MapClass::MapClass(int MaxX, int MaxY)
+    : MapArray(MaxX, std::vector<int>(MaxY)),
+      WalkArray(MaxX, std::vector<bool>(MaxY)),
+      XSize(MaxX),
+      YSize(MaxY)
 {
-    XSize=MaxX;
-    YSize=MaxY;
-
-    SpaceInfo.emplace_back(0);
 }
 
 Dantares::MapClass::MapClass(MapClass &&Other) noexcept
