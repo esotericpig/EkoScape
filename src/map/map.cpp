@@ -139,7 +139,7 @@ void Map::load_grids(TextReader& reader,const SpaceCallback& on_space,
 
   clear_grids();
 
-  for(int i = 0; i < Dantares::MAXMAPS; ++i) {
+  for(int i = 0; i < Dantares2::MAXMAPS; ++i) {
     if(!reader.consume_empty_lines()) { break; }
 
     lines.clear();
@@ -202,8 +202,8 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
                      const DefaultEmptyCallback& on_def_empty,std::string_view file) {
   if(file.empty()) { file = title_; }
 
-  if(grids_.size() >= Dantares::MAXMAPS) {
-    throw CybelError{"Too many grids in map [",file,"]; max is ",Dantares::MAXMAPS,'.'};
+  if(grids_.size() >= Dantares2::MAXMAPS) {
+    throw CybelError{"Too many grids in map [",file,"]; max is ",Dantares2::MAXMAPS,'.'};
   }
 
   if(size.w <= 0) {
@@ -299,7 +299,7 @@ bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
   Space* to_space = mutable_space(to_pos);
   if(to_space == nullptr || to_space->has_thing()) { return false; }
 
-  SpaceType thing_type = from_space->remove_thing();
+  const SpaceType thing_type = from_space->remove_thing();
   to_space->set_thing(thing_type);
 
   update_bridge_space(from_pos,from_space->empty_type());
@@ -470,7 +470,7 @@ std::string Map::build_header() const {
   // FIXME: Temporary solution, because my compiler doesn't have <format>.
   const std::string placeholder = "{}";
   std::string header = kHeaderFmt;
-  std::size_t i = header.find(placeholder);
+  const std::size_t i = header.find(placeholder);
 
   if(i == std::string::npos) {
     throw CybelError{"Invalid kHeaderFmt: " + kHeaderFmt + "."};
@@ -564,7 +564,7 @@ std::ostream& Map::print(std::ostream& out,bool rstrip) const {
       if(rstrip) {
         // Find the last non-Void space to avoid printing trailing Voids.
         for(pos.x = width - 1; pos.x >= 0; --pos.x) {
-          SpaceType type = grid->unsafe_space(pos).type();
+          const SpaceType type = grid->unsafe_space(pos).type();
 
           if(type != SpaceType::kVoid) {
             width = pos.x + 1;

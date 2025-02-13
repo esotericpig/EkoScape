@@ -11,13 +11,13 @@
 
 namespace ekoscape {
 
-DantaresMap::DantaresMap(Dantares& dantares,const TexturesSetter& set_texs)
+DantaresMap::DantaresMap(Dantares2& dantares,const TexturesSetter& set_texs)
   : dantares_(dantares),set_texs_(set_texs) {}
 
 Map& DantaresMap::clear_grids() {
   Map::clear_grids();
 
-  for(auto id : grid_ids_) {
+  for(const auto id : grid_ids_) {
     dantares_.DeleteMap(id);
   }
   grid_ids_.clear();

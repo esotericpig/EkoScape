@@ -8,6 +8,8 @@
 #ifndef EKOSCAPE_COMMON_H_
 #define EKOSCAPE_COMMON_H_
 
+#include "cybel/common.h"
+
 #if defined(CYBEL_PLATFORM_MACOS)
   #ifndef DANTARES_PLATFORM_MACOS
   #define DANTARES_PLATFORM_MACOS
@@ -22,8 +24,17 @@
   #endif
 #endif
 
-#include "cybel/common.h"
-#include "Dantares/Dantares.h"
+#if defined(CYBEL_RENDER_GLES)
+  #ifndef DANTARES_RENDER_GLES
+  #define DANTARES_RENDER_GLES
+  #endif
+#else // CYBEL_RENDER_GL.
+  #ifndef DANTARES_RENDER_GL
+  #define DANTARES_RENDER_GL
+  #endif
+#endif
+
+#include "Dantares/Dantares2.h"
 
 namespace ekoscape {
   using namespace cybel;

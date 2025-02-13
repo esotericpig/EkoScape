@@ -34,9 +34,9 @@ namespace ekoscape {
  */
 class DantaresMap : public Map {
 public:
-  using TexturesSetter = std::function<void(Dantares&,int z,int grid_id)>;
+  using TexturesSetter = std::function<void(Dantares2&,int z,int grid_id)>;
 
-  explicit DantaresMap(Dantares& dantares,const TexturesSetter& set_texs);
+  explicit DantaresMap(Dantares2& dantares,const TexturesSetter& set_texs);
 
   Map& clear_grids() override;
   Map& add_to_bridge() override;
@@ -55,7 +55,7 @@ protected:
   void update_bridge_space(int x,int y,SpaceType type);
 
 private:
-  Dantares& dantares_;
+  Dantares2& dantares_;
   TexturesSetter set_texs_{};
   std::vector<int> grid_ids_{};
 

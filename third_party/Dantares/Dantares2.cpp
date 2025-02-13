@@ -623,6 +623,9 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             break;
     }
 
+    //Retain the transformations made to the model matrix.
+    //This allows the user to insert other objects into the map.
+    UpdateModelMatrix();
     EndDraw();
 
     if (MovePlayer)

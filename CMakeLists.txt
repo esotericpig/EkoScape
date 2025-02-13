@@ -227,9 +227,9 @@ target_include_directories("${BIN_NAME}" PRIVATE
     "${TP_DIR}"
     "${SRC_DIR}"
 )
-# Run `./scripts/glob_src.rb -d` to show source files to add/remove here.
+# Run `./scripts/glob_src.rb` to show source files to add/remove here.
 target_sources("${BIN_NAME}" PRIVATE
-    "${TP_DIR}/Dantares/Dantares.cpp"
+#    "${TP_DIR}/Dantares/Dantares.cpp"
     "${TP_DIR}/Dantares/Dantares2.cpp"
     "${TP_DIR}/Dantares/Dantares2GL.cpp"
     "${TP_DIR}/Dantares/Dantares2GLES.cpp"

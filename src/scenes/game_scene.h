@@ -16,7 +16,7 @@
 #include "cybel/types/pos.h"
 #include "cybel/util/timer.h"
 
-#include "map/dantares_map.h"
+#include "map/map.h"
 #include "map/space_type.h"
 #include "scenes/game_hud.h"
 #include "scenes/game_overlay.h"
@@ -63,22 +63,17 @@ private:
   using MoveChecker = std::function<bool(const Pos3i&)>;
 
   static inline const Duration kInitExtraRobotDelay = Duration::from_millis(1'000);
-  static inline const int kDantaresDist = 24; // Must be 2+.
+  static constexpr int kDantaresDist = 24; // Must be 2+.
   static inline const Duration kWarpDuration = Duration::from_millis(750);
   static inline const Duration kFruitDuration = Duration::from_millis(7'000);
-  static inline const int kFruitWarnSecs = 2;
+  static constexpr int kFruitWarnSecs = 2;
 
   GameContext& ctx_;
   State& state_;
   int scene_action_ = SceneAction::kNil;
 
-  void init_map_texs();
-
-  // - Classic values: {0.125f,-0.04f,0.04f}.
-  // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
-  //   - See set_space_texs(), which relies on this logic.
-  Dantares dantares_{0.125f,0.04f,-0.04f}; // (SquareSize,FloorHeight,CeilingHeight)
-  DantaresMap map_{dantares_,[&](Dantares& /*dan*/,int /*z*/,int /*grid_id*/) { init_map_texs(); }};
+  std::unique_ptr<Dantares2> dantares_{};
+  std::unique_ptr<Map> map_{};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
   StoredInputs stored_inputs_{};
@@ -91,7 +86,7 @@ private:
 
   std::vector<Robot> robots_{};
   Duration robot_move_time_{};
-  Robot::MoveData robot_move_data_{map_};
+  std::unique_ptr<Robot::MoveData> robot_move_data_{};
   std::unordered_map<SpaceType,std::vector<Pos3i>> portal_to_pos_bag_{};
 
   std::unique_ptr<GameHud> hud_{};
@@ -101,6 +96,7 @@ private:
   SpaceType init_map_space(const Pos3i& pos,SpaceType type,std::vector<Pos3i>& cells);
   void init_map_default_empty(const Pos3i& pos,SpaceType type);
   void make_map_weird(std::vector<Pos3i>& cells);
+  void init_map_texs();
 
   void update_player(const FrameStep& step);
   void game_over(bool hit_end);
