@@ -1161,7 +1161,7 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
     Out << std::endl;
 }
 
-Dantares2::SpaceClass::SpaceClass(int Type)
+Dantares2::SpaceClass::SpaceClass(int Type) noexcept
     : SpaceType(Type)
 {
 }

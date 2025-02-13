@@ -20,27 +20,49 @@
 #ifndef DANTARES2_H
 #define DANTARES2_H
 
-#if defined(DANTARES_PLATFORM_MACOS)
-    #ifndef GL_SILENCE_DEPRECATION
-    #define GL_SILENCE_DEPRECATION
+#if !(defined(DANTARES_RENDER_GL) || defined(DANTARES_RENDER_GLES))
+    #if defined(__EMSCRIPTEN__)
+        #define DANTARES_RENDER_GLES
+    #else
+        #define DANTARES_RENDER_GL
     #endif
+#endif
 
-    //Mac OS X OpenGL headers.
-    #include<OpenGL/gl.h>
-#elif defined(DANTARES_PLATFORM_WINDOWS)
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef NOMINMAX
-    #define NOMINMAX
-    #endif
+#if defined(__EMSCRIPTEN__)
+    #include <emscripten.h>
+#endif
 
-    //Windows OpenGL headers.
-    #include<windows.h>
-    #include<GL/gl.h>
-#else
-    //X11 OpenGL headers.
-    #include<GL/gl.h>
+#if defined(DANTARES_RENDER_GL)
+    #if defined(DANTARES_PLATFORM_MACOS)
+        #ifndef GL_SILENCE_DEPRECATION
+        #define GL_SILENCE_DEPRECATION
+        #endif
+
+        //Mac OS X OpenGL headers.
+        #include<OpenGL/gl.h>
+    #elif defined(DANTARES_PLATFORM_WINDOWS)
+        #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+        #endif
+        #ifndef NOMINMAX
+        #define NOMINMAX
+        #endif
+
+        //Windows OpenGL headers.
+        #include<windows.h>
+        #include<GL/gl.h>
+    #else
+        //X11 OpenGL headers.
+        #include<GL/gl.h>
+    #endif
+#endif
+
+#if defined(DANTARES_RENDER_GLES)
+    #if defined(DANTARES_PLATFORM_MACOS) || defined(__IPHONEOS__)
+        #include <OpenGLES/ES3/gl.h>
+    #else
+        #include <GLES3/gl3.h>
+    #endif
 #endif
 
 #include<iostream>
@@ -552,7 +574,7 @@ protected:
         static constexpr int FACE_FLOOR      = 4;
         static constexpr int FACE_CEILING    = 5;
 
-        explicit SpaceClass(int Type);
+        explicit SpaceClass(int Type) noexcept;
 
         SpaceClass(const SpaceClass &Copy) = delete;
         SpaceClass(SpaceClass &&Other) noexcept;
@@ -561,7 +583,7 @@ protected:
         virtual ~SpaceClass() noexcept = default;
 
         virtual void GenerateFaces(float SquareOffset, float FloorHeight, float CeilingHeight) = 0;
-        virtual void DrawFace(int Face) = 0;
+        virtual void DrawFace(int FaceIndex) = 0;
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 

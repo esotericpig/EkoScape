@@ -225,6 +225,7 @@ target_include_directories("${BIN_NAME}" PRIVATE
 target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares.cpp"
     "${TP_DIR}/Dantares/Dantares2.cpp"
+    "${TP_DIR}/Dantares/Dantares2GL.cpp"
 
     "${SRC_DIR}/cybel/audio/audio_player.cpp"
     "${SRC_DIR}/cybel/audio/music.cpp"
