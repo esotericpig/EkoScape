@@ -52,7 +52,11 @@
 #include <SDL2/SDL_mixer.h>
 
 #if defined(CYBEL_RENDER_GLES)
-  #include <GLES3/gl3.h>
+  #if defined(CYBEL_PLATFORM_MACOS) || defined(__IPHONEOS__)
+    #include <OpenGLES/ES3/gl.h>
+  #else
+    #include <GLES3/gl3.h>
+  #endif
 
   // Can't use GLEW in GLES, so using a dummy stub.
   #include "cybel/stubs/glew_stub.h"
