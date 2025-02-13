@@ -27,11 +27,14 @@ ij_smart_tabs = false
 ij_visual_guides = 80,110
 ij_wrap_on_typing = false
 
+[{*.cmake*,CMakeLists.txt}]
+ij_any_align_multiline_parameters = false
+ij_any_align_multiline_parameters_in_calls = false
+
 [*.md]
 trim_trailing_whitespace = false
 
 # [{*.c,*.c++,*.c++m,*.cc,*.ccm,*.cp,*.cpp,*.cppm,*.cu,*.cxx,*.cxxm,*.i,*.ii,*.ixx,*.m,*.mm,*.mxx,*.rc,*.usf}]
-# [{*.cmake*,CMakeLists.txt}]
 # [*.rb]
 # [{*.sh,*.bash,*.zsh}]
 # [*.toml]

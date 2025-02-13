@@ -146,9 +146,15 @@ else()
 endif()
 
 if(RENDER MATCHES "GLES")
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_RENDER_GLES)
+  target_compile_definitions("${BIN_NAME}" PRIVATE
+      CYBEL_RENDER_GLES
+      DANTARES_RENDER_GLES
+  )
 else() # GL.
-  target_compile_definitions("${BIN_NAME}" PRIVATE CYBEL_RENDER_GL)
+  target_compile_definitions("${BIN_NAME}" PRIVATE
+      CYBEL_RENDER_GL
+      DANTARES_RENDER_GL
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -226,6 +232,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares.cpp"
     "${TP_DIR}/Dantares/Dantares2.cpp"
     "${TP_DIR}/Dantares/Dantares2GL.cpp"
+    "${TP_DIR}/Dantares/Dantares2GLES.cpp"
 
     "${SRC_DIR}/cybel/audio/audio_player.cpp"
     "${SRC_DIR}/cybel/audio/music.cpp"
