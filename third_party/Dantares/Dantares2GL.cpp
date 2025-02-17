@@ -19,7 +19,7 @@
 
 #include "Dantares2GL.h"
 
-#if defined(DANTARES_RENDER_GL)
+#if defined(DANTARES_RENDERER_GL)
 
 #include<memory>
 #include<utility>
@@ -229,4 +229,4 @@ void Dantares2GL::SpaceClassGL::DrawFace(int FaceIndex)
     glCallList(DisplayList + FaceIndex);
 }
 
-#endif //DANTARES_RENDER_GL.
+#endif //DANTARES_RENDERER_GL.

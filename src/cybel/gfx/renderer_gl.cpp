@@ -7,7 +7,7 @@
 
 #include "renderer_gl.h"
 
-#if defined(CYBEL_RENDER_GL)
+#if defined(CYBEL_RENDERER_GL)
 
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
@@ -28,10 +28,10 @@ RendererGl::RendererGl(const Size2i& size,const Size2i& target_size,const Color4
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  const GLenum error = glGetError();
+  const auto error = glGetError();
 
   if(error != GL_NO_ERROR) {
-    throw CybelError{"Failed to init OpenGL renderer [",error,"]: ",Util::get_gl_error(error),'.'};
+    throw CybelError{"Failed to init OpenGL renderer: ",Util::get_gl_error(error),'.'};
   }
 }
 
@@ -122,4 +122,4 @@ Renderer& RendererGl::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& 
 }
 
 } // Namespace.
-#endif // CYBEL_RENDER_GL.
+#endif // CYBEL_RENDERER_GL.

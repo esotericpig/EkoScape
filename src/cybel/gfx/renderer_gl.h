@@ -10,6 +10,8 @@
 
 #include "cybel/common.h"
 
+#if defined(CYBEL_RENDERER_GL)
+
 #include "cybel/gfx/renderer.h"
 
 namespace cybel {
@@ -33,4 +35,5 @@ public:
 };
 
 } // Namespace.
+#endif // CYBEL_RENDERER_GL.
 #endif

@@ -9,9 +9,9 @@
 
 #include "cybel/util/rando.h"
 
-#if defined(CYBEL_RENDER_GLES)
+#if defined(CYBEL_RENDERER_GLES)
   #include "Dantares/Dantares2GLES.h"
-#else // CYBEL_RENDER_GL.
+#else // CYBEL_RENDERER_GL.
   #include "Dantares/Dantares2GL.h"
 #endif
 
@@ -31,9 +31,9 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
   constexpr float floor_height = 0.04f;
   constexpr float ceiling_height = -0.04f;
 
-  #if defined(CYBEL_RENDER_GLES)
+  #if defined(CYBEL_RENDERER_GLES)
     dantares_ = std::make_unique<Dantares2GLES>(square_size,floor_height,ceiling_height);
-  #else // CYBEL_RENDER_GL.
+  #else // CYBEL_RENDERER_GL.
     dantares_ = std::make_unique<Dantares2GL>(square_size,floor_height,ceiling_height);
   #endif
 

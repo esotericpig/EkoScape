@@ -8,11 +8,11 @@
 #ifndef CYBEL_COMMON_H_
 #define CYBEL_COMMON_H_
 
-#if !(defined(CYBEL_RENDER_GL) || defined(CYBEL_RENDER_GLES))
+#if !(defined(CYBEL_RENDERER_GL) || defined(CYBEL_RENDERER_GLES))
   #if defined(__EMSCRIPTEN__)
-    #define CYBEL_RENDER_GLES
+    #define CYBEL_RENDERER_GLES
   #else
-    #define CYBEL_RENDER_GL
+    #define CYBEL_RENDERER_GL
   #endif
 #endif
 
@@ -21,7 +21,7 @@
   #include <emscripten/html5.h>
 #endif
 
-#if defined(CYBEL_RENDER_GL)
+#if defined(CYBEL_RENDERER_GL)
   #if defined(CYBEL_PLATFORM_MACOS)
     #ifndef GL_SILENCE_DEPRECATION
     #define GL_SILENCE_DEPRECATION
@@ -51,7 +51,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 
-#if defined(CYBEL_RENDER_GLES)
+#if defined(CYBEL_RENDERER_GLES)
   #if defined(CYBEL_PLATFORM_MACOS) || defined(__IPHONEOS__)
     #include <OpenGLES/ES3/gl.h>
   #else

@@ -10,7 +10,7 @@
 
 #include "cybel/common.h"
 
-#if defined(CYBEL_RENDER_GLES)
+#if defined(CYBEL_RENDERER_GLES)
 
 #include "cybel/gfx/renderer.h"
 
@@ -146,5 +146,5 @@ private:
 };
 
 } // Namespace.
-#endif // CYBEL_RENDER_GLES.
+#endif // CYBEL_RENDERER_GLES.
 #endif

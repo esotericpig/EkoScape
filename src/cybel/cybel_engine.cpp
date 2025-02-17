@@ -11,9 +11,9 @@
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
 
-#if defined(CYBEL_RENDER_GLES)
+#if defined(CYBEL_RENDERER_GLES)
   #include "cybel/gfx/renderer_gles.h"
-#else // CYBEL_RENDER_GL.
+#else // CYBEL_RENDERER_GL.
   #include "cybel/gfx/renderer_gl.h"
 #endif
 
@@ -49,9 +49,9 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
   init_config(config);
   init_gui(config);
 
-  #if defined(CYBEL_RENDER_GLES)
+  #if defined(CYBEL_RENDERER_GLES)
     renderer_ = std::make_unique<RendererGles>(config.size,config.target_size,config.clear_color);
-  #else // CYBEL_RENDER_GL.
+  #else // CYBEL_RENDERER_GL.
     renderer_ = std::make_unique<RendererGl>(config.size,config.target_size,config.clear_color);
   #endif
 
@@ -119,11 +119,11 @@ void CybelEngine::init_config(Config& config) {
 
 void CybelEngine::init_gui(const Config& config) {
   // NOTE: Must set GL attrs after SDL_Init() and before SDL_CreateWindow().
-  #if defined(CYBEL_RENDER_GLES)
+  #if defined(CYBEL_RENDERER_GLES)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
-  #else // CYBEL_RENDER_GL.
+  #else // CYBEL_RENDERER_GL.
     // Use a 2004-2008 version.
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);

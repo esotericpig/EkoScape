@@ -7,7 +7,7 @@
 
 #include "renderer_gles.h"
 
-#if defined(CYBEL_RENDER_GLES)
+#if defined(CYBEL_RENDERER_GLES)
 
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
@@ -410,4 +410,4 @@ void RendererGles::QuadBuffer::set_vertex_data(const Pos4f& src,const Pos5f& pos
 }
 
 } // Namespace.
-#endif // CYBEL_RENDER_GLES.
+#endif // CYBEL_RENDERER_GLES.

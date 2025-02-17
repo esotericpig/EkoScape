@@ -10,7 +10,7 @@
         "CMAKE_CXX_STANDARD": "20",
         "CMAKE_CXX_STANDARD_REQUIRED": true,
         "CMAKE_CXX_EXTENSIONS": false,
-        "RENDER": "GL"
+        "RENDERER": "GL"
       },
       "warnings": {
         "dev": true,
@@ -26,7 +26,7 @@
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten",
         "BIN_DIRNAME": "bin_web",
-        "RENDER": "GLES"
+        "RENDERER": "GLES"
       }
     }
   ],

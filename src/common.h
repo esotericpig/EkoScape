@@ -24,13 +24,13 @@
   #endif
 #endif
 
-#if defined(CYBEL_RENDER_GLES)
-  #ifndef DANTARES_RENDER_GLES
-  #define DANTARES_RENDER_GLES
+#if defined(CYBEL_RENDERER_GLES)
+  #ifndef DANTARES_RENDERER_GLES
+  #define DANTARES_RENDERER_GLES
   #endif
-#else // CYBEL_RENDER_GL.
-  #ifndef DANTARES_RENDER_GL
-  #define DANTARES_RENDER_GL
+#else // CYBEL_RENDERER_GL.
+  #ifndef DANTARES_RENDERER_GL
+  #define DANTARES_RENDERER_GL
   #endif
 #endif
 

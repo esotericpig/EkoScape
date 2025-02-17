@@ -21,6 +21,8 @@
 
 #include "Dantares2.h"
 
+#if defined(DANTARES_RENDERER_GLES)
+
 class Dantares2GLES : public Dantares2
 {
 public:
@@ -54,4 +56,5 @@ private:
     };
 };
 
+#endif //DANTARES_RENDERER_GLES.
 #endif

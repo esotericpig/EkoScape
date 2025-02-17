@@ -18,7 +18,7 @@
 
 #include "Dantares2GLES.h"
 
-#if defined(DANTARES_RENDER_GLES)
+#if defined(DANTARES_RENDERER_GLES)
 
 #include<memory>
 #include<utility>
@@ -99,4 +99,4 @@ void Dantares2GLES::SpaceClassGLES::DrawFace(int /*FaceIndex*/)
 {
 }
 
-#endif //DANTARES_RENDER_GLES.
+#endif //DANTARES_RENDERER_GLES.

@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 
 ###
 # Configurable params w/ defaults:
-#   -DRENDER=GL
+#   -DRENDERER=GL
 #   -DLINUXDEPLOY_ARCH=x86_64      # See: cmake/appimage.cmake.in
 #   -DPKG_SUFFIX=""
 #   -DPKG_MACOS_BUILD_UNI_DIR=OFF  # See: .github/workflows/macos.yml
@@ -55,7 +55,7 @@ set(BIN_DIRNAME "bin" CACHE STRING "Dirname to output the binary file to.")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
-set(RENDER "GL" CACHE STRING "Renderer to use: GL or GLES.")
+set(RENDERER "GL" CACHE STRING "Renderer to use: GL or GLES.")
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(RES_DIR "${CMAKE_SOURCE_DIR}/res")
 
@@ -146,15 +146,15 @@ else()
   )
 endif()
 
-if(RENDER MATCHES "GLES")
+if(RENDERER MATCHES "GLES")
   target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_RENDER_GLES
-      DANTARES_RENDER_GLES
+      CYBEL_RENDERER_GLES
+      DANTARES_RENDERER_GLES
   )
 else() # GL.
   target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_RENDER_GL
-      DANTARES_RENDER_GL
+      CYBEL_RENDERER_GL
+      DANTARES_RENDERER_GL
   )
 endif()
 
@@ -221,7 +221,7 @@ if(NOT EMSCRIPTEN)
   )
 endif()
 
-if(RENDER MATCHES "GLES")
+if(RENDERER MATCHES "GLES")
   find_package(glm CONFIG REQUIRED)
 
   target_link_libraries("${BIN_NAME}" PRIVATE

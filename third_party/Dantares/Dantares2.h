@@ -20,11 +20,11 @@
 #ifndef DANTARES2_H
 #define DANTARES2_H
 
-#if !(defined(DANTARES_RENDER_GL) || defined(DANTARES_RENDER_GLES))
+#if !(defined(DANTARES_RENDERER_GL) || defined(DANTARES_RENDERER_GLES))
     #if defined(__EMSCRIPTEN__)
-        #define DANTARES_RENDER_GLES
+        #define DANTARES_RENDERER_GLES
     #else
-        #define DANTARES_RENDER_GL
+        #define DANTARES_RENDERER_GL
     #endif
 #endif
 
@@ -32,7 +32,7 @@
     #include <emscripten.h>
 #endif
 
-#if defined(DANTARES_RENDER_GL)
+#if defined(DANTARES_RENDERER_GL)
     #if defined(DANTARES_PLATFORM_MACOS)
         #ifndef GL_SILENCE_DEPRECATION
         #define GL_SILENCE_DEPRECATION
@@ -57,7 +57,7 @@
     #endif
 #endif
 
-#if defined(DANTARES_RENDER_GLES)
+#if defined(DANTARES_RENDERER_GLES)
     #if defined(DANTARES_PLATFORM_MACOS) || defined(__IPHONEOS__)
         #include <OpenGLES/ES3/gl.h>
     #else
