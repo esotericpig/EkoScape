@@ -33,5 +33,7 @@ CMakeUserPresets.json
 /.idea/*
 !/.idea/cmake.xml
 /bin/
+/bin_web/
 /build/
+/build_web/
 /stock/

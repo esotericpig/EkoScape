@@ -2,6 +2,7 @@
   "builtin-baseline": "f0c8848cde589649bca3ab3649668540403786ce",
   "dependencies": [
     {"name": "glew"      ,"platform": "!wasm32"},
+    {"name": "glm"},
     {"name": "opengl"    ,"platform": "!wasm32"},
     {"name": "sdl2"      ,"platform": "!wasm32"},
     {"name": "sdl2-image","platform": "!wasm32"},

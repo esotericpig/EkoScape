@@ -123,7 +123,8 @@ endif()
 add_executable("${BIN_NAME}")
 
 if(EMSCRIPTEN)
-  message(FATAL_ERROR "TODO: Implement emscripten code.")
+  # TODO: Implement Emscripten code.
+  message(FATAL_ERROR "Emscripten code not implemented yet.")
 elseif(APPLE)
   target_compile_definitions("${BIN_NAME}" PRIVATE
       CYBEL_PLATFORM_MACOS
@@ -220,6 +221,14 @@ if(NOT EMSCRIPTEN)
   )
 endif()
 
+if(RENDER MATCHES "GLES")
+  find_package(glm CONFIG REQUIRED)
+
+  target_link_libraries("${BIN_NAME}" PRIVATE
+      glm::glm
+  )
+endif()
+
 ############################################
 # Source Code                              #
 ############################################
@@ -294,20 +303,24 @@ target_sources("${BIN_NAME}" PRIVATE
 ############################################
 # Custom Targets                           #
 ############################################
-add_custom_target(run
-    COMMAND "$<TARGET_FILE:${BIN_NAME}>"
-    DEPENDS "${BIN_NAME}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    USES_TERMINAL # For terminal output during testing.
-    VERBATIM
-)
-add_custom_target(run_web
-    COMMAND emrun --verbose --browser firefox "$<TARGET_FILE:${BIN_NAME}>"
-    DEPENDS "${BIN_NAME}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    USES_TERMINAL
-    VERBATIM
-)
+if(EMSCRIPTEN)
+  add_custom_target(run
+      COMMAND emrun --verbose --browser firefox "$<TARGET_FILE:${BIN_NAME}>"
+      DEPENDS "${BIN_NAME}"
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      USES_TERMINAL
+      VERBATIM
+  )
+elseif()
+  add_custom_target(run
+      COMMAND "$<TARGET_FILE:${BIN_NAME}>"
+      DEPENDS "${BIN_NAME}"
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      USES_TERMINAL # For terminal output during testing.
+      VERBATIM
+  )
+endif()
+
 add_custom_target(check
     COMMAND cppcheck --quiet --enable=all --check-level=exhaustive
             --language=c++ "--std=c++${CMAKE_CXX_STANDARD}"

@@ -142,13 +142,18 @@ public:
   using WrapSpriteAtlasCallback = std::function<void(SpriteAtlasWrapper&)>;
   using WrapFontAtlasCallback = std::function<void(FontAtlasWrapper&)>;
 
-  static inline const Pos4f kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
+  static constexpr Pos4f kDefaultSrc{0.0f,0.0f,1.0f,1.0f};
 
   explicit Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
+  Renderer(const Renderer& other) = delete;
+  Renderer(Renderer&& other) noexcept = delete;
   virtual ~Renderer() noexcept = default;
 
-  void resize(const Size2i& size);
+  Renderer& operator=(const Renderer& other) = delete;
+  Renderer& operator=(Renderer&& other) noexcept = delete;
+
+  virtual void resize(const Size2i& size);
   void clear_view();
 
   virtual Renderer& begin_2d_scene() = 0;
@@ -206,8 +211,8 @@ private:
     GLenum dst_factor{};
   };
 
-  static inline const BlendMode kDefaultBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
-  static inline const BlendMode kAddBlendMode{GL_ONE,GL_ONE};
+  static constexpr BlendMode kDefaultBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
+  static constexpr BlendMode kAddBlendMode{GL_ONE,GL_ONE};
 
   Color4f curr_color_{1.0f};
   BlendMode curr_blend_mode_ = kDefaultBlendMode;
