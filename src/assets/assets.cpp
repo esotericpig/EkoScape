@@ -127,7 +127,7 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
 
   eko_color_.set_hex(0xff0000);
   end_color_.set_hex(0xb87333); // Copper.
-  fruit_color_.set_hex(0xffc0cb); // Pink.
+  fruit_color_.set_hex(0xff69b4); // Hot Pink.
   portal_color_.set_hex(0x00ffff); // Cyan.
   robot_color_.set_bytes(214);
   wall_color_.set_hex(0x00ff00);
