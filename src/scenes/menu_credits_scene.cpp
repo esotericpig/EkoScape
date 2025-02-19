@@ -20,19 +20,21 @@ Color4f MenuCreditsScene::rand_color() {
 }
 
 MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
-  : ctx_(ctx),wtfs_(75,WtfParticle{}) {}
+  : ctx_(ctx),wtfs_(150,WtfParticle{}) {}
 
-void MenuCreditsScene::on_input_event(int action,const ViewDimens& dimens) {
+void MenuCreditsScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
   switch(action) {
     case InputAction::kSelect:
       scene_action_ = SceneAction::kGoBack;
       break;
+  }
+}
 
-    // Shhh... Don't Tell.
-    case InputAction::kMakeWeird:
-      ctx_.assets.make_weird();
-      init_wtfs(dimens);
-      break;
+void MenuCreditsScene::handle_input_states(const std::vector<bool>& states,const ViewDimens& dimens) {
+  // Shhh... Don't Tell.
+  if(states[InputAction::kMakeWeird]) {
+    ctx_.assets.make_weird();
+    birth_wtfs(dimens);
   }
 }
 
@@ -94,9 +96,13 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   ren.end_scale();
 }
 
-void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
+void MenuCreditsScene::birth_wtfs(const ViewDimens& dimens) {
+  if(active_wtf_count_ > 0 && wtf_cooldown_time_.secs() < 0.200f) { return; }
+
+  wtf_cooldown_time_.zero();
+
   auto& r = Rando::it();
-  int max_births = (active_wtf_count_ <= 20) ? 25 : 5;
+  int max_births = (active_wtf_count_ <= 20) ? 25 : 8;
   const auto init_x = static_cast<float>(dimens.target_size.w) / 2.0f;
   const auto init_y = static_cast<float>(dimens.target_size.h) / 2.0f;
   const auto init_w = static_cast<float>(ctx_.assets.font_renderer().font_size().w);
@@ -104,7 +110,7 @@ void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
   const auto size = static_cast<int>(wtfs_.size());
 
   for(int i = active_wtf_count_; i < size; ++i,++active_wtf_count_) {
-    WtfParticle& wtf = wtfs_[i];
+    auto& wtf = wtfs_[i];
 
     wtf.lifespan = 3.0f;
     wtf.age = 0.0f;
@@ -132,6 +138,10 @@ void MenuCreditsScene::init_wtfs(const ViewDimens& dimens) {
 }
 
 void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimens) {
+  if(active_wtf_count_ <= 0) { return; }
+
+  wtf_cooldown_time_ += step.dpf;
+
   const auto text_len = static_cast<float>(kWtfText.length());
   const Size2f font_spacing = ctx_.assets.font_renderer().font_spacing().to_size2<float>();
   const float total_spacing_w = font_spacing.w * (text_len - 1);
@@ -156,7 +166,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
     }
 
     // Adjust pos & size for number of runes in text,
-    //     since wtf.size is just for a single rune [see init_wtfs()].
+    //     since wtf.size is just for a single rune [see birth_wtfs()].
     wtf.true_size.w = (wtf.size.w * text_len) + total_spacing_w;
     wtf.true_size.h = wtf.size.h;
     wtf.true_pos.x = wtf.pos.x - (wtf.true_size.w / 2.0f);
@@ -173,6 +183,8 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
 }
 
 void MenuCreditsScene::draw_wtfs(Renderer& ren) {
+  if(active_wtf_count_ <= 0) { return; }
+
   ctx_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
     for(int i = 0; i < active_wtf_count_; ++i) {
       WtfParticle& wtf = wtfs_[i];
