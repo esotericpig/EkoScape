@@ -61,10 +61,7 @@ public:
 
     GLuint GenerateQuadLists(int Count) override;
     void DeleteQuadLists(GLuint ID, int Count) override;
-    void CompileQuadList(GLuint ID, int Index,
-                         GLuint TextureID,
-                         const QuadNormalData &NormalData,
-                         const QuadVertexData &VertexData) override;
+    void CompileQuadList(GLuint ID, int Index, const QuadListData &Data) override;
     void DrawQuadList(GLuint ID, int Index) override;
 };
 

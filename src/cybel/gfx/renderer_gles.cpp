@@ -193,26 +193,6 @@ Renderer& RendererGles::end_tex() {
   return *this;
 }
 
-Renderer& RendererGles::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
-  const auto pos_vec = glm::vec3(
-    offset_.x + (static_cast<GLfloat>(pos.x) * scale_.x),
-    offset_.y + (static_cast<GLfloat>(pos.y) * scale_.y),
-    static_cast<GLfloat>(pos.z)
-  );
-  auto temp_model_mat = model_mat_;
-
-  temp_model_mat = translate(temp_model_mat,pos_vec);
-  temp_model_mat = rotate(temp_model_mat,glm::radians(angle),glm::vec3(0.0f,0.0f,1.0f));
-  temp_model_mat = translate(temp_model_mat,-pos_vec);
-  glUniformMatrix4fv(model_mat_loc_,1,GL_FALSE,value_ptr(temp_model_mat));
-
-  callback();
-
-  glUniformMatrix4fv(model_mat_loc_,1,GL_FALSE,value_ptr(model_mat_));
-
-  return *this;
-}
-
 Renderer& RendererGles::draw_quad(const Pos3i& pos,const Size2i& size) {
   return draw_quad(kDefaultSrc,pos,size);
 }
@@ -222,6 +202,44 @@ Renderer& RendererGles::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i
   quad_buffer_->draw();
 
   return *this;
+}
+
+void RendererGles::translate_model_matrix(const Pos3f& pos) {
+  model_mat_ = translate(model_mat_,glm::vec3(pos.x,pos.y,pos.z));
+}
+
+void RendererGles::rotate_model_matrix(float angle,const Pos3f& axis) {
+  model_mat_ = rotate(model_mat_,glm::radians(angle),glm::vec3(axis.x,axis.y,axis.z));
+}
+
+void RendererGles::update_model_matrix() {
+  glUniformMatrix4fv(model_mat_loc_,1,GL_FALSE,value_ptr(model_mat_));
+}
+
+void RendererGles::push_model_matrix() {
+  model_mats_.push(model_mat_);
+}
+
+void RendererGles::pop_model_matrix() {
+  if(model_mats_.empty()) { return; }
+
+  model_mat_ = model_mats_.top();
+  model_mats_.pop();
+
+  update_model_matrix();
+}
+
+GLuint RendererGles::gen_quad_buffers(int count) {
+  return 0;
+}
+
+void RendererGles::delete_quad_buffers(GLuint id,int count) {
+}
+
+void RendererGles::compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) {
+}
+
+void RendererGles::draw_quad_buffer(GLuint id,int index) {
 }
 
 RendererGles::Shader::Shader(GLenum type,const std::string& src)

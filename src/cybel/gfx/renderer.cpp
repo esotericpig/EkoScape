@@ -265,6 +265,24 @@ Renderer& Renderer::wrap_color(const Color4f& color,const WrapCallback& callback
   return *this;
 }
 
+Renderer& Renderer::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
+  const Pos3f scaled_pos{
+    offset_.x + (static_cast<float>(pos.x) * scale_.x),
+    offset_.y + (static_cast<float>(pos.y) * scale_.y),
+    static_cast<float>(pos.z)
+  };
+
+  push_model_matrix();
+    translate_model_matrix(scaled_pos);
+    rotate_model_matrix(angle,Pos3f{0.0f,0.0f,1.0f});
+    translate_model_matrix(-scaled_pos);
+    update_model_matrix();
+    callback();
+  pop_model_matrix();
+
+  return *this;
+}
+
 Renderer& Renderer::wrap_add_blend(const WrapCallback& callback) {
   const auto prev_mode = curr_blend_mode_;
 

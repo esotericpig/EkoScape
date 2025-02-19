@@ -370,15 +370,15 @@ bool Dantares2::GenerateMap()
         {
             Renderer->CompileQuadList(
                 Seeker->QuadList, SpaceClass::FACE_CEILING,
-                Seeker->CeilingTexture,
-                RendererClass::QuadNormalData{
-                    0.0f, -1.0f, 0.0f
-                },
-                RendererClass::QuadVertexData{
-                    -Offset, Ceiling, -Offset,
-                     Offset, Ceiling, -Offset,
-                     Offset, Ceiling,  Offset,
-                    -Offset, Ceiling,  Offset,
+                RendererClass::QuadListData{
+                    .TextureID = Seeker->CeilingTexture,
+                    .Normal = {0.0f, -1.0f, 0.0f},
+                    .Vertices = {
+                        {-Offset, Ceiling, -Offset},
+                        { Offset, Ceiling, -Offset},
+                        { Offset, Ceiling,  Offset},
+                        {-Offset, Ceiling,  Offset}
+                    }
                 }
             );
         }
@@ -387,15 +387,15 @@ bool Dantares2::GenerateMap()
         {
             Renderer->CompileQuadList(
                 Seeker->QuadList, SpaceClass::FACE_FLOOR,
-                Seeker->FloorTexture,
-                RendererClass::QuadNormalData{
-                    0.0f, 1.0f, 0.0f
-                },
-                RendererClass::QuadVertexData{
-                    -Offset, Floor, -Offset,
-                     Offset, Floor, -Offset,
-                     Offset, Floor,  Offset,
-                    -Offset, Floor,  Offset,
+                RendererClass::QuadListData{
+                    .TextureID = Seeker->FloorTexture,
+                    .Normal = {0.0f, 1.0f, 0.0f},
+                    .Vertices = {
+                        {-Offset, Floor, -Offset},
+                        { Offset, Floor, -Offset},
+                        { Offset, Floor,  Offset},
+                        {-Offset, Floor,  Offset}
+                    }
                 }
             );
         }
@@ -404,54 +404,54 @@ bool Dantares2::GenerateMap()
         {
             Renderer->CompileQuadList(
                 Seeker->QuadList, SpaceClass::FACE_WALL_NEAR,
-                Seeker->WallTexture,
-                RendererClass::QuadNormalData{
-                    0.0f, 0.0f, 1.0f
-                },
-                RendererClass::QuadVertexData{
-                    -Offset, Floor,   Offset,
-                     Offset, Floor,   Offset,
-                     Offset, Ceiling, Offset,
-                    -Offset, Ceiling, Offset,
+                RendererClass::QuadListData{
+                    .TextureID = Seeker->WallTexture,
+                    .Normal = {0.0f, 0.0f, 1.0f},
+                    .Vertices = {
+                        {-Offset, Floor,   Offset},
+                        { Offset, Floor,   Offset},
+                        { Offset, Ceiling, Offset},
+                        {-Offset, Ceiling, Offset}
+                    }
                 }
             );
             Renderer->CompileQuadList(
                 Seeker->QuadList, SpaceClass::FACE_WALL_RIGHT,
-                Seeker->WallTexture,
-                RendererClass::QuadNormalData{
-                    1.0f, 0.0f, 0.0f
-                },
-                RendererClass::QuadVertexData{
-                    Offset, Floor,    Offset,
-                    Offset, Floor,   -Offset,
-                    Offset, Ceiling, -Offset,
-                    Offset, Ceiling,  Offset,
+                RendererClass::QuadListData{
+                    .TextureID = Seeker->WallTexture,
+                    .Normal = {1.0f, 0.0f, 0.0f},
+                    .Vertices = {
+                        {Offset, Floor,    Offset},
+                        {Offset, Floor,   -Offset},
+                        {Offset, Ceiling, -Offset},
+                        {Offset, Ceiling,  Offset}
+                    }
                 }
             );
             Renderer->CompileQuadList(
                 Seeker->QuadList, SpaceClass::FACE_WALL_FAR,
-                Seeker->WallTexture,
-                RendererClass::QuadNormalData{
-                    0.0f, 0.0f, -1.0f
-                },
-                RendererClass::QuadVertexData{
-                     Offset, Floor,   -Offset,
-                    -Offset, Floor,   -Offset,
-                    -Offset, Ceiling, -Offset,
-                     Offset, Ceiling, -Offset,
+                RendererClass::QuadListData{
+                    .TextureID = Seeker->WallTexture,
+                    .Normal = {0.0f, 0.0f, -1.0f},
+                    .Vertices = {
+                        { Offset, Floor,   -Offset},
+                        {-Offset, Floor,   -Offset},
+                        {-Offset, Ceiling, -Offset},
+                        { Offset, Ceiling, -Offset}
+                    }
                 }
             );
             Renderer->CompileQuadList(
                 Seeker->QuadList, SpaceClass::FACE_WALL_LEFT,
-                Seeker->WallTexture,
-                RendererClass::QuadNormalData{
-                    -1.0f, 0.0f, 0.0f
-                },
-                RendererClass::QuadVertexData{
-                    -Offset, Floor,   -Offset,
-                    -Offset, Floor,    Offset,
-                    -Offset, Ceiling,  Offset,
-                    -Offset, Ceiling, -Offset,
+                RendererClass::QuadListData{
+                    .TextureID = Seeker->WallTexture,
+                    .Normal = {-1.0f, 0.0f, 0.0f},
+                    .Vertices = {
+                        {-Offset, Floor,   -Offset},
+                        {-Offset, Floor,    Offset},
+                        {-Offset, Ceiling,  Offset},
+                        {-Offset, Ceiling, -Offset}
+                    }
                 }
             );
         }

@@ -136,6 +136,12 @@ public:
     Size2i calc_total_size(const Size2i& str_size,const Size2i& padding);
   };
 
+  struct QuadBufferData {
+    GLuint tex_id = 0;
+    Pos3f normal{};
+    Pos3f vertices[4] = {Pos3f{},Pos3f{},Pos3f{},Pos3f{}};
+  };
+
   using WrapCallback = std::function<void()>;
   using WrapTextureCallback = std::function<void(TextureWrapper&)>;
   using WrapSpriteCallback = std::function<void(SpriteWrapper&)>;
@@ -174,7 +180,7 @@ public:
   virtual Renderer& end_tex() = 0;
 
   Renderer& wrap_color(const Color4f& color,const WrapCallback& callback);
-  virtual Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) = 0;
+  Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback);
   Renderer& wrap_add_blend(const WrapCallback& callback);
 
   Renderer& wrap_tex(const Texture& tex,const WrapTextureCallback& callback);
@@ -193,6 +199,17 @@ public:
   virtual Renderer& draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size) = 0;
 
   Pos5f build_dest_pos5f(const Pos3i& pos,const Size2i& size) const;
+
+  virtual void translate_model_matrix(const Pos3f& pos) = 0;
+  virtual void rotate_model_matrix(float angle,const Pos3f& axis) = 0;
+  virtual void update_model_matrix() = 0;
+  virtual void push_model_matrix() = 0;
+  virtual void pop_model_matrix() = 0;
+
+  virtual GLuint gen_quad_buffers(int count) = 0;
+  virtual void delete_quad_buffers(GLuint id,int count) = 0;
+  virtual void compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) = 0;
+  virtual void draw_quad_buffer(GLuint id,int index) = 0;
 
   const ViewDimens& dimens() const;
   Color4f& clear_color();

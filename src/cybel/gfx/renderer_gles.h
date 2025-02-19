@@ -17,6 +17,8 @@
 // - https://github.com/g-truc/glm/blob/master/manual.md#-12-using-separated-headers
 #include <glm/mat4x4.hpp>
 
+#include <stack>
+
 namespace cybel {
 
 class RendererGles : public Renderer {
@@ -33,10 +35,19 @@ public:
   Renderer& begin_tex(const Texture& tex) override;
   Renderer& end_tex() override;
 
-  Renderer& wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) override;
-
   Renderer& draw_quad(const Pos3i& pos,const Size2i& size) override;
   Renderer& draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size) override;
+
+  void translate_model_matrix(const Pos3f& pos) override;
+  void rotate_model_matrix(float angle,const Pos3f& axis) override;
+  void update_model_matrix() override;
+  void push_model_matrix() override;
+  void pop_model_matrix() override;
+
+  GLuint gen_quad_buffers(int count) override;
+  void delete_quad_buffers(GLuint id,int count) override;
+  void compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) override;
+  void draw_quad_buffer(GLuint id,int index) override;
 
 private:
   enum class InfoLogType { kShader,kProgram };
@@ -134,6 +145,7 @@ private:
   glm::mat4 ortho_proj_mat_ = kIdentityMat;
   glm::mat4 pers_proj_mat_ = kIdentityMat;
   glm::mat4 model_mat_ = kIdentityMat;
+  std::stack<glm::mat4> model_mats_{};
 
   std::unique_ptr<QuadBuffer> quad_buffer_{};
 

@@ -80,21 +80,6 @@ Renderer& RendererGl::end_tex() {
   return *this;
 }
 
-Renderer& RendererGl::wrap_rotate(const Pos3i& pos,float angle,const WrapCallback& callback) {
-  const auto x = offset_.x + (static_cast<GLfloat>(pos.x) * scale_.x);
-  const auto y = offset_.y + (static_cast<GLfloat>(pos.y) * scale_.y);
-  const auto z = static_cast<GLfloat>(pos.z);
-
-  glPushMatrix();
-    glTranslatef(x,y,z);
-    glRotatef(angle,0.0f,0.0f,1.0f);
-    glTranslatef(-x,-y,-z);
-    callback();
-  glPopMatrix();
-
-  return *this;
-}
-
 Renderer& RendererGl::draw_quad(const Pos3i& pos,const Size2i& size) {
   const auto [x1,y1,x2,y2,z] = build_dest_pos5f(pos,size);
 
@@ -119,6 +104,55 @@ Renderer& RendererGl::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& 
   glEnd();
 
   return *this;
+}
+
+void RendererGl::translate_model_matrix(const Pos3f& pos) {
+  glTranslatef(pos.x,pos.y,pos.z);
+}
+
+void RendererGl::rotate_model_matrix(float angle,const Pos3f& axis) {
+  glRotatef(angle,axis.x,axis.y,axis.z);
+}
+
+void RendererGl::update_model_matrix() {}
+
+void RendererGl::push_model_matrix() {
+  glPushMatrix();
+}
+
+void RendererGl::pop_model_matrix() {
+  glPopMatrix();
+}
+
+GLuint RendererGl::gen_quad_buffers(int count) {
+  return glGenLists(count);
+}
+
+void RendererGl::delete_quad_buffers(GLuint id,int count) {
+  glDeleteLists(id,count);
+}
+
+void RendererGl::compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) {
+  glNewList(id + index,GL_COMPILE);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,data.tex_id);
+
+    glBegin(GL_QUADS);
+      glNormal3f(data.normal.x,data.normal.y,data.normal.z);
+      glTexCoord2f(0.0f,0.0f);
+      glVertex3f(data.vertices[0].x,data.vertices[0].y,data.vertices[0].z);
+      glTexCoord2f(1.0f,0.0f);
+      glVertex3f(data.vertices[1].x,data.vertices[1].y,data.vertices[1].z);
+      glTexCoord2f(1.0f,1.0f);
+      glVertex3f(data.vertices[2].x,data.vertices[2].y,data.vertices[2].z);
+      glTexCoord2f(0.0f,1.0f);
+      glVertex3f(data.vertices[3].x,data.vertices[3].y,data.vertices[3].z);
+    glEnd();
+  glEndList();
+}
+
+void RendererGl::draw_quad_buffer(GLuint id,int index) {
+  glCallList(id + index);
 }
 
 } // Namespace.

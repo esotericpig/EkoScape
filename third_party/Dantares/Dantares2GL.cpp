@@ -63,32 +63,29 @@ void Dantares2GLRenderer::DeleteQuadLists(GLuint ID, int Count)
     glDeleteLists(ID, Count);
 }
 
-void Dantares2GLRenderer::CompileQuadList(GLuint ID, int Index,
-                                          GLuint TextureID,
-                                          const QuadNormalData &N,
-                                          const QuadVertexData &V)
+void Dantares2GLRenderer::CompileQuadList(GLuint ID, int Index, const QuadListData &Data)
 {
-    glNewList(ID + Index, GL_COMPILE);
+    glNewList(ID + static_cast<GLuint>(Index), GL_COMPILE);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, TextureID);
+        glBindTexture(GL_TEXTURE_2D, Data.TextureID);
 
         glBegin(GL_QUADS);
-            glNormal3f(N.X, N.Y, N.Z);
+            glNormal3f(Data.Normal.X, Data.Normal.Y, Data.Normal.Z);
             glTexCoord2f(0.0f, 0.0f);
-            glVertex3f(V.X1, V.Y1, V.Z1);
+            glVertex3f(Data.Vertices[0].X, Data.Vertices[0].Y, Data.Vertices[0].Z);
             glTexCoord2f(1.0f, 0.0f);
-            glVertex3f(V.X2, V.Y2, V.Z2);
+            glVertex3f(Data.Vertices[1].X, Data.Vertices[1].Y, Data.Vertices[1].Z);
             glTexCoord2f(1.0f, 1.0f);
-            glVertex3f(V.X3, V.Y3, V.Z3);
+            glVertex3f(Data.Vertices[2].X, Data.Vertices[2].Y, Data.Vertices[2].Z);
             glTexCoord2f(0.0f, 1.0f);
-            glVertex3f(V.X4, V.Y4, V.Z4);
+            glVertex3f(Data.Vertices[3].X, Data.Vertices[3].Y, Data.Vertices[3].Z);
         glEnd();
     glEndList();
 }
 
 void Dantares2GLRenderer::DrawQuadList(GLuint ID, int Index)
 {
-    glCallList(ID + Index);
+    glCallList(ID + static_cast<GLuint>(Index));
 }
 
 #endif //DANTARES_RENDERER_GL.

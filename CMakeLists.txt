@@ -282,6 +282,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/map/space_type.cpp"
 
     "${SRC_DIR}/scenes/boring_work_scene.cpp"
+    "${SRC_DIR}/scenes/dantares_renderer.cpp"
     "${SRC_DIR}/scenes/game_hud.cpp"
     "${SRC_DIR}/scenes/game_overlay.cpp"
     "${SRC_DIR}/scenes/game_scene.cpp"

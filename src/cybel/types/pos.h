@@ -58,6 +58,8 @@ public:
 
   bool operator==(const Pos3&) const = default;
 
+  Pos3 operator-() const { return Pos3{-x,-y,-z}; }
+
   Pos3& set(T x,T y) { return set(x,y,z); }
 
   Pos3& set(T x,T y,T z) {

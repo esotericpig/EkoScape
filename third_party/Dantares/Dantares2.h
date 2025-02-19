@@ -33,17 +33,16 @@ public:
     class RendererClass
     {
     public:
-        struct QuadNormalData
+        struct Vector3f
         {
             float X{}, Y{}, Z{};
         };
 
-        struct QuadVertexData
+        struct QuadListData
         {
-            float X1{}, Y1{}, Z1{};
-            float X2{}, Y2{}, Z2{};
-            float X3{}, Y3{}, Z3{};
-            float X4{}, Y4{}, Z4{};
+            GLuint TextureID = 0;
+            Vector3f Normal{};
+            Vector3f Vertices[4] = {};
         };
 
         virtual ~RendererClass() noexcept = default;
@@ -59,10 +58,7 @@ public:
 
         virtual GLuint GenerateQuadLists(int Count) = 0;
         virtual void DeleteQuadLists(GLuint ID, int Count) = 0;
-        virtual void CompileQuadList(GLuint ID, int Index,
-                                     GLuint TextureID,
-                                     const QuadNormalData &NormalData,
-                                     const QuadVertexData &VertexData) = 0;
+        virtual void CompileQuadList(GLuint ID, int Index, const QuadListData &Data) = 0;
         virtual void DrawQuadList(GLuint ID, int Index) = 0;
     };
 

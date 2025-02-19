@@ -9,13 +9,9 @@
 
 #include "cybel/util/rando.h"
 
-#if defined(CYBEL_RENDERER_GLES)
-#else // CYBEL_RENDERER_GL.
-  #include "Dantares/Dantares2GL.h"
-#endif
-
 #include "input/input_action.h"
 #include "map/dantares_map.h"
+#include "scenes/dantares_renderer.h"
 
 #include <ranges>
 
@@ -23,10 +19,7 @@ namespace ekoscape {
 
 GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
   : ctx_(ctx),state_(state) {
-  #if defined(CYBEL_RENDERER_GLES)
-  #else // CYBEL_RENDERER_GL.
-    dantares_renderer_ = std::make_unique<Dantares2GLRenderer>();
-  #endif
+  dantares_renderer_ = std::make_unique<DantaresRenderer>(ctx.cybel_engine.renderer());
 
   // Dantares2(...,SquareSize,FloorHeight,CeilingHeight).
   // - Classic values: (0.125f,-0.04f,0.04f).
