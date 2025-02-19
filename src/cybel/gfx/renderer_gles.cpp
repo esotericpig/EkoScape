@@ -63,11 +63,8 @@ RendererGles::RendererGles(const Size2i& size,const Size2i& target_size,const Co
 }
 
 void RendererGles::init_prog() {
-  Shader vert_shader{};
-  Shader frag_shader{};
-
   // NOTE: For WebGL, `#version` must be on the very first line (no spaces/newlines before it).
-  vert_shader.init(GL_VERTEX_SHADER,R"(#version 300 es
+  const Shader vert_shader{GL_VERTEX_SHADER,R"(#version 300 es
     precision highp float; // Best for positions & physics.
 
     uniform mat4 proj_mat;
@@ -83,8 +80,8 @@ void RendererGles::init_prog() {
         gl_Position = proj_mat * model_mat * vec4(vertex_pos,1.0);
         frag_tex_coord = tex_coord;
     }
-  )");
-  frag_shader.init(GL_FRAGMENT_SHADER,R"(#version 300 es
+  )"};
+  const Shader frag_shader{GL_FRAGMENT_SHADER,R"(#version 300 es
     precision mediump float; // Best for colors, normals, & general math.
 
     in vec2 frag_tex_coord;
@@ -105,26 +102,26 @@ void RendererGles::init_prog() {
       // This "could" be slightly faster by avoiding branching, but I dunno.
       //out_color = mix(color,texture(tex_2d,frag_tex_coord) * color,float(use_tex));
     }
-  )");
+  )"};
 
-  prog_.init(vert_shader.object(),frag_shader.object());
+  prog_ = std::make_unique<Program>(vert_shader.object(),frag_shader.object());
 
   GLenum error = GL_NO_ERROR;
 
-  glUseProgram(prog_.object());
+  glUseProgram(prog_->object());
   error = glGetError();
 
   if(error != GL_NO_ERROR) {
     throw CybelError{"Failed to use GLES program: ",Util::get_gl_error(error),'.'};
   }
 
-  proj_mat_loc_ = glGetUniformLocation(prog_.object(),"proj_mat");
-  model_mat_loc_ = glGetUniformLocation(prog_.object(),"model_mat");
-  vertex_pos_loc_ = glGetUniformLocation(prog_.object(),"vertex_pos");
-  tex_coord_loc_ = glGetUniformLocation(prog_.object(),"tex_coord");
-  color_loc_ = glGetUniformLocation(prog_.object(),"color");
-  use_tex_loc_ = glGetUniformLocation(prog_.object(),"use_tex");
-  tex_2d_loc_ = glGetUniformLocation(prog_.object(),"tex_2d");
+  proj_mat_loc_ = glGetUniformLocation(prog_->object(),"proj_mat");
+  model_mat_loc_ = glGetUniformLocation(prog_->object(),"model_mat");
+  vertex_pos_loc_ = glGetUniformLocation(prog_->object(),"vertex_pos");
+  tex_coord_loc_ = glGetUniformLocation(prog_->object(),"tex_coord");
+  color_loc_ = glGetUniformLocation(prog_->object(),"color");
+  use_tex_loc_ = glGetUniformLocation(prog_->object(),"use_tex");
+  tex_2d_loc_ = glGetUniformLocation(prog_->object(),"tex_2d");
 
   // Init Vertex & Fragment shaders' vars.
   RendererGles::end_color();
@@ -139,7 +136,7 @@ void RendererGles::init_prog() {
     throw CybelError{"Failed to init GLES program: ",Util::get_gl_error(error),'.'};
   }
 
-  quad_buffer_.init();
+  quad_buffer_ = std::make_unique<QuadBuffer>();
 }
 
 void RendererGles::resize(const Size2i& size) {
@@ -221,15 +218,14 @@ Renderer& RendererGles::draw_quad(const Pos3i& pos,const Size2i& size) {
 }
 
 Renderer& RendererGles::draw_quad(const Pos4f& src,const Pos3i& pos,const Size2i& size) {
-  quad_buffer_.set_vertex_data(src,build_dest_pos5f(pos,size));
-  quad_buffer_.draw();
+  quad_buffer_->set_vertex_data(src,build_dest_pos5f(pos,size));
+  quad_buffer_->draw();
 
   return *this;
 }
 
-void RendererGles::Shader::init(GLenum type,const std::string& src) {
-  object_ = glCreateShader(type);
-
+RendererGles::Shader::Shader(GLenum type,const std::string& src)
+  : object_(glCreateShader(type)) {
   if(object_ == 0) {
     throw CybelError{"Failed to create GLES shader [",type,"]: ",Util::get_gl_error(glGetError()),'.'};
   }
@@ -280,9 +276,8 @@ void RendererGles::Shader::destroy() noexcept {
 
 GLuint RendererGles::Shader::object() const { return object_; }
 
-void RendererGles::Program::init(GLuint vert_shader,GLuint frag_shader) {
-  object_ = glCreateProgram();
-
+RendererGles::Program::Program(GLuint vert_shader,GLuint frag_shader)
+  : object_(glCreateProgram()) {
   if(object_ == 0) {
     throw CybelError{"Failed to create GLES program: ",Util::get_gl_error(glGetError()),'.'};
   }
@@ -331,7 +326,7 @@ void RendererGles::Program::destroy() noexcept {
 
 GLuint RendererGles::Program::object() const { return object_; }
 
-void RendererGles::QuadBuffer::init() {
+RendererGles::QuadBuffer::QuadBuffer() {
   constexpr std::size_t row_byte_count = kVertexDataColCount * sizeof(GLfloat);
   const auto* tex_coord_offset = reinterpret_cast<const void*>(3 * sizeof(GLfloat));
 

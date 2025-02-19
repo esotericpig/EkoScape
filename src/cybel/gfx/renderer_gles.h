@@ -43,8 +43,7 @@ private:
 
   class Shader {
   public:
-    explicit Shader() noexcept = default;
-    void init(GLenum type,const std::string& src);
+    explicit Shader(GLenum type,const std::string& src);
 
     Shader(const Shader& other) = delete;
     Shader(Shader&& other) noexcept = delete;
@@ -63,8 +62,7 @@ private:
 
   class Program {
   public:
-    explicit Program() noexcept = default;
-    void init(GLuint vert_shader,GLuint frag_shader);
+    explicit Program(GLuint vert_shader,GLuint frag_shader);
 
     Program(const Program& other) = delete;
     Program(Program&& other) noexcept = delete;
@@ -83,8 +81,7 @@ private:
 
   class QuadBuffer {
   public:
-    explicit QuadBuffer() noexcept = default;
-    void init();
+    explicit QuadBuffer();
 
     QuadBuffer(const QuadBuffer& other) = delete;
     QuadBuffer(QuadBuffer&& other) noexcept = delete;
@@ -125,7 +122,7 @@ private:
 
   static constexpr auto kIdentityMat = glm::mat4(1.0f);
 
-  Program prog_{};
+  std::unique_ptr<Program> prog_{};
   GLint proj_mat_loc_ = -1;
   GLint model_mat_loc_ = -1;
   GLint vertex_pos_loc_ = -1;
@@ -138,7 +135,7 @@ private:
   glm::mat4 pers_proj_mat_ = kIdentityMat;
   glm::mat4 model_mat_ = kIdentityMat;
 
-  QuadBuffer quad_buffer_{};
+  std::unique_ptr<QuadBuffer> quad_buffer_{};
 
   static std::string fetch_info_log(GLuint object,InfoLogType type);
 
