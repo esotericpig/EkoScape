@@ -183,9 +183,7 @@ void EkoScapeGame::pop_scene() {
   }
 
   if(!scene_man_->pop_scene()) {
-    std::cerr << "[WARN] No scene to go back to. Quitting instead." << std::endl;
-    ctx_->audio_player.stop_music();
-    cybel_engine_->request_stop();
+    std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
   }
 }
 

@@ -15,14 +15,19 @@ SceneMan::SceneMan(const SceneBuilder& build_scene,const SceneIniter& init_scene
   : build_scene_(build_scene),init_scene_(init_scene) {}
 
 bool SceneMan::push_scene(int type) {
+  if(type == Scene::kNilType) { return false; }
+
   SceneBag scene = build_scene_(type);
   if(!scene.scene) { return false; }
 
   SceneBag prev = curr_scene_bag_;
   set_scene(std::move(scene));
 
-  if(!prev.persist) { prev.scene = nullptr; }
-  prev_scene_bags_.push_back(std::move(prev));
+  // Don't push kEmptySceneBag.
+  if(prev.type != Scene::kNilType) {
+    if(!prev.persist) { prev.scene = nullptr; }
+    prev_scene_bags_.push_back(std::move(prev));
+  }
 
   return true;
 }
@@ -39,7 +44,7 @@ bool SceneMan::pop_scene() {
 
     // Not persisted? (i.e., need to recreate)
     if(!prev.scene) {
-      prev.scene = build_scene_(prev.type).scene;
+      prev = build_scene_(prev.type);
       if(!prev.scene) { continue; }
     }
 

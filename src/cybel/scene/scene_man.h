@@ -26,7 +26,7 @@ public:
   static inline const SceneBag kEmptySceneBag{
     Scene::kNilType,
     std::make_shared<Scene>(), // Current scene should never be null.
-    false,
+    true,
   };
 
   explicit SceneMan(const SceneBuilder& build_scene,const SceneIniter& init_scene);
