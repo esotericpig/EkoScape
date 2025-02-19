@@ -1280,6 +1280,8 @@ Dantares2::SpaceClass &Dantares2::SpaceClass::operator = (SpaceClass &&Other) no
 
 void Dantares2::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
 {
+    DeleteQuadLists();
+
     Renderer = std::exchange(Other.Renderer, nullptr);
     SpaceType = std::exchange(Other.SpaceType, 0);
     FloorTexture = std::exchange(Other.FloorTexture, 0);

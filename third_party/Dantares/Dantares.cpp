@@ -1356,6 +1356,8 @@ Dantares::SpaceClass &Dantares::SpaceClass::operator = (SpaceClass &&r) noexcept
 
 void Dantares::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
 {
+    DeleteDisplayList();
+
     SpaceType = std::exchange(Other.SpaceType, 0);
     FloorTexture = std::exchange(Other.FloorTexture, -1);
     CeilingTexture = std::exchange(Other.CeilingTexture, -1);
