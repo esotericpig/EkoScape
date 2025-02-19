@@ -25,9 +25,6 @@
 #endif
 
 #if defined(CYBEL_RENDERER_GLES)
-  #ifndef DANTARES_RENDERER_GLES
-  #define DANTARES_RENDERER_GLES
-  #endif
 #else // CYBEL_RENDERER_GL.
   #ifndef DANTARES_RENDERER_GL
   #define DANTARES_RENDERER_GL

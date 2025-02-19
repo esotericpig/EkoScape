@@ -149,7 +149,6 @@ endif()
 if(RENDERER MATCHES "GLES")
   target_compile_definitions("${BIN_NAME}" PRIVATE
       CYBEL_RENDERER_GLES
-      DANTARES_RENDERER_GLES
   )
 else() # GL.
   target_compile_definitions("${BIN_NAME}" PRIVATE
@@ -241,7 +240,6 @@ target_sources("${BIN_NAME}" PRIVATE
 #    "${TP_DIR}/Dantares/Dantares.cpp"
     "${TP_DIR}/Dantares/Dantares2.cpp"
     "${TP_DIR}/Dantares/Dantares2GL.cpp"
-    "${TP_DIR}/Dantares/Dantares2GLES.cpp"
 
     "${SRC_DIR}/cybel/audio/audio_player.cpp"
     "${SRC_DIR}/cybel/audio/music.cpp"

@@ -24,40 +24,48 @@
 
 #if defined(DANTARES_RENDERER_GL)
 
-class Dantares2GL : public Dantares2
+#if defined(DANTARES_PLATFORM_MACOS)
+    #ifndef GL_SILENCE_DEPRECATION
+    #define GL_SILENCE_DEPRECATION
+    #endif
+
+    //Mac OS X OpenGL headers.
+    #include<OpenGL/gl.h>
+#elif defined(DANTARES_PLATFORM_WINDOWS)
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+
+    //Windows OpenGL headers.
+    #include<windows.h>
+    #include<GL/gl.h>
+#else
+    //X11 OpenGL headers.
+    #include<GL/gl.h>
+#endif
+
+class Dantares2GLRenderer : public Dantares2::RendererClass
 {
 public:
-    explicit Dantares2GL(float SquareSize, float FloorHeight, float CeilingHeight);
-
-    std::unique_ptr<SpaceClass> BuildSpace(int SpaceID) override;
-
     void BeginDraw() override;
     void EndDraw() override;
+
     void TranslateModelMatrix(float X, float Y, float Z) override;
     void RotateModelMatrix(float Angle, float X, float Y, float Z) override;
     void UpdateModelMatrix() override;
     void PushModelMatrix() override;
     void PopModelMatrix() override;
 
-private:
-    class SpaceClassGL : public SpaceClass
-    {
-    public:
-        explicit SpaceClassGL(int Type) noexcept;
-
-        SpaceClassGL(SpaceClassGL &&Other) noexcept;
-        SpaceClassGL &operator = (SpaceClassGL &&Other) noexcept;
-        ~SpaceClassGL() noexcept override;
-
-        void GenerateFaces(float SquareOffset, float FloorHeight, float CeilingHeight) override;
-        void DrawFace(int FaceIndex) override;
-
-        GLuint DisplayList = 0;
-
-    private:
-        void MoveFrom(SpaceClassGL &&Other) noexcept;
-        void DeleteDisplayList() noexcept;
-    };
+    GLuint GenerateQuadLists(int Count) override;
+    void DeleteQuadLists(GLuint ID, int Count) override;
+    void CompileQuadList(GLuint ID, int Index,
+                         GLuint TextureID,
+                         const QuadNormalData &NormalData,
+                         const QuadVertexData &VertexData) override;
+    void DrawQuadList(GLuint ID, int Index) override;
 };
 
 #endif //DANTARES_RENDERER_GL.

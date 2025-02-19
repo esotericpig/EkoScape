@@ -72,6 +72,7 @@ private:
   State& state_;
   int scene_action_ = SceneAction::kNil;
 
+  std::unique_ptr<Dantares2::RendererClass> dantares_renderer_{};
   std::unique_ptr<Dantares2> dantares_{};
   std::unique_ptr<Map> map_{};
 

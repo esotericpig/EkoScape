@@ -21,212 +21,74 @@
 
 #if defined(DANTARES_RENDERER_GL)
 
-#include<memory>
-#include<utility>
-
-Dantares2GL::Dantares2GL(float SquareSize, float FloorHeight, float CeilingHeight)
-    : Dantares2(SquareSize, FloorHeight, CeilingHeight)
+void Dantares2GLRenderer::BeginDraw()
 {
 }
 
-std::unique_ptr<Dantares2GL::SpaceClass> Dantares2GL::BuildSpace(int SpaceID)
-{
-    return std::make_unique<SpaceClassGL>(SpaceID);
-}
-
-void Dantares2GL::BeginDraw()
+void Dantares2GLRenderer::EndDraw()
 {
 }
 
-void Dantares2GL::EndDraw()
-{
-}
-
-void Dantares2GL::TranslateModelMatrix(float X, float Y, float Z)
+void Dantares2GLRenderer::TranslateModelMatrix(float X, float Y, float Z)
 {
     glTranslatef(X, Y, Z);
 }
 
-void Dantares2GL::RotateModelMatrix(float Angle, float X, float Y, float Z)
+void Dantares2GLRenderer::RotateModelMatrix(float Angle, float X, float Y, float Z)
 {
     glRotatef(Angle, X, Y, Z);
 }
 
-void Dantares2GL::UpdateModelMatrix()
+void Dantares2GLRenderer::UpdateModelMatrix()
 {
 }
 
-void Dantares2GL::PushModelMatrix()
+void Dantares2GLRenderer::PushModelMatrix()
 {
     glPushMatrix();
 }
 
-void Dantares2GL::PopModelMatrix()
+void Dantares2GLRenderer::PopModelMatrix()
 {
     glPopMatrix();
 }
 
-Dantares2GL::SpaceClassGL::SpaceClassGL(int Type) noexcept
-    : SpaceClass(Type)
+GLuint Dantares2GLRenderer::GenerateQuadLists(int Count)
 {
+    return glGenLists(Count);
 }
 
-Dantares2GL::SpaceClassGL::SpaceClassGL(SpaceClassGL &&Other) noexcept
-    : SpaceClass(std::move(Other))
+void Dantares2GLRenderer::DeleteQuadLists(GLuint ID, int Count)
 {
-    MoveFrom(std::move(Other));
+    glDeleteLists(ID, Count);
 }
 
-Dantares2GL::SpaceClassGL &Dantares2GL::SpaceClassGL::operator = (SpaceClassGL &&Other) noexcept
+void Dantares2GLRenderer::CompileQuadList(GLuint ID, int Index,
+                                          GLuint TextureID,
+                                          const QuadNormalData &N,
+                                          const QuadVertexData &V)
 {
-    if (this != &Other)
-    {
-        SpaceClass::operator = (std::move(Other));
-        MoveFrom(std::move(Other));
-    }
+    glNewList(ID + Index, GL_COMPILE);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, TextureID);
 
-    return *this;
+        glBegin(GL_QUADS);
+            glNormal3f(N.X, N.Y, N.Z);
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex3f(V.X1, V.Y1, V.Z1);
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex3f(V.X2, V.Y2, V.Z2);
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex3f(V.X3, V.Y3, V.Z3);
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex3f(V.X4, V.Y4, V.Z4);
+        glEnd();
+    glEndList();
 }
 
-void Dantares2GL::SpaceClassGL::MoveFrom(SpaceClassGL &&Other) noexcept
+void Dantares2GLRenderer::DrawQuadList(GLuint ID, int Index)
 {
-    DisplayList = std::exchange(Other.DisplayList, 0);
-}
-
-Dantares2GL::SpaceClassGL::~SpaceClassGL() noexcept
-{
-    DeleteDisplayList();
-}
-
-void Dantares2GL::SpaceClassGL::DeleteDisplayList() noexcept
-{
-    if (DisplayList != 0)
-    {
-        glDeleteLists(DisplayList, FACE_COUNT);
-        DisplayList = 0;
-    }
-}
-
-void Dantares2GL::SpaceClassGL::GenerateFaces(float SquareOffset, float FloorHeight, float CeilingHeight)
-{
-    DeleteDisplayList();
-    DisplayList = glGenLists(FACE_COUNT);
-
-    if (CeilingTexture != 0)
-    {
-        glNewList(DisplayList + FACE_CEILING, GL_COMPILE);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, CeilingTexture);
-
-            glBegin(GL_QUADS);
-                glNormal3f(0.0f, -1.0f, 0.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(-SquareOffset, CeilingHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(SquareOffset, CeilingHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(SquareOffset, CeilingHeight, SquareOffset);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(-SquareOffset, CeilingHeight, SquareOffset);
-            glEnd();
-        glEndList();
-    }
-
-    if (FloorTexture != 0)
-    {
-        glNewList(DisplayList + FACE_FLOOR, GL_COMPILE);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, FloorTexture);
-
-            glBegin(GL_QUADS);
-                glNormal3f(0.0f, 1.0f, 0.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(-SquareOffset, FloorHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(SquareOffset, FloorHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(SquareOffset, FloorHeight, SquareOffset);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(-SquareOffset, FloorHeight, SquareOffset);
-            glEnd();
-        glEndList();
-    }
-
-    if (WallTexture != 0)
-    {
-        glNewList(DisplayList + FACE_WALL_NEAR, GL_COMPILE);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, WallTexture);
-
-            glBegin(GL_QUADS);
-                glNormal3f(0.0f, 0.0f, 1.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(-SquareOffset, FloorHeight, SquareOffset);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(SquareOffset, FloorHeight, SquareOffset);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(SquareOffset, CeilingHeight, SquareOffset);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(-SquareOffset, CeilingHeight, SquareOffset);
-            glEnd();
-        glEndList();
-
-        glNewList(DisplayList + FACE_WALL_RIGHT, GL_COMPILE);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, WallTexture);
-
-            glBegin(GL_QUADS);
-                glNormal3f(1.0f, 0.0f, 0.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(SquareOffset, FloorHeight, SquareOffset);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(SquareOffset, FloorHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(SquareOffset, CeilingHeight, -SquareOffset);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(SquareOffset, CeilingHeight, SquareOffset);
-            glEnd();
-        glEndList();
-
-        glNewList(DisplayList + FACE_WALL_FAR, GL_COMPILE);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, WallTexture);
-
-            glBegin(GL_QUADS);
-                glNormal3f(0.0f, 0.0f, -1.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(SquareOffset, FloorHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(-SquareOffset, FloorHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(-SquareOffset, CeilingHeight, -SquareOffset);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(SquareOffset, CeilingHeight, -SquareOffset);
-            glEnd();
-        glEndList();
-
-        glNewList(DisplayList + FACE_WALL_LEFT, GL_COMPILE);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, WallTexture);
-
-            glBegin(GL_QUADS);
-                glNormal3f(-1.0f, 0.0f, 0.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex3f(-SquareOffset, FloorHeight, -SquareOffset);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex3f(-SquareOffset, FloorHeight, SquareOffset);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex3f(-SquareOffset, CeilingHeight, SquareOffset);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex3f(-SquareOffset, CeilingHeight, -SquareOffset);
-            glEnd();
-        glEndList();
-    }
-}
-
-void Dantares2GL::SpaceClassGL::DrawFace(int FaceIndex)
-{
-    glCallList(DisplayList + FaceIndex);
+    glCallList(ID + Index);
 }
 
 #endif //DANTARES_RENDERER_GL.

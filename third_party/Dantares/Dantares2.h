@@ -20,51 +20,6 @@
 #ifndef DANTARES2_H
 #define DANTARES2_H
 
-#if !(defined(DANTARES_RENDERER_GL) || defined(DANTARES_RENDERER_GLES))
-    #if defined(__EMSCRIPTEN__)
-        #define DANTARES_RENDERER_GLES
-    #else
-        #define DANTARES_RENDERER_GL
-    #endif
-#endif
-
-#if defined(__EMSCRIPTEN__)
-    #include <emscripten.h>
-#endif
-
-#if defined(DANTARES_RENDERER_GL)
-    #if defined(DANTARES_PLATFORM_MACOS)
-        #ifndef GL_SILENCE_DEPRECATION
-        #define GL_SILENCE_DEPRECATION
-        #endif
-
-        //Mac OS X OpenGL headers.
-        #include<OpenGL/gl.h>
-    #elif defined(DANTARES_PLATFORM_WINDOWS)
-        #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-        #endif
-        #ifndef NOMINMAX
-        #define NOMINMAX
-        #endif
-
-        //Windows OpenGL headers.
-        #include<windows.h>
-        #include<GL/gl.h>
-    #else
-        //X11 OpenGL headers.
-        #include<GL/gl.h>
-    #endif
-#endif
-
-#if defined(DANTARES_RENDERER_GLES)
-    #if defined(DANTARES_PLATFORM_MACOS) || defined(__IPHONEOS__)
-        #include <OpenGLES/ES3/gl.h>
-    #else
-        #include <GLES3/gl3.h>
-    #endif
-#endif
-
 #include<iostream>
 #include<memory>
 #include<unordered_map>
@@ -73,6 +28,44 @@
 class Dantares2
 {
 public:
+    using GLuint = unsigned int;
+
+    class RendererClass
+    {
+    public:
+        struct QuadNormalData
+        {
+            float X{}, Y{}, Z{};
+        };
+
+        struct QuadVertexData
+        {
+            float X1{}, Y1{}, Z1{};
+            float X2{}, Y2{}, Z2{};
+            float X3{}, Y3{}, Z3{};
+            float X4{}, Y4{}, Z4{};
+        };
+
+        virtual ~RendererClass() noexcept = default;
+
+        virtual void BeginDraw() = 0;
+        virtual void EndDraw() = 0;
+
+        virtual void TranslateModelMatrix(float X, float Y, float Z) = 0;
+        virtual void RotateModelMatrix(float Angle, float X, float Y, float Z) = 0;
+        virtual void UpdateModelMatrix() = 0;
+        virtual void PushModelMatrix() = 0;
+        virtual void PopModelMatrix() = 0;
+
+        virtual GLuint GenerateQuadLists(int Count) = 0;
+        virtual void DeleteQuadLists(GLuint ID, int Count) = 0;
+        virtual void CompileQuadList(GLuint ID, int Index,
+                                     GLuint TextureID,
+                                     const QuadNormalData &NormalData,
+                                     const QuadVertexData &VertexData) = 0;
+        virtual void DrawQuadList(GLuint ID, int Index) = 0;
+    };
+
     static constexpr int MAXMAPS = 10;
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
@@ -82,10 +75,11 @@ public:
     static constexpr int DIR_SOUTH = 2;
     static constexpr int DIR_WEST  = 3;
 
-    explicit Dantares2(float SquareSize, float FloorHeight, float CeilingHeight);
+    explicit Dantares2(RendererClass &Renderer, float SquareSize, float FloorHeight, float CeilingHeight);
     /*  Constructor takes three parameters to initialize the engine.
 
         Parameters:
+        RendererClass &Renderer - The renderer implementation to use for rendering.
         float SquareSize - The size of each map square in OpenGL coordinates.
         float FloorHeight - The position of the floor on the Y axis.
         float CeilingHeight - The position of the ceiling on the Y axis.
@@ -574,33 +568,35 @@ protected:
         static constexpr int FACE_FLOOR      = 4;
         static constexpr int FACE_CEILING    = 5;
 
-        explicit SpaceClass(int Type) noexcept;
+        explicit SpaceClass(RendererClass *Renderer, int Type) noexcept;
 
         SpaceClass(const SpaceClass &Copy) = delete;
         SpaceClass(SpaceClass &&Other) noexcept;
         SpaceClass &operator = (const SpaceClass &Copy) = delete;
         SpaceClass &operator = (SpaceClass &&Other) noexcept;
-        virtual ~SpaceClass() noexcept = default;
+        virtual ~SpaceClass() noexcept;
 
-        virtual void GenerateFaces(float SquareOffset, float FloorHeight, float CeilingHeight) = 0;
-        virtual void DrawFace(int FaceIndex) = 0;
+        void GenerateQuadLists();
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
+        RendererClass *Renderer = nullptr;
         int SpaceType = 0;                                               //The type of the space.
         GLuint FloorTexture = 0;                                         //Floor texture ID.
         GLuint CeilingTexture = 0;                                       //Ceiling texture ID.
         GLuint WallTexture = 0;                                          //Wall texture ID.
+        GLuint QuadList = 0;                                             //Quad list for the space.
 
     private:
         void MoveFrom(SpaceClass &&Other) noexcept;
+        void DeleteQuadLists() noexcept;
     };
 
     //Class for storing maps.
     class MapClass
     {
     public:
-        explicit MapClass(Dantares2 &Dan, int MaxX, int MaxY);           //Constructor sets map size.
+        explicit MapClass(RendererClass *Renderer, int MaxX, int MaxY);  //Constructor sets map size.
 
         MapClass(const MapClass &Copy) = delete;
         MapClass(MapClass &&Other) noexcept;
@@ -613,7 +609,7 @@ protected:
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
-        Dantares2 &Parent;
+        RendererClass *Renderer = nullptr;
         std::vector<std::vector<int>> MapArray{};                        //Array for the map.
         std::vector<std::vector<bool>> WalkArray{};                      //Array for walkability.
         std::unordered_map<int,std::unique_ptr<SpaceClass>> SpaceInfo{}; //Map of space information.
@@ -624,16 +620,8 @@ protected:
         void MoveFrom(MapClass &&Other) noexcept;
     };
 
-    virtual std::unique_ptr<SpaceClass> BuildSpace(int SpaceID) = 0;
-
-    virtual void BeginDraw() = 0;
-    virtual void EndDraw() = 0;
-    virtual void TranslateModelMatrix(float X, float Y, float Z) = 0;
-    virtual void RotateModelMatrix(float Angle, float X, float Y, float Z) = 0;
-    virtual void UpdateModelMatrix() = 0;
-    virtual void PushModelMatrix() = 0;
-    virtual void PopModelMatrix() = 0;
-
+    RendererClass *Renderer = nullptr;
+    //The renderer implementation to use for rendering.
     int CurrentMap = -1;
     //The ID number of the currently active map.
     int NextMapID = 0;

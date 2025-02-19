@@ -20,10 +20,12 @@
 #include "Dantares2.h"
 
 #include<iomanip>
+#include<ranges>
 #include<utility>
 
-Dantares2::Dantares2(float SquareSize, float FloorHeight, float CeilingHeight)
-    : SqSize(SquareSize),
+Dantares2::Dantares2(RendererClass &Renderer, float SquareSize, float FloorHeight, float CeilingHeight)
+    : Renderer(&Renderer),
+      SqSize(SquareSize),
       Floor(FloorHeight),
       Ceiling(CeilingHeight),
       WalkSpeed(SquareSize / 15.0f)
@@ -47,6 +49,7 @@ Dantares2 &Dantares2::operator = (Dantares2 &&Other) noexcept
 
 void Dantares2::MoveFrom(Dantares2 &&Other) noexcept
 {
+    Renderer = std::exchange(Other.Renderer, nullptr);
     CurrentMap = std::exchange(Other.CurrentMap, -1);
     NextMapID = std::exchange(Other.NextMapID, 0);
     SqSize = Other.SqSize;
@@ -78,7 +81,7 @@ int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
         return -1;
     }
 
-    Maps[NewMapID] = std::make_unique<MapClass>(*this, SizeX, SizeY);    //Generate new map.
+    Maps[NewMapID] = std::make_unique<MapClass>(Renderer, SizeX, SizeY); //Generate new map.
     NextMapID = MAXMAPS;
 
     for (int x = 0; x < MAXMAPS; x++)                                    //Find the next map ID.
@@ -117,7 +120,7 @@ int Dantares2::AddMap(const int* const *Map, int SizeX, int SizeY)
         return -1;
     }
 
-    Maps[NewMapID] = std::make_unique<MapClass>(*this, SizeX, SizeY);    //Generate new map.
+    Maps[NewMapID] = std::make_unique<MapClass>(Renderer, SizeX, SizeY); //Generate new map.
     NextMapID = MAXMAPS;
 
     for (int x = 0; x < MAXMAPS; x++)                                    //Find the next map ID.
@@ -359,9 +362,99 @@ bool Dantares2::GenerateMap()
 
     const float Offset = SqSize / 2.0f;
 
-    for (auto &[_, Seeker]: Maps[CurrentMap]->SpaceInfo)
+    for (const auto &Seeker: std::views::values(Maps[CurrentMap]->SpaceInfo))
     {
-        Seeker->GenerateFaces(Offset, Floor, Ceiling);
+        Seeker->GenerateQuadLists();
+
+        if (Seeker->CeilingTexture != 0)
+        {
+            Renderer->CompileQuadList(
+                Seeker->QuadList, SpaceClass::FACE_CEILING,
+                Seeker->CeilingTexture,
+                RendererClass::QuadNormalData{
+                    0.0f, -1.0f, 0.0f
+                },
+                RendererClass::QuadVertexData{
+                    -Offset, Ceiling, -Offset,
+                     Offset, Ceiling, -Offset,
+                     Offset, Ceiling,  Offset,
+                    -Offset, Ceiling,  Offset,
+                }
+            );
+        }
+
+        if (Seeker->FloorTexture != 0)
+        {
+            Renderer->CompileQuadList(
+                Seeker->QuadList, SpaceClass::FACE_FLOOR,
+                Seeker->FloorTexture,
+                RendererClass::QuadNormalData{
+                    0.0f, 1.0f, 0.0f
+                },
+                RendererClass::QuadVertexData{
+                    -Offset, Floor, -Offset,
+                     Offset, Floor, -Offset,
+                     Offset, Floor,  Offset,
+                    -Offset, Floor,  Offset,
+                }
+            );
+        }
+
+        if (Seeker->WallTexture != 0)
+        {
+            Renderer->CompileQuadList(
+                Seeker->QuadList, SpaceClass::FACE_WALL_NEAR,
+                Seeker->WallTexture,
+                RendererClass::QuadNormalData{
+                    0.0f, 0.0f, 1.0f
+                },
+                RendererClass::QuadVertexData{
+                    -Offset, Floor,   Offset,
+                     Offset, Floor,   Offset,
+                     Offset, Ceiling, Offset,
+                    -Offset, Ceiling, Offset,
+                }
+            );
+            Renderer->CompileQuadList(
+                Seeker->QuadList, SpaceClass::FACE_WALL_RIGHT,
+                Seeker->WallTexture,
+                RendererClass::QuadNormalData{
+                    1.0f, 0.0f, 0.0f
+                },
+                RendererClass::QuadVertexData{
+                    Offset, Floor,    Offset,
+                    Offset, Floor,   -Offset,
+                    Offset, Ceiling, -Offset,
+                    Offset, Ceiling,  Offset,
+                }
+            );
+            Renderer->CompileQuadList(
+                Seeker->QuadList, SpaceClass::FACE_WALL_FAR,
+                Seeker->WallTexture,
+                RendererClass::QuadNormalData{
+                    0.0f, 0.0f, -1.0f
+                },
+                RendererClass::QuadVertexData{
+                     Offset, Floor,   -Offset,
+                    -Offset, Floor,   -Offset,
+                    -Offset, Ceiling, -Offset,
+                     Offset, Ceiling, -Offset,
+                }
+            );
+            Renderer->CompileQuadList(
+                Seeker->QuadList, SpaceClass::FACE_WALL_LEFT,
+                Seeker->WallTexture,
+                RendererClass::QuadNormalData{
+                    -1.0f, 0.0f, 0.0f
+                },
+                RendererClass::QuadVertexData{
+                    -Offset, Floor,   -Offset,
+                    -Offset, Floor,    Offset,
+                    -Offset, Ceiling,  Offset,
+                    -Offset, Ceiling, -Offset,
+                }
+            );
+        }
     }
 
     return true;
@@ -380,10 +473,10 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
     const auto CameraXf = static_cast<float>(CameraX);
     const auto CameraYf = static_cast<float>(CameraY);
 
-    BeginDraw();
+    Renderer->BeginDraw();
 
-    TranslateModelMatrix(0.0f, 0.0f, -(SqSize / 2.0f));
-    RotateModelMatrix(static_cast<float>(CameraFacing) * 90.0f + TurnOffset, 0.0f, 1.0f, 0.0f);
+    Renderer->TranslateModelMatrix(0.0f, 0.0f, -(SqSize / 2.0f));
+    Renderer->RotateModelMatrix(static_cast<float>(CameraFacing) * 90.0f + TurnOffset, 0.0f, 1.0f, 0.0f);
 
     switch (CameraFacing)
     {
@@ -391,11 +484,11 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
         case DIR_SOUTH:
             if (Walking == DIR_EAST || Walking == DIR_WEST)
             {
-                TranslateModelMatrix(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
+                Renderer->TranslateModelMatrix(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
             else
             {
-                TranslateModelMatrix(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
+                Renderer->TranslateModelMatrix(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
             break;
 
@@ -403,11 +496,11 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
         case DIR_WEST:
             if (Walking == DIR_NORTH || Walking == DIR_SOUTH)
             {
-                TranslateModelMatrix(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
+                Renderer->TranslateModelMatrix(-(CameraXf * SqSize), 0.0f, CameraYf * SqSize + WalkOffset);
             }
             else
             {
-                TranslateModelMatrix(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
+                Renderer->TranslateModelMatrix(-(CameraXf * SqSize + WalkOffset), 0.0f, CameraYf * SqSize);
             }
             break;
     }
@@ -418,51 +511,51 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
-                PushModelMatrix();
-                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                Renderer->PushModelMatrix();
+                Renderer->TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > HalfDistance) ? (CameraY - HalfDistance) : 0;
                      y < YBound && y < (CameraY + Distance); y++)
                 {
                     if (y == (CameraY - HalfDistance))
                     {
-                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        Renderer->TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
-                    UpdateModelMatrix();
+                    Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    Renderer->UpdateModelMatrix();
 
-                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (y >= CameraY)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_NEAR);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_NEAR);
                         }
 
                         if (x < CameraX)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_RIGHT);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_RIGHT);
                         }
                         else if (x > CameraX)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_LEFT);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_LEFT);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_CEILING);
                     }
                 }
 
-                PopModelMatrix();
+                Renderer->PopModelMatrix();
             }
             break;
 
@@ -470,51 +563,51 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > HalfDistance) ? (CameraX - HalfDistance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
-                PushModelMatrix();
-                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                Renderer->PushModelMatrix();
+                Renderer->TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
                      y < YBound && y < (CameraY + Distance); y++)
                 {
                     if (y == (CameraY - Distance))
                     {
-                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        Renderer->TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
-                    UpdateModelMatrix();
+                    Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    Renderer->UpdateModelMatrix();
 
-                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (x >= CameraX)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_LEFT);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_LEFT);
                         }
 
                         if (y > CameraY)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_NEAR);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_NEAR);
                         }
                         else if (y < CameraY)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_FAR);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_FAR);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_CEILING);
                     }
                 }
 
-                PopModelMatrix();
+                Renderer->PopModelMatrix();
             }
             break;
 
@@ -522,51 +615,51 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + Distance); x++)
             {
-                PushModelMatrix();
-                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                Renderer->PushModelMatrix();
+                Renderer->TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
                      y < YBound && y < (CameraY + HalfDistance); y++)
                 {
                     if (y == (CameraY - Distance))
                     {
-                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        Renderer->TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
-                    UpdateModelMatrix();
+                    Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    Renderer->UpdateModelMatrix();
 
-                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (y <= CameraY)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_FAR);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_FAR);
                         }
 
                         if (x > CameraX)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_LEFT);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_LEFT);
                         }
                         else if (x < CameraX)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_RIGHT);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_RIGHT);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_CEILING);
                     }
                 }
 
-                PopModelMatrix();
+                Renderer->PopModelMatrix();
             }
             break;
 
@@ -574,59 +667,59 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
             for (int x = (CameraX > Distance) ? (CameraX - Distance) : 0;
                  x < XBound && x < (CameraX + HalfDistance); x++)
             {
-                PushModelMatrix();
-                TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
+                Renderer->PushModelMatrix();
+                Renderer->TranslateModelMatrix(static_cast<float>(x) * SqSize, 0.0f, SqSize);
 
                 for (int y = (CameraY > Distance) ? (CameraY - Distance) : 0;
                      y < YBound && y < (CameraY + Distance); y++)
                 {
                     if (y == (CameraY - Distance))
                     {
-                        TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
+                        Renderer->TranslateModelMatrix(0.0f, 0.0f, -(SqSize * static_cast<float>(y)));
                     }
 
-                    TranslateModelMatrix(0.0f, 0.0f, -SqSize);
-                    UpdateModelMatrix();
+                    Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
+                    Renderer->UpdateModelMatrix();
 
-                    SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
 
                     if (Seeker->WallTexture != 0)
                     {
                         if (x <= CameraX)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_RIGHT);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_RIGHT);
                         }
 
                         if (y < CameraY)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_FAR);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_FAR);
                         }
                         else if (y > CameraY)
                         {
-                            Seeker->DrawFace(SpaceClass::FACE_WALL_NEAR);
+                            Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_WALL_NEAR);
                         }
                     }
 
                     if (Seeker->FloorTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_FLOOR);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_FLOOR);
                     }
 
                     if (Seeker->CeilingTexture != 0)
                     {
-                        Seeker->DrawFace(SpaceClass::FACE_CEILING);
+                        Renderer->DrawQuadList(Seeker->QuadList, SpaceClass::FACE_CEILING);
                     }
                 }
 
-                PopModelMatrix();
+                Renderer->PopModelMatrix();
             }
             break;
     }
 
     //Retain the transformations made to the model matrix.
     //This allows the user to insert other objects into the map.
-    UpdateModelMatrix();
-    EndDraw();
+    Renderer->UpdateModelMatrix();
+    Renderer->EndDraw();
 
     if (MovePlayer)
     {
@@ -1164,8 +1257,9 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
     Out << std::endl;
 }
 
-Dantares2::SpaceClass::SpaceClass(int Type) noexcept
-    : SpaceType(Type)
+Dantares2::SpaceClass::SpaceClass(RendererClass *Renderer, int Type) noexcept
+    : Renderer(Renderer),
+      SpaceType(Type)
 {
 }
 
@@ -1186,10 +1280,33 @@ Dantares2::SpaceClass &Dantares2::SpaceClass::operator = (SpaceClass &&Other) no
 
 void Dantares2::SpaceClass::MoveFrom(SpaceClass &&Other) noexcept
 {
+    Renderer = std::exchange(Other.Renderer, nullptr);
     SpaceType = std::exchange(Other.SpaceType, 0);
     FloorTexture = std::exchange(Other.FloorTexture, 0);
     CeilingTexture = std::exchange(Other.CeilingTexture, 0);
     WallTexture = std::exchange(Other.WallTexture, 0);
+    QuadList = std::exchange(Other.QuadList, 0);
+}
+
+Dantares2::SpaceClass::~SpaceClass() noexcept
+{
+    DeleteQuadLists();
+}
+
+void Dantares2::SpaceClass::DeleteQuadLists() noexcept
+{
+    if (QuadList != 0)
+    {
+        Renderer->DeleteQuadLists(QuadList, FACE_COUNT);
+        QuadList = 0;
+    }
+}
+
+void Dantares2::SpaceClass::GenerateQuadLists()
+{
+    DeleteQuadLists();
+
+    QuadList = Renderer->GenerateQuadLists(FACE_COUNT);
 }
 
 void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
@@ -1205,8 +1322,8 @@ void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     Out.flush();
 }
 
-Dantares2::MapClass::MapClass(Dantares2 &Dan, int MaxX, int MaxY)
-    : Parent(Dan),
+Dantares2::MapClass::MapClass(RendererClass *Renderer, int MaxX, int MaxY)
+    : Renderer(Renderer),
       MapArray(MaxX, std::vector(MaxY, 0)),
       WalkArray(MaxX, std::vector(MaxY, true)),
       XSize(MaxX),
@@ -1215,7 +1332,6 @@ Dantares2::MapClass::MapClass(Dantares2 &Dan, int MaxX, int MaxY)
 }
 
 Dantares2::MapClass::MapClass(MapClass &&Other) noexcept
-    : Parent(Other.Parent)
 {
     MoveFrom(std::move(Other));
 }
@@ -1232,6 +1348,7 @@ Dantares2::MapClass &Dantares2::MapClass::operator = (MapClass &&Other) noexcept
 
 void Dantares2::MapClass::MoveFrom(MapClass &&Other) noexcept
 {
+    Renderer = std::exchange(Other.Renderer, nullptr);
     MapArray = std::move(Other.MapArray);
     WalkArray = std::move(Other.WalkArray);
     SpaceInfo = std::move(Other.SpaceInfo);
@@ -1243,9 +1360,9 @@ Dantares2::SpaceClass &Dantares2::MapClass::AddSpaceIfAbsent(int SpaceID)
 {
     auto [It, IsNew] = SpaceInfo.try_emplace(SpaceID);
 
-    if (IsNew)
+    if (IsNew || !It->second)
     {
-        It->second = std::move(Parent.BuildSpace(SpaceID));
+        It->second = std::make_unique<SpaceClass>(Renderer, SpaceID);
     }
 
     return *It->second;

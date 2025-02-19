@@ -10,7 +10,6 @@
 #include "cybel/util/rando.h"
 
 #if defined(CYBEL_RENDERER_GLES)
-  #include "Dantares/Dantares2GLES.h"
 #else // CYBEL_RENDERER_GL.
   #include "Dantares/Dantares2GL.h"
 #endif
@@ -24,19 +23,16 @@ namespace ekoscape {
 
 GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
   : ctx_(ctx),state_(state) {
-  // - Classic values: {0.125f,-0.04f,0.04f}.
-  // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
-  //   - See set_space_texs(), which relies on this logic.
-  constexpr float square_size = 0.125f;
-  constexpr float floor_height = 0.04f;
-  constexpr float ceiling_height = -0.04f;
-
   #if defined(CYBEL_RENDERER_GLES)
-    dantares_ = std::make_unique<Dantares2GLES>(square_size,floor_height,ceiling_height);
   #else // CYBEL_RENDERER_GL.
-    dantares_ = std::make_unique<Dantares2GL>(square_size,floor_height,ceiling_height);
+    dantares_renderer_ = std::make_unique<Dantares2GLRenderer>();
   #endif
 
+  // Dantares2(...,SquareSize,FloorHeight,CeilingHeight).
+  // - Classic values: (0.125f,-0.04f,0.04f).
+  // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
+  //   - See set_space_texs(), which relies on this logic.
+  dantares_ = std::make_unique<Dantares2>(*dantares_renderer_,0.125f,0.04f,-0.04f);
   map_ = std::make_unique<DantaresMap>(*dantares_,[&](auto& /*dan*/,int /*z*/,int /*grid_id*/) {
     init_map_texs();
   });
