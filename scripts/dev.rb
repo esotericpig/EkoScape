@@ -26,6 +26,11 @@
 #   ./scripts/dev.rb -r
 #   ./scripts/dev.rb -r -d
 #
+#   # Configure/Build/Run for Web.
+#   ./scripts/dev.rb -c -w
+#   ./scripts/dev.rb -b -w
+#   ./scripts/dev.rb -r -w
+#
 #   # Check code quality.
 #   ./scripts/dev.rb -k
 #
@@ -46,7 +51,7 @@ def main
 end
 
 class DevApp
-  VERSION = '0.1.5'
+  VERSION = '0.1.6'
 
   CMAKE_CMD = %w[ cmake ].freeze
 
@@ -80,14 +85,15 @@ class DevApp
       op.on('-A',nil,'[AppImage] build AppImage (always uses Release)')
       op.on('-P',nil,'[pkg] package up AppImage & files using CPack')
       op.separator ''
-      op.on('-p <preset>','use <preset> for the preset') { |p| p.to_s.strip }
-      op.on('-d',nil,"use 'Debug' config")
       op.on('-j [jobs]','set number of jobs in parallel; if no number, uses 1') do |j|
         j = j.to_s.strip
         j = j.empty? ? 1 : j.to_i
         @extra_build_args['-j'] = j
         j
       end
+      op.on('-d',nil,"use 'Debug' config")
+      op.on('-w',nil,"use 'web' preset")
+      op.on('-p <preset>','use <preset> for the preset') { |p| p.to_s.strip }
 
       op.separator ''
       op.separator 'Basic Options'
@@ -116,8 +122,13 @@ class DevApp
     end
 
     @dry_run = opts[:n]
-    @preset = opts[:p] unless opts[:p].nil? || opts[:p].empty?
     @config = 'Debug' if opts[:d]
+
+    if opts[:w]
+      @preset = 'web'
+    elsif !(opts[:p].nil? || opts[:p].empty?)
+      @preset = opts[:p]
+    end
 
     # Order matters! Because user can specify all opts.
     config_build if opts[:c]
