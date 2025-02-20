@@ -28,6 +28,10 @@ EkoScapeGame::EkoScapeGame() {
     .music_types = MIX_INIT_OGG,
   };
 
+  #if defined(__EMSCRIPTEN__)
+    config.vsync = false;
+  #endif
+
   // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
   // These are fixed values and should not be changed.
   config.target_size = Size2i{1600,900};
