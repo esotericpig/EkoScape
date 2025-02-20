@@ -123,8 +123,81 @@ endif()
 add_executable("${BIN_NAME}")
 
 if(EMSCRIPTEN)
-  # TODO: Implement Emscripten code.
-  message(FATAL_ERROR "Emscripten code not implemented yet.")
+  set_target_properties("${BIN_NAME}" PROPERTIES
+      OUTPUT_NAME "${PROJ_ID}"
+      SUFFIX ".html"
+  )
+
+  # - https://emscripten.org/docs/tools_reference/emcc.html
+  target_compile_options("${BIN_NAME}" PRIVATE
+      -Wall -Wconversion -Wextra -Wpedantic
+      -Wno-sign-conversion
+
+      # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
+      -sDISABLE_EXCEPTION_CATCHING=0
+#      -sSTRICT=1
+#      -sSUPPORT_LONGJMP=0
+
+      # Optimizing code:
+      # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
+      # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
+      -flto
+      -fno-rtti
+  )
+
+  # - https://emscripten.org/docs/tools_reference/emcc.html
+  target_link_options("${BIN_NAME}" PRIVATE
+#      --check
+      --emrun
+      --output_eol linux
+      # TODO: Add minimal shell file.
+#      --shell-file <path>
+
+      # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
+      -sALLOW_MEMORY_GROWTH=1
+      -sDISABLE_EXCEPTION_CATCHING=0
+#      -sEXCEPTION_DEBUG=1
+#      -sEXCEPTION_STACK_TRACES=1
+#      -sGL_ASSERTIONS=1
+#      -sSAFE_HEAP=1
+#      -sSTRICT=1
+#      -sSUPPORT_LONGJMP=0
+
+      # OpenGL ES 3.0.
+      -sMIN_WEBGL_VERSION=2
+      -sMAX_WEBGL_VERSION=2
+#      -sFULL_ES3=1
+
+      # Show available ports:
+      #   emcc --show-ports
+      # Show a port's options (e.g., sdl2_image's formats):
+      #   emcc --use-port=sdl2_image:help
+      --use-port=sdl2
+      --use-port=sdl2_image:formats=png
+      --use-port=sdl2_mixer
+
+      # Using `--preload-file` (instead of `--embed-file`) because it produces a separate `.data` file,
+      #   which means if the the game is updated but not the assets, the user won't have to re-download
+      #   the assets as they'll be cached by the browser.
+      "--preload-file=${ASSETS_DIR}@/${ASSETS_NAME}"
+      "--exclude-file=*.icns"
+      "--exclude-file=*.ico"
+      "--exclude-file=*.md"
+      "--exclude-file=*/.gitkeep"
+      "--exclude-file=*/images/ekotiles.png"
+      "--exclude-file=*/maps/template_*.txt"
+#      --use-preload-plugins # Don't use; breaks star textures.
+
+      # Optimizing code:
+      # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
+      # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
+      #
+      # NOTE: These increase linking time a lot. If not desired, comment out here and in
+      #       target_compile_options() above.
+      --closure 1
+      -flto
+      -fno-rtti
+  )
 elseif(APPLE)
   target_compile_definitions("${BIN_NAME}" PRIVATE
       CYBEL_PLATFORM_MACOS
@@ -304,7 +377,7 @@ target_sources("${BIN_NAME}" PRIVATE
 ############################################
 if(EMSCRIPTEN)
   add_custom_target(run
-      COMMAND emrun --verbose --browser firefox "$<TARGET_FILE:${BIN_NAME}>"
+      COMMAND emrun --browser firefox "$<TARGET_FILE:${BIN_NAME}>"
       DEPENDS "${BIN_NAME}"
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       USES_TERMINAL
