@@ -72,7 +72,7 @@ public:
     static constexpr int DIR_WEST  = 3;
 
     explicit Dantares2(RendererClass &Renderer, float SquareSize, float FloorHeight, float CeilingHeight);
-    /*  Constructor takes three parameters to initialize the engine.
+    /*  Constructor takes four parameters to initialize the engine.
 
         Parameters:
         RendererClass &Renderer - The renderer implementation to use for rendering.
@@ -281,7 +281,7 @@ public:
         YCoord, facing the current direction.  If the player is currently moving,
         this function will cancel the movement.
 
-        Space (0,0) is considered to be the bottom left corner of the map.
+        Space (0, 0) is considered to be the bottom left corner of the map.
 
         Parameters:
         int XCoord - The X coordinate of the space to place the camera.  This
@@ -300,7 +300,7 @@ public:
         YCoord, facing the direction specified by Facing.  If the player is currently
         moving, this function will cancel the movement.
 
-        Space (0,0) is considered to be the bottom left corner of the map.
+        Space (0, 0) is considered to be the bottom left corner of the map.
 
         Parameters:
         int XCoord - The X coordinate of the space to place the camera.  This
@@ -608,7 +608,7 @@ protected:
         RendererClass *Renderer = nullptr;
         std::vector<std::vector<int>> MapArray{};                        //Array for the map.
         std::vector<std::vector<bool>> WalkArray{};                      //Array for walkability.
-        std::unordered_map<int,std::unique_ptr<SpaceClass>> SpaceInfo{}; //Map of space information.
+        std::unordered_map<int, std::unique_ptr<SpaceClass>> SpaceInfo{};//Map of space information.
         int XSize = 0;                                                   //Map width.
         int YSize = 0;                                                   //Map height.
 
