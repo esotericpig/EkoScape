@@ -20,11 +20,13 @@
 #   ./scripts/artifacts.rb -v -c lin
 #   ./scripts/artifacts.rb -v -c mac
 #   ./scripts/artifacts.rb -v -c win
+#   ./scripts/artifacts.rb -v -c web
 #
 #   # Publish artifact folders to itch.io.
 #   ./scripts/artifacts.rb -I -c lin
 #   ./scripts/artifacts.rb -I -c mac
 #   ./scripts/artifacts.rb -I -c win
+#   ./scripts/artifacts.rb -I -c web
 #
 #   # Check status of itch.io builds.
 #   ./scripts/artifacts.rb -s
@@ -43,26 +45,30 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.5'
+  VERSION = '0.1.6'
 
   ARTIFACTS_DIR = File.join('build','artifacts')
   USER_GAME = 'esotericpig/ekoscape'
 
   ARTIFACTS = [
     {
+      channel: 'linux-x64',
       name: 'linux-appimage-x64',
       file: 'EkoScape-linux-x64.tar.gz',
-      channel: 'linux-x64',
     },
     {
+      channel: 'macos-universal',
       name: 'macos-uni',
       file: 'EkoScape-macos-universal.tar.gz',
-      channel: 'macos-universal',
     },
     {
+      channel: 'windows-x64',
       name: 'windows-x64',
       file: 'EkoScape-windows-x64.zip',
-      channel: 'windows-x64',
+    },
+    {
+      channel: 'web',
+      dir: 'bin_web/Release',
     },
   ].freeze
 
@@ -89,8 +95,12 @@ class ArtifactsMan
 
   def initialize
     @artifacts = ARTIFACTS.map do |artifact|
-      Artifact.new(parent_dir: ARTIFACTS_DIR,**artifact)
+      artifact[:file] = File.join(ARTIFACTS_DIR,artifact[:file]) unless artifact[:file].nil?
+      artifact[:dest_dir] = File.join(ARTIFACTS_DIR,artifact[:dest_dir]) unless artifact[:dest_dir].nil?
+
+      Artifact.new(**artifact)
     end
+
     @dry_run = true
     @extra_args = []
   end
@@ -131,6 +141,10 @@ class ArtifactsMan
 
       op.separator ''
       op.separator "v#{op.version}"
+
+      op.separator ''
+      op.separator 'Channels'
+      @artifacts.each { |artifact| op.separator "#{si}#{artifact.channel}" }
 
       op.separator ''
       op.separator 'Options'
@@ -181,6 +195,8 @@ class ArtifactsMan
 
     # NOTE: Must download each one separately so that it doesn't create subdirs.
     each_artifact do |artifact|
+      next :skip if artifact.name.nil?
+
       run_cmd(GH_CMD,'run','download','--dir',ARTIFACTS_DIR,'--name',artifact.name)
     end
 
@@ -191,7 +207,7 @@ class ArtifactsMan
     each_artifact(pauses: false,newlines: false) do |artifact|
       sum_file = "#{artifact.file}.sha256"
 
-      next true unless File.file?(sum_file)
+      next :skip unless File.file?(sum_file)
 
       verify_checksum_file(sum_file)
     end
@@ -199,6 +215,8 @@ class ArtifactsMan
 
   def extract
     each_artifact(show_result: true) do |artifact|
+      next :skip if artifact.file.nil?
+
       extract_file(artifact.file,dest_dir: artifact.dest_dir)
     end
   end
@@ -244,6 +262,7 @@ class ArtifactsMan
 
     @artifacts.each do |artifact|
       result = yield artifact
+      next if result == :skip
 
       if show_result
         puts if newlines
@@ -371,13 +390,29 @@ class ArtifactsMan
 end
 
 class Artifact
-  attr_reader :name,:file,:dest_dir,:channel,:platform,:arch
+  attr_reader :channel
+  attr_reader :name
+  attr_reader :file
+  attr_reader :dest_dir
+  attr_reader :platform
+  attr_reader :arch
 
-  def initialize(name:,file:,channel:,parent_dir: nil,dest_dir: nil,platform: :parse,arch: :parse)
-    file = file.strip
+  def initialize(channel:,name: nil,file: nil,dir: nil,dest_dir: :parse,platform: :parse,arch: :parse)
+    if !file.nil?
+      file = file.strip
+      file = nil if file.empty?
+    end
+    if !dir.nil?
+      dir = dir.strip
+      dir = nil if dir.empty?
+    end
 
-    if dest_dir.nil? || (dest_dir = dest_dir.to_s.strip).empty?
-      dest_dir = file.sub(/([^.])\..*$/,'\1')
+    raise 'Must specify either file or dir.' if file.nil? && dir.nil?
+
+    dest_dir = dir if file.nil?
+
+    if dest_dir == :parse
+      dest_dir = file.nil? ? '' : file.sub(/([^.])\..*$/,'\1')
 
       raise "Invalid file/ext: #{file}." if dest_dir.empty?
     end
@@ -402,18 +437,12 @@ class Artifact
       arch = (arches.size == 1) ? arches[0] : nil
     end
 
-    @name = name.strip
     @channel = channel.strip
+    @name = name&.strip
+    @file = file
+    @dest_dir = dest_dir
     @platform = platform&.strip
     @arch = arch&.strip
-
-    if parent_dir.nil?
-      @file = file
-      @dest_dir = dest_dir
-    else
-      @file = File.join(parent_dir,file)
-      @dest_dir = File.join(parent_dir,dest_dir)
-    end
   end
 
   def inspect

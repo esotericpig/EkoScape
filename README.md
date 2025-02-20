@@ -252,11 +252,13 @@ Example workflow:
 ./scripts/artifacts.rb -v -c lin
 ./scripts/artifacts.rb -v -c mac
 ./scripts/artifacts.rb -v -c win
+./scripts/artifacts.rb -v -c web
 
 # Publish artifact folders to itch.io.
 ./scripts/artifacts.rb -I -c lin
 ./scripts/artifacts.rb -I -c mac
 ./scripts/artifacts.rb -I -c win
+./scripts/artifacts.rb -I -c web
 
 # Check status of itch.io builds.
 ./scripts/artifacts.rb -s
