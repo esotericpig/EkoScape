@@ -81,9 +81,9 @@ public:
     int music_types = MIX_INIT_OGG;
   };
 
-  static inline const int kFallbackWidth = 1600;
-  static inline const int kFallbackHeight = 900;
-  static inline const int kFallbackFps = 60;
+  static constexpr int kFallbackWidth = 1600;
+  static constexpr int kFallbackHeight = 900;
+  static constexpr int kFallbackFps = 60;
 
   explicit CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene);
 
@@ -94,7 +94,8 @@ public:
   CybelEngine& operator=(const CybelEngine& other) = delete;
   CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
-  void run();
+  void run_loop();
+  bool run_frame();
   void request_stop();
 
   void sync_size(bool force = true);
@@ -146,6 +147,7 @@ private:
   void init_gui(const Config& config);
   void check_gl_version();
   void init_scene(Scene& scene);
+  void init_run();
 
   void start_frame_timer();
   void stop_frame_timer();

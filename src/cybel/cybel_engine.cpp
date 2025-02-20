@@ -58,6 +58,8 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
   scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
   input_man_ = std::make_unique<InputMan>(config.max_input_id);
   audio_player_ = std::make_unique<AudioPlayer>(config.music_types);
+
+  init_run();
 }
 
 void CybelEngine::init_hints() {
@@ -193,7 +195,7 @@ void CybelEngine::init_scene(Scene& scene) {
   scene.resize_scene(*renderer_,renderer_->dimens());
 }
 
-void CybelEngine::run() {
+void CybelEngine::init_run() {
   is_running_ = true;
 
   // No need to init the current scene in scene_man_,
@@ -203,30 +205,45 @@ void CybelEngine::run() {
   // Check the size again, due to SDL_WINDOW_ALLOW_HIGHDPI,
   //     and also need to call the scenes' resize() after init_scene().
   sync_size(true);
+}
 
-  while(is_running_) {
-    start_frame_timer();
+void CybelEngine::run_loop() { while(run_frame()) {} }
 
-    input_man_->reset_states();
-    handle_events();
-    handle_input_states();
+bool CybelEngine::run_frame() {
+  if(!is_running_) {
+    std::cerr << "[INFO] Stopping gracefully." << std::endl;
 
-    main_scene_.update_scene_logic(frame_step_,renderer_->dimens());
-    const int scene_result = scene_man_->curr_scene().update_scene_logic(frame_step_,renderer_->dimens());
+    #if defined(__EMSCRIPTEN__)
+      emscripten_cancel_main_loop();
+    #endif
 
-    if(scene_result != Scene::kNilType) {
-      scene_man_->push_scene(scene_result);
-    }
-
-    renderer_->clear_view();
-    main_scene_.draw_scene(*renderer_,renderer_->dimens());
-    scene_man_->curr_scene().draw_scene(*renderer_,renderer_->dimens());
-    SDL_GL_SwapWindow(res_.window);
-
-    stop_frame_timer();
+    return false;
   }
 
-  std::cerr << "[INFO] Stopping gracefully." << std::endl;
+  start_frame_timer();
+
+  input_man_->reset_states();
+  handle_events();
+  handle_input_states();
+
+  // Handle stoppage on next call.
+  if(!is_running_) { return true; }
+
+  main_scene_.update_scene_logic(frame_step_,renderer_->dimens());
+  const int scene_result = scene_man_->curr_scene().update_scene_logic(frame_step_,renderer_->dimens());
+
+  if(scene_result != Scene::kNilType) {
+    scene_man_->push_scene(scene_result);
+  }
+
+  renderer_->clear_view();
+  main_scene_.draw_scene(*renderer_,renderer_->dimens());
+  scene_man_->curr_scene().draw_scene(*renderer_,renderer_->dimens());
+  SDL_GL_SwapWindow(res_.window);
+
+  stop_frame_timer();
+
+  return true;
 }
 
 void CybelEngine::request_stop() { is_running_ = false; }
@@ -304,11 +321,13 @@ void CybelEngine::handle_keydown_event(const SDL_Event& event) {
   const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
   const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
 
-  if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
-    std::cerr << "[EVENT] Received Esc key event." << std::endl;
-    request_stop();
-    return;
-  }
+  #if !defined(__EMSCRIPTEN__)
+    if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
+      std::cerr << "[EVENT] Received Esc key event." << std::endl;
+      request_stop();
+      return;
+    }
+  #endif
 
   std::unordered_set<int> processed_ids{};
 
@@ -331,11 +350,13 @@ void CybelEngine::handle_keydown_event(const SDL_Event& event) {
 void CybelEngine::handle_keyup_event(const SDL_Event& event) {
   const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
 
-  if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
-    std::cerr << "[EVENT] Received Esc key event." << std::endl;
-    request_stop();
-    return;
-  }
+  #if !defined(__EMSCRIPTEN__)
+    if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
+      std::cerr << "[EVENT] Received Esc key event." << std::endl;
+      request_stop();
+      return;
+    }
+  #endif
 }
 
 void CybelEngine::handle_input_states() {
@@ -372,7 +393,7 @@ void CybelEngine::show_error_global(const std::string& title,const std::string& 
 void CybelEngine::show_error_global(const std::string& title,const std::string& error,SDL_Window* window) {
   std::cerr << "[ERROR] " << error << std::endl;
 
-  const std::size_t max_len = 80;
+  constexpr std::size_t max_len = 80;
 
   // Avoid copy if possible.
   if(error.length() <= max_len) {

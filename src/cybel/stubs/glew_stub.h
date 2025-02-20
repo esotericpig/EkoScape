@@ -12,8 +12,8 @@
 
 #if !defined(GLEW_VERSION)
 
-inline constexpr bool GLEW_VERSION_2_1 = true;
-inline constexpr bool GLEW_VERSION_3_0 = true;
+inline const bool GLEW_VERSION_2_1 = true;
+inline const bool GLEW_VERSION_3_0 = true;
 
 inline constexpr GLenum GLEW_OK = 0;
 

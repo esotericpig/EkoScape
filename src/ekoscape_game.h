@@ -32,7 +32,8 @@ public:
 
   explicit EkoScapeGame();
 
-  void run();
+  void run_loop();
+  bool run_frame();
 
   void on_input_event(int action,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;

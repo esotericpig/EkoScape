@@ -9,6 +9,25 @@
 
 #include "ekoscape_game.h"
 
+#if defined(__EMSCRIPTEN__)
+
+static std::unique_ptr<ekoscape::EkoScapeGame> eko{};
+
+void run_ems_frame() {
+  using namespace ekoscape;
+
+  if(!eko) { return; }
+
+  try {
+    eko->run_frame();
+  } catch(const CybelError& e) {
+    eko->show_error(e.what());
+    eko = nullptr;
+  }
+}
+
+#endif // __EMSCRIPTEN__.
+
 // SDL2 requires standard main().
 // - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_%2E%2E%2E
 int main(int argc,char** argv) {
@@ -21,13 +40,24 @@ int main(int argc,char** argv) {
     }
   }
 
-  try {
-    EkoScapeGame eko{};
-    eko.run();
-  } catch(const CybelError& e) {
-    EkoScapeGame::show_error_global(e.what());
-    return 1;
-  }
+  #if defined(__EMSCRIPTEN__)
+    try {
+      eko = std::make_unique<EkoScapeGame>();
+    } catch(const CybelError& e) {
+      EkoScapeGame::show_error_global(e.what());
+      return 1;
+    }
+
+    emscripten_set_main_loop(run_ems_frame,0,false);
+  #else
+    try {
+      EkoScapeGame eko{};
+      eko.run_loop();
+    } catch(const CybelError& e) {
+      EkoScapeGame::show_error_global(e.what());
+      return 1;
+    }
+  #endif
 
   return 0;
 }

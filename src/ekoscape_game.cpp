@@ -45,6 +45,8 @@ EkoScapeGame::EkoScapeGame() {
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
   }
+
+  play_music();
 }
 
 void EkoScapeGame::init_input_map() {
@@ -187,10 +189,9 @@ void EkoScapeGame::pop_scene() {
   }
 }
 
-void EkoScapeGame::run() {
-  play_music();
-  cybel_engine_->run(); // Game loop.
-}
+void EkoScapeGame::run_loop() { cybel_engine_->run_loop(); }
+
+bool EkoScapeGame::run_frame() { return cybel_engine_->run_frame(); }
 
 void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
   switch(action) {
