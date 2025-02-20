@@ -174,8 +174,12 @@ Renderer& RendererGles::begin_color(const Color4f& color) {
 }
 
 Renderer& RendererGles::begin_tex(const Texture& tex) {
+  return begin_tex(tex.gl_id());
+}
+
+Renderer& RendererGles::begin_tex(GLuint tex_id) {
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D,tex.gl_id());
+  glBindTexture(GL_TEXTURE_2D,tex_id);
 
   glUniform1i(tex_2d_loc_,0); // GL_TEXTURE0.
   glUniform1i(use_tex_loc_,GL_TRUE);
@@ -230,16 +234,80 @@ void RendererGles::pop_model_matrix() {
 }
 
 GLuint RendererGles::gen_quad_buffers(int count) {
-  return 0;
+  auto bag = std::make_unique<QuadBufferBag>(count);
+  GLuint id = 0;
+
+  for(auto it = free_quad_buffer_ids_.begin(); it != free_quad_buffer_ids_.end(); ++it) {
+    id = *it;
+    it = free_quad_buffer_ids_.erase(it);
+
+    if(id > 0 && (id - 1) < quad_buffer_bags_.size()) {
+      quad_buffer_bags_[id - 1] = std::move(bag);
+      return id;
+    }
+  }
+
+  quad_buffer_bags_.push_back(std::move(bag));
+  id = static_cast<GLuint>(quad_buffer_bags_.size());
+
+  return id;
 }
 
-void RendererGles::delete_quad_buffers(GLuint id,int count) {
+void RendererGles::delete_quad_buffers(GLuint id,int /*count*/) {
+  if(id == 0) { return; }
+
+  const std::size_t index = id - 1;
+
+  if(index >= quad_buffer_bags_.size()) { return; }
+
+  quad_buffer_bags_[index] = nullptr;
+  free_quad_buffer_ids_.insert(id);
 }
 
 void RendererGles::compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) {
+  auto* buffer = quad_buffer(id,index);
+
+  if(buffer == nullptr) { return; }
+
+  buffer->set_data(data);
 }
 
 void RendererGles::draw_quad_buffer(GLuint id,int index) {
+  auto* buffer = quad_buffer(id,index);
+
+  if(buffer == nullptr) { return; }
+
+  if(buffer->tex_id() != 0) {
+    // This is basically `wrap_tex(GLuint tex_id)` w/o the overhead.
+    begin_tex(buffer->tex_id());
+    buffer->draw();
+
+    if(curr_tex_ != nullptr) {
+      begin_tex(*curr_tex_);
+    } else {
+      end_tex();
+    }
+  } else {
+    buffer->draw();
+  }
+}
+
+RendererGles::QuadBufferBag* RendererGles::quad_buffer_bag(GLuint id) {
+  if(id == 0) { return nullptr; }
+
+  const std::size_t index = id - 1;
+
+  if(index >= quad_buffer_bags_.size()) { return nullptr; }
+
+  return quad_buffer_bags_[index].get();
+}
+
+RendererGles::QuadBuffer* RendererGles::quad_buffer(GLuint id,int index) {
+  auto* bag = quad_buffer_bag(id);
+
+  if(bag == nullptr) { return nullptr; }
+
+  return bag->buffer(index);
 }
 
 RendererGles::Shader::Shader(GLenum type,const std::string& src)
@@ -382,6 +450,20 @@ RendererGles::QuadBuffer::QuadBuffer() {
   }
 }
 
+RendererGles::QuadBuffer::QuadBuffer(QuadBuffer&& other) noexcept {
+  move_from(std::move(other));
+}
+
+void RendererGles::QuadBuffer::move_from(QuadBuffer&& other) noexcept {
+  destroy();
+
+  tex_id_ = std::exchange(other.tex_id_,0);
+  vao_ = std::exchange(other.vao_,0);
+  vbo_ = std::exchange(other.vbo_,0);
+  ebo_ = std::exchange(other.ebo_,0);
+  vertex_data_ = std::move(other.vertex_data_);
+}
+
 RendererGles::QuadBuffer::~QuadBuffer() noexcept {
   destroy();
 }
@@ -401,10 +483,32 @@ void RendererGles::QuadBuffer::destroy() noexcept {
   }
 }
 
+RendererGles::QuadBuffer& RendererGles::QuadBuffer::operator=(QuadBuffer&& other) noexcept {
+  if(this != &other) { move_from(std::move(other)); }
+
+  return *this;
+}
+
 void RendererGles::QuadBuffer::draw() {
   glBindVertexArray(vao_);
   glDrawElements(GL_TRIANGLES,kIndices.size(),GL_UNSIGNED_INT,0);
   glBindVertexArray(0); // Unbind VAO.
+}
+
+void RendererGles::QuadBuffer::set_data(const QuadBufferData& data) {
+  const auto* v = data.vertices;
+  const auto& src = kDefaultSrc;
+
+  tex_id_ = data.tex_id;
+  vertex_data_ = {
+    // Vertex.             TexCoord.
+    v[0].x,v[0].y,v[0].z,  src.x1,src.y1,
+    v[1].x,v[1].y,v[1].z,  src.x2,src.y1,
+    v[2].x,v[2].y,v[2].z,  src.x2,src.y2,
+    v[3].x,v[3].y,v[3].z,  src.x1,src.y2,
+  };
+
+  update_vertex_data();
 }
 
 void RendererGles::QuadBuffer::set_vertex_data(const Pos4f& src,const Pos5f& pos) {
@@ -418,9 +522,31 @@ void RendererGles::QuadBuffer::set_vertex_data(const Pos4f& src,const Pos5f& pos
     x1,y2,z,    src.x1,src.y2,
   };
 
+  update_vertex_data();
+}
+
+void RendererGles::QuadBuffer::update_vertex_data() {
   glBindBuffer(GL_ARRAY_BUFFER,vbo_);
   glBufferSubData(GL_ARRAY_BUFFER,0,kVertexDataByteCount,vertex_data_.data());
 }
+
+GLuint RendererGles::QuadBuffer::tex_id() const { return tex_id_; }
+
+RendererGles::QuadBufferBag::QuadBufferBag(int count)
+  : buffers_(count) {
+  // Since no copy ctor, have to do this.
+  for(int i = 0; i < count; ++i) {
+    buffers_[i] = QuadBuffer{};
+  }
+}
+
+RendererGles::QuadBuffer* RendererGles::QuadBufferBag::buffer(int index) {
+  if(index < 0 || static_cast<std::size_t>(index) >= buffers_.size()) { return nullptr; }
+
+  return &buffers_[index];
+}
+
+std::size_t RendererGles::QuadBufferBag::size() const { return buffers_.size(); }
 
 } // Namespace.
 #endif // CYBEL_RENDERER_GLES.

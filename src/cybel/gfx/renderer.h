@@ -222,6 +222,11 @@ protected:
   Pos2f offset_{0.0f,0.0f};
   Color4f clear_color_{};
 
+  Color4f curr_color_{1.0f};
+  // This would be safer as a shared_ptr, but I think fine,
+  //     as it would require refactoring all of the methods & callers.
+  const Texture* curr_tex_ = nullptr;
+
 private:
   struct BlendMode {
     GLenum src_factor{};
@@ -231,11 +236,7 @@ private:
   static constexpr BlendMode kDefaultBlendMode{GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA};
   static constexpr BlendMode kAddBlendMode{GL_ONE,GL_ONE};
 
-  Color4f curr_color_{1.0f};
   BlendMode curr_blend_mode_ = kDefaultBlendMode;
-  // This would be safer as a shared_ptr, but I think fine,
-  //     as it would require refactoring all of the methods & callers.
-  const Texture* curr_tex_ = nullptr;
 
   void init_gl();
 

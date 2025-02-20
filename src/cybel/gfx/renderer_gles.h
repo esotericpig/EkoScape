@@ -17,6 +17,7 @@
 // - https://github.com/g-truc/glm/blob/master/manual.md#-12-using-separated-headers
 #include <glm/mat4x4.hpp>
 
+#include <set>
 #include <stack>
 
 namespace cybel {
@@ -95,15 +96,18 @@ private:
     explicit QuadBuffer();
 
     QuadBuffer(const QuadBuffer& other) = delete;
-    QuadBuffer(QuadBuffer&& other) noexcept = delete;
+    QuadBuffer(QuadBuffer&& other) noexcept;
     virtual ~QuadBuffer() noexcept;
 
     QuadBuffer& operator=(const QuadBuffer& other) = delete;
-    QuadBuffer& operator=(QuadBuffer&& other) noexcept = delete;
+    QuadBuffer& operator=(QuadBuffer&& other) noexcept;
 
     void draw();
 
+    void set_data(const QuadBufferData& data);
     void set_vertex_data(const Pos4f& src,const Pos5f& pos);
+
+    GLuint tex_id() const;
 
   private:
     static constexpr std::size_t kVertexDataColCount = 5;
@@ -116,6 +120,7 @@ private:
       2,3,0, // Bottom triangle.
     };
 
+    GLuint tex_id_ = 0;
     GLuint vao_ = 0;
     GLuint vbo_ = 0;
     GLuint ebo_ = 0;
@@ -128,7 +133,21 @@ private:
       0.0f,1.0f,0.0f,  0.0f,1.0f,
     };
 
+    void move_from(QuadBuffer&& other) noexcept;
     void destroy() noexcept;
+
+    void update_vertex_data();
+  };
+
+  class QuadBufferBag {
+  public:
+    explicit QuadBufferBag(int count);
+
+    QuadBuffer* buffer(int index);
+    std::size_t size() const;
+
+  private:
+    std::vector<QuadBuffer> buffers_;
   };
 
   static constexpr auto kIdentityMat = glm::mat4(1.0f);
@@ -148,10 +167,18 @@ private:
   std::stack<glm::mat4> model_mats_{};
 
   std::unique_ptr<QuadBuffer> quad_buffer_{};
+  // `unordered_set` is more efficient, but using `set` as it's better for debugging.
+  std::set<GLuint> free_quad_buffer_ids_{};
+  std::vector<std::unique_ptr<QuadBufferBag>> quad_buffer_bags_{};
 
   static std::string fetch_info_log(GLuint object,InfoLogType type);
 
   void init_prog();
+
+  Renderer& begin_tex(GLuint tex_id);
+
+  QuadBufferBag* quad_buffer_bag(GLuint id);
+  QuadBuffer* quad_buffer(GLuint id,int index);
 };
 
 } // Namespace.
