@@ -150,8 +150,7 @@ if(EMSCRIPTEN)
 #      --check
       --emrun
       --output_eol linux
-      # TODO: Add minimal shell file.
-#      --shell-file <path>
+      --shell-file "${TEMPL_DIR}/shell.html"
 
       # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
       -sALLOW_MEMORY_GROWTH=1
@@ -159,6 +158,7 @@ if(EMSCRIPTEN)
 #      -sEXCEPTION_DEBUG=1
 #      -sEXCEPTION_STACK_TRACES=1
 #      -sGL_ASSERTIONS=1
+      -sMINIFY_HTML=0
 #      -sSAFE_HEAP=1
 #      -sSTRICT=1
 #      -sSUPPORT_LONGJMP=0
@@ -377,7 +377,7 @@ target_sources("${BIN_NAME}" PRIVATE
 ############################################
 if(EMSCRIPTEN)
   add_custom_target(run
-      COMMAND emrun --browser firefox "$<TARGET_FILE:${BIN_NAME}>"
+      COMMAND emrun --no-browser "$<TARGET_FILE:${BIN_NAME}>"
       DEPENDS "${BIN_NAME}"
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       USES_TERMINAL
@@ -570,8 +570,9 @@ configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cma
 configure_file("${TEMPL_CMAKE_DIR}/check_macos_bundle.cmake.in" "${TEMPL_DIR}/check_macos_bundle.cmake" @ONLY)
 
 configure_file("${RES_DIR}/.itch.toml" "${TEMPL_DIR}/.itch.toml" @ONLY)
-configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml" @ONLY)
 configure_file("${RES_DIR}/Info.plist" "${TEMPL_DIR}/Info.plist" @ONLY)
+configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml" @ONLY)
 configure_file("${RES_DIR}/launcher.sh" "${TEMPL_DIR}/${BIN_NAME}.sh" @ONLY)
+configure_file("${RES_DIR}/shell.html" "${TEMPL_DIR}/shell.html" @ONLY)
 
 include(CPack)
