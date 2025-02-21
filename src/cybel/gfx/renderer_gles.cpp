@@ -237,7 +237,7 @@ GLuint RendererGles::gen_quad_buffers(int count) {
   auto bag = std::make_unique<QuadBufferBag>(count);
   GLuint id = 0;
 
-  for(auto it = free_quad_buffer_ids_.begin(); it != free_quad_buffer_ids_.end(); ++it) {
+  for(auto it = free_quad_buffer_ids_.begin(); it != free_quad_buffer_ids_.end();) {
     id = *it;
     it = free_quad_buffer_ids_.erase(it);
 
