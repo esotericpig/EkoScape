@@ -210,15 +210,7 @@ void CybelEngine::init_run() {
 void CybelEngine::run_loop() { while(run_frame()) {} }
 
 bool CybelEngine::run_frame() {
-  if(!is_running_) {
-    std::cerr << "[INFO] Stopping gracefully." << std::endl;
-
-    #if defined(__EMSCRIPTEN__)
-      emscripten_cancel_main_loop();
-    #endif
-
-    return false;
-  }
+  if(!is_running_) { return false; }
 
   start_frame_timer();
 
@@ -226,8 +218,8 @@ bool CybelEngine::run_frame() {
   handle_events();
   handle_input_states();
 
-  // Handle stoppage on next call.
-  if(!is_running_) { return true; }
+  // Event/Input requested to stop.
+  if(!is_running_) { return false; }
 
   main_scene_.update_scene_logic(frame_step_,renderer_->dimens());
   const int scene_result = scene_man_->curr_scene().update_scene_logic(frame_step_,renderer_->dimens());

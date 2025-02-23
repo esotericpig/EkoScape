@@ -19,10 +19,16 @@ void run_ems_frame() {
   if(!eko) { return; }
 
   try {
-    eko->run_frame();
+    if(!eko->run_frame()) {
+      std::cerr << "[INFO] Stopping gracefully." << std::endl;
+
+      eko = nullptr;
+      emscripten_cancel_main_loop();
+    }
   } catch(const CybelError& e) {
     eko->show_error(e.what());
     eko = nullptr;
+    emscripten_cancel_main_loop();
   }
 }
 
@@ -53,6 +59,8 @@ int main(int argc,char** argv) {
     try {
       EkoScapeGame eko{};
       eko.run_loop();
+
+      std::cerr << "[INFO] Stopping gracefully." << std::endl;
     } catch(const CybelError& e) {
       EkoScapeGame::show_error_global(e.what());
       return 1;
