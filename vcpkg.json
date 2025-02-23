@@ -1,11 +1,11 @@
 {
-  "builtin-baseline": "f0c8848cde589649bca3ab3649668540403786ce",
+  "builtin-baseline": "5f8c424e267b7360d451df406eeefb3767985b17",
   "dependencies": [
-    {"name": "glew"      ,"platform": "!wasm32"},
-    {"name": "glm"},
-    {"name": "opengl"    ,"platform": "!wasm32"},
-    {"name": "sdl2"      ,"platform": "!wasm32"},
-    {"name": "sdl2-image","platform": "!wasm32"},
-    {"name": "sdl2-mixer","platform": "!wasm32"}
+    {"name": "glew"      ,"platform": "!emscripten"},
+    {"name": "glm"                                 },
+    {"name": "opengl"    ,"platform": "!emscripten"},
+    {"name": "sdl2"      ,"platform": "!emscripten"},
+    {"name": "sdl2-image","platform": "!emscripten"},
+    {"name": "sdl2-mixer","platform": "!emscripten"}
   ]
 }
