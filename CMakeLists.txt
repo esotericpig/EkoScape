@@ -128,53 +128,78 @@ if(EMSCRIPTEN)
       SUFFIX ".html"
   )
 
-  # - https://emscripten.org/docs/tools_reference/emcc.html
-  target_compile_options("${BIN_NAME}" PRIVATE
-      -Wall -Wconversion -Wextra -Wpedantic
-      -Wno-sign-conversion
+  # itch.io requires `index.html`, but I want the other files to be named `ekoscape.*`.
+  # - Copying (instead of renaming), else linking will always run due to `ekoscape.html' not existing.
+  add_custom_command(TARGET "${BIN_NAME}"
+      POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy
+              "$<TARGET_FILE:${BIN_NAME}>"
+              "$<TARGET_FILE_DIR:${BIN_NAME}>/index.html"
+      COMMENT "Copying target file to `index.html`."
+      VERBATIM
+      USES_TERMINAL
+  )
 
+  set(EMS_COMPILE_AND_LINK_OPTS
+      # Settings.
       # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
       -sDISABLE_EXCEPTION_CATCHING=0
 #      -sSTRICT=1
 #      -sSUPPORT_LONGJMP=0
 
-      # Optimizing code:
+      # Code optimization.
       # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
       # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
+      # - NOTE: These increase compile/link time a lot. If not desired, comment out.
       -flto
       -fno-rtti
+
+      # Libraries (ports).
+      # - Show available ports:
+      #     emcc --show-ports
+      # - Show a port's options (e.g., sdl2_image's formats):
+      #     emcc --use-port=sdl2_image:help
+      --use-port=sdl2
+      --use-port=sdl2_image:formats=png
+      --use-port=sdl2_mixer
+  )
+
+  # - https://emscripten.org/docs/tools_reference/emcc.html
+  target_compile_options("${BIN_NAME}" PRIVATE
+      ${EMS_COMPILE_AND_LINK_OPTS}
+
+      -Wall -Wconversion -Wextra -Wpedantic
+      -Wno-sign-conversion
   )
 
   # - https://emscripten.org/docs/tools_reference/emcc.html
   target_link_options("${BIN_NAME}" PRIVATE
+      ${EMS_COMPILE_AND_LINK_OPTS}
+
 #      --check
       --emrun
       --output_eol linux
       --shell-file "${TEMPL_DIR}/shell.html"
 
+      # Settings.
       # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
       -sALLOW_MEMORY_GROWTH=1
-      -sDISABLE_EXCEPTION_CATCHING=0
 #      -sEXCEPTION_DEBUG=1
 #      -sEXCEPTION_STACK_TRACES=1
 #      -sGL_ASSERTIONS=1
       -sMINIFY_HTML=0
 #      -sSAFE_HEAP=1
-#      -sSTRICT=1
-#      -sSUPPORT_LONGJMP=0
 
-      # OpenGL ES 3.0.
+      # - OpenGL ES 3.0.
       -sMIN_WEBGL_VERSION=2
       -sMAX_WEBGL_VERSION=2
 #      -sFULL_ES3=1
 
-      # Show available ports:
-      #   emcc --show-ports
-      # Show a port's options (e.g., sdl2_image's formats):
-      #   emcc --use-port=sdl2_image:help
-      --use-port=sdl2
-      --use-port=sdl2_image:formats=png
-      --use-port=sdl2_mixer
+      # Code optimization.
+      # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
+      # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
+      # - NOTE: These increase link time a lot. If not desired, comment out.
+      --closure 1
 
       # Using `--preload-file` (instead of `--embed-file`) because it produces a separate `.data` file,
       #   which means if the the game is updated but not the assets, the user won't have to re-download
@@ -187,16 +212,6 @@ if(EMSCRIPTEN)
       "--exclude-file=*/images/ekotiles.png"
       "--exclude-file=*/maps/template_*.txt"
 #      --use-preload-plugins # Don't use; breaks star textures.
-
-      # Optimizing code:
-      # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
-      # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
-      #
-      # NOTE: These increase linking time a lot. If not desired, comment out here and in
-      #       target_compile_options() above.
-      --closure 1
-      -flto
-      -fno-rtti
   )
 elseif(APPLE)
   target_compile_definitions("${BIN_NAME}" PRIVATE
@@ -219,7 +234,7 @@ else()
   )
 endif()
 
-if(RENDERER MATCHES "GLES")
+if(RENDERER STREQUAL "GLES")
   target_compile_definitions("${BIN_NAME}" PRIVATE
       CYBEL_RENDERER_GLES
   )
@@ -234,13 +249,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
   set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
 
-  #target_compile_options("${BIN_NAME}" PRIVATE /W4 /permissive-)
-else() #elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  #target_compile_options("${BIN_NAME}" PRIVATE
+  #    /W4 /permissive-
+  #)
+else() # elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
   if(NOT APPLE AND NOT EMSCRIPTEN)
-    target_compile_options("${BIN_NAME}" PRIVATE -Wall -Wconversion -Wextra -Wpedantic)
+    target_compile_options("${BIN_NAME}" PRIVATE
+        -Wall -Wconversion -Wextra -Wpedantic
+    )
   endif()
 endif()
 
@@ -293,7 +312,7 @@ if(NOT EMSCRIPTEN)
   )
 endif()
 
-if(RENDERER MATCHES "GLES")
+if(RENDERER STREQUAL "GLES")
   find_package(glm CONFIG REQUIRED)
 
   target_link_libraries("${BIN_NAME}" PRIVATE
@@ -377,13 +396,13 @@ target_sources("${BIN_NAME}" PRIVATE
 ############################################
 if(EMSCRIPTEN)
   add_custom_target(run
-      COMMAND emrun --no-browser "$<TARGET_FILE:${BIN_NAME}>"
+      COMMAND emrun --no-browser "$<TARGET_FILE_DIR:${BIN_NAME}>"
       DEPENDS "${BIN_NAME}"
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       USES_TERMINAL
       VERBATIM
   )
-elseif()
+else()
   add_custom_target(run
       COMMAND "$<TARGET_FILE:${BIN_NAME}>"
       DEPENDS "${BIN_NAME}"

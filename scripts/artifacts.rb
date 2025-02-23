@@ -45,7 +45,7 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.6'
+  VERSION = '0.1.7'
 
   ARTIFACTS_DIR = File.join('build','artifacts')
   USER_GAME = 'esotericpig/ekoscape'
@@ -69,6 +69,7 @@ class ArtifactsMan
     {
       channel: 'web',
       dir: 'bin_web/Release',
+      ignores: %w[ekoscape.html], # Copied as `index.html`. See `CMakeLists.txt` for explanation.
     },
   ].freeze
 
@@ -235,6 +236,7 @@ class ArtifactsMan
   def publish_to_itch
     each_artifact do |artifact|
       cmd = [BUTLER_CMD,%w[ push --fix-permissions --dereference --if-changed ]]
+      artifact.ignores.each { |ignore| cmd.push('--ignore',ignore) }
       cmd.push('--dry-run') if @dry_run
       cmd.push(artifact.dest_dir,"#{USER_GAME}:#{artifact.channel}")
 
@@ -394,10 +396,12 @@ class Artifact
   attr_reader :name
   attr_reader :file
   attr_reader :dest_dir
+  attr_reader :ignores
   attr_reader :platform
   attr_reader :arch
 
-  def initialize(channel:,name: nil,file: nil,dir: nil,dest_dir: :parse,platform: :parse,arch: :parse)
+  def initialize(channel:,name: nil,file: nil,dir: nil,dest_dir: :parse,ignores: [],platform: :parse,
+                 arch: :parse)
     if !file.nil?
       file = file.strip
       file = nil if file.empty?
@@ -441,6 +445,7 @@ class Artifact
     @name = name&.strip
     @file = file
     @dest_dir = dest_dir
+    @ignores = ignores.map(&:strip).reject(&:empty?)
     @platform = platform&.strip
     @arch = arch&.strip
   end

@@ -51,7 +51,7 @@ def main
 end
 
 class DevApp
-  VERSION = '0.1.6'
+  VERSION = '0.1.7'
 
   CMAKE_CMD = %w[ cmake ].freeze
 
@@ -152,14 +152,14 @@ class DevApp
     build(target: 'clean')
   end
 
-  def build(target: nil)
+  def build(target: nil,**kargs)
     extra = @extra_build_args.delete_if { |_k,v| v == false }
                              .transform_values { |v| (v == true) ? nil : v }
                              .to_a.flatten.compact
     cmd = [CMAKE_CMD,'--build','--preset',@preset,'--config',@config,*extra]
     cmd.push('--target',target) unless target.nil?
 
-    run_cmd(cmd)
+    run_cmd(cmd,**kargs)
   end
 
   def build_appimage
@@ -171,15 +171,24 @@ class DevApp
   end
 
   def run_app
-    build(target: 'run')
+    # For the web run, we need to not use a subshell because of Ctrl+C to stop the server.
+    build(target: 'run',subshell: false)
   end
 
-  def run_cmd(*cmd)
+  def run_cmd(*cmd,subshell: true)
     cmd += @extra_args
     cmd = cmd.flatten.compact.map(&:to_s)
 
     puts cmd.map(&Shellwords.method(:escape)).join(' ')
-    system(*cmd) unless @dry_run
+
+    return if @dry_run
+
+    if subshell
+      system(*cmd,exception: true)
+      puts # Separation between multiple command runs.
+    else
+      exec(*cmd)
+    end
   end
 end
 
