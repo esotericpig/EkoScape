@@ -24,13 +24,6 @@
   #endif
 #endif
 
-#if defined(CYBEL_RENDERER_GLES)
-#else // CYBEL_RENDERER_GL.
-  #ifndef DANTARES_RENDERER_GL
-  #define DANTARES_RENDERER_GL
-  #endif
-#endif
-
 #include "Dantares/Dantares2.h"
 
 namespace ekoscape {
