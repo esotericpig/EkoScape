@@ -23,11 +23,11 @@ namespace InputAction {
     kPageDown,
     kSelect,
     kGoBack,
-    // kQuit,
+    kQuit,
 
     kToggleMusic,
-    // kPlayMusic,
-    // kStopMusic,
+    // kPlayMusic, // SDL_SCANCODE_AUDIOPLAY.
+    // kStopMusic, // SDL_SCANCODE_AUDIOSTOP.
     kToggleFullscreen,
     kToggleMiniMap,
     kToggleSpeedrun,

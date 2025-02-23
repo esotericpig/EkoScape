@@ -83,6 +83,11 @@ void EkoScapeGame::init_input_map() {
   im.map_input(InputAction::kGoBack,[](auto& i) {
     i.raw_key({SDL_SCANCODE_BACKSPACE});
   });
+  #if !defined(__EMSCRIPTEN__)
+    im.map_input(InputAction::kQuit,[](auto& i) {
+        i.raw_key({SDL_SCANCODE_ESCAPE});
+    });
+  #endif
 
   // Options/Features.
   im.map_input(InputAction::kToggleMusic,[](auto& i) {
@@ -199,6 +204,15 @@ bool EkoScapeGame::run_frame() { return cybel_engine_->run_frame(); }
 
 void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
   switch(action) {
+    // Go back a scene.
+    case InputAction::kGoBack:
+      pop_scene();
+      break;
+
+    case InputAction::kQuit:
+      cybel_engine_->request_stop();
+      break;
+
     case InputAction::kToggleMusic:
       if(ctx_->audio_player.is_music_playing()) {
         stop_music();
@@ -207,10 +221,12 @@ void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
       }
       break;
 
-    // Go back a scene.
-    case InputAction::kGoBack:
-      pop_scene();
-      break;
+    case InputAction::kToggleFullscreen: {
+      const bool fullscreen = !cybel_engine_->is_fullscreen();
+
+      cybel_engine_->set_fullscreen(fullscreen,true);
+      cybel_engine_->set_cursor_visible(!fullscreen);
+    } break;
 
     // Toggle BoringWorkScene.
     case InputAction::kToggleBossOma:
@@ -234,13 +250,6 @@ void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
       } else {
         avg_fps_ = -1.0;
       }
-      break;
-
-    case InputAction::kToggleFullscreen:
-      const bool fullscreen = !cybel_engine_->is_fullscreen();
-
-      cybel_engine_->set_fullscreen(fullscreen,true);
-      cybel_engine_->set_cursor_visible(!fullscreen);
       break;
   }
 }

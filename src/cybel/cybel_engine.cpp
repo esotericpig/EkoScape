@@ -313,14 +313,6 @@ void CybelEngine::handle_keydown_event(const SDL_Event& event) {
   const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
   const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
 
-  #if !defined(__EMSCRIPTEN__)
-    if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
-      std::cerr << "[EVENT] Received Esc key event." << std::endl;
-      request_stop();
-      return;
-    }
-  #endif
-
   std::unordered_set<int> processed_ids{};
 
   for(auto id : input_man_->fetch_ids(raw_key)) {
@@ -339,16 +331,9 @@ void CybelEngine::handle_keydown_event(const SDL_Event& event) {
   }
 }
 
-void CybelEngine::handle_keyup_event(const SDL_Event& event) {
-  const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
-
-  #if !defined(__EMSCRIPTEN__)
-    if(raw_key.key() == SDL_SCANCODE_ESCAPE) {
-      std::cerr << "[EVENT] Received Esc key event." << std::endl;
-      request_stop();
-      return;
-    }
-  #endif
+void CybelEngine::handle_keyup_event(const SDL_Event& /*event*/) {
+  // const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
+  // const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
 }
 
 void CybelEngine::handle_input_states() {
