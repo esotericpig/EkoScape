@@ -12,7 +12,7 @@
 
 namespace cybel {
 
-Image::Image(const std::filesystem::path& file)
+Image::Image(const std::filesystem::path& file,bool make_weird)
   : id_(file.string()) {
   const auto file_str = file.u8string();
   auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
@@ -25,6 +25,8 @@ Image::Image(const std::filesystem::path& file)
 
   size_.w = surface_->w;
   size_.h = surface_->h;
+
+  if(make_weird) { this->make_weird(); }
 }
 
 Image::Image(Image&& other) noexcept {
@@ -58,6 +60,49 @@ Image& Image::operator=(Image&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
 
   return *this;
+}
+
+void Image::make_weird() {
+  if(SDL_PIXELTYPE(surface_->format->format) != SDL_PIXELTYPE_PACKED32) {
+    // Convert to a surface we can work with.
+    SDL_Surface* new_surface = SDL_ConvertSurfaceFormat(surface_,SDL_PIXELFORMAT_RGBA32,0);
+
+    if(new_surface == NULL) {
+      std::cerr << "[WARN] Failed to convert surface of image [" << id_ << "] for weird: "
+                << Util::get_sdl_error() << '.' << std::endl;
+      return;
+    }
+
+    destroy();
+    surface_ = new_surface;
+    size_.w = surface_->w;
+    size_.h = surface_->h;
+  }
+
+  try {
+    lock();
+  } catch(const CybelError& e) {
+    std::cerr << "[WARN] For weird: " << e.what() << std::endl;
+    return;
+  }
+
+  const int area = size_.w * size_.h;;
+  auto* pixels = static_cast<Uint32*>(surface_->pixels);
+
+  for(int i = 0; i < area; ++i) {
+    const auto pixel = pixels[i];
+    Uint8 r = 0;
+    Uint8 g = 0;
+    Uint8 b = 0;
+    Uint8 a = 0;
+
+    SDL_GetRGBA(pixel,surface_->format,&r,&g,&b,&a);
+    std::swap(r,b);
+
+    pixels[i] = SDL_MapRGBA(surface_->format,r,g,b,a);
+  }
+
+  unlock();
 }
 
 Image& Image::lock() {

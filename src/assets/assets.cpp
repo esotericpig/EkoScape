@@ -210,20 +210,20 @@ Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir
   st.dirname = dir.filename().string();
   st.name = utf8::StrUtil::ellipsize(st.dirname,18);
 
-  st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png"},is_weird_);
-  st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png"},is_weird_);
-  st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png"},is_weird_);
-  st.dead_space_ghost_tex = std::make_unique<Texture>(Image{dir / "dead_space_ghost.png"},is_weird_);
-  st.end_tex = std::make_unique<Texture>(Image{dir / "end.png"},is_weird_);
-  st.end_wall_tex = std::make_unique<Texture>(Image{dir / "end_wall.png"},is_weird_);
-  st.floor_tex = std::make_unique<Texture>(Image{dir / "floor.png"},is_weird_);
-  st.fruit_tex = std::make_unique<Texture>(Image{dir / "fruit.png"},is_weird_);
-  st.portal_tex = std::make_unique<Texture>(Image{dir / "portal.png"},is_weird_);
-  st.robot_tex = std::make_unique<Texture>(Image{dir / "robot.png"},is_weird_);
-  st.wall_tex = std::make_unique<Texture>(Image{dir / "wall.png"},is_weird_);
-  st.wall_ghost_tex = std::make_unique<Texture>(Image{dir / "wall_ghost.png"},is_weird_);
-  st.white_tex = std::make_unique<Texture>(Image{dir / "white.png"},is_weird_);
-  st.white_ghost_tex = std::make_unique<Texture>(Image{dir / "white_ghost.png"},is_weird_);
+  st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png",is_weird_});
+  st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png",is_weird_});
+  st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png",is_weird_});
+  st.dead_space_ghost_tex = std::make_unique<Texture>(Image{dir / "dead_space_ghost.png",is_weird_});
+  st.end_tex = std::make_unique<Texture>(Image{dir / "end.png",is_weird_});
+  st.end_wall_tex = std::make_unique<Texture>(Image{dir / "end_wall.png",is_weird_});
+  st.floor_tex = std::make_unique<Texture>(Image{dir / "floor.png",is_weird_});
+  st.fruit_tex = std::make_unique<Texture>(Image{dir / "fruit.png",is_weird_});
+  st.portal_tex = std::make_unique<Texture>(Image{dir / "portal.png",is_weird_});
+  st.robot_tex = std::make_unique<Texture>(Image{dir / "robot.png",is_weird_});
+  st.wall_tex = std::make_unique<Texture>(Image{dir / "wall.png",is_weird_});
+  st.wall_ghost_tex = std::make_unique<Texture>(Image{dir / "wall_ghost.png",is_weird_});
+  st.white_tex = std::make_unique<Texture>(Image{dir / "white.png",is_weird_});
+  st.white_ghost_tex = std::make_unique<Texture>(Image{dir / "white_ghost.png",is_weird_});
 
   return st; // NRVO (Named Return Value Optimization).
 }
@@ -273,7 +273,7 @@ std::unique_ptr<Sprite> Assets::load_sprite(const std::filesystem::path& subfile
   std::unique_ptr<Sprite> sprite{};
 
   load_asset([&](const auto& base_dir) {
-    sprite = std::make_unique<Sprite>(Texture{Image{base_dir / subfile},is_weird_});
+    sprite = std::make_unique<Sprite>(Texture{Image{base_dir / subfile,is_weird_}});
   });
 
   return sprite;
@@ -283,7 +283,7 @@ std::unique_ptr<Texture> Assets::load_tex(const std::filesystem::path& subfile) 
   std::unique_ptr<Texture> tex{};
 
   load_asset([&](const auto& base_dir) {
-    tex = std::make_unique<Texture>(Image{base_dir / subfile},is_weird_);
+    tex = std::make_unique<Texture>(Image{base_dir / subfile,is_weird_});
   });
 
   return tex;

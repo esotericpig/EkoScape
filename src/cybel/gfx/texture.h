@@ -21,8 +21,8 @@ namespace cybel {
  */
 class Texture {
 public:
-  explicit Texture(Image& img,bool make_weird = false);
-  explicit Texture(Image&& img,bool make_weird = false);
+  explicit Texture(Image& img);
+  explicit Texture(Image&& img);
   explicit Texture(const Color4f& color,bool make_weird = false);
 
   Texture(const Texture& other) = delete;

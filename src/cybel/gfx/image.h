@@ -21,7 +21,7 @@ class Texture;
 
 class Image {
 public:
-  explicit Image(const std::filesystem::path& file);
+  explicit Image(const std::filesystem::path& file,bool make_weird = false);
 
   Image(const Image& other) = delete;
   Image(Image&& other) noexcept;
@@ -30,6 +30,7 @@ public:
   Image& operator=(const Image& other) = delete;
   Image& operator=(Image&& other) noexcept;
 
+  void make_weird();
   Image& lock();
   Image& unlock() noexcept;
 

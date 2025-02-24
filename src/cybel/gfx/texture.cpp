@@ -12,18 +12,17 @@
 
 namespace cybel {
 
-Texture::Texture(Image& img,bool make_weird) {
+Texture::Texture(Image& img) {
   const auto bpp = img.bpp();
-  const bool is_red_first = (make_weird) ? !img.is_red_first() : img.is_red_first();
   GLenum img_format = GL_RGBA;
 
   switch(bpp) {
     case 4:
-      img_format = is_red_first ? GL_RGBA : GL_BGRA;
+      img_format = img.is_red_first() ? GL_RGBA : GL_BGRA;
       break;
 
     case 3:
-      img_format = is_red_first ? GL_RGB : GL_BGR;
+      img_format = img.is_red_first() ? GL_RGB : GL_BGR;
       break;
 
     default:
@@ -75,8 +74,8 @@ Texture::Texture(Image& img,bool make_weird) {
   size_ = img.size();
 }
 
-Texture::Texture(Image&& img,bool make_weird)
-  : Texture(img,make_weird) {}
+Texture::Texture(Image&& img)
+  : Texture(img) {}
 
 Texture::Texture(const Color4f& color,bool make_weird) {
   auto r = static_cast<GLubyte>(std::round(color.r * 255.0f));
