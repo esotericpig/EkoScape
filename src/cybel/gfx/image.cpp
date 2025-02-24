@@ -86,7 +86,7 @@ void Image::make_weird() {
     return;
   }
 
-  const int area = size_.w * size_.h;;
+  const int area = size_.w * size_.h;
   auto* pixels = static_cast<Uint32*>(surface_->pixels);
 
   for(int i = 0; i < area; ++i) {
