@@ -12,6 +12,7 @@
 
 #if !defined(GLEW_VERSION)
 
+// NOTE: Not using `constexpr` on purpose to match non-stub usage (e.g., no `if constexpr(...)`).
 inline const bool GLEW_VERSION_2_1 = true;
 inline const bool GLEW_VERSION_3_0 = true;
 
