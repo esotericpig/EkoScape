@@ -70,10 +70,12 @@ public:
   void stop_music();
 
   void set_music_pos(const Duration& pos);
+
   Duration fetch_duration(const Music* music,const Duration& fallback = Duration::kZero) const;
 
   bool is_alive() const;
   bool is_music_playing() const;
+  bool is_music_paused() const;
 
 private:
   bool is_alive_ = false;

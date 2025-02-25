@@ -71,11 +71,16 @@ void AudioPlayer::play_music(const Music* music) {
 void AudioPlayer::play_or_resume_music(const Music* music) {
   if(!is_alive_ || music == nullptr) { return; }
 
-  if(curr_music_id_.empty() || curr_music_id_ != music->id() || Mix_PausedMusic() == 0) {
-    play_music(music);
-  } else {
-    Mix_ResumeMusic();
+  if(!curr_music_id_.empty() && curr_music_id_ == music->id()) {
+    if(is_music_playing()) { return; }
+
+    if(is_music_paused()) {
+      Mix_ResumeMusic();
+      return;
+    }
   }
+
+  play_music(music);
 }
 
 void AudioPlayer::pause_music() {
@@ -100,16 +105,18 @@ void AudioPlayer::set_music_pos(const Duration& pos) {
 Duration AudioPlayer::fetch_duration(const Music* music,const Duration& fallback) const {
   if(!is_alive_ || music == nullptr) { return fallback; }
 
-  const double dur = Mix_MusicDuration(music->music_);
+  const double secs = Mix_MusicDuration(music->music_);
 
-  return (dur <= 0.0) ? fallback : Duration::from_secs(dur);
+  return (secs <= 0.0) ? fallback : Duration::from_secs(secs);
 }
 
 bool AudioPlayer::is_alive() const { return is_alive_; }
 
 bool AudioPlayer::is_music_playing() const {
   // If paused, Mix_PlayingMusic() will still return as true, so must also check if not paused.
-  return is_alive_ && Mix_PlayingMusic() != 0 && Mix_PausedMusic() == 0;
+  return is_alive_ && Mix_PlayingMusic() != 0 && !is_music_paused();
 }
+
+bool AudioPlayer::is_music_paused() const { return is_alive_ && Mix_PausedMusic() != 0; }
 
 } // Namespace.
