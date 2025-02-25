@@ -183,17 +183,39 @@ char32_t RuneIterator::unpack_seq4(std::string_view str,std::size_t index,std::u
   return rune;
 }
 
-RuneIterator RuneIterator::begin(std::string_view str,std::size_t index) {
-  return RuneIterator{str,(index <= str.size()) ? index : str.size()};
+RuneIterator RuneIterator::begin(std::string_view str,std::size_t next_rune_count) {
+  auto it = RuneIterator{str,true};
+
+  for(; next_rune_count > 0; --next_rune_count) {
+    it.next_rune();
+  }
+
+  return it;
 }
 
-RuneIterator RuneIterator::end(std::string_view str,std::size_t relative_count) {
-  return RuneIterator{str,(relative_count <= str.size()) ? (str.size() - relative_count) : 0};
+RuneIterator RuneIterator::end(std::string_view str,std::size_t prev_rune_count) {
+  auto it = RuneIterator{str,false};
+
+  for(; prev_rune_count > 0; --prev_rune_count) {
+    it.prev_rune();
+  }
+
+  return it;
 }
 
-RuneIterator::RuneIterator(std::string_view str,std::size_t index)
-  : str_(str),index_(index) {
-  next_rune();
+RuneIterator::reverse_iterator RuneIterator::rbegin(std::string_view str,std::size_t prev_rune_count) {
+  return reverse_iterator(end(str,prev_rune_count));
+}
+
+RuneIterator::reverse_iterator RuneIterator::rend(std::string_view str,std::size_t next_rune_count) {
+  return reverse_iterator(begin(str,next_rune_count));
+}
+
+RuneIterator::RuneIterator(std::string_view str,bool is_begin)
+  : str_(str),index_(is_begin ? 0 : str_.size()) {
+  if(is_begin) {
+    rune_ = next_rune(str_,index_,byte_count_);
+  }
 }
 
 bool RuneIterator::operator!=(const RuneIterator& other) const {
@@ -208,11 +230,9 @@ bool RuneIterator::operator==(const RuneIterator& other) const {
 
 std::strong_ordering RuneIterator::operator<=>(const RuneIterator& other) const {
   auto order = str_.data() <=> other.str_.data();
-
   if(order != std::strong_ordering::equal) { return order; }
 
   order = str_.size() <=> other.str_.size();
-
   if(order != std::strong_ordering::equal) { return order; }
 
   return index_ <=> other.index_;
@@ -249,17 +269,31 @@ RuneIterator RuneIterator::operator--(int) {
 }
 
 void RuneIterator::next_rune() {
-  index_ = std::min(index_ + byte_count_,str_.size());
-  rune_ = next_rune(str_,index_,byte_count_);
+  index_ += byte_count_;
+
+  if(index_ < str_.size()) {
+    rune_ = next_rune(str_,index_,byte_count_);
+  } else {
+    index_ = str_.size();
+    rune_ = RuneUtil::kInvalidRune;
+  }
 }
 
 void RuneIterator::prev_rune() {
-  if(index_ >= str_.size() && !str_.empty()) {
-    index_ = str_.size() - 1;
+  if(index_ > 0) {
+    --index_; // prev_rune(...) will search backwards for us.
+  } else {
+    rune_ = RuneUtil::kInvalidRune;
+    return;
   }
 
   rune_ = prev_rune(str_,index_,byte_count_);
-  index_ = (byte_count_ <= index_) ? (index_ - byte_count_) : 0;
+
+  if(byte_count_ <= index_) {
+    index_ = index_ - byte_count_ + 1; // next_rune() & prev_rune() need to use the same index.
+  } else {
+    index_ = 0;
+  }
 }
 
 std::string_view RuneIterator::str() const { return str_; }
@@ -269,5 +303,7 @@ std::size_t RuneIterator::index() const { return index_; }
 std::uint8_t RuneIterator::byte_count() const { return byte_count_; }
 
 char32_t RuneIterator::rune() const { return rune_; }
+
+std::string RuneIterator::packed_rune() const { return RuneUtil::pack(rune_); }
 
 } // Namespace.

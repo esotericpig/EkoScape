@@ -12,21 +12,32 @@
 
 #include "cybel/str/utf8/rune_iterator.h"
 
+#include <ranges>
+
 namespace cybel::utf8 {
 
-class RuneRange {
+class RuneRange : public std::ranges::view_interface<RuneRange> {
 public:
-  explicit RuneRange(std::string_view str,std::size_t index = 0);
+  using const_iterator = RuneIterator;
+  using const_reverse_iterator = RuneIterator::reverse_iterator;
+
+  // NOTE: Necessary for std::views::reverse().
+  explicit RuneRange() = default;
+  explicit RuneRange(std::string_view str,std::size_t rune_count = 0);
 
   RuneIterator begin() const;
   RuneIterator end() const;
-
   RuneIterator cbegin() const;
   RuneIterator cend() const;
 
+  RuneIterator::reverse_iterator rbegin() const;
+  RuneIterator::reverse_iterator rend() const;
+  RuneIterator::reverse_iterator crbegin() const;
+  RuneIterator::reverse_iterator crend() const;
+
 private:
   std::string_view str_{};
-  std::size_t index_ = 0;
+  std::size_t rune_count_ = 0;
 };
 
 } // Namespace.
