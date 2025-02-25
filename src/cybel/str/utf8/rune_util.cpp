@@ -25,9 +25,7 @@ std::string RuneUtil::pack(char32_t rune) {
     result += octet2;
   }
   // UTF8-3.
-  else if((rune >= 0x0800 && rune <= 0x0FFF) ||
-          (rune >= 0x1000 && rune <= 0xCFFF) ||
-          (rune >= 0xD000 && rune <= 0xD7FF) ||
+  else if((rune >= 0x0800 && rune <= 0xD7FF) ||
           (rune >= 0xE000 && rune <= 0xFFFF)) {
     const auto octet1 = static_cast<char>(0b1110'0000 | ((rune >> 12) & 0b0000'1111));
     const auto octet2 = static_cast<char>(kOctetBodyType | ((rune >> 6) & kOctetBodyMask));
@@ -38,9 +36,7 @@ std::string RuneUtil::pack(char32_t rune) {
     result += octet3;
   }
   // UTF8-4.
-  else if((rune >= 0x01'0000 && rune <= 0x03'FFFF) ||
-          (rune >= 0x04'0000 && rune <= 0x0F'FFFF) ||
-          (rune >= 0x10'0000 && rune <= 0x10'FFFF)) {
+  else if(rune >= 0x01'0000 && rune <= 0x10'FFFF) {
     const auto octet1 = static_cast<char>(0b1111'0000 | ((rune >> 18) & 0b0000'0111));
     const auto octet2 = static_cast<char>(kOctetBodyType | ((rune >> 12) & kOctetBodyMask));
     const auto octet3 = static_cast<char>(kOctetBodyType | ((rune >> 6) & kOctetBodyMask));
@@ -51,7 +47,7 @@ std::string RuneUtil::pack(char32_t rune) {
     result += octet3;
     result += octet4;
   } else {
-    return kInvalidRunePacked;
+    return kInvalidPackedRune;
   }
 
   return result;
