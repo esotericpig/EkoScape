@@ -460,6 +460,11 @@ bool Dantares2::GenerateMap()
     return true;
 }
 
+void Dantares2::UpdateDeltaTime(float DT)
+{
+    DeltaTime = DT / TARGET_DELTA_TIME;
+}
+
 bool Dantares2::Draw(int Distance, bool MovePlayer)
 {
     if (CurrentMap == -1)                                                //No active map.
@@ -768,7 +773,7 @@ bool Dantares2::MovePlayer()
     }
     else if (WalkOffset > 0.0f)
     {
-        WalkOffset += WalkSpeed;
+        WalkOffset += WalkSpeed * DeltaTime;
 
         if (WalkOffset > SqSize)
         {
@@ -777,7 +782,7 @@ bool Dantares2::MovePlayer()
     }
     else if (WalkOffset < 0.0f)
     {
-        WalkOffset -= WalkSpeed;
+        WalkOffset -= WalkSpeed * DeltaTime;
 
         if (WalkOffset < -SqSize)
         {
@@ -787,13 +792,13 @@ bool Dantares2::MovePlayer()
 
     if (Turning > 0)
     {
-        TurnOffset += TurnSpeed;
-        DegreesTurned += TurnSpeed;
+        TurnOffset += TurnSpeed * DeltaTime;
+        DegreesTurned += TurnSpeed * DeltaTime;
     }
     else if (Turning < 0)
     {
-        TurnOffset -= TurnSpeed;
-        DegreesTurned += TurnSpeed;
+        TurnOffset -= TurnSpeed * DeltaTime;
+        DegreesTurned += TurnSpeed * DeltaTime;
     }
 
     if (TurnOffset > 45.0f && Turning == 1)
@@ -833,7 +838,7 @@ bool Dantares2::StepForward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
                 Walking = DIR_NORTH;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -844,7 +849,7 @@ bool Dantares2::StepForward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
                 Walking = DIR_EAST;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -855,7 +860,7 @@ bool Dantares2::StepForward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
                 Walking = DIR_SOUTH;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -866,7 +871,7 @@ bool Dantares2::StepForward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
                 Walking = DIR_WEST;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -890,7 +895,7 @@ bool Dantares2::StepBackward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
                 Walking = DIR_SOUTH;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -901,7 +906,7 @@ bool Dantares2::StepBackward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
                 Walking = DIR_WEST;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -912,7 +917,7 @@ bool Dantares2::StepBackward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
                 Walking = DIR_NORTH;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -923,7 +928,7 @@ bool Dantares2::StepBackward(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
                 Walking = DIR_EAST;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -947,7 +952,7 @@ bool Dantares2::StepLeft(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
                 Walking = DIR_WEST;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -958,7 +963,7 @@ bool Dantares2::StepLeft(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
                 Walking = DIR_NORTH;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -969,7 +974,7 @@ bool Dantares2::StepLeft(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
                 Walking = DIR_EAST;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -980,7 +985,7 @@ bool Dantares2::StepLeft(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
                 Walking = DIR_SOUTH;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -1004,7 +1009,7 @@ bool Dantares2::StepRight(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
             {
                 Walking = DIR_EAST;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -1015,7 +1020,7 @@ bool Dantares2::StepRight(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
             {
                 Walking = DIR_SOUTH;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -1026,7 +1031,7 @@ bool Dantares2::StepRight(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
             {
                 Walking = DIR_WEST;
-                WalkOffset -= WalkSpeed;
+                WalkOffset -= WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -1037,7 +1042,7 @@ bool Dantares2::StepRight(bool Force)
                 (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
             {
                 Walking = DIR_NORTH;
-                WalkOffset += WalkSpeed;
+                WalkOffset += WalkSpeed * DeltaTime;
 
                 return true;
             }
@@ -1055,8 +1060,8 @@ bool Dantares2::TurnLeft()
     }
 
     Turning = -1;
-    TurnOffset -= TurnSpeed;
-    DegreesTurned += TurnSpeed;
+    TurnOffset -= TurnSpeed * DeltaTime;
+    DegreesTurned += TurnSpeed * DeltaTime;
 
     return true;
 }
@@ -1069,8 +1074,8 @@ bool Dantares2::TurnRight()
     }
 
     Turning = 1;
-    TurnOffset += TurnSpeed;
-    DegreesTurned += TurnSpeed;
+    TurnOffset += TurnSpeed * DeltaTime;
+    DegreesTurned += TurnSpeed * DeltaTime;
 
     return true;
 }

@@ -66,6 +66,12 @@ public:
     //The maximum number of maps the engine will store.
     //Adjust this to fit your preferences.
 
+    static constexpr float TARGET_DELTA_TIME = 1.0f / 60.0f;
+    //The delta time (1 second / FPS) in seconds that the original Engine targeted.
+    //It's used to adjust the received value in UpdateDeltaTime() so that the
+    //original code that used this Engine doesn't have to update its speed values.
+    //This cannot be 0, else it will cause a divide by 0.
+
     static constexpr int DIR_NORTH = 0;
     static constexpr int DIR_EAST  = 1;
     static constexpr int DIR_SOUTH = 2;
@@ -326,6 +332,20 @@ public:
         Try to avoid needless calls to this function.
 
         Returns - Function returns true if successful, and false otherwise.
+    */
+
+    void UpdateDeltaTime(float DT);
+    /*  Updates the internal delta time in seconds for speed calculations.
+        This value is also adjusted by TARGET_DELTA_TIME.
+
+        If you cap the FPS automatically with some type of sleep function, then you can
+        safely ignore this function, but the speed might be bad at lower FPS.
+
+        If you decide to use this function, it must be called at least once before
+        calling Draw(..., true), MovePlayer(), and the movement functions.
+
+        Parameters:
+        float DT - The new delta time in seconds to use.
     */
 
     bool Draw(int Distance=10, bool MovePlayer=true);
@@ -638,6 +658,8 @@ protected:
     //Flag that indicates whether or not the player is moving, and which direction.
     int Turning = 0;
     //Flag that indicates whether or not the player is turning, and which direction.
+    float DeltaTime = 1.0f;
+    //The delta time in seconds for speed calculations that has been adjusted by TARGET_DELTA_TIME.
     float WalkSpeed = 0.0083f;
     //Walking distance covered per frame.
     float TurnSpeed = 5.0f;

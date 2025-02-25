@@ -240,6 +240,8 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens
     return std::exchange(scene_action_,SceneAction::kNil);
   }
 
+  dantares_->UpdateDeltaTime(static_cast<float>(step.delta_time));
+
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
       // Still paused showing the Map Info?
