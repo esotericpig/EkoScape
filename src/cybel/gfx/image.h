@@ -10,9 +10,11 @@
 
 #include "cybel/common.h"
 
+#include "cybel/types/color.h"
 #include "cybel/types/size.h"
 
 #include <filesystem>
+#include <functional>
 
 namespace cybel {
 
@@ -21,6 +23,8 @@ class Texture;
 
 class Image {
 public:
+  using EditPixel = std::function<void(Color4f&)>;
+
   explicit Image(const std::filesystem::path& file,bool make_weird = false);
 
   Image(const Image& other) = delete;
@@ -31,6 +35,9 @@ public:
   Image& operator=(Image&& other) noexcept;
 
   void make_weird();
+  void colorize(const Color4f& to_color);
+  void edit_pixels(const EditPixel& edit_pixel);
+
   Image& lock();
   Image& unlock() noexcept;
 

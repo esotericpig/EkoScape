@@ -63,6 +63,21 @@ Image& Image::operator=(Image&& other) noexcept {
 }
 
 void Image::make_weird() {
+  edit_pixels([](Color4f& c) {
+    std::swap(c.r,c.b);
+  });
+}
+
+void Image::colorize(const Color4f& to_color) {
+  edit_pixels([&](Color4f& c) {
+    c.r = std::clamp(c.r * (to_color.r / 0.5f),0.0f,1.0f);
+    c.g = std::clamp(c.g * (to_color.g / 0.5f),0.0f,1.0f);
+    c.b = std::clamp(c.b * (to_color.b / 0.5f),0.0f,1.0f);
+    c.a = to_color.a;
+  });
+}
+
+void Image::edit_pixels(const EditPixel& edit_pixel) {
   if(SDL_PIXELTYPE(surface_->format->format) != SDL_PIXELTYPE_PACKED32) {
     // Convert to a surface we can work with.
     SDL_Surface* new_surface = SDL_ConvertSurfaceFormat(surface_,SDL_PIXELFORMAT_RGBA32,0);
@@ -97,9 +112,17 @@ void Image::make_weird() {
     Uint8 a = 0;
 
     SDL_GetRGBA(pixel,surface_->format,&r,&g,&b,&a);
-    std::swap(r,b);
+    auto color = Color4f::bytes(r,g,b,a);
 
-    pixels[i] = SDL_MapRGBA(surface_->format,r,g,b,a);
+    edit_pixel(color);
+
+    pixels[i] = SDL_MapRGBA(
+      surface_->format,
+      static_cast<Uint8>(std::clamp(255.0f * color.r,0.0f,255.0f)),
+      static_cast<Uint8>(std::clamp(255.0f * color.g,0.0f,255.0f)),
+      static_cast<Uint8>(std::clamp(255.0f * color.b,0.0f,255.0f)),
+      static_cast<Uint8>(std::clamp(255.0f * color.a,0.0f,255.0f))
+    );
   }
 
   unlock();

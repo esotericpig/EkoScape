@@ -137,7 +137,7 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
     std::swap(end_color_.r,end_color_.b);
     std::swap(fruit_color_.r,fruit_color_.b);
     std::swap(portal_color_.r,portal_color_.b);
-    std::swap(robot_color_.r,robot_color_.b);
+    robot_color_.set_hex(0xff69b4); // Hot Pink.
     std::swap(wall_color_.r,wall_color_.b);
   }
 }
@@ -210,6 +210,12 @@ Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir
   st.dirname = dir.filename().string();
   st.name = utf8::StrUtil::ellipsize(st.dirname,18);
 
+  Image robot_img{dir / "robot.png"};
+
+  if(is_weird_) {
+    robot_img.colorize(Color4f::hex(0xff69b4)); // Hot Pink.
+  }
+
   st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png",is_weird_});
   st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png",is_weird_});
   st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png",is_weird_});
@@ -219,7 +225,7 @@ Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir
   st.floor_tex = std::make_unique<Texture>(Image{dir / "floor.png",is_weird_});
   st.fruit_tex = std::make_unique<Texture>(Image{dir / "fruit.png",is_weird_});
   st.portal_tex = std::make_unique<Texture>(Image{dir / "portal.png",is_weird_});
-  st.robot_tex = std::make_unique<Texture>(Image{dir / "robot.png",is_weird_});
+  st.robot_tex = std::make_unique<Texture>(robot_img);
   st.wall_tex = std::make_unique<Texture>(Image{dir / "wall.png",is_weird_});
   st.wall_ghost_tex = std::make_unique<Texture>(Image{dir / "wall_ghost.png",is_weird_});
   st.white_tex = std::make_unique<Texture>(Image{dir / "white.png",is_weird_});
