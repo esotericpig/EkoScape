@@ -63,7 +63,7 @@ private:
   static inline const Color4f kTextBgColor{0.0f,0.5f};
   static inline const Size2i kTextBgPadding{15,10};
   static inline const float kAlpha = 0.33f;
-  static inline const Duration kMapInfoDuration = Duration::from_millis(3'000);
+  static inline const Duration kMapInfoDuration = Duration::from_millis(2'500);
   static inline const Duration kFlashDuration = Duration::from_millis(500);
   static inline const Duration kFadeDuration = Duration::from_millis(3'000);
   static inline const Duration kGameOverDuration = Duration::from_millis(3'000);
