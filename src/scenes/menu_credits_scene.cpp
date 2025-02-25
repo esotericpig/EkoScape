@@ -97,7 +97,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 }
 
 void MenuCreditsScene::birth_wtfs(const ViewDimens& dimens) {
-  if(active_wtf_count_ > 0 && wtf_cooldown_time_.secs() < 0.200f) { return; }
+  if(active_wtf_count_ > 0 && wtf_cooldown_time_.secs() < 0.110f) { return; }
 
   wtf_cooldown_time_.zero();
 
@@ -118,8 +118,8 @@ void MenuCreditsScene::birth_wtfs(const ViewDimens& dimens) {
 
     wtf.pos.x = init_x;
     wtf.pos.y = init_y;
-    wtf.pos_vel.x = r.rand_float_vel(75.0f) * 3.0f;
-    wtf.pos_vel.y = r.rand_float_vel(75.0f) * 2.0f;
+    wtf.pos_vel.x = r.rand_float_vel(75.0f) * 4.0f;
+    wtf.pos_vel.y = r.rand_float_vel(75.0f) * 3.0f;
     wtf.spin_angle = r.rand_float_vel(30.0f);
     wtf.spin_vel = r.rand_float_vel(30.0f);
 
