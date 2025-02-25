@@ -23,7 +23,7 @@ public:
 
   // NOTE: Necessary for std::views::reverse().
   explicit RuneRange() = default;
-  explicit RuneRange(std::string_view str,std::size_t rune_count = 0);
+  explicit RuneRange(std::string_view str,std::size_t begin_rune_count = 0,std::size_t end_rune_count = 0);
 
   RuneIterator begin() const;
   RuneIterator end() const;
@@ -37,7 +37,8 @@ public:
 
 private:
   std::string_view str_{};
-  std::size_t rune_count_ = 0;
+  std::size_t begin_rune_count_ = 0;
+  std::size_t end_rune_count_ = 0;
 };
 
 } // Namespace.
