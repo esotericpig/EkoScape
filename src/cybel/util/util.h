@@ -32,6 +32,7 @@ namespace Util {
   std::string get_sdl_mix_error();
   std::string get_gl_error(GLenum error);
   std::string get_glew_error(GLenum error);
+  std::string get_emscripten_result(int result);
 }
 
 // See Example at bottom:

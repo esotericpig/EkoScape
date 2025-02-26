@@ -131,6 +131,7 @@ public:
 
 private:
   std::string title_{};
+
   std::unique_ptr<Renderer> renderer_{};
   Scene& main_scene_;
   std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after `renderer_`.
@@ -141,6 +142,8 @@ private:
   int target_fps_ = 0;
   Duration target_dpf_{};
   FrameStep frame_step_{};
+
+  static Size2i calc_scaled_view(const Size2i& view,float scale_factor,const Size2i& target_size);
 
   void init_hints();
   void init_config(Config& config);

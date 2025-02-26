@@ -34,6 +34,32 @@ CybelEngine::Resources::~Resources() noexcept {
   SDL_Quit();
 }
 
+Size2i CybelEngine::calc_scaled_view(const Size2i& view,float scale_factor,const Size2i& target_size) {
+  Size2i size{};
+
+  // Scaled size.
+  float sw = static_cast<float>(view.w) * scale_factor;
+  float sh = static_cast<float>(view.h) * scale_factor;
+
+  // If target size set, preserve aspect ratio of target size.
+  if(target_size.w > 0 && target_size.h > 0) {
+    // Aspect ratio.
+    const float ar = static_cast<float>(target_size.w) / static_cast<float>(target_size.h);
+    const float ar_h = std::round(sw / ar);
+
+    if(ar_h <= std::round(sh)) {
+      sh = ar_h; // Adjust height based on width.
+    } else {
+      sw = sh * ar; // Adjust width based on height.
+    }
+  }
+
+  size.w = static_cast<int>(std::round(sw));
+  size.h = static_cast<int>(std::round(sh));
+
+  return size;
+}
+
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
   : title_(config.title),main_scene_(main_scene) {
   init_hints();
@@ -71,41 +97,23 @@ void CybelEngine::init_hints() {
 }
 
 void CybelEngine::init_config(Config& config) {
-  int width = config.size.w;
-  int height = config.size.h;
+  Size2i size = config.size;
 
   // If getting the current display mode fails, we fall back to Config.size.
   //     Therefore, scale_factor needs to have priority over Config.size.
   if(config.scale_factor > 0.0f) {
-    SDL_DisplayMode display_mode{};
+    SDL_DisplayMode dm{};
 
-    if(SDL_GetCurrentDisplayMode(0,&display_mode) != 0) {
+    if(SDL_GetCurrentDisplayMode(0,&dm) != 0) {
       std::cerr << "[WARN] Failed to get current display mode: " << Util::get_sdl_error() << '.' << std::endl;
       // Don't fail; fall back to Config.size.
-    } else if(display_mode.w > 0 && display_mode.h > 0) {
-      float sw = static_cast<float>(display_mode.w) * config.scale_factor;
-      float sh = static_cast<float>(display_mode.h) * config.scale_factor;
-
-      // If target size set, preserve aspect ratio of target size.
-      if(config.target_size.w > 0 && config.target_size.h > 0) {
-        const float aspect_ratio = static_cast<float>(config.target_size.w) /
-                                   static_cast<float>(config.target_size.h);
-        const float ar_h = std::round(sw / aspect_ratio);
-
-        if(ar_h <= std::round(sh)) {
-          sh = ar_h; // Adjust height based on width.
-        } else {
-          sw = sh * aspect_ratio; // Adjust width based on height.
-        }
-      }
-
-      width = static_cast<int>(std::round(sw));
-      height = static_cast<int>(std::round(sh));
+    } else if(dm.w > 0 && dm.h > 0) {
+      size = calc_scaled_view(Size2i{dm.w,dm.h},config.scale_factor,config.target_size);
     }
   }
 
-  config.size.w = (width > 0) ? width : kFallbackWidth;
-  config.size.h = (height > 0) ? height : kFallbackHeight;
+  config.size.w = (size.w > 0) ? size.w : kFallbackWidth;
+  config.size.h = (size.h > 0) ? size.h : kFallbackHeight;
   config.target_size.w = (config.target_size.w > 0) ? config.target_size.w : config.size.w;
   config.target_size.h = (config.target_size.h > 0) ? config.target_size.h : config.size.h;
 
@@ -138,11 +146,18 @@ void CybelEngine::init_gui(const Config& config) {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
   }
 
+  Uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+
+  // NOTE: There is a bug in SDL2 where SDL_SetWindowResizable() doesn't work to enable receiving resize
+  //       events from the browser. We must explicitly pass SDL_WINDOW_RESIZABLE in the flags.
+  #if defined(__EMSCRIPTEN__)
+    window_flags |= SDL_WINDOW_RESIZABLE;
+  #endif
+
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
   //     we call sync_size() later, which we do in run().
   res_.window = SDL_CreateWindow(
-    title_.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h
-    ,SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
+    title_.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h,window_flags
   );
 
   if(res_.window == NULL) {

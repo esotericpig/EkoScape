@@ -6,8 +6,11 @@
   <title>@PROJECT_NAME@ v@PROJECT_VERSION@</title>
   <style>
     body {
+      margin: 0;
+      padding: 0;
       background-color: #050a30;
       color: #d1d1d1;
+      overflow: hidden;
     }
     .emscripten {
       padding-right: 0;
@@ -23,9 +26,12 @@
     }
     /* NOTE: Canvas *must not* have a border or padding, else mouse coords will be wrong. */
     canvas.emscripten {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
       border: 0 none;
-      width: 100%;
-      height: 100%;
+      overflow: hidden;
     }
 
     .spinner {
@@ -86,7 +92,7 @@
     // TODO: Figure out what to do here for WebGL context lost.
     // As a default initial behavior, pop up an alert when webgl context is lost. To make your
     // application robust, you may want to override this behavior before shipping!
-    // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+    // See: http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
     canvasElement.addEventListener("webglcontextlost",(e) => {
       alert('WebGL context lost. You will need to reload the page.');
       e.preventDefault();
