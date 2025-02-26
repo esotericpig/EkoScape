@@ -186,6 +186,7 @@ if(EMSCRIPTEN)
       -sALLOW_MEMORY_GROWTH=1
 #      -sEXCEPTION_DEBUG=1
 #      -sEXCEPTION_STACK_TRACES=1
+      "-sEXPORTED_FUNCTIONS=_main,ccall,_SDL_ShowCursor"
 #      -sGL_ASSERTIONS=1
       -sMINIFY_HTML=0
 #      -sSAFE_HEAP=1

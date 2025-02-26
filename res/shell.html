@@ -93,7 +93,7 @@
     // As a default initial behavior, pop up an alert when webgl context is lost. To make your
     // application robust, you may want to override this behavior before shipping!
     // See: http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
-    canvasElement.addEventListener("webglcontextlost",(e) => {
+    canvasElement.addEventListener('webglcontextlost',(e) => {
       alert('WebGL context lost. You will need to reload the page.');
       e.preventDefault();
     },false);
@@ -153,6 +153,21 @@
         if(text) { console.error('[post-exception status] ' + text); }
       };
     };
+
+    // Because both the game and web browsers use F11 as fullscreen, the C++ code doesn't get run to
+    //     re-show the cursor after fullscreen, so have to do this hack.
+    // Unfortunately, using `canvasElement.style.cursor = 'auto';` causes the cursor to never be hidden,
+    //     so have to call SDL_ShowCursor().
+    document.addEventListener('fullscreenchange',() => {
+      if(!document.fullscreenElement) {
+        try {
+          Module.ccall('SDL_ShowCursor',null,['number'],[1]); // SDL_ENABLE.
+        } catch(err) {
+          console.warn('Failed to re-show cursor after fullscreen: ' + err + '.');
+          canvasElement.style.cursor = 'auto'; // Fallback.
+        }
+      }
+    });
   </script>
   {{{ SCRIPT }}}
   </body>
