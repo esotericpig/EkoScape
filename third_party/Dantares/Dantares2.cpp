@@ -60,6 +60,7 @@ void Dantares2::MoveFrom(Dantares2 &&Other) noexcept
     CameraFacing = std::exchange(Other.CameraFacing, 0);
     Walking = std::exchange(Other.Walking, -1);
     Turning = std::exchange(Other.Turning, 0);
+    DeltaTime = Other.DeltaTime;
     WalkSpeed = Other.WalkSpeed;
     TurnSpeed = Other.TurnSpeed;
     WalkOffset = std::exchange(Other.WalkOffset, 0.0f);
