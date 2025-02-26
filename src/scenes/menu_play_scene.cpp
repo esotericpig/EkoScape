@@ -141,8 +141,8 @@ void MenuPlayScene::glob_maps() {
 
   // Sort by: non-core group, core group, & title.
   std::sort(
-    map_opts_.begin() + 1,map_opts_.end()
-    ,[&](const auto& opt1,const auto& opt2) {
+    map_opts_.begin() + 1,map_opts_.end(),
+    [&](const auto& opt1,const auto& opt2) {
       // Return true if opt1 < opt2.
 
       const bool is_core_group1 = kCoreGroupToPriority.contains(opt1.group);
