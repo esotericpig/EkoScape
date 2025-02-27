@@ -10,7 +10,7 @@ EkoScape is a simple 3D step-based game where you run through a maze rescuing yo
 
 ## Playing ##
 
-You can play in a web browser or download the game on [itch.io](https://esotericpig.itch.io/ekoscape).
+You can play in your Web browser or download the game on [itch.io](https://esotericpig.itch.io/ekoscape).
 
 If you choose to download, simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
 
@@ -50,7 +50,7 @@ The code is a bit over-engineered, but I designed it so that I could use parts o
 
 Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
 
-**Update 2025-02:** I updated the game to work on the web using Emscripten. I had to add OpenGL ES 3.0 (WebGL 2.0) support to the Renderer class and to Dantares (made a new Dantares2 class to preserve the "original").
+**Update 2025-02:** I updated the game to work on the Web using Emscripten. I had to add OpenGL ES 3.0 (WebGL 2.0) support to the Renderer class and to Dantares (made a new Dantares2 class to preserve the "original").
 
 ## Contents ##
 
@@ -68,7 +68,7 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
   - [OpenGL ES for Desktop](#opengl-es-for-desktop)
   - [Setup for Web](#setup-for-web)
   - [CMake for Web](#cmake-for-web)
-  - [Misc. for Web](#misc--for-web)
+  - [Misc. for Web](#misc-for-web)
 - [Releasing](#releasing)
   - [New Release](#new-release)
   - [Publishing](#publishing)
