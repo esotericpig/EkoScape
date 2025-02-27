@@ -88,8 +88,6 @@ void run_ems_frame() {
 // - https://www.khronos.org/webgl/wiki/HandlingContextLost
 // - https://emscripten.org/docs/api_reference/html5.h.html#id93
 bool on_ems_gl_context(int event_type,const void* /*reserved*/,void* /*user_data*/) {
-  // using namespace ekoscape;
-
   switch(event_type) {
     case EMSCRIPTEN_EVENT_WEBGLCONTEXTLOST:
       std::cerr << "[WARN] WebGL context lost." << std::endl;

@@ -17,7 +17,7 @@
 namespace cybel {
 
 /**
- * Only supports images with BPP of: RGB, RGBA, BGR, or BGRA.
+ * Only supports images with pixel formats: RGB, RGBA, BGR, or BGRA.
  */
 class Texture {
 public:

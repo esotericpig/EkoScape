@@ -43,7 +43,7 @@ public:
 
   const std::string& id() const;
   const Size2i& size() const;
-  std::uint8_t bpp() const;
+  std::uint8_t bytes_per_pixel() const;
   bool is_red_first() const;
 
   friend class CybelEngine;

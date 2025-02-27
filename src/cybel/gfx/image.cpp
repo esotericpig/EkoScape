@@ -153,7 +153,7 @@ const std::string& Image::id() const { return id_; }
 
 const Size2i& Image::size() const { return size_; }
 
-std::uint8_t Image::bpp() const { return surface_->format->BytesPerPixel; }
+std::uint8_t Image::bytes_per_pixel() const { return surface_->format->BytesPerPixel; }
 
 bool Image::is_red_first() const { return(surface_->format->Rmask == 0x000000ff); }
 

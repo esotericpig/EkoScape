@@ -13,10 +13,10 @@
 namespace cybel {
 
 Texture::Texture(Image& img) {
-  const auto bpp = img.bpp();
+  const auto bypp = img.bytes_per_pixel();
   GLenum img_format = GL_RGBA;
 
-  switch(bpp) {
+  switch(bypp) {
     case 4:
       img_format = img.is_red_first() ? GL_RGBA : GL_BGRA;
       break;
@@ -26,7 +26,7 @@ Texture::Texture(Image& img) {
       break;
 
     default:
-      throw CybelError{"Unsupported BPP [",static_cast<int>(bpp),"] for image [",img.id(),"]."};
+      throw CybelError{"Unsupported Bytes Per Pixel [",static_cast<int>(bypp),"] for image [",img.id(),"]."};
   }
 
   glGenTextures(1,&gl_id_);
@@ -34,7 +34,7 @@ Texture::Texture(Image& img) {
 
   // I didn't have any problems without this, but could be needed.
   // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_upload_and_pixel_reads
-  if(bpp <= 3) {
+  if(bypp <= 3) {
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
   } else {
     glPixelStorei(GL_UNPACK_ALIGNMENT,4); // Should be the default.
@@ -91,11 +91,11 @@ Texture::Texture(const Color4f& color,bool make_weird) {
 
   const int width = 2;
   const int height = 2;
-  const std::uint8_t bpp = 4;
-  const int size = width * height * bpp;
+  const std::uint8_t bypp = 4;
+  const int size = width * height * bypp;
   GLubyte pixels[size]{};
 
-  for(auto* p = pixels; p < (pixels + size); p += bpp) {
+  for(auto* p = pixels; p < (pixels + size); p += bypp) {
     p[0] = r;
     p[1] = g;
     p[2] = b;
