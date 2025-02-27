@@ -29,6 +29,7 @@ EkoScapeGame::EkoScapeGame() {
     .music_types = MIX_INIT_OGG,
   };
 
+  // In Emscripten, VSync is emulated, so it's slower. Therefore, turn it off by default.
   #if defined(__EMSCRIPTEN__)
     config.vsync = false;
   #endif

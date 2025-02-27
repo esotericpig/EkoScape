@@ -89,13 +89,18 @@
 
     canvasElement.addEventListener('oncontextmenu',(e) => e.preventDefault());
 
-    // TODO: Figure out what to do here for WebGL context lost.
-    // As a default initial behavior, pop up an alert when webgl context is lost. To make your
-    // application robust, you may want to override this behavior before shipping!
-    // See: http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+    // To simulate GL context lost & restored in JS:
+    //   let gle = Module.canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
+    //   gle.loseContext();
+    //   gle.restoreContext();
+    //
+    // See:
+    // - https://www.khronos.org/webgl/wiki/HandlingContextLost
+    // - https://emscripten.org/docs/api_reference/html5.h.html#id93
     canvasElement.addEventListener('webglcontextlost',(e) => {
-      alert('WebGL context lost. You will need to reload the page.');
+      alert('WebGL context lost. Reloading the page.');
       e.preventDefault();
+      location.reload();
     },false);
 
     // NOTE: Must be var; can't be const or let.
@@ -144,15 +149,24 @@
 
     Module.setStatus('Downloading...');
 
-    window.onerror = () => {
+    window.onerror = (message,_source,_lineno,_colno,error) => {
+      console.error('Unknown error:',message);
+      console.error('Unknown error object:',error);
+
       Module.setStatus(
-        'Exception thrown. See the JavaScript console for the error.<br><br>\n'
+          '<br>\nAn unknown error occurred. See the JavaScript console for details.<br><br>\n"' +
+          message + '"<br><br>\n'
       );
       spinnerElement.style.display = 'none';
       Module.setStatus = (text) => {
         if(text) { console.error('[post-exception status] ' + text); }
       };
     };
+
+    if(!Module.canvas.getContext('webgl2')) {
+      alert('Your browser does not currently support WebGL 2.0 (OpenGL ES 3.0).\n\n' +
+            'The game might not function properly.');
+    }
 
     // Because both the game and web browsers use F11 as fullscreen, the C++ code doesn't get run to
     //     re-show the cursor after fullscreen, so have to do this hack.
@@ -163,7 +177,7 @@
         try {
           Module.ccall('SDL_ShowCursor',null,['number'],[1]); // SDL_ENABLE.
         } catch(err) {
-          console.warn('Failed to re-show cursor after fullscreen: ' + err + '.');
+          console.warn('Failed to re-show cursor after fullscreen: ' + err + '. Using fallback instead.');
           canvasElement.style.cursor = 'auto'; // Fallback.
         }
       }
