@@ -211,6 +211,7 @@ if(EMSCRIPTEN)
       "--exclude-file=*.md"
       "--exclude-file=*/.gitkeep"
       "--exclude-file=*/images/ekotiles.png"
+      "--exclude-file=*/images/keys.png"
       "--exclude-file=*/maps/template_*.txt"
 #      --use-preload-plugins # Don't use; breaks star textures.
   )
