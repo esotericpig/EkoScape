@@ -10,11 +10,19 @@ EkoScape is a simple 3D step-based game where you run through a maze rescuing yo
 
 ## Playing ##
 
-You can download the game on [itch.io](https://esotericpig.itch.io/ekoscape) and then simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
+You can play in a web browser or download the game on [itch.io](https://esotericpig.itch.io/ekoscape).
+
+If you choose to download, simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
 
 You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
 
-**System Requirements:**
+### System Requirements ###
+
+Web:
+- WebGL 2.0+ (OpenGL ES 3.0+)
+- It's recommended to turn on hardware/graphics acceleration in your browser's settings.
+
+Desktop:
 - OpenGL 2.1+
   - Use Mesa if you have a lower version.
 - Linux x86_64 (AppImage)
@@ -25,7 +33,8 @@ You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See
     - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
 - Windows x64
 
-**Additional System Notes:**
+### Additional System Notes ###
+
 - Linux:
   - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file, `io.github.esotericpig.ekoscape.desktop`, in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/io.github.esotericpig.ekoscape.desktop).
 
@@ -41,9 +50,12 @@ The code is a bit over-engineered, but I designed it so that I could use parts o
 
 Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
 
+**Update 2025-02:** I updated the game to work on the web using Emscripten. I had to add OpenGL ES 3.0 (WebGL 2.0) support to the Renderer class and to Dantares (made a new Dantares2 class to preserve the "original").
+
 ## Contents ##
 
 - [Hacking](#hacking)
+  - [Setup](#setup)
   - [IDEs](#ides)
   - [Configuring Build](#configuring-build)
   - [Building](#building)
@@ -52,12 +64,20 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
   - [Building Linux AppImage](#building-linux-appimage)
   - [Packaging Up](#packaging-up)
   - [Miscellaneous](#miscellaneous)
+- [Hacking for Web](#hacking-for-web)
+  - [OpenGL ES for Desktop](#opengl-es-for-desktop)
+  - [Setup for Web](#setup-for-web)
+  - [CMake for Web](#cmake-for-web)
+  - [Misc. for Web](#misc--for-web)
+- [Releasing](#releasing)
   - [New Release](#new-release)
   - [Publishing](#publishing)
 - [Credits](#credits)
 - [License](#license)
 
 ## Hacking ##
+
+### Setup ###
 
 This project uses **CMake**, [Ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages), and [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started). Please install these for your system.
 
@@ -208,6 +228,65 @@ cmake --build --preset default --config Release --target package
 While playing the game, press `F3` to see the FPS in the top left corner. The game is capped at 60 FPS.
 
 There are various scripts in the [scripts/](scripts/) folder for development, but not necessary, just for convenience.
+
+## Hacking for Web ##
+
+### OpenGL ES for Desktop ###
+
+For rapid testing of OpenGL ES without using the Web (slower compile/link time), simply edit the `default` preset in [CMakePresets.json](CMakePresets.json) to use GLES:
+
+```json
+{
+  "RENDERER": "GLES"
+}
+```
+
+Or, pass it in when configuring CMake using `-DRENDERER=GLES`.
+
+Now you can test OpenGL ES in the Desktop version instead.
+
+### Setup for Web ###
+
+Install [Emscripten](https://emscripten.org/docs/getting_started/downloads.html).
+
+On Linux/macOS, I don't recommend adding `source ./emsdk_env.sh` to your Bash/Zsh RC file because it outputs a bunch of noise every time you open a terminal. I just make sure to call it before I need it by using an alias:
+
+```bash
+alias ems_src='source "$HOME/Code/clones/emsdk/emsdk_env.sh"'
+```
+
+On Windows, you need to run `emsdk_env.bat` instead.
+
+You should now have an `EMSDK` env var, and the below file should exist, which is used in [CMakePresets.json](CMakePresets.json):
+
+```bash
+ls "$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+```
+
+### CMake for Web ###
+
+Now just use the CMake preset `web`, and everything should just work like normal. This preset uses separate `build_web` & `bin_web` folders than the `default` preset so that you can test both the Desktop & Web versions without having to rebuild everything when switching between them.
+
+```bash
+# Configure for Web.
+cmake --preset web
+
+# Build for Web.
+cmake --build --preset web --config Release
+# - Use 1 job instead.
+cmake --build --preset web --config Release -j 1
+
+# Run for Web [starts a server using `emrun` (Python3)].
+cmake --build --preset web --config Release --target run
+# - Or, run directly.
+emrun --no-browser bin_web/Release
+```
+
+### Misc. for Web ###
+
+Both [scripts/dev.rb](scripts/dev.rb) and [scripts/artifacts.rb](scripts/artifacts.rb) have Web options, if you use those scripts.
+
+## Releasing ##
 
 ### New Release ###
 
