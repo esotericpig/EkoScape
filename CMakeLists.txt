@@ -43,7 +43,7 @@ cmake_minimum_required(VERSION 3.20)
 message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.")
 
 project("EkoScape"
-    VERSION "2.1"
+    VERSION "2.2"
     HOMEPAGE_URL "https://github.com/esotericpig/EkoScape"
     LANGUAGES C CXX
 )
