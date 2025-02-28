@@ -193,7 +193,7 @@ void MenuCreditsScene::draw_wtfs(Renderer& ren) {
       font.font.rune_size = wtf.size.to_size2<int>();
       font.font_color = wtf.color;
 
-      ren.wrap_rotate(wtf.pos.to_pos3<int>(),wtf.spin_angle,[&]() {
+      ren.wrap_rotate(wtf.pos.to_pos3<int>(),wtf.spin_angle,[&] {
         font.print(kWtfText);
       });
     }

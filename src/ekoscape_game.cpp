@@ -266,7 +266,7 @@ int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*d
     if(avg_fps_ == 0.0) {
       avg_fps_ = fps;
     } else {
-      const double smoothing_factor = 0.3; // Usually 0.1 to 0.3.
+      constexpr double smoothing_factor = 0.3; // Usually 0.1 to 0.3.
 
       // Exponential Moving Average (EMA) to reduce the effects of hiccups,
       //     instead of a typical average: avg = (avg + fps) / 2.

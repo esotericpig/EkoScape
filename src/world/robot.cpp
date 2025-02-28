@@ -73,8 +73,8 @@ bool Robot::move(MoveData& data) {
 }
 
 bool Robot::move_smart(MoveData& data) {
-  bool on_player_x = (pos_.x == last_seen_player_pos_.x);
-  bool on_player_y = (pos_.y == last_seen_player_pos_.y);
+  const bool on_player_x = (pos_.x == last_seen_player_pos_.x);
+  const bool on_player_y = (pos_.y == last_seen_player_pos_.y);
 
   if(on_player_x && on_player_y) {
     // Move randomly again, to try to hit a Portal nearby if the last seen pos is off.
@@ -111,7 +111,7 @@ bool Robot::move_smart(MoveData& data) {
 
   // We pick randomly, but instead, we could do by whichever one is farther away,
   //     but I like the randomness.
-  bool try_x_first = Rando::it().rand_bool();
+  const bool try_x_first = Rando::it().rand_bool();
 
   // Try normally.
   if(try_x_first) {

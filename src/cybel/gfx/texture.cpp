@@ -89,10 +89,10 @@ Texture::Texture(const Color4f& color,bool make_weird) {
     b = 255 - b;
   }
 
-  const int width = 2;
-  const int height = 2;
-  const std::uint8_t bypp = 4;
-  const int size = width * height * bypp;
+  constexpr int width = 2;
+  constexpr int height = 2;
+  constexpr std::uint8_t bypp = 4;
+  constexpr int size = width * height * bypp;
   GLubyte pixels[size]{};
 
   for(auto* p = pixels; p < (pixels + size); p += bypp) {

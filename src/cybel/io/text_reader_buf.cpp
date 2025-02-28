@@ -15,7 +15,7 @@ namespace cybel {
 TextReaderBuf::TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size)
   : buffer_(std::max<std::size_t>(buffer_size,1),0) {
   const std::u8string file_str = file.u8string();
-  auto file_cstr = reinterpret_cast<const char*>(file_str.c_str());
+  const auto* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 
   context_ = SDL_RWFromFile(file_cstr,"r");
 
@@ -81,7 +81,7 @@ TextReaderBuf::int_type TextReaderBuf::underflow() {
   if(SDL_RWread(context_,buffer_.data(),sizeof(char_type) * read_count,1) == 0) {
     close();
 
-    std::string error = Util::get_sdl_error();
+    const std::string error = Util::get_sdl_error();
 
     if(!error.empty()) {
       std::cerr << "[WARN] Failed to read data: " << error << '.' << std::endl;

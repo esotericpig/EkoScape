@@ -94,7 +94,7 @@ void StarSys::draw(Renderer& ren,const Texture& tex) {
 
   ren.wrap_tex(tex,[&](auto& t) {
     for(auto& star : stars_) {
-      ren.wrap_rotate(star.pos.to_pos3<int>(),star.spin_angle,[&]() {
+      ren.wrap_rotate(star.pos.to_pos3<int>(),star.spin_angle,[&] {
         ren.begin_color(star.color);
         t.draw_quad(star.render_pos.to_pos3<int>(),star.size.to_size2<int>());
       });

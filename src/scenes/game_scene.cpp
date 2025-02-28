@@ -472,7 +472,7 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
 
   if(player_hit_end_) {
     // Even if fully transparent, continue to draw so that the Player can turn the mini map (just for fun).
-    ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_->game_over_age()),[&]() {
+    ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_->game_over_age()),[&] {
       dantares_->Draw(kDantaresDist);
     });
   } else {

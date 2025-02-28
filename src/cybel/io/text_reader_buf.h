@@ -55,14 +55,14 @@ protected:
    *
    * Always returns EOF.
    */
-  int_type pbackfail(int_type c = traits_type::eof()) override;
+  int_type pbackfail(int_type c) override;
 
   /**
    * Not implemented, since this class is for reading only.
    *
    * Always returns EOF.
    */
-  int_type overflow(int_type c = traits_type::eof()) override;
+  int_type overflow(int_type c) override;
 
 private:
   using Base = std::streambuf;

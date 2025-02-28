@@ -142,7 +142,7 @@ FontAtlas::FontAtlas(const Builder& builder)
 const Size2i& FontAtlas::spacing() const { return spacing_; }
 
 int FontAtlas::rune_index(char32_t rune) const {
-  auto it = rune_to_index_.find(rune);
+  const auto it = rune_to_index_.find(rune);
 
   return (it != rune_to_index_.end()) ? it->second : default_index_;
 }

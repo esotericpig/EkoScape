@@ -130,14 +130,14 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
   if(flash_age_ >= 0.0f) {
     flash_color_.a = kAlpha * flash_age_;
 
-    ren.wrap_color(flash_color_,[&]() {
+    ren.wrap_color(flash_color_,[&] {
       ren.draw_quad(Pos3i{0,0,0},dimens.size);
     });
   }
   if(fade_age_ >= 0.0f) {
     fade_color_.a = kAlpha * fade_age_;
 
-    ren.wrap_color(fade_color_,[&]() {
+    ren.wrap_color(fade_color_,[&] {
       ren.draw_quad(Pos3i{0,0,0},dimens.size);
     });
   }
@@ -176,7 +176,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
                                             : ctx_.assets.goodnight_sprite();
 
   ren.wrap_sprite(sprite,[&](auto& s) {
-    ren.wrap_color(Color4f{1.0f,game_over_age_},[&]() {
+    ren.wrap_color(Color4f{1.0f,game_over_age_},[&] {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
   });

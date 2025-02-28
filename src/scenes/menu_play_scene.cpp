@@ -114,8 +114,8 @@ void MenuPlayScene::refresh_maps() {
 }
 
 void MenuPlayScene::glob_maps() {
-  const int max_group_len = 15;
-  const int max_title_len = 25;
+  constexpr int max_group_len = 15;
+  constexpr int max_title_len = 25;
 
   map_opts_.clear();
   map_opts_.emplace_back("< Random Map >");

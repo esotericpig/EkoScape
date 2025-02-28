@@ -46,26 +46,26 @@ MenuScene::MenuScene(GameContext& ctx)
   : ctx_(ctx) {
   auto gfx_opt = Option::cycle({
     .on_update = [&](auto& opt) { opt.text = "gfx: " + ctx_.assets.tex_style(); },
-    .on_select = [&]() { ctx_.assets.next_tex_style(); },
-    .on_select_alt = [&]() { ctx_.assets.prev_tex_style(); },
+    .on_select = [&] { ctx_.assets.next_tex_style(); },
+    .on_select_alt = [&] { ctx_.assets.prev_tex_style(); },
   });
   auto vsync_opt = Option::cycle({
     .on_update = [&](auto& opt) {
       opt.text = "vsync: ";
       opt.text += (ctx_.cybel_engine.is_vsync() ? "on" : "off");
     },
-    .on_select = [&]() {
+    .on_select = [&] {
       ctx_.cybel_engine.set_vsync(!ctx_.cybel_engine.is_vsync());
     },
   });
 
   opts_ = {
-    Option{"play",[&]() { scene_action_ = SceneAction::kGoToMenuPlay; }},
+    Option{"play",[&] { scene_action_ = SceneAction::kGoToMenuPlay; }},
     gfx_opt,
     vsync_opt,
-    Option{"credits",[&]() { scene_action_ = SceneAction::kGoToMenuCredits; }},
+    Option{"credits",[&] { scene_action_ = SceneAction::kGoToMenuCredits; }},
     #if !defined(__EMSCRIPTEN__)
-      Option{"quit",[&]() { scene_action_ = SceneAction::kQuit; }},
+      Option{"quit",[&] { scene_action_ = SceneAction::kQuit; }},
     #endif
   };
 }
@@ -81,7 +81,7 @@ void MenuScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
     case InputAction::kUp:
       if(opt_index_ > 0) {
         --opt_index_;
-      } else if(opts_.size() > 0) {
+      } else if(!opts_.empty()) {
         opt_index_ = static_cast<int>(opts_.size()) - 1; // Wrap to bottom.
       }
       break;

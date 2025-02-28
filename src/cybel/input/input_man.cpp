@@ -68,31 +68,31 @@ void InputMan::reset_states() {
 }
 
 void InputMan::set_state(const RawKeyInput& key,bool state) {
-  auto it = raw_key_to_ids_.find(key);
+  const auto it = raw_key_to_ids_.find(key);
   if(it == raw_key_to_ids_.end()) { return; }
 
-  for(auto id : it->second) {
+  for(const auto id : it->second) {
     id_to_state_[id] = state;
   }
 }
 
 void InputMan::set_state(const SymKeyInput& key,bool state) {
-  auto it = sym_key_to_ids_.find(key);
+  const auto it = sym_key_to_ids_.find(key);
   if(it == sym_key_to_ids_.end()) { return; }
 
-  for(auto id : it->second) {
+  for(const auto id : it->second) {
     id_to_state_[id] = state;
   }
 }
 
 const InputIds& InputMan::fetch_ids(const RawKeyInput& key) {
-  auto it = raw_key_to_ids_.find(key);
+  const auto it = raw_key_to_ids_.find(key);
 
   return (it != raw_key_to_ids_.end()) ? it->second : kEmptyIds;
 }
 
 const InputIds& InputMan::fetch_ids(const SymKeyInput& key) {
-  auto it = sym_key_to_ids_.find(key);
+  const auto it = sym_key_to_ids_.find(key);
 
   return (it != sym_key_to_ids_.end()) ? it->second : kEmptyIds;
 }

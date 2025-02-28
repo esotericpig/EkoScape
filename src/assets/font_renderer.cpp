@@ -32,19 +32,19 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(std::string_view tex
 
   // Check kMenuStyleCycle first, since it can be combined with kMenuStyleSelected.
   if(is_cycle) {
-    font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.print(kLeftArrowText); });
+    font.ren.wrap_color(font_ren.cycle_arrow_color_,[&] { font.print(kLeftArrowText); });
   } else if(is_selected) {
-    font.ren.wrap_color(font_ren.arrow_color_,[&]() { font.print(kRightArrowText); });
+    font.ren.wrap_color(font_ren.arrow_color_,[&] { font.print(kRightArrowText); });
   } else {
     font.print(); // Space.
   }
 
   font.pos.x += kSmallSpaceSize;
-  font.ren.wrap_color(font_color,[&]() { font.print(text); });
+  font.ren.wrap_color(font_color,[&] { font.print(text); });
 
   if(is_cycle) {
     font.pos.x += kSmallSpaceSize;
-    font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.print(kRightArrowText); });
+    font.ren.wrap_color(font_ren.cycle_arrow_color_,[&] { font.print(kRightArrowText); });
   }
 
   font.puts();
@@ -53,13 +53,13 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(std::string_view tex
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_up_arrow() {
-  font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.puts(kUpArrowText); });
+  font.ren.wrap_color(font_ren.cycle_arrow_color_,[&] { font.puts(kUpArrowText); });
 
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_down_arrow() {
-  font.ren.wrap_color(font_ren.cycle_arrow_color_,[&]() { font.puts(kDownArrowText); });
+  font.ren.wrap_color(font_ren.cycle_arrow_color_,[&] { font.puts(kDownArrowText); });
 
   return *this;
 }
@@ -71,13 +71,13 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::print() {
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print(char32_t rune) {
-  font.ren.wrap_color(font_color,[&]() { font.print(rune); });
+  font.ren.wrap_color(font_color,[&] { font.print(rune); });
 
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::print(std::string_view str) {
-  font.ren.wrap_color(font_color,[&]() { font.print(str); });
+  font.ren.wrap_color(font_color,[&] { font.print(str); });
 
   return *this;
 }
@@ -95,13 +95,13 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts() {
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts(char32_t rune) {
-  font.ren.wrap_color(font_color,[&]() { font.puts(rune); });
+  font.ren.wrap_color(font_color,[&] { font.puts(rune); });
 
   return *this;
 }
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts(std::string_view str) {
-  font.ren.wrap_color(font_color,[&]() { font.puts(str); });
+  font.ren.wrap_color(font_color,[&] { font.puts(str); });
 
   return *this;
 }

@@ -23,21 +23,21 @@ Space& Space::set(SpaceType empty,SpaceType thing) {
 }
 
 SpaceType Space::set_empty(SpaceType empty) {
-  SpaceType old_empty = empty_type_;
+  const SpaceType old_empty = empty_type_;
   empty_type_ = empty;
 
   return old_empty;
 }
 
 SpaceType Space::set_thing(SpaceType thing) {
-  SpaceType old_thing = thing_type_;
+  const SpaceType old_thing = thing_type_;
   thing_type_ = thing;
 
   return old_thing;
 }
 
 SpaceType Space::remove_thing() {
-  SpaceType old_thing = thing_type_;
+  const SpaceType old_thing = thing_type_;
   thing_type_ = SpaceType::kNil;
 
   return old_thing;

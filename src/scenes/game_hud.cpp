@@ -72,7 +72,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   const int total_h = kMiniMapBlockSize.h + (state.show_mini_map ? kMiniMapSize.h : 0);
   Pos3i pos{0,dimens.target_size.h - total_h,0};
 
-  ren.wrap_color(mini_map_walkable_color_,[&]() {
+  ren.wrap_color(mini_map_walkable_color_,[&] {
     ren.draw_quad(pos,Size2i{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
   ctx_.assets.font_renderer().wrap(ren,pos,kTextScale,[&](auto& font) {

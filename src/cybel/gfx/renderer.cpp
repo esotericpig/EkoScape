@@ -304,7 +304,7 @@ Renderer& Renderer::wrap_tex(const Texture& tex,const WrapTextureCallback& callb
 Renderer& Renderer::wrap_tex(const Texture& tex,const Pos4f& src,const WrapTextureCallback& callback) {
   TextureWrapper wrapper{*this,tex,src};
 
-  return wrap_tex(tex,[&]() { callback(wrapper); });
+  return wrap_tex(tex,[&] { callback(wrapper); });
 }
 
 Renderer& Renderer::wrap_tex(const Texture& tex,const WrapCallback& callback) {
@@ -328,13 +328,13 @@ Renderer& Renderer::wrap_tex(const Texture& tex,const WrapCallback& callback) {
 Renderer& Renderer::wrap_sprite(const Sprite& sprite,const WrapSpriteCallback& callback) {
   SpriteWrapper wrapper{*this,sprite};
 
-  return wrap_tex(sprite.tex(),[&]() { callback(wrapper); });
+  return wrap_tex(sprite.tex(),[&] { callback(wrapper); });
 }
 
 Renderer& Renderer::wrap_sprite_atlas(const SpriteAtlas& atlas,const WrapSpriteAtlasCallback& callback) {
   SpriteAtlasWrapper wrapper{*this,atlas};
 
-  return wrap_tex(atlas.tex(),[&]() { callback(wrapper); });
+  return wrap_tex(atlas.tex(),[&] { callback(wrapper); });
 }
 
 Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,
@@ -351,7 +351,7 @@ Renderer& Renderer::wrap_font_atlas(const FontAtlas& font,const Pos3i& pos,const
                                     const Size2i& spacing,const WrapFontAtlasCallback& callback) {
   FontAtlasWrapper wrapper{*this,font,pos,rune_size,spacing};
 
-  return wrap_tex(font.tex(),[&]() { callback(wrapper); });
+  return wrap_tex(font.tex(),[&] { callback(wrapper); });
 }
 
 Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) const {
