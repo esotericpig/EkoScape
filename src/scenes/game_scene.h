@@ -62,6 +62,7 @@ private:
 
   using MoveChecker = std::function<bool(const Pos3i&)>;
 
+  static inline const Duration kMapInfoDuration = Duration::from_millis(2'500);
   static inline const Duration kInitExtraRobotDelay = Duration::from_millis(1'000);
   static constexpr int kDantaresDist = 24; // Must be 2+.
   static inline const Duration kWarpDuration = Duration::from_millis(750);
@@ -77,8 +78,9 @@ private:
   std::unique_ptr<Map> map_{};
 
   GamePhase game_phase_ = GamePhase::kShowMapInfo;
-  StoredInputs stored_inputs_{};
+  Timer map_info_timer_{};
 
+  StoredInputs stored_inputs_{};
   bool player_hit_end_ = false;
   bool player_warped_ = false;
   Duration player_warp_time_{};

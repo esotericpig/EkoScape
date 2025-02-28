@@ -43,7 +43,10 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
     .player_hit_end = player_hit_end_,
     .show_speedrun = state.show_speedrun,
   });
-  overlay_ = std::make_unique<GameOverlay>(ctx,*map_,player_hit_end_);
+  overlay_ = std::make_unique<GameOverlay>(ctx,GameOverlay::State{
+    .map = *map_,
+    .player_hit_end = player_hit_end_,
+  });
 }
 
 void GameScene::init_map(const std::filesystem::path& map_file) {
@@ -156,14 +159,30 @@ void GameScene::init_map_texs() {
 }
 
 void GameScene::init_scene(const ViewDimens& /*dimens*/) {
-  if(game_phase_ == GamePhase::kPlay) {
-    speedrun_timer_.resume();
+  switch(game_phase_) {
+    case GamePhase::kShowMapInfo:
+      map_info_timer_.resume();
+      break;
+
+    case GamePhase::kPlay:
+      speedrun_timer_.resume();
+      break;
+
+    default: break;
   }
 }
 
 void GameScene::on_scene_exit() {
-  if(game_phase_ == GamePhase::kPlay) {
-    speedrun_timer_.pause();
+  switch(game_phase_) {
+    case GamePhase::kShowMapInfo:
+      map_info_timer_.pause();
+      break;
+
+    case GamePhase::kPlay:
+      speedrun_timer_.pause();
+      break;
+
+    default: break;
   }
 }
 
@@ -245,7 +264,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
       // Still paused showing the Map Info?
-      if(!overlay_->update_map_info(step)) { return SceneAction::kNil; }
+      if(map_info_timer_.peek() < kMapInfoDuration) { return SceneAction::kNil; }
 
       game_phase_ = GamePhase::kPlay;
       robot_move_time_ += step.dpf;

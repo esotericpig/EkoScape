@@ -17,10 +17,10 @@ namespace ekoscape {
 GameOverlay::Option::Option(OptionType type,std::string_view text)
   : type(type),text(text) {}
 
-GameOverlay::GameOverlay(GameContext& ctx,const Map& map,const bool& player_hit_end)
-  : ctx_(ctx),map_(map),player_hit_end_(player_hit_end) {
-  const std::string& title = map_.title();
-  const std::string author = "  by " + map_.author();
+GameOverlay::GameOverlay(GameContext& ctx,const State& state)
+  : state(state),ctx_(ctx) {
+  const std::string& title = this->state.map.title();
+  const std::string author = "  by " + this->state.map.author();
 
   map_info_ = title + "\n" + author;
   map_info_str_size_.w = static_cast<int>(
@@ -43,14 +43,14 @@ void GameOverlay::fade_to(const Color4f& color) {
 void GameOverlay::game_over() {
   if(game_over_age_ >= 0.0f) { return; }
 
-  const bool perfect = (map_.total_rescues() >= map_.total_cells()) && player_hit_end_;
+  const bool perfect = (state.map.total_rescues() >= state.map.total_cells()) && state.player_hit_end;
 
   game_over_age_ = 0.0f;
   game_over_opt_index_ = 0;
 
   if(!perfect) {
     game_over_opts_.emplace_back(OptionType::kPlayAgain,"play again");
-    if(player_hit_end_) { game_over_opt_index_ = 1; } // Auto-select 'go back'.
+    if(state.player_hit_end) { game_over_opt_index_ = 1; } // Auto-select 'go back'.
   }
 
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
@@ -111,22 +111,13 @@ void GameOverlay::update(const FrameStep& step) {
   }
 }
 
-bool GameOverlay::update_map_info(const FrameStep& step) {
-  if(map_info_age_ < 1.0f) {
-    map_info_age_ += static_cast<float>(step.delta_time / kMapInfoDuration.secs());
-    return false;
-  }
-
-  return true;
-}
-
 void GameOverlay::update_game_over(const FrameStep& step,const ViewDimens& dimens) {
   if(game_over_age_ < 1.0f) {
     game_over_age_ += static_cast<float>(step.delta_time / kGameOverDuration.secs());
     if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
   }
 
-  if(player_hit_end_) {
+  if(state.player_hit_end) {
     if(star_sys_.is_empty()) {
       star_sys_.init(dimens,true);
     } else {
@@ -177,11 +168,12 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   ren.begin_auto_center_scale();
 
   const auto bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);
-  const int total_rescues = map_.total_rescues();
-  const int total_cells = map_.total_cells();
+  const int total_rescues = state.map.total_rescues();
+  const int total_cells = state.map.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
-  const bool perfect = freed_all && player_hit_end_;
-  const auto& sprite = player_hit_end_ ? ctx_.assets.corngrits_sprite() : ctx_.assets.goodnight_sprite();
+  const bool perfect = freed_all && state.player_hit_end;
+  const auto& sprite = state.player_hit_end ? ctx_.assets.corngrits_sprite()
+                                            : ctx_.assets.goodnight_sprite();
 
   ren.wrap_sprite(sprite,[&](auto& s) {
     ren.wrap_color(Color4f{1.0f,game_over_age_},[&]() {
@@ -196,7 +188,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     const auto goal_color = ctx_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
     font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2},kTextBgPadding);
-    font.puts(player_hit_end_ ? "Congrats!" : "You're dead!");
+    font.puts(state.player_hit_end ? "Congrats!" : "You're dead!");
 
     font.print("You freed ");
     font.font_color = freed_all ? goal_color : miss_color;

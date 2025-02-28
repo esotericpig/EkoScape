@@ -44,8 +44,8 @@ public:
   void draw(Renderer& ren,const ViewDimens& dimens);
 
 private:
-  static inline const float kTextScale = 0.33f;
-  static inline const float kAlpha = 0.50f;
+  static constexpr float kTextScale = 0.33f;
+  static constexpr float kAlpha = 0.50f;
 
   static inline const Size2i kMiniMapHoodRadius{4,3};
   static inline const Size2i kMiniMapBlockSize{30,30};

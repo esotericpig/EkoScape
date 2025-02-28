@@ -86,7 +86,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     font.print(Util::build_str('/',state.map.total_cells()," ekos"));
   });
   if(state.player_fruit_time > Duration::kZero) {
-    const int fruit_padding_w = 5;
+    constexpr int fruit_padding_w = 5;
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w + fruit_padding_w,pos.y,pos.z};
 
     ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
@@ -140,7 +140,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i& pos) {
 
       const Space* space = state.map.space(map_pos);
       const SpaceType type = (space != nullptr) ? space->type() : SpaceType::kNil;
-      Color4f* color = &mini_map_walkable_color_;
+      const Color4f* color = &mini_map_walkable_color_;
 
       switch(type) {
         case SpaceType::kCell:

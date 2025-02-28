@@ -227,6 +227,12 @@ void CybelEngine::run_loop() { while(run_frame()) {} }
 bool CybelEngine::run_frame() {
   if(!is_running_) { return false; }
 
+  // NOTE: For the Web, we must call stop_frame_timer() here and not at the end of this function.
+  //       I'm not sure of the exact cause, but could be because of double/Uint32 [Duration/SDL_Delay()],
+  //           Chrome's async rendering, and/or Timer [SDL_GetTicks64()].
+  //       I can only recreate it on an older laptop (but with up-to-date software & Fedora Linux) with
+  //           "graphics acceleration" turned off in Chrome.
+  stop_frame_timer();
   start_frame_timer();
 
   input_man_->reset_states();
@@ -247,8 +253,6 @@ bool CybelEngine::run_frame() {
   main_scene_.draw_scene(*renderer_,renderer_->dimens());
   scene_man_->curr_scene().draw_scene(*renderer_,renderer_->dimens());
   SDL_GL_SwapWindow(res_.window);
-
-  stop_frame_timer();
 
   return true;
 }
