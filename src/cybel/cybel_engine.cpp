@@ -20,8 +20,6 @@
 namespace cybel {
 
 CybelEngine::Resources::~Resources() noexcept {
-  IMG_Quit();
-
   if(context != NULL) {
     SDL_GL_DeleteContext(context);
     context = NULL;
@@ -31,6 +29,7 @@ CybelEngine::Resources::~Resources() noexcept {
     window = NULL;
   }
 
+  IMG_Quit();
   SDL_Quit();
 }
 
