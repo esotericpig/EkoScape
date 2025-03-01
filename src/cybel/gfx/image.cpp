@@ -83,7 +83,7 @@ void Image::edit_pixels(const EditPixel& edit_pixel) {
     SDL_Surface* new_surface = SDL_ConvertSurfaceFormat(surface_,SDL_PIXELFORMAT_RGBA32,0);
 
     if(new_surface == NULL) {
-      std::cerr << "[WARN] Failed to convert surface of image [" << id_ << "] for weird: "
+      std::cerr << "[WARN] Failed to convert surface of image [" << id_ << "] for editing pixels: "
                 << Util::get_sdl_error() << '.' << std::endl;
       return;
     }
@@ -97,7 +97,7 @@ void Image::edit_pixels(const EditPixel& edit_pixel) {
   try {
     lock();
   } catch(const CybelError& e) {
-    std::cerr << "[WARN] For weird: " << e.what() << std::endl;
+    std::cerr << "[WARN] For editing pixels: " << e.what() << std::endl;
     return;
   }
 
