@@ -45,7 +45,7 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.7'
+  VERSION = '0.1.8'
 
   ARTIFACTS_DIR = File.join('build','artifacts')
   USER_GAME = 'esotericpig/ekoscape'
@@ -402,21 +402,15 @@ class Artifact
 
   def initialize(channel:,name: nil,file: nil,dir: nil,dest_dir: :parse,ignores: [],platform: :parse,
                  arch: :parse)
-    if !file.nil?
-      file = file.strip
-      file = nil if file.empty?
-    end
-    if !dir.nil?
-      dir = dir.strip
-      dir = nil if dir.empty?
-    end
+    file = nil if (file = file&.strip)&.empty?
+    dir = nil if (dir = dir&.strip)&.empty?
 
     raise 'Must specify either file or dir.' if file.nil? && dir.nil?
 
     dest_dir = dir if file.nil?
 
     if dest_dir == :parse
-      dest_dir = file.nil? ? '' : file.sub(/([^.])\..*$/,'\1')
+      dest_dir = file.nil? ? '' : file.sub(/([^.])\..*$/,'\1').strip
 
       raise "Invalid file/ext: #{file}." if dest_dir.empty?
     end
@@ -451,8 +445,18 @@ class Artifact
   end
 
   def inspect
-    return "{#{@name.inspect},#{@file.inspect},#{@dest_dir.inspect}" \
-           ",#{@channel.inspect},#{@platform.inspect},#{@arch.inspect}}"
+    s = ''.dup
+
+    s << @channel.inspect << ': {'
+    s << @name.inspect
+    s << ', ' << @file.inspect
+    s << ', ' << @dest_dir.inspect
+    s << ', ' << @ignores.inspect
+    s << ', ' << @platform.inspect
+    s << ', ' << @arch.inspect
+    s << '}'
+
+    return s
   end
 
   def to_s
