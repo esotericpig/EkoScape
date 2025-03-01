@@ -196,7 +196,15 @@ void EkoScapeGame::pop_scene() {
   }
 
   if(!scene_man_->pop_scene()) {
-    std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
+    #if defined(__EMSCRIPTEN__)
+      std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
+
+      EM_ASM(
+        window.history.back();
+      );
+    #else
+      std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
+    #endif
   }
 }
 
