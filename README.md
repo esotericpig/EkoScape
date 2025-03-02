@@ -104,7 +104,7 @@ Platform-specific notes:
 
 The following command will be very slow the first time you run it, as `vcpkg` downloads the dependencies. Also, it downloads & extracts additional [Assets](https://github.com/esotericpig/EkoScape/releases/tag/v1.99) to the `assets/` dir (only if `assets/images/EkoScape.png` doesn't exist).
 
-```
+```bash
 cmake --preset default
 ```
 
@@ -112,7 +112,7 @@ Optionally, for various params, see the [GH Workflows](.github/workflows/) or th
 
 Examples:
 
-```
+```bash
 # Linux
 cmake --preset default \
       -DVCPKG_TARGET_TRIPLET="x64-linux" \
@@ -143,7 +143,7 @@ cmake --preset default `
 
 To see the list of `vcpkg` Triplets, you can use the unofficial-official hack:
 
-```
+```bash
 vcpkg install sdl2 --triplet=""
 ```
 
@@ -151,30 +151,30 @@ vcpkg install sdl2 --triplet=""
 
 Build for Release or Debug:
 
-```
+```bash
 cmake --build --preset default --config Release
 cmake --build --preset default --config Debug
 ```
 
 By default, Ninja uses the maximum number of parallel jobs for your system (which can cause your computer to run like crazy). Instead, you can use the `-j` option to use less jobs in parallel:
 
-```
+```bash
 cmake --build --preset default --config Release -j 1
 cmake --build --preset default --config Release -j 5
 ```
 
 ### Running ###
 
-Run from the top-level directory (for the `assets/` folder).
+Run from the top-level directory (for the `assets/` folder):
 
-```
+```bash
 cmake --build --preset default --config Release --target run
 cmake --build --preset default --config Debug --target run
 ```
 
 Or run directly:
 
-```
+```bash
 ./bin/Release/EkoScape
 ./bin/Debug/EkoScape
 ```
@@ -183,7 +183,7 @@ Or run directly:
 
 Must have `cppcheck` installed.
 
-```
+```bash
 cmake --build --preset default --config Release --target check
 ```
 
@@ -191,7 +191,7 @@ cmake --build --preset default --config Release --target check
 
 This automatically downloads [linuxdeploy](https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous) to `build/downloads/` if it doesn't exist. The config is ignored and always uses the Release config.
 
-```
+```bash
 cmake --build --preset default --config Release --target appimage
 
 # Test running it:
@@ -200,7 +200,7 @@ cmake --build --preset default --config Release --target appimage
 
 If your platform is not `x86_64`, you'll need to change which `linuxdeploy` to use. See the ones available [here](https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous).
 
-```
+```bash
 rm -r build
 
 # aarch64, armhf, i386, static-x86_64, x86_64
@@ -213,13 +213,13 @@ cmake --build --preset default --config Release --target appimage
 
 When configuring, optionally add a suffix for the filename:
 
-```
+```bash
 cmake --preset default -DPKG_SUFFIX="-x64"
 ```
 
 Now run the target `package`. It uses `--install` & **CPack** to package up the files.
 
-```
+```bash
 cmake --build --preset default --config Release --target package
 ```
 
@@ -297,27 +297,21 @@ Bump the version in the following places:
 - [src/ekoscape_game.h](src/ekoscape_game.h)
 - [res/io.github.esotericpig.ekoscape.metainfo.xml](res/io.github.esotericpig.ekoscape.metainfo.xml)
 
-With the [GitHub CLI](https://cli.github.com) (`gh`) installed, run this script to download all Workflow Artifacts to `build/artifacts/`:
+With the [GitHub CLI](https://cli.github.com) (`gh`), create a new release. Make sure to change the versions appropriately (at the end):
 
-```
-./scripts/artifacts.rb -g
-```
-
-(On Linux, to test the Windows icon in the exe, you can use `wine explorer .` and then check it out.)
-
-Create a new release:
-
-```
-gh release create --draft --notes "$(git --no-pager log "$(git describe --tags --abbrev=0)"..HEAD --pretty=format:'- %B')" --title v2.1 v2.1
+```bash
+gh release create --draft --notes "$(git --no-pager log "$(git describe --tags --abbrev=0)"..HEAD --pretty=format:'- %B')" --title v2.x v2.x
 ```
 
 ### Publishing ###
 
 See [scripts/artifacts.rb](scripts/artifacts.rb) for all of your publishing needs.
 
+- On Linux, to test the Windows icon in the exe, you can use `wine explorer .` and then check it out.
+
 Example workflow:
 
-```
+```bash
 # Use `-n` to only perform a dry-run.
 # Use `-c <channel>` to filter which artifacts/channels to use (fuzzy search).
 
