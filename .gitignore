@@ -32,6 +32,7 @@ CMakeUserPresets.json
 
 /.idea/*
 !/.idea/cmake.xml
+!/.idea/runConfigurations/
 /bin/
 /bin_web/
 /build/
