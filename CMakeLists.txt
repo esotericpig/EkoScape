@@ -65,14 +65,14 @@ set(ASSETS_URL "https://github.com/esotericpig/EkoScape/releases/download/v1.99/
 set(ASSETS_DOWN_FILE "${DOWNLOADS_DIR}/${ASSETS_FILENAME}")
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
 
-set(TEMPL_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
-set(TEMPL_DIR "${CMAKE_BINARY_DIR}/templ")
+set(CONFIG_CMAKE_IN_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(CONFIG_OUT_DIR "${CMAKE_BINARY_DIR}/config")
 set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
 set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
 set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
 option(PKG_MACOS_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
-set(PKG_BASE_FILES "${TEMPL_DIR}/.itch.toml")
+set(PKG_BASE_FILES "${CONFIG_OUT_DIR}/.itch.toml")
 set(PKG_RES_DIRS "${ASSETS_DIR}")
 set(PKG_RES_FILES
     "${CMAKE_SOURCE_DIR}/README.md"
@@ -89,7 +89,7 @@ set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_BUNDLE_COMPONENT_INSTALL ON)
 
 set(CPACK_BUNDLE_NAME "${BIN_NAME}")
-set(CPACK_BUNDLE_PLIST "${TEMPL_DIR}/Info.plist")
+set(CPACK_BUNDLE_PLIST "${CONFIG_OUT_DIR}/Info.plist")
 set(CPACK_BUNDLE_ICON "${ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
 
 set(FETCHCONTENT_QUIET OFF)
@@ -179,7 +179,7 @@ if(EMSCRIPTEN)
 #      --check
       --emrun
       --output_eol linux
-      --shell-file "${TEMPL_DIR}/shell.html"
+      --shell-file "${CONFIG_OUT_DIR}/shell.html"
 
       # Settings.
       # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
@@ -430,6 +430,7 @@ add_custom_target(check
             --suppress=missingIncludeSystem
             #"--suppress=noExplicitConstructor:src/cybel/types.h"
             --suppress=shadowFunction
+            --suppress=unknownMacro # For Emscripten: EM_ASM(), etc.
             --suppress=unmatchedSuppression
             --suppress=unusedFunction
             --suppress=unusedPrivateFunction
@@ -441,14 +442,14 @@ add_custom_target(check
     VERBATIM
 )
 add_custom_target(appimage
-    COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/appimage.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/appimage.cmake"
     DEPENDS "${BIN_NAME}"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
 )
 add_custom_target(check_macos_bundle
-    COMMAND "${CMAKE_COMMAND}" -P "${TEMPL_DIR}/check_macos_bundle.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/check_macos_bundle.cmake"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -476,7 +477,7 @@ install(FILES "${RES_DIR}/${RDNS_NAME}.desktop"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
-install(FILES "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml"
+install(FILES "${CONFIG_OUT_DIR}/${RDNS_NAME}.metainfo.xml"
     DESTINATION "share/metainfo"
     # FIXME: The official AppStream docs recommend `.metainfo.xml` now, but AppImage still only supports
     #        the older `.appdata.xml`. If AppImage possibly fixes this in the future, remove this.
@@ -567,7 +568,7 @@ else()
       FILES_MATCHING PATTERN "*.AppImage"
   )
   # Desktop Entry files should also be executable.
-  install(PROGRAMS "${TEMPL_DIR}/${BIN_NAME}.sh"
+  install(PROGRAMS "${CONFIG_OUT_DIR}/${BIN_NAME}.sh"
                    "${RES_DIR}/${RDNS_NAME}.desktop"
       DESTINATION "."
       COMPONENT cpack
@@ -592,14 +593,15 @@ set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${PKG_SUFFIX}")
 ############################################
 # Configure Template Files                 #
 ############################################
-configure_file("${TEMPL_CMAKE_DIR}/appimage.cmake.in" "${TEMPL_DIR}/appimage.cmake" @ONLY)
+configure_file("${CONFIG_CMAKE_IN_DIR}/appimage.cmake.in" "${CONFIG_OUT_DIR}/appimage.cmake" @ONLY)
 # NOTE: Must be configured before including CPack.
-configure_file("${TEMPL_CMAKE_DIR}/check_macos_bundle.cmake.in" "${TEMPL_DIR}/check_macos_bundle.cmake" @ONLY)
+configure_file("${CONFIG_CMAKE_IN_DIR}/check_macos_bundle.cmake.in"
+               "${CONFIG_OUT_DIR}/check_macos_bundle.cmake" @ONLY)
 
-configure_file("${RES_DIR}/.itch.toml" "${TEMPL_DIR}/.itch.toml" @ONLY)
-configure_file("${RES_DIR}/Info.plist" "${TEMPL_DIR}/Info.plist" @ONLY)
-configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${TEMPL_DIR}/${RDNS_NAME}.metainfo.xml" @ONLY)
-configure_file("${RES_DIR}/launcher.sh" "${TEMPL_DIR}/${BIN_NAME}.sh" @ONLY)
-configure_file("${RES_DIR}/shell.html" "${TEMPL_DIR}/shell.html" @ONLY)
+configure_file("${RES_DIR}/.itch.toml" "${CONFIG_OUT_DIR}/.itch.toml" @ONLY)
+configure_file("${RES_DIR}/Info.plist" "${CONFIG_OUT_DIR}/Info.plist" @ONLY)
+configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${CONFIG_OUT_DIR}/${RDNS_NAME}.metainfo.xml" @ONLY)
+configure_file("${RES_DIR}/launcher.sh" "${CONFIG_OUT_DIR}/${BIN_NAME}.sh" @ONLY)
+configure_file("${RES_DIR}/shell.html" "${CONFIG_OUT_DIR}/shell.html" @ONLY)
 
 include(CPack)

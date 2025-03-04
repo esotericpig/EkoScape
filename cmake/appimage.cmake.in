@@ -17,6 +17,7 @@
 ###
 
 set(RDNS_NAME "@RDNS_NAME@")
+set(BIN_NAME "@BIN_NAME@")
 set(DOWNLOADS_DIR "@DOWNLOADS_DIR@")
 set(ASSETS_DIR "@ASSETS_DIR@")
 
@@ -24,6 +25,7 @@ set(APPDIR_DIR "${CMAKE_BINARY_DIR}/AppDir")
 set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
 #cmake_path(RELATIVE_PATH APPDIR_PREFIX)
 set(APPIMG_DIR "@APPIMG_DIR@")
+file(RELATIVE_PATH APPIMG_REL_DIR "@CMAKE_SOURCE_DIR@" "${APPIMG_DIR}")
 
 set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
 set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
@@ -63,17 +65,24 @@ endif()
 # Install & Build                          #
 ############################################
 execute_process(
-    COMMAND "${CMAKE_COMMAND}" --install "${CMAKE_BINARY_DIR}" --config Release --prefix "${APPDIR_PREFIX}"
+    COMMAND "${CMAKE_COMMAND}"
+            --install "${CMAKE_BINARY_DIR}"
+            --config Release
+            --prefix "${APPDIR_PREFIX}"
             --component appimage
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
 file(MAKE_DIRECTORY "${APPIMG_DIR}")
 execute_process(
-    COMMAND "${LINUXDEPLOY_BIN}" --appdir "${APPDIR_DIR}"
+    COMMAND "${LINUXDEPLOY_BIN}"
+            --appdir "${APPDIR_DIR}"
             --icon-file "${ASSETS_DIR}/icons/${RDNS_NAME}.png"
             --output appimage
     WORKING_DIRECTORY "${APPIMG_DIR}"
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
+message("")
+message(STATUS "Consider running the AppImage to test it: "
+               "./${APPIMG_REL_DIR}/${BIN_NAME}-${LINUXDEPLOY_ARCH}.AppImage")
