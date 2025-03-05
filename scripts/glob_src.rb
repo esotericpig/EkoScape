@@ -115,11 +115,10 @@ class SrcGlobber
       if is_new_src_file
         puts "    #{new_line}"
         j += 1
-        next
+      else
+        puts "-   #{old_line}"
+        i += 1
       end
-
-      puts "-   #{old_line}"
-      i += 1
     end
 
     if matches
