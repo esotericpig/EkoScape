@@ -90,8 +90,8 @@ jobs:
         run: >
           cmake --preset default
           -DVCPKG_BUILD_TYPE=release
-          -DLINUXDEPLOY_ARCH="x86_64"
-          -DPKG_SUFFIX="-x64"
+          -DEKO_LINUXDEPLOY_ARCH="x86_64"
+          -DEKO_PKG_SUFFIX="-x64"
 
       - name: Build
         run: cmake --build --preset default --config Release --verbose

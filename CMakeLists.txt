@@ -4,10 +4,10 @@ cmake_minimum_required(VERSION 3.20)
 
 ###
 # Configurable params w/ defaults:
-#   -DRENDERER=GL
-#   -DLINUXDEPLOY_ARCH=x86_64      # See: cmake/appimage.cmake.in
-#   -DPKG_SUFFIX=""
-#   -DPKG_MACOS_BUILD_UNI_DIR=OFF  # See: .github/workflows/macos.yml
+#   -DEKO_RENDERER=GL
+#   -DEKO_LINUXDEPLOY_ARCH=x86_64          # See: cmake/appimage.cmake.in
+#   -DEKO_PKG_SUFFIX=""
+#   -DEKO_PKG_MACOS_USE_BUILD_UNI_DIR=OFF  # See: .github/workflows/macos.yml
 #
 # Configuring build:
 #   # Super slow the first time as vcpkg downloads deps.
@@ -50,12 +50,16 @@ project("EkoScape"
 
 string(TOLOWER "${PROJECT_NAME}" PROJ_ID)
 set(RDNS_NAME "io.github.esotericpig.${PROJ_ID}")
+
 set(BIN_NAME "${PROJECT_NAME}")
-set(BIN_DIRNAME "bin" CACHE STRING "Dirname to output the binary file to.")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${BIN_DIRNAME}/$<CONFIG>")
+set(EKO_BIN_DIRNAME "bin" CACHE STRING "Dirname to output the binary file to.")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${EKO_BIN_DIRNAME}/$<CONFIG>")
+
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
-set(RENDERER "GL" CACHE STRING "Renderer to use: GL or GLES.")
+set(EKO_RENDERER "GL" CACHE STRING "Renderer to use: GL or GLES.")
+set_property(CACHE EKO_RENDERER PROPERTY STRINGS "GL" "GLES")
+
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(RES_DIR "${CMAKE_SOURCE_DIR}/res")
 
@@ -68,10 +72,10 @@ set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
 set(CONFIG_CMAKE_IN_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(CONFIG_OUT_DIR "${CMAKE_BINARY_DIR}/config")
 set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
-set(LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
+set(EKO_LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
-set(PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
-option(PKG_MACOS_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
+set(EKO_PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
+option(EKO_PKG_MACOS_USE_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
 set(PKG_BASE_FILES "${CONFIG_OUT_DIR}/.itch.toml")
 set(PKG_RES_DIRS "${ASSETS_DIR}")
 set(PKG_RES_FILES
@@ -236,7 +240,7 @@ else()
   )
 endif()
 
-if(RENDERER STREQUAL "GLES")
+if(EKO_RENDERER STREQUAL "GLES")
   target_compile_definitions("${BIN_NAME}" PRIVATE
       CYBEL_RENDERER_GLES
   )
@@ -320,7 +324,7 @@ if(NOT EMSCRIPTEN)
   )
 endif()
 
-if(RENDERER STREQUAL "GLES")
+if(EKO_RENDERER STREQUAL "GLES")
   find_package(glm CONFIG REQUIRED)
 
   target_link_libraries("${BIN_NAME}" PRIVATE
@@ -498,7 +502,7 @@ if(APPLE)
 
   # NOTE: Can't use EXCLUDE_FROM_ALL with Bundle generator.
 
-  if(PKG_MACOS_BUILD_UNI_DIR)
+  if(EKO_PKG_MACOS_USE_BUILD_UNI_DIR)
     # vcpkg doesn't currently support universal macOS binaries,
     #     so making the universal binary manually on GitHub.
     # See: .github/workflows/macos.yml
@@ -588,7 +592,7 @@ else()
   )
 endif()
 
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${PKG_SUFFIX}")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${EKO_PKG_SUFFIX}")
 
 ############################################
 # Configure Template Files                 #

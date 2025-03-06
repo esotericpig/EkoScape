@@ -117,8 +117,8 @@ Examples:
 cmake --preset default \
       -DVCPKG_TARGET_TRIPLET="x64-linux" \
       -DVCPKG_BUILD_TYPE=release \
-      -DLINUXDEPLOY_ARCH="x86_64" \
-      -DPKG_SUFFIX="-x86_64"
+      -DEKO_LINUXDEPLOY_ARCH="x86_64" \
+      -DEKO_PKG_SUFFIX="-x86_64"
 
 # macOS
 cmake --preset default \
@@ -129,7 +129,7 @@ cmake --preset default \
       -DVCPKG_CRT_LINKAGE=static \
       -DVCPKG_LIBRARY_LINKAGE=static \
       -DVCPKG_BUILD_TYPE=release \
-      -DPKG_SUFFIX="-arm64"
+      -DEKO_PKG_SUFFIX="-arm64"
 
 # Windows (PowerShell)
 cmake --preset default `
@@ -138,7 +138,7 @@ cmake --preset default `
       -DVCPKG_CRT_LINKAGE=static `
       -DVCPKG_LIBRARY_LINKAGE=static `
       -DVCPKG_BUILD_TYPE=release `
-      -DPKG_SUFFIX="-x64"
+      -DEKO_PKG_SUFFIX="-x64"
 ```
 
 To see the list of `vcpkg` Triplets, you can use the unofficial-official hack:
@@ -204,7 +204,7 @@ If your platform is not `x86_64`, you'll need to change which `linuxdeploy` to u
 rm -r build
 
 # aarch64, armhf, i386, static-x86_64, x86_64
-cmake --preset default -DLINUXDEPLOY_ARCH=aarch64
+cmake --preset default -DEKO_LINUXDEPLOY_ARCH=aarch64
 
 cmake --build --preset default --config Release --target appimage
 ```
@@ -214,7 +214,7 @@ cmake --build --preset default --config Release --target appimage
 When configuring, optionally add a suffix for the filename:
 
 ```bash
-cmake --preset default -DPKG_SUFFIX="-x64"
+cmake --preset default -DEKO_PKG_SUFFIX="-x64"
 ```
 
 Now run the target `package`. It uses `--install` & **CPack** to package up the files.
@@ -237,11 +237,11 @@ For rapid testing of OpenGL ES without using the Web (slower compile/link time),
 
 ```json
 {
-  "RENDERER": "GLES"
+  "EKO_RENDERER": "GLES"
 }
 ```
 
-Or, pass it in when configuring CMake using `-DRENDERER=GLES`.
+Or, pass it in when configuring CMake using `-DEKO_RENDERER=GLES`.
 
 Now you can test OpenGL ES in the Desktop version instead.
 

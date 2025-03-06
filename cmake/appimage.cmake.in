@@ -2,7 +2,7 @@
 # Configurable params w/ defaults:
 #   # See: https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous
 #   # - aarch64, armhf, i386, static-x86_64, x86_64
-#   -DLINUXDEPLOY_ARCH=x86_64
+#   -DEKO_LINUXDEPLOY_ARCH=x86_64
 #
 # Running:
 #   # Currently in this script, `Release` is always used (i.e., `--config` is always ignored).
@@ -27,8 +27,8 @@ set(APPDIR_PREFIX "${APPDIR_DIR}/usr")
 set(APPIMG_DIR "@APPIMG_DIR@")
 file(RELATIVE_PATH APPIMG_REL_DIR "@CMAKE_SOURCE_DIR@" "${APPIMG_DIR}")
 
-set(LINUXDEPLOY_ARCH "@LINUXDEPLOY_ARCH@")
-set(LINUXDEPLOY_FILENAME "linuxdeploy-${LINUXDEPLOY_ARCH}.AppImage")
+set(EKO_LINUXDEPLOY_ARCH "@EKO_LINUXDEPLOY_ARCH@")
+set(LINUXDEPLOY_FILENAME "linuxdeploy-${EKO_LINUXDEPLOY_ARCH}.AppImage")
 set(LINUXDEPLOY_URL
     "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/${LINUXDEPLOY_FILENAME}")
 set(LINUXDEPLOY_BIN "${DOWNLOADS_DIR}/${LINUXDEPLOY_FILENAME}")
@@ -85,4 +85,4 @@ execute_process(
 )
 message("")
 message(STATUS "Consider running the AppImage to test it: "
-               "./${APPIMG_REL_DIR}/${BIN_NAME}-${LINUXDEPLOY_ARCH}.AppImage")
+               "./${APPIMG_REL_DIR}/${BIN_NAME}-${EKO_LINUXDEPLOY_ARCH}.AppImage")

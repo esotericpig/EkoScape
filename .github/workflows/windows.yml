@@ -41,7 +41,7 @@ jobs:
           -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
-          -DPKG_SUFFIX="-x64"
+          -DEKO_PKG_SUFFIX="-x64"
 
       - name: Build
         run: cmake --build --preset default --config Release --verbose

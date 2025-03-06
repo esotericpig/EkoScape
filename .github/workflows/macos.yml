@@ -107,8 +107,8 @@ jobs:
           -DVCPKG_CRT_LINKAGE=static
           -DVCPKG_LIBRARY_LINKAGE=static
           -DVCPKG_BUILD_TYPE=release
-          -DPKG_SUFFIX='-universal'
-          -DPKG_MACOS_BUILD_UNI_DIR=ON
+          -DEKO_PKG_SUFFIX='-universal'
+          -DEKO_PKG_MACOS_USE_BUILD_UNI_DIR=ON
 
       - name: Download bins
         uses: actions/download-artifact@v4
