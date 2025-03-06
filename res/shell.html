@@ -87,6 +87,7 @@
     const progressElement = document.getElementById('progress');
     const canvasElement = document.getElementById('canvas');
 
+    console.info("Emscripten version: @EMSCRIPTEN_VERSION@.");
     canvasElement.addEventListener('oncontextmenu',(e) => e.preventDefault());
 
     // To simulate GL context lost & restored in JS:

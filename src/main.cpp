@@ -31,6 +31,12 @@ int main(int argc,char** argv) {
   }
 
   #if defined(__EMSCRIPTEN__)
+    // Output Emscripten version because different/newer versions can break the build,
+    //     and Emscripten doesn't store the version anywhere in the generated files.
+    // Therefore, in the future, I can see what version I used and download/match that version.
+    std::cerr << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
+              << __EMSCRIPTEN_tiny__ << '.' << std::endl;
+
     try {
       eko = std::make_unique<EkoScapeGame>();
     } catch(const CybelError& e) {
