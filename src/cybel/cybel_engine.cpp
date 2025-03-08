@@ -188,7 +188,7 @@ void CybelEngine::check_gl_version() {
   const std::string gl_version = (gl_version_cstr != nullptr)
                                  ? gl_version_cstr : "Failed to get OpenGL version";
 
-  std::cerr << "[INFO] OpenGL version: " << gl_version << '.' << std::endl;
+  std::cout << "[INFO] OpenGL version: " << gl_version << '.' << std::endl;
 
   if(!GLEW_VERSION_2_1) {
     std::cerr << "[WARN] OpenGL version is < 2.1." << std::endl;
@@ -300,7 +300,7 @@ void CybelEngine::handle_events() {
   while(is_running_ && SDL_PollEvent(&event) != 0) {
     switch(event.type) {
       case SDL_QUIT:
-        std::cerr << "[EVENT] Received Quit event." << std::endl;
+        std::cout << "[EVENT] Received Quit event." << std::endl;
         request_stop();
         return;
 

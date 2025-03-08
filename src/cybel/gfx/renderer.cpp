@@ -166,7 +166,7 @@ Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& c
 
 void Renderer::init_gl() {
   SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE,&depth_bits_);
-  std::cerr << "[INFO] OpenGL depth bits: " << depth_bits_ << '.' << std::endl;
+  std::cout << "[INFO] OpenGL depth bits: " << depth_bits_ << '.' << std::endl;
 
   glClearColor(clear_color_.r,clear_color_.g,clear_color_.b,clear_color_.a);
 

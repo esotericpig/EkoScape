@@ -34,7 +34,7 @@ int main(int argc,char** argv) {
     // Output Emscripten version because different/newer versions can break the build,
     //     and Emscripten doesn't store the version anywhere in the generated files.
     // Therefore, in the future, I can see what version I used and download/match that version.
-    std::cerr << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
+    std::cout << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
               << __EMSCRIPTEN_tiny__ << '.' << std::endl;
 
     try {
@@ -52,7 +52,7 @@ int main(int argc,char** argv) {
       EkoScapeGame eko{};
       eko.run_loop();
 
-      std::cerr << "[INFO] Stopping gracefully." << std::endl;
+      std::cout << "[INFO] Stopping gracefully." << std::endl;
     } catch(const CybelError& e) {
       EkoScapeGame::show_error_global(e.what());
       return 1;
@@ -71,7 +71,7 @@ void run_ems_frame() {
 
   try {
     if(!eko->run_frame()) {
-      std::cerr << "[INFO] Stopping gracefully." << std::endl;
+      std::cout << "[INFO] Stopping gracefully." << std::endl;
       eko = nullptr;
       emscripten_cancel_main_loop();
     }
@@ -100,7 +100,7 @@ bool on_ems_gl_context(int event_type,const void* /*reserved*/,void* /*user_data
       break;
 
     case EMSCRIPTEN_EVENT_WEBGLCONTEXTRESTORED:
-      std::cerr << "[INFO] WebGL context restored. Attempting to re-store game." << std::endl;
+      std::cout << "[INFO] WebGL context restored. Attempting to re-store game." << std::endl;
       break;
   }
 
