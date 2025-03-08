@@ -1224,6 +1224,7 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
     constexpr int Indent = 4;
 
     Out << "{Dantares2}"
+        << "\nRenderer:         " << Renderer
         << "\nCurrentMap:       " << CurrentMap
         << "\nNextMapID:        " << NextMapID
         << "\nSqSize:           " << SqSize
@@ -1234,6 +1235,7 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
         << "\nCameraFacing:     " << CameraFacing
         << "\nWalking:          " << Walking
         << "\nTurning:          " << Turning
+        << "\nDeltaTime:        " << DeltaTime
         << "\nWalkSpeed:        " << WalkSpeed
         << "\nTurnSpeed:        " << TurnSpeed
         << "\nWalkOffset:       " << WalkOffset
@@ -1322,10 +1324,12 @@ void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     const std::string Ind(Indent, ' ');
     const std::string Indl = '\n' + Ind;
 
-    Out << Ind  << "SpaceType:         " << SpaceType
+    Out << Ind  << "Renderer:          " << Renderer
+        << Indl << "SpaceType:         " << SpaceType
         << Indl << "FloorTexture:      " << FloorTexture
         << Indl << "CeilingTexture:    " << CeilingTexture
         << Indl << "WallTexture:       " << WallTexture
+        << Indl << "QuadList:          " << QuadList
         ;
     Out.flush();
 }
@@ -1393,8 +1397,9 @@ void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
     const std::string Ind(Indent, ' ');
     std::string Indl = '\n' + Ind;
 
-    Out << Ind  << "XSize:    " << XSize
-        << Indl << "YSize:    " << YSize
+    Out << Ind  << "Renderer:    " << Renderer
+        << Indl << "XSize:       " << XSize
+        << Indl << "YSize:       " << YSize
         ;
 
     Indent *= 2;
