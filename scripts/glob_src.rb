@@ -3,9 +3,6 @@
 # frozen_string_literal: true
 
 ###
-# Show usage:
-#   ./scripts/glob_src.rb
-#
 # Show diff of source files in 'CMakeLists.txt' (only reads):
 #   ./scripts/glob_src.rb
 #
@@ -24,13 +21,17 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.2.1'
+  VERSION = '0.2.2'
 
-  # Must be all lower-cased for case-insensitive comparison.
-  SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
+  TP_DIR = 'third_party'
+  SRC_DIR = 'src'
 
+  CMAKE_TP_DIR = '${TP_DIR}'
+  CMAKE_SRC_DIR = '${SRC_DIR}'
   CMAKE_FILE = 'CMakeLists.txt'
   CMAKE_FUNC = 'target_sources'
+
+  SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
 
   def run
     opt_parser = OptionParser.new do |op|
@@ -129,9 +130,9 @@ class SrcGlobber
   def glob_all_src
     str = ''.dup
 
-    str << glob_src('third_party','${TP_DIR}')
+    str << glob_src(TP_DIR,CMAKE_TP_DIR)
     str << "\n\n"
-    str << glob_src('src','${SRC_DIR}') do |path1,path2|
+    str << glob_src(SRC_DIR,CMAKE_SRC_DIR) do |path1,path2|
       # Bubble Cybel files to top.
       is_cybel1 = path1.to_s.include?('cybel')
       is_cybel2 = path2.to_s.include?('cybel')
@@ -159,7 +160,7 @@ class SrcGlobber
     end
     # - Sort by `block` if given.
     # - Bubble dirs to top.
-    # - Sort by basename case-insensitive.
+    # - Sort by basename ignoring case.
     paths = paths.sort do |path1,path2|
       if block
         cmp = block.call(path1,path2)
