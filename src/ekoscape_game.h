@@ -65,5 +65,5 @@ private:
   void pop_scene();
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

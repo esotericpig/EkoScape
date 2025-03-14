@@ -41,5 +41,5 @@ private:
   std::size_t end_rune_count_ = 0;
 };
 
-} // Namespace.
+} // namespace cybel::utf8
 #endif

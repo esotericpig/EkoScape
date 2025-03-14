@@ -62,5 +62,5 @@ private:
   explicit Duration(double value) noexcept;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

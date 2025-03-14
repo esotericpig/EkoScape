@@ -148,4 +148,4 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
      .end_scale();
 }
 
-} // Namespace.
+} // namespace ekoscape

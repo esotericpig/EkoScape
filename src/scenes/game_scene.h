@@ -113,5 +113,5 @@ private:
   void set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

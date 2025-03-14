@@ -88,4 +88,4 @@ void Dantares2GLRenderer::DrawQuadList(GLuint ID, int Index)
     glCallList(ID + static_cast<GLuint>(Index));
 }
 
-#endif //DANTARES_RENDERER_GL.
+#endif //DANTARES_RENDERER_GL

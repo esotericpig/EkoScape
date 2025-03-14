@@ -306,4 +306,4 @@ char32_t RuneIterator::rune() const { return rune_; }
 
 std::string RuneIterator::packed_rune() const { return RuneUtil::pack(rune_); }
 
-} // Namespace.
+} // namespace cybel::utf8

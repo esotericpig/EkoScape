@@ -54,5 +54,5 @@ private:
   void birth_star(Particle& star);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

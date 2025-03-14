@@ -40,7 +40,7 @@
     #include <windows.h>
     #include <GL/glew.h>
     #include <GL/glu.h>
-  #else // CYBEL_PLATFORM_LINUX.
+  #else // CYBEL_PLATFORM_LINUX
     #include <GL/glew.h>
     #include <GL/glu.h>
   #endif

@@ -43,6 +43,6 @@ public:
   void draw_quad_buffer(GLuint id,int index) override;
 };
 
-} // Namespace.
-#endif // CYBEL_RENDERER_GL.
+} // namespace cybel
+#endif // CYBEL_RENDERER_GL
 #endif

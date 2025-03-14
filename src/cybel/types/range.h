@@ -25,5 +25,5 @@ public:
   Range2i& set(int min,int max);
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

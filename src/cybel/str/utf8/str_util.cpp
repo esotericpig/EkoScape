@@ -224,4 +224,4 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
   return result.str();
 }
 
-} // Namespace.
+} // namespace cybel::utf8

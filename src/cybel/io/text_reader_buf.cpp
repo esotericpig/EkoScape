@@ -107,4 +107,4 @@ TextReaderBuf::int_type TextReaderBuf::overflow(int_type) { return traits_type::
 
 bool TextReaderBuf::is_open() const { return context_ != NULL; }
 
-} // Namespace.
+} // namespace cybel

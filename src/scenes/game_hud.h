@@ -76,5 +76,5 @@ private:
   void draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

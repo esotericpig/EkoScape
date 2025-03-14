@@ -18,4 +18,4 @@ Scene* SceneBag::operator->() const { return scene.get(); }
 
 Scene& SceneBag::operator*() const { return *scene; }
 
-} // Namespace.
+} // namespace cybel

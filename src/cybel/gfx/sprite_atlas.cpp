@@ -102,4 +102,4 @@ const Size2i& SpriteAtlas::grid_size() const { return grid_size_; }
 
 int SpriteAtlas::cell_count() const { return cell_count_; }
 
-} // Namespace.
+} // namespace cybel

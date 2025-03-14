@@ -240,4 +240,4 @@ void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
   }
 }
 
-} // Namespace.
+} // namespace ekoscape

@@ -61,4 +61,4 @@ void DantaresRenderer::DrawQuadList(GLuint id,int index) {
   renderer_.draw_quad_buffer(id,index);
 }
 
-} // Namespace.
+} // namespace ekoscape

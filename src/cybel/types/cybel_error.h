@@ -29,5 +29,5 @@ private:
   std::string msg_{};
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

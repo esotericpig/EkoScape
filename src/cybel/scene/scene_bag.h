@@ -28,5 +28,5 @@ public:
   Scene& operator*() const;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

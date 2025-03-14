@@ -595,4 +595,4 @@ std::ostream& Map::print(std::ostream& out,bool rstrip) const {
 
 std::ostream& operator<<(std::ostream& out,const Map& map) { return map.print(out); }
 
-} // Namespace.
+} // namespace ekoscape

@@ -87,5 +87,5 @@ private:
   bool try_move(MoveData& data,int x_vel,int y_vel);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

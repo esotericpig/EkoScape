@@ -368,4 +368,4 @@ const ViewDimens& Renderer::dimens() const { return dimens_; }
 
 Color4f& Renderer::clear_color() { return clear_color_; }
 
-} // Namespace.
+} // namespace cybel

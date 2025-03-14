@@ -21,4 +21,4 @@ Range2i& Range2i::set(int min,int max) {
   return *this;
 }
 
-} // Namespace.
+} // namespace cybel

@@ -78,4 +78,4 @@ bool TextReader::consume_empty_lines(int max_line_count) {
 
 bool TextReader::eof() const { return in_.eof(); }
 
-} // Namespace.
+} // namespace cybel

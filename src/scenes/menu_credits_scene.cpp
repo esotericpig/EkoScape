@@ -200,4 +200,4 @@ void MenuCreditsScene::draw_wtfs(Renderer& ren) {
   });
 }
 
-} // Namespace.
+} // namespace ekoscape

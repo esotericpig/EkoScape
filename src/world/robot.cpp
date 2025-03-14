@@ -212,4 +212,4 @@ bool Robot::can_move_to(const Space* space) const {
   return true;
 }
 
-} // Namespace.
+} // namespace ekoscape

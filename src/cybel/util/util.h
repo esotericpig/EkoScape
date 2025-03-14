@@ -69,5 +69,5 @@ std::vector<T> Util::unique(const std::vector<T>& vec) {
   return unique;
 }
 
-} // Namespace.
+} // namespace cybel
 #endif

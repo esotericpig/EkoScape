@@ -513,4 +513,4 @@ void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Textu
   if(floor != nullptr) { dantares_->SetCeilingTexture(space_id,static_cast<int>(floor->gl_id())); }
 }
 
-} // Namespace.
+} // namespace ekoscape

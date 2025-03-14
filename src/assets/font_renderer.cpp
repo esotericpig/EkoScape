@@ -153,4 +153,4 @@ Size2i FontRenderer::scale_size(float scale) const {
   };
 }
 
-} // Namespace.
+} // namespace ekoscape

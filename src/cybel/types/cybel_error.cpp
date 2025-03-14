@@ -14,4 +14,4 @@ CybelError::CybelError(std::string_view msg)
 
 const char* CybelError::what() const noexcept { return msg_.c_str(); }
 
-} // Namespace.
+} // namespace cybel

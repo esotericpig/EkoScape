@@ -65,5 +65,5 @@ public:
     void DrawQuadList(GLuint ID, int Index) override;
 };
 
-#endif //DANTARES_RENDERER_GL.
+#endif //DANTARES_RENDERER_GL
 #endif

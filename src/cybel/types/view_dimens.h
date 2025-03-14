@@ -23,5 +23,5 @@ struct ViewDimens {
   float aspect_scale = 1.0f;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

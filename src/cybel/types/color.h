@@ -51,5 +51,5 @@ public:
   Color4f with_byte_a(std::uint8_t a) const;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

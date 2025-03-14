@@ -155,5 +155,5 @@ void RendererGl::draw_quad_buffer(GLuint id,int index) {
   glCallList(id + index);
 }
 
-} // Namespace.
-#endif // CYBEL_RENDERER_GL.
+} // namespace cybel
+#endif // CYBEL_RENDERER_GL

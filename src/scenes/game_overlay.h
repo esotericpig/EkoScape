@@ -88,5 +88,5 @@ private:
   StarSys star_sys_{};
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

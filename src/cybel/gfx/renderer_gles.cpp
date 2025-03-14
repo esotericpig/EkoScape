@@ -548,5 +548,5 @@ RendererGles::QuadBuffer* RendererGles::QuadBufferBag::buffer(int index) {
 
 std::size_t RendererGles::QuadBufferBag::size() const { return buffers_.size(); }
 
-} // Namespace.
-#endif // CYBEL_RENDERER_GLES.
+} // namespace cybel
+#endif // CYBEL_RENDERER_GLES

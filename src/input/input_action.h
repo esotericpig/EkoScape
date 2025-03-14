@@ -41,5 +41,5 @@ namespace InputAction {
   };
 }
 
-} // Namespace.
+} // namespace ekoscape
 #endif

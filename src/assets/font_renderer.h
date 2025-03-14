@@ -77,5 +77,5 @@ private:
   Size2i scale_size(float scale) const;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

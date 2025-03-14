@@ -79,5 +79,5 @@ private:
   void select_map_opt(int index,bool wrap,bool force = false);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

@@ -90,4 +90,4 @@ Color4f Color4f::with_byte_b(std::uint8_t b) const { return Color4f{r,g,static_c
 
 Color4f Color4f::with_byte_a(std::uint8_t a) const { return Color4f{r,g,b,static_cast<float>(a) / 255.0f}; }
 
-} // Namespace.
+} // namespace cybel

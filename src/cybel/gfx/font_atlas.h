@@ -67,5 +67,5 @@ protected:
   explicit FontAtlas(const Builder& builder);
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

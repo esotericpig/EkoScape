@@ -73,5 +73,5 @@ public:
   float calc_clamped_age() const;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

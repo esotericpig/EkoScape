@@ -58,4 +58,4 @@ void BoringWorkScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   #endif
 }
 
-} // Namespace.
+} // namespace ekoscape

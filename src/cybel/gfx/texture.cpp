@@ -176,4 +176,4 @@ GLuint Texture::gl_id() const { return gl_id_; }
 
 const Size2i& Texture::size() const { return size_; }
 
-} // Namespace.
+} // namespace cybel

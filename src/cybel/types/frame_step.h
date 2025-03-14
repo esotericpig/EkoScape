@@ -19,5 +19,5 @@ struct FrameStep {
   double delta_time{};
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

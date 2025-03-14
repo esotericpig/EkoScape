@@ -241,4 +241,4 @@ void GameOverlay::draw_game_over(Renderer& ren) {
 
 float GameOverlay::game_over_age() const { return game_over_age_; }
 
-} // Namespace.
+} // namespace ekoscape

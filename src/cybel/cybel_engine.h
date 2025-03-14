@@ -162,5 +162,5 @@ private:
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

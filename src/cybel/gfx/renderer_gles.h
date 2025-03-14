@@ -181,6 +181,6 @@ private:
   QuadBuffer* quad_buffer(GLuint id,int index);
 };
 
-} // Namespace.
-#endif // CYBEL_RENDERER_GLES.
+} // namespace cybel
+#endif // CYBEL_RENDERER_GLES
 #endif

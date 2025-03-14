@@ -68,4 +68,4 @@ const Pos4f& Sprite::src() const { return src_; }
 
 const Size2i& Sprite::size() const { return size_; }
 
-} // Namespace.
+} // namespace cybel

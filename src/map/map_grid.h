@@ -39,5 +39,5 @@ private:
   std::vector<Space> spaces_{};
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

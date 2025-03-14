@@ -21,5 +21,5 @@ inline constexpr GLenum GLEW_OK = 0;
 GLenum glewInit();
 const GLubyte* glewGetErrorString(GLenum error);
 
-#endif // GLEW_VERSION.
+#endif // GLEW_VERSION
 #endif

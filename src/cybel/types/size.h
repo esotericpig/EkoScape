@@ -43,5 +43,5 @@ public:
 using Size2f = Size2<float>;
 using Size2i = Size2<int>;
 
-} // Namespace.
+} // namespace cybel
 #endif

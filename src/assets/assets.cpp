@@ -430,4 +430,4 @@ const Color4f& Assets::wall_color() const { return wall_color_; }
 
 const Music* Assets::music() const { return music_.get(); }
 
-} // Namespace.
+} // namespace ekoscape

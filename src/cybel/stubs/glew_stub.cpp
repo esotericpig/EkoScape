@@ -13,4 +13,4 @@ GLenum glewInit() { return GLEW_OK; }
 
 const GLubyte* glewGetErrorString(GLenum /*error*/) { return reinterpret_cast<const GLubyte*>(""); }
 
-#endif // GLEW_VERSION.
+#endif // GLEW_VERSION

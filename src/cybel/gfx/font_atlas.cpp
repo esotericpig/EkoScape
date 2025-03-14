@@ -147,4 +147,4 @@ int FontAtlas::rune_index(char32_t rune) const {
   return (it != rune_to_index_.end()) ? it->second : default_index_;
 }
 
-} // Namespace.
+} // namespace cybel

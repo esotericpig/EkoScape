@@ -99,4 +99,4 @@ const InputIds& InputMan::fetch_ids(const SymKeyInput& key) {
 
 const std::vector<bool>& InputMan::states() const { return id_to_state_; }
 
-} // Namespace.
+} // namespace cybel

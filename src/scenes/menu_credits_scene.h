@@ -55,5 +55,5 @@ private:
   void draw_wtfs(Renderer& ren);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

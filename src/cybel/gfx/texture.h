@@ -43,5 +43,5 @@ private:
   void destroy() noexcept;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

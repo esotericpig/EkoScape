@@ -46,4 +46,4 @@ const Space& MapGrid::unsafe_space(const Pos2i& pos) const { return spaces_.at(p
 
 const Space& MapGrid::unsafe_space(const Pos3i& pos) const { return spaces_.at(pos.x + (pos.y * size_.w)); }
 
-} // Namespace.
+} // namespace ekoscape

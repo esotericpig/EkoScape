@@ -159,5 +159,5 @@ private:
   std::unique_ptr<Texture> load_tex(const std::filesystem::path& subfile) const;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

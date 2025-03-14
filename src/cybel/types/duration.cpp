@@ -104,4 +104,4 @@ std::uint32_t Duration::whole_millis() const { return static_cast<std::uint32_t>
 
 std::uint32_t Duration::whole_secs() const { return static_cast<std::uint32_t>(secs()); }
 
-} // Namespace.
+} // namespace cybel

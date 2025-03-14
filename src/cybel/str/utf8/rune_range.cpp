@@ -32,4 +32,4 @@ RuneIterator::reverse_iterator RuneRange::crbegin() const { return rbegin(); }
 
 RuneIterator::reverse_iterator RuneRange::crend() const { return rend(); }
 
-} // Namespace.
+} // namespace cybel::utf8

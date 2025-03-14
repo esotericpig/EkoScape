@@ -56,4 +56,4 @@ Music& Music::operator=(Music&& other) noexcept {
 
 const std::string& Music::id() const { return id_; }
 
-} // Namespace.
+} // namespace cybel

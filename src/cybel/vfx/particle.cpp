@@ -81,4 +81,4 @@ float Particle::calc_clamped_age() const {
   return age;
 }
 
-} // Namespace.
+} // namespace cybel

@@ -51,5 +51,5 @@ using RawKeyInput = KeyInput<RawKey>;
 using SymKey = SDL_Keycode;
 using SymKeyInput = KeyInput<SymKey>;
 
-} // Namespace.
+} // namespace cybel
 #endif

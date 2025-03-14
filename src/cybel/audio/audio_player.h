@@ -82,5 +82,5 @@ private:
   std::string curr_music_id_{};
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

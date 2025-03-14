@@ -32,5 +32,5 @@ private:
   int scene_action_ = SceneAction::kNil;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

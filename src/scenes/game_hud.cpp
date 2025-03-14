@@ -203,4 +203,4 @@ void GameHud::draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.end_scale();
 }
 
-} // Namespace.
+} // namespace ekoscape

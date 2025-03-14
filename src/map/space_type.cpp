@@ -163,4 +163,4 @@ char SpaceTypes::value_of(SpaceType type) {
   return static_cast<char>(type);
 }
 
-} // Namespace.
+} // namespace ekoscape

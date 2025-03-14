@@ -31,5 +31,5 @@ namespace RuneUtil {
   bool is_whitespace(char32_t rune);
 }
 
-} // Namespace.
+} // namespace cybel::utf8
 #endif

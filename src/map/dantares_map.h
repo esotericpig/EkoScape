@@ -62,5 +62,5 @@ private:
   bool change_grid(int z,bool force);
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

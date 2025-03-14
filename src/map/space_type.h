@@ -83,5 +83,5 @@ namespace SpaceTypes {
   char value_of(SpaceType type);
 }
 
-} // Namespace.
+} // namespace ekoscape
 #endif

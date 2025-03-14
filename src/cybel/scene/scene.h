@@ -50,5 +50,5 @@ public:
   virtual void draw_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

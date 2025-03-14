@@ -21,5 +21,5 @@ namespace StrUtil {
   std::string wrap_words(std::string_view str,std::size_t max_len);
 }
 
-} // Namespace.
+} // namespace cybel::utf8
 #endif

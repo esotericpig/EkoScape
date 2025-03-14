@@ -49,5 +49,5 @@ private:
   void set_scene(SceneBag scene_bag);
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

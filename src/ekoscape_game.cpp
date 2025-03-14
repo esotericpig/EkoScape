@@ -349,4 +349,4 @@ void EkoScapeGame::show_error_global(const std::string& error) {
   CybelEngine::show_error_global(kTitle,error);
 }
 
-} // Namespace.
+} // namespace ekoscape

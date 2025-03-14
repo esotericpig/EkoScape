@@ -73,4 +73,4 @@ std::size_t Rando::rand_sizet(std::size_t min,std::size_t max) {
   return sizet_distr_(gen_,std::uniform_int_distribution<std::size_t>::param_type(min,max - 1));
 }
 
-} // Namespace.
+} // namespace cybel

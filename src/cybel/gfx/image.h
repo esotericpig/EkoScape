@@ -62,5 +62,5 @@ private:
   GLenum gl_type() const;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

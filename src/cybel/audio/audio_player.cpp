@@ -119,4 +119,4 @@ bool AudioPlayer::is_music_playing() const {
 
 bool AudioPlayer::is_music_paused() const { return is_alive_ && Mix_PausedMusic() != 0; }
 
-} // Namespace.
+} // namespace cybel

@@ -36,5 +36,5 @@ private:
   static Timestamp now();
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

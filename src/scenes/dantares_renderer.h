@@ -37,5 +37,5 @@ private:
   Renderer& renderer_;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

@@ -16,7 +16,7 @@ static std::unique_ptr<ekoscape::EkoScapeGame> eko{};
 void run_ems_frame();
 bool on_ems_gl_context(int event_type,const void* reserved,void* user_data);
 
-#endif // __EMSCRIPTEN__.
+#endif // __EMSCRIPTEN__
 
 // SDL2 requires standard main().
 // - https://wiki.libsdl.org/SDL2/FAQWindows#i_get_undefined_reference_to_sdl_main_%2E%2E%2E
@@ -107,4 +107,4 @@ bool on_ems_gl_context(int event_type,const void* /*reserved*/,void* /*user_data
   return false;
 }
 
-#endif // __EMSCRIPTEN__.
+#endif // __EMSCRIPTEN__

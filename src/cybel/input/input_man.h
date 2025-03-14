@@ -62,5 +62,5 @@ private:
   std::unordered_map<SymKeyInput,InputIds,SymKeyInput::Hash> sym_key_to_ids_{};
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

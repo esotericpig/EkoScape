@@ -86,4 +86,4 @@ std::string Util::get_emscripten_result([[maybe_unused]] int result) {
   #endif
 }
 
-} // Namespace.
+} // namespace cybel

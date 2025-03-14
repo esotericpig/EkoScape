@@ -200,5 +200,5 @@ protected:
   const Space& unsafe_space(const Pos3i& pos) const;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

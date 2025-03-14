@@ -71,4 +71,4 @@ bool RuneUtil::is_whitespace(char32_t rune) {
          (rune >= 0x2000 && rune <= 0x200A);   // EN QUAD..HAIR SPACE.
 }
 
-} // Namespace.
+} // namespace cybel::utf8

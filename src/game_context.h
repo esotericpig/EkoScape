@@ -26,5 +26,5 @@ public:
   explicit GameContext(CybelEngine& cybel_engine,Assets& assets) noexcept;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

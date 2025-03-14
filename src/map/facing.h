@@ -29,5 +29,5 @@ namespace Facings {
   int value_of(Facing facing);
 }
 
-} // Namespace.
+} // namespace ekoscape
 #endif

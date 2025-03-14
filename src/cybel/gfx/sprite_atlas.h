@@ -68,5 +68,5 @@ protected:
   explicit SpriteAtlas(const Builder& builder);
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

@@ -91,5 +91,5 @@ private:
 template <typename RandIt>
 void Rando::shuffle(RandIt first,RandIt last) { std::shuffle(first,last,gen_); }
 
-} // Namespace.
+} // namespace cybel
 #endif

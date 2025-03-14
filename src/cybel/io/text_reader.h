@@ -54,5 +54,5 @@ bool TextReader::read_imp(T& data,T init_value) {
   return (in_ >> data) ? true : false;
 }
 
-} // Namespace.
+} // namespace cybel
 #endif

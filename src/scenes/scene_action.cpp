@@ -21,4 +21,4 @@ bool SceneActions::is_menu(int action) {
   }
 }
 
-} // Namespace.
+} // namespace ekoscape

@@ -66,5 +66,5 @@ private:
   int opt_index_ = 0;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

@@ -61,4 +61,4 @@ bool Space::is_walkable() const { return SpaceTypes::is_walkable(empty_type_); }
 
 bool Space::is_non_walkable() const { return SpaceTypes::is_non_walkable(empty_type_); }
 
-} // Namespace.
+} // namespace ekoscape

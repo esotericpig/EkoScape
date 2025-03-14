@@ -161,4 +161,4 @@ const void* Image::pixels() const { return surface_->pixels; }
 
 GLenum Image::gl_type() const { return GL_UNSIGNED_BYTE; }
 
-} // Namespace.
+} // namespace cybel

@@ -105,4 +105,4 @@ void StarSys::draw(Renderer& ren,const Texture& tex) {
 
 bool StarSys::is_empty() const { return stars_.empty(); }
 
-} // Namespace.
+} // namespace ekoscape

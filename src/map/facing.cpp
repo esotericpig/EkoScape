@@ -34,4 +34,4 @@ int Facings::value_of(Facing facing) {
   return static_cast<int>(facing);
 }
 
-} // Namespace.
+} // namespace ekoscape

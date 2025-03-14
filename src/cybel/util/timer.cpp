@@ -49,4 +49,4 @@ const Duration& Timer::pause() {
 
 const Duration& Timer::duration() const { return duration_; }
 
-} // Namespace.
+} // namespace cybel

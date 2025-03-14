@@ -52,5 +52,5 @@ private:
   SpaceType thing_type_ = SpaceType::kNil;
 };
 
-} // Namespace.
+} // namespace ekoscape
 #endif

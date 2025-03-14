@@ -194,4 +194,4 @@ Facing DantaresMap::player_facing() const {
   return Facings::to_facing(dantares_.GetPlayerFacing());
 }
 
-} // Namespace.
+} // namespace ekoscape

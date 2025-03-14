@@ -13,7 +13,7 @@
 
 #if defined(CYBEL_RENDERER_GLES)
   #include "cybel/gfx/renderer_gles.h"
-#else // CYBEL_RENDERER_GL.
+#else // CYBEL_RENDERER_GL
   #include "cybel/gfx/renderer_gl.h"
 #endif
 
@@ -76,7 +76,7 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
 
   #if defined(CYBEL_RENDERER_GLES)
     renderer_ = std::make_unique<RendererGles>(config.size,config.target_size,config.clear_color);
-  #else // CYBEL_RENDERER_GL.
+  #else // CYBEL_RENDERER_GL
     renderer_ = std::make_unique<RendererGl>(config.size,config.target_size,config.clear_color);
   #endif
 
@@ -132,7 +132,7 @@ void CybelEngine::init_gui(const Config& config) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
-  #else // CYBEL_RENDERER_GL.
+  #else // CYBEL_RENDERER_GL
     // Use a 2004-2008 version.
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
@@ -470,4 +470,4 @@ const Duration& CybelEngine::dpf() const { return frame_step_.dpf; }
 
 double CybelEngine::delta_time() const { return frame_step_.delta_time; }
 
-} // Namespace.
+} // namespace cybel

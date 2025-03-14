@@ -80,5 +80,5 @@ private:
   void prev_rune();
 };
 
-} // Namespace.
+} // namespace cybel::utf8
 #endif

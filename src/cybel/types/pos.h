@@ -95,5 +95,5 @@ struct Pos5f {
   float z{};
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

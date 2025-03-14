@@ -39,5 +39,5 @@ protected:
   Size2i size_{};
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

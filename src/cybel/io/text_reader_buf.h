@@ -74,5 +74,5 @@ private:
   void close() noexcept;
 };
 
-} // Namespace.
+} // namespace cybel
 #endif

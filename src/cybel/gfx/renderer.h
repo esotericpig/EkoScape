@@ -245,5 +245,5 @@ private:
   Renderer& wrap_tex(const Texture& tex,const WrapCallback& callback);
 };
 
-} // Namespace.
+} // namespace cybel
 #endif
