@@ -7,7 +7,6 @@
 
 #include "str_util.h"
 
-#include "cybel/str/utf8/rune_iterator.h"
 #include "cybel/str/utf8/rune_util.h"
 
 #include <sstream>
@@ -43,7 +42,7 @@ std::size_t StrUtil::count_runes(std::string_view str) {
   std::uint8_t byte_count = 0;
 
   for(std::size_t i = 0; i < str.size(); i += byte_count,++rune_count) {
-    RuneIterator::next_rune(str,i,byte_count);
+    RuneUtil::next_rune(str,i,byte_count);
   }
 
   return rune_count;
@@ -63,7 +62,7 @@ std::string StrUtil::ellipsize(std::string_view str,std::size_t max_len) {
   std::uint8_t byte_count = 0;
 
   for(; len > max_len; --len) {
-    RuneIterator::prev_rune(str,last_index,byte_count);
+    RuneUtil::prev_rune(str,last_index,byte_count);
 
     if(byte_count < last_index) {
       last_index -= byte_count;
@@ -94,7 +93,7 @@ std::string StrUtil::strip(std::string_view str) {
   std::uint8_t byte_count = 0;
 
   for(; first_index < str.size(); first_index += byte_count) {
-    const auto rune = RuneIterator::next_rune(str,first_index,byte_count);
+    const auto rune = RuneUtil::next_rune(str,first_index,byte_count);
 
     if(!RuneUtil::is_whitespace(rune)) { break; }
   }
@@ -106,7 +105,7 @@ std::string StrUtil::strip(std::string_view str) {
   byte_count = 0;
 
   while(last_pos > first_index) {
-    const auto rune = RuneIterator::prev_rune(str,last_pos - 1,byte_count);
+    const auto rune = RuneUtil::prev_rune(str,last_pos - 1,byte_count);
 
     if(!RuneUtil::is_whitespace(rune)) { break; }
 
@@ -138,7 +137,7 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
   std::string_view word{};
 
   // Bunch of funky logic here, just to avoid calling next_rune() more than necessary.
-  rune = RuneIterator::next_rune(str,0,byte_count);
+  rune = RuneUtil::next_rune(str,0,byte_count);
 
   for(std::size_t i = 0; i < str.size();) {
     // First, read/eat all spaces.
@@ -154,7 +153,7 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
       i += byte_count;
       if(i >= str.size()) { break; }
 
-      rune = RuneIterator::next_rune(str,i,byte_count);
+      rune = RuneUtil::next_rune(str,i,byte_count);
     }
 
     // Second, gather word.
@@ -164,7 +163,7 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
     word_len = 1;
 
     for(i += byte_count; i < str.size(); i += byte_count) {
-      rune = RuneIterator::next_rune(str,i,byte_count);
+      rune = RuneUtil::next_rune(str,i,byte_count);
 
       if(rune == '\n' || rune == '\r') { break; } // Append word.
       if(RuneUtil::is_whitespace(rune)) { break; }
@@ -201,7 +200,7 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
 
         if(peek_i < str.size()) {
           std::uint8_t peek_byte_count = 0;
-          rune = RuneIterator::next_rune(str,peek_i,peek_byte_count);
+          rune = RuneUtil::next_rune(str,peek_i,peek_byte_count);
 
           if(rune == '\n') {
             i = peek_i;
@@ -217,7 +216,7 @@ std::string StrUtil::wrap_words(std::string_view str,std::size_t max_len) {
       i += byte_count;
       if(i >= str.size()) { break; }
 
-      rune = RuneIterator::next_rune(str,i,byte_count);
+      rune = RuneUtil::next_rune(str,i,byte_count);
     }
   }
 

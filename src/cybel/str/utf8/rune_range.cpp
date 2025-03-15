@@ -21,11 +21,11 @@ RuneIterator RuneRange::cbegin() const { return begin(); }
 RuneIterator RuneRange::cend() const { return end(); }
 
 RuneIterator::reverse_iterator RuneRange::rbegin() const {
-  return RuneIterator::rbegin(str_,end_rune_count_);
+  return RuneIterator::rbegin(str_,begin_rune_count_);
 }
 
 RuneIterator::reverse_iterator RuneRange::rend() const {
-  return RuneIterator::rend(str_,begin_rune_count_);
+  return RuneIterator::rend(str_,end_rune_count_);
 }
 
 RuneIterator::reverse_iterator RuneRange::crbegin() const { return rbegin(); }
