@@ -99,7 +99,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(char32_t rune) {
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view str) {
-  if(str.empty()) { return print(); }
+  if(str.empty()) { return *this; }
 
   for(const auto rune : utf8::RuneRange{str}) {
     if(rune == '\n') {
@@ -122,15 +122,11 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_blanks(int count) 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() { return puts_blanks(1); }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t rune) {
-  print(rune);
-
-  return puts();
+  return print(rune).puts();
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(std::string_view str) {
-  if(!str.empty()) { print(str); }
-
-  return puts();
+  return print(str).puts();
 }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {
