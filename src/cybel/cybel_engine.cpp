@@ -34,8 +34,6 @@ CybelEngine::Resources::~Resources() noexcept {
 }
 
 Size2i CybelEngine::calc_scaled_view(const Size2i& view,float scale_factor,const Size2i& target_size) {
-  Size2i size{};
-
   // Scaled size.
   float sw = static_cast<float>(view.w) * scale_factor;
   float sh = static_cast<float>(view.h) * scale_factor;
@@ -53,10 +51,10 @@ Size2i CybelEngine::calc_scaled_view(const Size2i& view,float scale_factor,const
     }
   }
 
-  size.w = static_cast<int>(std::round(sw));
-  size.h = static_cast<int>(std::round(sh));
-
-  return size;
+  return Size2i{
+    static_cast<int>(std::round(sw)),
+    static_cast<int>(std::round(sh))
+  };
 }
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
@@ -154,7 +152,7 @@ void CybelEngine::init_gui(const Config& config) {
   #endif
 
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
-  //     we call sync_size() later, which we do in run().
+  //     we call sync_size() later, which we do in init_run().
   res_.window = SDL_CreateWindow(
     title_.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,config.size.w,config.size.h,window_flags
   );
