@@ -30,6 +30,8 @@ class EkoScapeGame : public Scene {
 public:
   static inline const std::string kTitle = "EkoScape v2.2";
 
+  static int run();
+
   explicit EkoScapeGame();
 
   void run_loop();
