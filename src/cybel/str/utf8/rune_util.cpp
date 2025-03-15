@@ -49,7 +49,7 @@ char32_t RuneUtil::prev_rune(std::string_view str,std::size_t index,std::uint8_t
     }
 
     // Not a continuation octet? (0b1000'0000)
-    if(type != kMinOctetTail) { break; }
+    if(type != kMinTailOctet) { break; }
   }
 
   return kInvalidRune;
@@ -91,14 +91,14 @@ char32_t RuneUtil::_unpack_seq2(std::string_view str,std::size_t index,std::uint
 
   const auto octet2 = static_cast<Octet>(str[index]);
 
-  if(octet2 < kMinOctetTail || octet2 > kMaxOctetTail) {
+  if(octet2 < kMinTailOctet || octet2 > kMaxTailOctet) {
     return kInvalidRune;
   }
 
   // UTF8-2 = 0b110xxxxx.
   auto rune = static_cast<char32_t>(octet1 & 0b0001'1111);
 
-  rune = (rune << 6) | (octet2 & kOctetTailMask);
+  rune = (rune << 6) | (octet2 & kTailOctetMask);
   byte_count = 2;
 
   return rune;
@@ -119,22 +119,22 @@ char32_t RuneUtil::_unpack_seq3(std::string_view str,std::size_t index,std::uint
     if(octet2 < 0xA0 || octet2 > 0xBF) { return kInvalidRune; }
   } else if((octet1 >= 0xE1 && octet1 <= 0xEC) ||
             (octet1 >= 0xEE && octet1 <= 0xEF)) {
-    if(octet2 < kMinOctetTail || octet2 > kMaxOctetTail) { return kInvalidRune; }
+    if(octet2 < kMinTailOctet || octet2 > kMaxTailOctet) { return kInvalidRune; }
   } else if(octet1 == 0xED) {
     if(octet2 < 0x80 || octet2 > 0x9F) { return kInvalidRune; }
   } else {
     return kInvalidRune;
   }
 
-  if(octet3 < kMinOctetTail || octet3 > kMaxOctetTail) {
+  if(octet3 < kMinTailOctet || octet3 > kMaxTailOctet) {
     return kInvalidRune;
   }
 
   // UTF8-3 = 0b1110xxxx.
   auto rune = static_cast<char32_t>(octet1 & 0b0000'1111);
 
-  rune = (rune << 6) | (octet2 & kOctetTailMask);
-  rune = (rune << 6) | (octet3 & kOctetTailMask);
+  rune = (rune << 6) | (octet2 & kTailOctetMask);
+  rune = (rune << 6) | (octet3 & kTailOctetMask);
   byte_count = 3;
 
   return rune;
@@ -154,24 +154,24 @@ char32_t RuneUtil::_unpack_seq4(std::string_view str,std::size_t index,std::uint
   if(octet1 == 0xF0) {
     if(octet2 < 0x90 || octet2 > 0xBF) { return kInvalidRune; }
   } else if(octet1 >= 0xF1 && octet1 <= 0xF3) {
-    if(octet2 < kMinOctetTail || octet2 > kMaxOctetTail) { return kInvalidRune; }
+    if(octet2 < kMinTailOctet || octet2 > kMaxTailOctet) { return kInvalidRune; }
   } else if(octet1 == 0xF4) {
     if(octet2 < 0x80 || octet2 > 0x8F) { return kInvalidRune; }
   } else {
     return kInvalidRune;
   }
 
-  if((octet3 < kMinOctetTail || octet3 > kMaxOctetTail) ||
-     (octet4 < kMinOctetTail || octet4 > kMaxOctetTail)) {
+  if((octet3 < kMinTailOctet || octet3 > kMaxTailOctet) ||
+     (octet4 < kMinTailOctet || octet4 > kMaxTailOctet)) {
     return kInvalidRune;
   }
 
   // UTF8-4 = 0b11110xxx.
   auto rune = static_cast<char32_t>(octet1 & 0b0000'0111);
 
-  rune = (rune << 6) | (octet2 & kOctetTailMask);
-  rune = (rune << 6) | (octet3 & kOctetTailMask);
-  rune = (rune << 6) | (octet4 & kOctetTailMask);
+  rune = (rune << 6) | (octet2 & kTailOctetMask);
+  rune = (rune << 6) | (octet3 & kTailOctetMask);
+  rune = (rune << 6) | (octet4 & kTailOctetMask);
   byte_count = 4;
 
   return rune;
@@ -188,23 +188,23 @@ std::string RuneUtil::pack(char32_t rune) {
   else if(rune >= 0x0080 && rune <= 0x07FF) {
     // 0b110xxxxx.
     result += static_cast<char>(0b1100'0000   | ((rune >> 6) & 0b0001'1111));
-    result += static_cast<char>(kMinOctetTail | ( rune       & kOctetTailMask));
+    result += static_cast<char>(kMinTailOctet | ( rune       & kTailOctetMask));
   }
   // UTF8-3.
   else if((rune >= 0x0800 && rune <= 0xD7FF) ||
           (rune >= 0xE000 && rune <= 0xFFFF)) {
     // 0b1110xxxx.
     result += static_cast<char>(0b1110'0000   | ((rune >> 12) & 0b0000'1111));
-    result += static_cast<char>(kMinOctetTail | ((rune >>  6) & kOctetTailMask));
-    result += static_cast<char>(kMinOctetTail | ( rune        & kOctetTailMask));
+    result += static_cast<char>(kMinTailOctet | ((rune >>  6) & kTailOctetMask));
+    result += static_cast<char>(kMinTailOctet | ( rune        & kTailOctetMask));
   }
   // UTF8-4.
   else if(rune >= 0x01'0000 && rune <= 0x10'FFFF) {
     // 0b11110xxx.
     result += static_cast<char>(0b1111'0000   | ((rune >> 18) & 0b0000'0111));
-    result += static_cast<char>(kMinOctetTail | ((rune >> 12) & kOctetTailMask));
-    result += static_cast<char>(kMinOctetTail | ((rune >>  6) & kOctetTailMask));
-    result += static_cast<char>(kMinOctetTail | ( rune        & kOctetTailMask));
+    result += static_cast<char>(kMinTailOctet | ((rune >> 12) & kTailOctetMask));
+    result += static_cast<char>(kMinTailOctet | ((rune >>  6) & kTailOctetMask));
+    result += static_cast<char>(kMinTailOctet | ( rune        & kTailOctetMask));
   } else {
     return kInvalidPackedRune;
   }

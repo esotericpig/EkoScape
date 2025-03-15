@@ -27,9 +27,9 @@ namespace RuneUtil {
   inline const std::string kInvalidPackedRune = "�"; // \xEF\xBF\xBD.
 
   inline const Octet kMaxAsciiOctet = 0x7F; // 0b0111'1111.
-  inline const Octet kMinOctetTail = 0x80; // 0b1000'0000.
-  inline const Octet kMaxOctetTail = 0xBF; // 0b1011'1111.
-  inline const Octet kOctetTailMask = 0b0011'1111; // 0b10xxxxxx.
+  inline const Octet kMinTailOctet = 0x80; // 0b1000'0000.
+  inline const Octet kMaxTailOctet = 0xBF; // 0b1011'1111.
+  inline const Octet kTailOctetMask = 0b0011'1111; // 0b10xxxxxx.
 
   char32_t next_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count);
   char32_t prev_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count);
