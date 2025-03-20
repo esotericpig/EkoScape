@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="EkoScape" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$ProjectFileDir$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="EkoScape" TARGET_NAME="EkoScape" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="EkoScape" RUN_TARGET_NAME="EkoScape">
+  <configuration default="false" name="EkoScape" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$ProjectFileDir$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="EkoScape" TARGET_NAME="EkoScape" CONFIG_NAME="Desktop Release" RUN_TARGET_PROJECT_NAME="EkoScape" RUN_TARGET_NAME="EkoScape">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>
