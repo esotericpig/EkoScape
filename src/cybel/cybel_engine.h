@@ -130,12 +130,15 @@ public:
   double delta_time() const;
 
 private:
+  void handle_input_event(int id);
+
   std::string title_{};
 
   std::unique_ptr<Renderer> renderer_{};
   Scene& main_scene_;
   std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after `renderer_`.
   std::unique_ptr<InputMan> input_man_{};
+  InputMan::OnInputEvent on_input_event_ = [&](int id) { handle_input_event(id); };
 
   bool is_running_ = false;
   Timer frame_timer_{};
@@ -155,8 +158,6 @@ private:
   void start_frame_timer();
   void stop_frame_timer();
   void handle_events();
-  void handle_keydown_event(const SDL_Event& event);
-  void handle_keyup_event(const SDL_Event& event);
   void handle_input_states();
 
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);

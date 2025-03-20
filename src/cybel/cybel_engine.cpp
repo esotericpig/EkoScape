@@ -310,14 +310,6 @@ void CybelEngine::handle_events() {
         request_stop();
         return;
 
-      case SDL_KEYDOWN:
-        handle_keydown_event(event);
-        break;
-
-      case SDL_KEYUP:
-        handle_keyup_event(event);
-        break;
-
       case SDL_WINDOWEVENT:
         switch(event.window.event) {
           case SDL_WINDOWEVENT_RESIZED:
@@ -326,6 +318,10 @@ void CybelEngine::handle_events() {
             break;
         }
         break;
+
+      default:
+        input_man_->handle_event(event,on_input_event_);
+        break;
     }
   }
 
@@ -333,47 +329,13 @@ void CybelEngine::handle_events() {
   if(should_resize) { sync_size(false); }
 }
 
-void CybelEngine::handle_keydown_event(const SDL_Event& event) {
-  const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
-  const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
-
-  std::unordered_set<int> processed_ids{};
-
-  for(auto id : input_man_->fetch_ids(raw_key)) {
-    // Not inserted? (already processed)
-    if(!processed_ids.insert(id).second) { continue; }
-
-    main_scene_.on_input_event(id,renderer_->dimens());
-    scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
-  }
-  for(auto id : input_man_->fetch_ids(sym_key)) {
-    // Not inserted? (already processed)
-    if(!processed_ids.insert(id).second) { continue; }
-
-    main_scene_.on_input_event(id,renderer_->dimens());
-    scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
-  }
-}
-
-void CybelEngine::handle_keyup_event(const SDL_Event& /*event*/) {
-  // const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
-  // const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
+void CybelEngine::handle_input_event(int id) {
+  main_scene_.on_input_event(id,renderer_->dimens());
+  scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
 }
 
 void CybelEngine::handle_input_states() {
-  int num_keys = 0;
-  const auto* raw_keys = SDL_GetKeyboardState(&num_keys);
-  const KeyMods mods = SDL_GetModState();
-
-  for(int i = 0; i < num_keys; ++i) {
-    if(raw_keys[i] == 1) {
-      const auto raw_key = static_cast<RawKey>(i);
-      const auto sym_key = SDL_GetKeyFromScancode(raw_key);
-
-      input_man_->set_state(RawKeyInput{raw_key,mods},true);
-      input_man_->set_state(SymKeyInput{sym_key,mods},true);
-    }
-  }
+  input_man_->update_states();
 
   main_scene_.handle_input_states(input_man_->states(),renderer_->dimens());
   scene_man_->curr_scene().handle_input_states(input_man_->states(),renderer_->dimens());
