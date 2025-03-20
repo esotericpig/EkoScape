@@ -71,6 +71,7 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
 
   init_config(config);
   init_gui(config);
+  check_versions();
 
   #if defined(CYBEL_RENDERER_GLES)
     renderer_ = std::make_unique<RendererGles>(config.size,config.target_size,config.clear_color);
@@ -177,11 +178,18 @@ void CybelEngine::init_gui(const Config& config) {
     throw CybelError{"Failed to init OpenGL GLEW [",error,"]: ",Util::get_glew_error(error),'.'};
   }
 
-  check_gl_version();
   set_vsync(config.vsync);
 }
 
-void CybelEngine::check_gl_version() {
+void CybelEngine::check_versions() {
+  #if defined(__EMSCRIPTEN__)
+    // Output Emscripten version because different/newer versions can break the build,
+    //     and Emscripten doesn't store the version anywhere in the generated files.
+    // Therefore, in the future, I can see what version I used and install/match that version.
+    std::cout << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
+              << __EMSCRIPTEN_tiny__ << '.' << std::endl;
+  #endif
+
   const auto gl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
   const std::string gl_version = (gl_version_cstr != nullptr)
                                  ? gl_version_cstr : "Failed to get OpenGL version";

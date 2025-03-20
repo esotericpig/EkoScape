@@ -148,7 +148,7 @@ private:
   void init_hints();
   void init_config(Config& config);
   void init_gui(const Config& config);
-  void check_gl_version();
+  void check_versions();
   void init_scene(Scene& scene);
   void init_run();
 
