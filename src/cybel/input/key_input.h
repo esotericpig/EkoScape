@@ -19,7 +19,8 @@ using KeyMods = Uint16;
 template <typename T>
 class KeyInput {
 public:
-  struct Hash {
+  class Hash {
+  public:
     std::size_t operator()(const KeyInput& ki) const {
       return Util::build_hash(ki.key_,ki.mods_);
     }

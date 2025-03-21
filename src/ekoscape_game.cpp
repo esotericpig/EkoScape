@@ -7,6 +7,7 @@
 
 #include "ekoscape_game.h"
 
+#include "cybel/input/joypad_input.h"
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/rando.h"
 
@@ -61,15 +62,19 @@ void EkoScapeGame::init_input_map() {
   // Movement.
   im.map_input(InputAction::kUp,[](auto& i) {
     i.raw_key({SDL_SCANCODE_UP,SDL_SCANCODE_W});
+    i.joypad({JoypadInput::kUp});
   });
   im.map_input(InputAction::kDown,[](auto& i) {
     i.raw_key({SDL_SCANCODE_DOWN,SDL_SCANCODE_S});
+    i.joypad({JoypadInput::kDown});
   });
   im.map_input(InputAction::kLeft,[](auto& i) {
     i.raw_key({SDL_SCANCODE_LEFT,SDL_SCANCODE_A});
+    i.joypad({JoypadInput::kLeft});
   });
   im.map_input(InputAction::kRight,[](auto& i) {
     i.raw_key({SDL_SCANCODE_RIGHT,SDL_SCANCODE_D});
+    i.joypad({JoypadInput::kRight});
   });
 
   // Menu Navigation.
@@ -81,9 +86,11 @@ void EkoScapeGame::init_input_map() {
   });
   im.map_input(InputAction::kSelect,[](auto& i) {
     i.raw_key({SDL_SCANCODE_RETURN,SDL_SCANCODE_SPACE,SDL_SCANCODE_KP_ENTER});
+    i.joypad({JoypadInput::kA});
   });
   im.map_input(InputAction::kGoBack,[](auto& i) {
     i.raw_key({SDL_SCANCODE_BACKSPACE});
+    i.joypad({JoypadInput::kB});
   });
   #if !defined(__EMSCRIPTEN__)
     im.map_input(InputAction::kQuit,[](auto& i) {

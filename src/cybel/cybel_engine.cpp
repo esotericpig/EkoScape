@@ -92,6 +92,7 @@ void CybelEngine::init_hints() {
   // One of: nearest, linear, best.
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,"nearest");
   //SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,"1");
 }
 
 void CybelEngine::init_config(Config& config) {
@@ -185,7 +186,6 @@ void CybelEngine::check_versions() {
   #if defined(__EMSCRIPTEN__)
     // Output Emscripten version because different/newer versions can break the build,
     //     and Emscripten doesn't store the version anywhere in the generated files.
-    // Therefore, in the future, I can see what version I used and install/match that version.
     std::cout << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
               << __EMSCRIPTEN_tiny__ << '.' << std::endl;
   #endif
@@ -240,7 +240,7 @@ bool CybelEngine::run_frame() {
   stop_frame_timer();
   start_frame_timer();
 
-  input_man_->reset_states();
+  input_man_->begin_input();
   handle_events();
   handle_input_states();
 
