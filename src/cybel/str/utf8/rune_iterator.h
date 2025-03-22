@@ -42,14 +42,22 @@ public:
 
   RuneIterator& operator++();
   RuneIterator operator++(int);
+  RuneIterator operator+(std::size_t count) const;
+  RuneIterator& operator+=(std::size_t count);
   RuneIterator& operator--();
   RuneIterator operator--(int);
+  RuneIterator operator-(std::size_t count) const;
+  RuneIterator& operator-=(std::size_t count);
 
   std::string_view str() const;
   std::size_t index() const;
   std::uint8_t byte_count() const;
   char32_t rune() const;
+
+  std::string substr() const;
+  std::string_view substr_view() const;
   std::string pack_rune() const;
+  char byte() const;
 
 private:
   std::string_view str_{};

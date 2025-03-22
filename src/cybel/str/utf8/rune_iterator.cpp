@@ -73,11 +73,28 @@ RuneIterator& RuneIterator::operator++() {
 }
 
 RuneIterator RuneIterator::operator++(int) {
-  const RuneIterator temp = *this;
-
+  const auto orig_it = *this;
   next_rune();
 
-  return temp;
+  return orig_it;
+}
+
+RuneIterator RuneIterator::operator+(std::size_t count) const {
+  auto it = *this;
+
+  for(; count > 0; --count) {
+    it.next_rune();
+  }
+
+  return it;
+}
+
+RuneIterator& RuneIterator::operator+=(std::size_t count) {
+  for(; count > 0; --count) {
+    next_rune();
+  }
+
+  return *this;
 }
 
 RuneIterator& RuneIterator::operator--() {
@@ -87,11 +104,28 @@ RuneIterator& RuneIterator::operator--() {
 }
 
 RuneIterator RuneIterator::operator--(int) {
-  const RuneIterator temp = *this;
-
+  const auto orig_it = *this;
   prev_rune();
 
-  return temp;
+  return orig_it;
+}
+
+RuneIterator RuneIterator::operator-(std::size_t count) const {
+  auto it = *this;
+
+  for(; count > 0; --count) {
+    it.prev_rune();
+  }
+
+  return it;
+}
+
+RuneIterator& RuneIterator::operator-=(std::size_t count) {
+  for(; count > 0; --count) {
+    prev_rune();
+  }
+
+  return *this;
 }
 
 void RuneIterator::next_rune() {
@@ -130,6 +164,12 @@ std::uint8_t RuneIterator::byte_count() const { return byte_count_; }
 
 char32_t RuneIterator::rune() const { return rune_; }
 
+std::string RuneIterator::substr() const { return std::string{substr_view()}; }
+
+std::string_view RuneIterator::substr_view() const { return str_.substr(index_,byte_count_); }
+
 std::string RuneIterator::pack_rune() const { return RuneUtil::pack(rune_); }
+
+char RuneIterator::byte() const { return str_[index_]; }
 
 } // namespace cybel::utf8
