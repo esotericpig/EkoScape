@@ -24,6 +24,10 @@ namespace cybel {
 
 using InputIds = std::unordered_set<int>;
 
+/**
+ * TODO: Finger input is not implemented seriously for now, but just for fun,
+ *       and it currently relies on the joypad logic.
+ */
 class InputMan {
 public:
   class InputMapper {
@@ -52,10 +56,10 @@ public:
 
   void map_input(int id,const MapInputCallback& callback);
 
-  /**
-   * TEST: Only use for testing purposes.
-   */
+  /// TEST: Only use for testing purposes.
   void use_fake_joypad(bool use_game_ctrl,FakeJoypadInputType input_type);
+  /// TEST: Only use for testing purposes.
+  void use_mouse_as_finger();
 
   void begin_input();
   void handle_event(const SDL_Event& event,const OnInputEvent& on_input_event);
@@ -72,10 +76,11 @@ public:
 
 private:
   // About 24% of range: SDL_JOYSTICK_AXIS_MAX(32'767) * 0.24f
-  static inline const int kJoypadAxisDeadZone = 8'000;
+  static constexpr Sint16 kJoypadAxisDeadZone = 8'000;
 
   int max_id_{};
   std::vector<bool> id_to_state_{};
+  std::vector<bool> id_to_event_state_{};
   std::unordered_set<int> processed_ids_{};
   OnInputEvent on_input_event_{};
 
@@ -86,7 +91,6 @@ private:
   bool is_joypad_alive_ = false;
   Joystick main_joystick_{};
   GameCtrl main_game_ctrl_{};
-  std::vector<bool> joypad_input_to_state_{};
 
   bool is_fake_joypad_ = false;
   bool is_fake_joypad_game_ctrl_ = false;
@@ -106,9 +110,8 @@ private:
   void handle_joypad_axis_event(SDL_GameControllerAxis axis,Sint16 value);
   void handle_joypad_event(JoypadInput input,bool state);
   bool emit_fake_joypad_events(const SDL_Event& event);
+  void handle_finger_event(const SDL_TouchFingerEvent& tfinger);
 
-  void update_key_states();
-  void update_joypad_states();
   void reset_joypad_states();
 };
 

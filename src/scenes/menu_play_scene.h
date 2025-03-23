@@ -56,13 +56,14 @@ private:
     {"classic",4},
   };
 
-  static inline const int kUpDownArrowIndent = 2;
-  static inline const int kMaxMapOpts = 10;
+  static constexpr int kUpDownArrowIndent = 2;
+  static constexpr int kNonMapOptCount = 2;
+  static constexpr int kMaxMapOpts = 10;
   // If kMaxMapOpts is even, no exact middle, so bias drawing of selected option towards top half,
   //     since this is easier on the eyes.
-  static inline const int kMapOptsHalf1 = std::max((kMaxMapOpts >> 1) - 1,1);
-  static inline const int kMapOptsHalf2 = kMaxMapOpts >> 1;
-  static inline const int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
+  static constexpr int kMapOptsHalf1 = std::max((kMaxMapOpts >> 1) - 1,1);
+  static constexpr int kMapOptsHalf2 = kMaxMapOpts >> 1;
+  static constexpr int kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
 
   GameContext& ctx_;
   State& state_;

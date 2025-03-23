@@ -25,11 +25,15 @@ MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
 void MenuPlayScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
   switch(action) {
     case InputAction::kSelect:
-      if(map_opts_.size() <= 1) { // Only has the random-map option?
-        ctx_.cybel_engine.show_error("No map to select.");
+      if(map_opt_index_ == 1) {
+        scene_action_ = SceneAction::kGoBack;
       } else {
-        sync_map_opt(); // Justin Case.
-        scene_action_ = SceneAction::kGoToGame;
+        if(map_opts_.size() <= kNonMapOptCount) {
+          ctx_.cybel_engine.show_error("No map to select.");
+        } else {
+          sync_map_opt(); // Justin Case.
+          scene_action_ = SceneAction::kGoToGame;
+        }
       }
       break;
 
@@ -114,11 +118,12 @@ void MenuPlayScene::refresh_maps() {
 }
 
 void MenuPlayScene::glob_maps() {
-  constexpr int max_group_len = 15;
-  constexpr int max_title_len = 25;
+  static constexpr int kMaxTitleLen = 25;
+  static constexpr int kMaxGroupLen = 17;
 
   map_opts_.clear();
-  map_opts_.emplace_back("< Random Map >");
+  map_opts_.emplace_back("< random map >");
+  map_opts_.emplace_back("< back >");
   map_opt_index_ = 0;
 
   ctx_.assets.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
@@ -127,13 +132,13 @@ void MenuPlayScene::glob_maps() {
     opt.group = group;
     opt.file = map_file;
     opt.title = map.title();
-    opt.text = utf8::StrUtil::ljust(utf8::StrUtil::ellipsize(opt.title,max_title_len),max_title_len) +
-               " [" + utf8::StrUtil::ellipsize(opt.group,max_group_len) + ']';
+    opt.text = utf8::StrUtil::ljust(utf8::StrUtil::ellipsize(opt.title,kMaxTitleLen),kMaxTitleLen) +
+               ' ' + utf8::StrUtil::ellipsize(opt.group,kMaxGroupLen);
 
     map_opts_.push_back(opt);
   });
 
-  if(map_opts_.size() <= 1) { // Only has the random-map option?
+  if(map_opts_.size() <= kNonMapOptCount) {
     ctx_.cybel_engine.show_error("No maps were found/loaded in the sub folders of the maps folder [" +
                                  Assets::kMapsSubdir.string() + "].");
     return;
@@ -141,7 +146,7 @@ void MenuPlayScene::glob_maps() {
 
   // Sort by: non-core group, core group, & title.
   std::sort(
-    map_opts_.begin() + 1,map_opts_.end(),
+    map_opts_.begin() + kNonMapOptCount,map_opts_.end(),
     [&](const auto& opt1,const auto& opt2) {
       // Return true if opt1 < opt2.
 
@@ -209,18 +214,9 @@ void MenuPlayScene::sync_map_opt() {
 }
 
 void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
+  if(map_opts_.empty()) { return; }
+
   const auto opts_len = static_cast<int>(map_opts_.size());
-
-  if(opts_len <= 1) { // Only has the random-map option?
-    map_opt_index_ = 0;
-
-    if(force) {
-      state_.map_file.clear();
-      state_.is_rand_map = true;
-    }
-
-    return;
-  }
 
   if(index < 0) {
     index = wrap ? (opts_len - 1) : 0;
@@ -232,9 +228,13 @@ void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
   map_opt_index_ = index;
   state_.is_rand_map = (map_opt_index_ == 0);
 
-  if(state_.is_rand_map) {
-    // opts_len is always >= 2 here (checked at top).
-    state_.map_file = map_opts_.at(Rando::it().rand_int(1,opts_len)).file;
+  if(opts_len <= kNonMapOptCount) {
+    if(force) {
+      state_.map_file.clear();
+      state_.is_rand_map = true;
+    }
+  } else if(state_.is_rand_map) {
+    state_.map_file = map_opts_.at(Rando::it().rand_int(kNonMapOptCount,opts_len)).file;
   } else {
     state_.map_file = map_opts_.at(map_opt_index_).file;
   }

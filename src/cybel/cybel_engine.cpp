@@ -89,10 +89,13 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
 void CybelEngine::init_hints() {
   //SDL_SetHint(SDL_HINT_APP_NAME,title_.c_str());
   SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,title_.c_str());
-  // One of: nearest, linear, best.
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,"nearest");
+
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY,"nearest"); // One of: nearest, linear, best.
   //SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
+
   SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,"1");
+  //SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS,"1");
+  //SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS,"0");
 }
 
 void CybelEngine::init_config(Config& config) {

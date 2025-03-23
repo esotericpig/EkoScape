@@ -50,6 +50,9 @@ EkoScapeGame::EkoScapeGame() {
 
   // TEST: Uncomment to test joypad code.
   //cybel_engine_->input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
+  // TEST: Uncomment to test finger code.
+  //cybel_engine_->input_man().use_mouse_as_finger();
+
   init_input_map();
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {
