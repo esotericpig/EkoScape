@@ -52,6 +52,11 @@ public:
 
   void map_input(int id,const MapInputCallback& callback);
 
+  /**
+   * TEST: Only use for testing purposes.
+   */
+  void use_fake_joypad(bool use_game_ctrl,FakeJoypadInputType input_type);
+
   void begin_input();
   void handle_event(const SDL_Event& event,const OnInputEvent& on_input_event);
   void update_states();
@@ -66,12 +71,13 @@ public:
   const std::vector<bool>& states() const;
 
 private:
-  // About 8,000.
-  static inline const int kJoypadAxisDeadZone = static_cast<int>(std::round(SDL_JOYSTICK_AXIS_MAX * 0.24f));
+  // About 24% of range: SDL_JOYSTICK_AXIS_MAX(32'767) * 0.24f
+  static inline const int kJoypadAxisDeadZone = 8'000;
 
   int max_id_{};
   std::vector<bool> id_to_state_{};
   std::unordered_set<int> processed_ids_{};
+  OnInputEvent on_input_event_{};
 
   std::unordered_map<RawKeyInput,InputIds,RawKeyInput::Hash> raw_key_to_ids_{};
   std::unordered_map<SymKeyInput,InputIds,SymKeyInput::Hash> sym_key_to_ids_{};
@@ -80,22 +86,30 @@ private:
   bool is_joypad_alive_ = false;
   Joystick main_joystick_{};
   GameCtrl main_game_ctrl_{};
+  std::vector<bool> joypad_input_to_state_{};
+
+  bool is_fake_joypad_ = false;
+  bool is_fake_joypad_game_ctrl_ = false;
+  FakeJoypadInputType fake_joypad_input_type_{};
 
   void init_joypad();
   void load_joypads();
 
-  void handle_key_down_event(const SDL_Event& event,const OnInputEvent& on_input_event);
-  bool handle_joystick_event(const SDL_Event& event,const OnInputEvent& on_input_event);
-  bool handle_game_ctrl_event(const SDL_Event& event,const OnInputEvent& on_input_event);
-  void handle_joypad_event(JoypadInput input,const OnInputEvent& on_input_event);
+  void handle_key_down_event(const SDL_KeyboardEvent& key);
+  void handle_joystick_device_event(const SDL_JoyDeviceEvent& jdevice);
+  void handle_joystick_axis_event(const SDL_JoyAxisEvent& jaxis);
+  void handle_joystick_hat_event(const SDL_JoyHatEvent& jhat);
+  void handle_joystick_button_event(const SDL_JoyButtonEvent& jbutton);
+  void handle_game_ctrl_device_event(const SDL_ControllerDeviceEvent& cdevice);
+  void handle_game_ctrl_axis_event(const SDL_ControllerAxisEvent& caxis);
+  void handle_game_ctrl_button_event(const SDL_ControllerButtonEvent& cbutton);
+  void handle_joypad_axis_event(SDL_GameControllerAxis axis,Sint16 value);
+  void handle_joypad_event(JoypadInput input,bool state);
+  bool emit_fake_joypad_events(const SDL_Event& event);
 
   void update_key_states();
   void update_joypad_states();
-
-  JoypadInput check_joystick_axis();
-  JoypadInput check_joystick_button();
-  JoypadInput check_game_ctrl_axis();
-  JoypadInput check_game_ctrl_button();
+  void reset_joypad_states();
 };
 
 } // namespace cybel

@@ -14,15 +14,6 @@ namespace cybel {
 
 class Joystick {
 public:
-  struct State {
-    Sint16 axis = -1;
-    Sint16 axis_value = 0;
-    Sint16 hat_value = -1;
-    Sint16 button = -1;
-  };
-
-  State state{};
-
   explicit Joystick() noexcept = default;
 
   Joystick(const Joystick& other) = delete;

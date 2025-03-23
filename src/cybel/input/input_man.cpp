@@ -12,7 +12,9 @@
 namespace cybel {
 
 InputMan::InputMan(int max_id)
-  : max_id_(max_id),id_to_state_((max_id > 0) ? (max_id + 1) : 25,false) {
+  : max_id_(max_id),
+    id_to_state_((max_id > 0) ? (max_id + 1) : 25,false),
+    joypad_input_to_state_(static_cast<std::size_t>(JoypadInput::kMax),false) {
   init_joypad();
 }
 
@@ -63,6 +65,38 @@ void InputMan::map_input(int id,const MapInputCallback& callback) {
   callback(mapper);
 }
 
+void InputMan::use_fake_joypad(bool use_game_ctrl,FakeJoypadInputType input_type) {
+  const auto id = SDL_JoystickAttachVirtual(
+    use_game_ctrl ? SDL_JOYSTICK_TYPE_GAMECONTROLLER : SDL_JOYSTICK_TYPE_ARCADE_PAD,
+    SDL_CONTROLLER_AXIS_MAX,
+    SDL_CONTROLLER_BUTTON_MAX,
+    1
+  );
+
+  if(id == -1) {
+    std::cerr << "[WARN] Failed to create fake joypad: " << Util::get_sdl_error() << '.' << std::endl;
+    return;
+  }
+
+  is_fake_joypad_ = true;
+  is_fake_joypad_game_ctrl_ = use_game_ctrl;
+  fake_joypad_input_type_ = input_type;
+
+  if(is_fake_joypad_game_ctrl_) {
+    std::cout << "[INFO] Using fake game controller." << std::endl;
+
+    if(fake_joypad_input_type_ == FakeJoypadInputType::kHat) {
+      std::cerr << "[WARN] Fake game controller is set to hat, which won't work." << std::endl;
+    }
+  } else {
+    std::cout << "[INFO] Using fake joystick." << std::endl;
+
+    if(fake_joypad_input_type_ == FakeJoypadInputType::kDpad) {
+      std::cerr << "[WARN] Fake joystick is set to dpad, which won't work." << std::endl;
+    }
+  }
+}
+
 void InputMan::begin_input() {
   // Can't use std::ranges::fill() because std::vector<bool> is a specialized container
   //     that doesn't meet the requirements of Ranges.
@@ -72,153 +106,333 @@ void InputMan::begin_input() {
 }
 
 void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_event) {
+  on_input_event_ = on_input_event;
+
+  if(is_fake_joypad_ && emit_fake_joypad_events(event)) { return; }
+
   switch(event.type) {
     case SDL_KEYDOWN:
-      handle_key_down_event(event,on_input_event);
+      handle_key_down_event(event.key);
       break;
 
-    default:
-      if(is_joypad_alive_) {
-        if(!handle_joystick_event(event,on_input_event)) {
-          handle_game_ctrl_event(event,on_input_event);
-        }
-      }
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:
+      handle_joystick_device_event(event.jdevice);
       break;
+    case SDL_JOYAXISMOTION:
+      handle_joystick_axis_event(event.jaxis);
+      break;
+    case SDL_JOYHATMOTION:
+      handle_joystick_hat_event(event.jhat);
+      break;
+    case SDL_JOYBUTTONDOWN:
+    case SDL_JOYBUTTONUP:
+      handle_joystick_button_event(event.jbutton);
+      break;
+
+    case SDL_CONTROLLERDEVICEADDED:
+    case SDL_CONTROLLERDEVICEREMOVED:
+      handle_game_ctrl_device_event(event.cdevice);
+      break;
+    case SDL_CONTROLLERAXISMOTION:
+      handle_game_ctrl_axis_event(event.caxis);
+      break;
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
+      handle_game_ctrl_button_event(event.cbutton);
+      break;
+
+    default: break;
   }
 }
 
-void InputMan::handle_key_down_event(const SDL_Event& event,const OnInputEvent& on_input_event) {
-  const RawKeyInput raw_key{event.key.keysym.scancode,event.key.keysym.mod};
-  const SymKeyInput sym_key{event.key.keysym.sym,event.key.keysym.mod};
+void InputMan::handle_key_down_event(const SDL_KeyboardEvent& key) {
+  const RawKeyInput raw_key{key.keysym.scancode,key.keysym.mod};
+  const SymKeyInput sym_key{key.keysym.sym,key.keysym.mod};
 
   for(auto id : fetch_ids(raw_key)) {
     // Not inserted? (already processed)
     if(!processed_ids_.insert(id).second) { continue; }
 
-    on_input_event(id);
+    on_input_event_(id);
   }
   for(auto id : fetch_ids(sym_key)) {
     // Not inserted? (already processed)
     if(!processed_ids_.insert(id).second) { continue; }
 
-    on_input_event(id);
+    on_input_event_(id);
   }
 }
 
-bool InputMan::handle_joystick_event(const SDL_Event& event,const OnInputEvent& on_input_event) {
-  switch(event.type) {
-    case SDL_JOYDEVICEADDED:
-      // Game controllers also fire this event.
-      if(!main_game_ctrl_.matches(event.jdevice.which)) {
-        main_joystick_.open(event.jdevice.which);
+void InputMan::handle_joystick_device_event(const SDL_JoyDeviceEvent& jdevice) {
+  if(jdevice.type == SDL_JOYDEVICEADDED) {
+    // Game controllers also emit this event.
+    if(main_game_ctrl_.matches(jdevice.which)) { return; }
 
-        if(main_joystick_) { main_game_ctrl_.close(); }
-      }
-      break;
+    main_joystick_.open(jdevice.which);
 
-    case SDL_JOYDEVICEREMOVED:
-      if(main_joystick_.matches(event.jdevice.which)) {
-        main_joystick_.close();
-        load_joypads(); // Try to find another one.
-      }
-      break;
+    if(main_joystick_) {
+      // NOTE: Don't flush cout, in case a buggy joystick is constantly being added/removed.
+      std::cout << "[INFO] Added joystick: " << jdevice.which << ".\n";
 
-    case SDL_JOYAXISMOTION:
-      if(main_joystick_.matches(event.jaxis.which)) {
-        main_joystick_.state.axis = event.jaxis.axis;
-        main_joystick_.state.axis_value = event.jaxis.value;
+      main_game_ctrl_.close();
+      reset_joypad_states();
+    }
+  } else if(jdevice.type == SDL_JOYDEVICEREMOVED) {
+    if(!main_joystick_.matches(jdevice.which)) { return; }
 
-        handle_joypad_event(check_joystick_axis(),on_input_event);
-      }
-      break;
+    main_joystick_.close();
 
-    case SDL_JOYHATMOTION: {
-      if(main_joystick_.matches(event.jhat.which)) {
-        const auto hat_value = event.jhat.value;
-        main_joystick_.state.hat_value = hat_value;
+    // NOTE: Don't flush cout, in case a buggy joystick is constantly being added/removed.
+    std::cout << "[INFO] Removed joystick: " << jdevice.which << ".\n";
 
-        if(hat_value > 0) {
-          if(hat_value & SDL_HAT_UP) { handle_joypad_event(JoypadInput::kUp,on_input_event); }
-          if(hat_value & SDL_HAT_DOWN) { handle_joypad_event(JoypadInput::kDown,on_input_event); }
-          if(hat_value & SDL_HAT_LEFT) { handle_joypad_event(JoypadInput::kLeft,on_input_event); }
-          if(hat_value & SDL_HAT_RIGHT) { handle_joypad_event(JoypadInput::kRight,on_input_event); }
-        }
-      }
-    } break;
-
-    case SDL_JOYBUTTONDOWN:
-      if(main_joystick_.matches(event.jbutton.which)) {
-        main_joystick_.state.button = event.jbutton.button;
-
-        handle_joypad_event(check_joystick_button(),on_input_event);
-      }
-      break;
-
-    case SDL_JOYBUTTONUP:
-      if(main_joystick_.matches(event.jbutton.which)) {
-        main_joystick_.state.button = -1;
-      }
-      break;
-
-    default: return false;
+    if(!main_game_ctrl_) {
+      reset_joypad_states();
+      load_joypads(); // Try to find another one.
+    }
   }
-
-  return true;
 }
 
-bool InputMan::handle_game_ctrl_event(const SDL_Event& event,const OnInputEvent& on_input_event) {
-  switch(event.type) {
-    case SDL_CONTROLLERDEVICEADDED:
-      main_game_ctrl_.open(event.cdevice.which);
+void InputMan::handle_joystick_axis_event(const SDL_JoyAxisEvent& jaxis) {
+  if(!main_joystick_.matches(jaxis.which)) { return; }
 
-      if(main_game_ctrl_) { main_joystick_.close(); }
-      break;
+  switch(jaxis.axis) {
+    // X-axis.
+    case 0: return handle_joypad_axis_event(SDL_CONTROLLER_AXIS_LEFTX,jaxis.value);
+    // Y-axis.
+    case 1: return handle_joypad_axis_event(SDL_CONTROLLER_AXIS_LEFTY,jaxis.value);
 
-    case SDL_CONTROLLERDEVICEREMOVED:
-      if(main_game_ctrl_.matches(event.cdevice.which)) {
-        main_game_ctrl_.close();
-        load_joypads(); // Try to find another one.
-      }
-      break;
-
-    case SDL_CONTROLLERAXISMOTION:
-      if(main_game_ctrl_.matches(event.caxis.which)) {
-        main_game_ctrl_.state.axis = static_cast<SDL_GameControllerAxis>(event.caxis.axis);
-        main_game_ctrl_.state.axis_value = event.caxis.value;
-
-        handle_joypad_event(check_game_ctrl_axis(),on_input_event);
-      }
-      break;
-
-    case SDL_CONTROLLERBUTTONDOWN:
-      if(main_game_ctrl_.matches(event.cbutton.which)) {
-        main_game_ctrl_.state.button = static_cast<SDL_GameControllerButton>(event.cbutton.button);
-
-        handle_joypad_event(check_game_ctrl_button(),on_input_event);
-      }
-      break;
-
-    case SDL_CONTROLLERBUTTONUP:
-      if(main_game_ctrl_.matches(event.cbutton.which)) {
-        main_game_ctrl_.state.button = SDL_CONTROLLER_BUTTON_INVALID;
-      }
-      break;
-
-    default: return false;
+    default: break;
   }
-
-  return true;
 }
 
-void InputMan::handle_joypad_event(JoypadInput input,const OnInputEvent& on_input_event) {
-  if(input == JoypadInput::kNone) { return; }
+void InputMan::handle_joystick_hat_event(const SDL_JoyHatEvent& jhat) {
+  if(!main_joystick_.matches(jhat.which)) { return; }
+
+  const auto value = jhat.value;
+
+  handle_joypad_event(JoypadInput::kUp,value & SDL_HAT_UP);
+  handle_joypad_event(JoypadInput::kDown,value & SDL_HAT_DOWN);
+  handle_joypad_event(JoypadInput::kLeft,value & SDL_HAT_LEFT);
+  handle_joypad_event(JoypadInput::kRight,value & SDL_HAT_RIGHT);
+}
+
+void InputMan::handle_joystick_button_event(const SDL_JoyButtonEvent& jbutton) {
+  if(!main_joystick_.matches(jbutton.which)) { return; }
+
+  // Should be the same as `jbutton.type == SDL_JOYBUTTONDOWN`.
+  const bool is_down = (jbutton.state == SDL_PRESSED);
+
+  switch(jbutton.button) {
+    case 0: return handle_joypad_event(JoypadInput::kA,is_down);
+    case 1: return handle_joypad_event(JoypadInput::kB,is_down);
+
+    default: break;
+  }
+}
+
+void InputMan::handle_game_ctrl_device_event(const SDL_ControllerDeviceEvent& cdevice) {
+  if(cdevice.type == SDL_CONTROLLERDEVICEADDED) {
+    main_game_ctrl_.open(cdevice.which);
+
+    if(main_game_ctrl_) {
+      // NOTE: Don't flush cout, in case a buggy controller is constantly being added/removed.
+      std::cout << "[INFO] Added game controller: " << cdevice.which << ".\n";
+
+      main_joystick_.close();
+      reset_joypad_states();
+    }
+  } else if(cdevice.type == SDL_CONTROLLERDEVICEREMOVED) {
+    if(!main_game_ctrl_.matches(cdevice.which)) { return; }
+
+    main_game_ctrl_.close();
+
+    // NOTE: Don't flush cout, in case a buggy controller is constantly being added/removed.
+    std::cout << "[INFO] Removed game controller: " << cdevice.which << ".\n";
+
+    if(!main_joystick_) {
+      reset_joypad_states();
+      load_joypads(); // Try to find another one.
+    }
+  }
+}
+
+void InputMan::handle_game_ctrl_axis_event(const SDL_ControllerAxisEvent& caxis) {
+  if(!main_game_ctrl_.matches(caxis.which)) { return; }
+
+  handle_joypad_axis_event(static_cast<SDL_GameControllerAxis>(caxis.axis),caxis.value);
+}
+
+void InputMan::handle_game_ctrl_button_event(const SDL_ControllerButtonEvent& cbutton) {
+  if(!main_game_ctrl_.matches(cbutton.which)) { return; }
+
+  // Should be the same as `cbutton.type == SDL_CONTROLLERBUTTONDOWN`.
+  const bool is_down = (cbutton.state == SDL_PRESSED);
+
+  switch(cbutton.button) {
+    case SDL_CONTROLLER_BUTTON_DPAD_UP: return handle_joypad_event(JoypadInput::kUp,is_down);
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return handle_joypad_event(JoypadInput::kDown,is_down);
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return handle_joypad_event(JoypadInput::kLeft,is_down);
+    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return handle_joypad_event(JoypadInput::kRight,is_down);
+    case SDL_CONTROLLER_BUTTON_A: return handle_joypad_event(JoypadInput::kA,is_down);
+    case SDL_CONTROLLER_BUTTON_B: return handle_joypad_event(JoypadInput::kB,is_down);
+
+    default: break;
+  }
+}
+
+void InputMan::handle_joypad_axis_event(SDL_GameControllerAxis axis,Sint16 value) {
+  const bool is_live_zone = std::abs(value) > kJoypadAxisDeadZone;
+  const bool is_live_neg = is_live_zone && value < 0;
+  const bool is_live_pos = is_live_zone && value > 0;
+
+  switch(axis) {
+    // X-axis.
+    case SDL_CONTROLLER_AXIS_LEFTX:
+    case SDL_CONTROLLER_AXIS_RIGHTX:
+      handle_joypad_event(JoypadInput::kLeft,is_live_neg);
+      handle_joypad_event(JoypadInput::kRight,is_live_pos);
+      break;
+
+    // Y-axis.
+    case SDL_CONTROLLER_AXIS_LEFTY:
+    case SDL_CONTROLLER_AXIS_RIGHTY:
+      handle_joypad_event(JoypadInput::kUp,is_live_neg);
+      handle_joypad_event(JoypadInput::kDown,is_live_pos);
+      break;
+
+    default: break;
+  }
+}
+
+void InputMan::handle_joypad_event(JoypadInput input,bool state) {
+  if(input <= JoypadInput::kNone || input >= JoypadInput::kMax) { return; }
+
+  joypad_input_to_state_[static_cast<std::size_t>(input)] = state;
+
+  if(!state) { return; } // Don't emit event.
 
   for(auto id : fetch_ids(input)) {
     // Not inserted? (already processed)
     if(!processed_ids_.insert(id).second) { continue; }
 
-    on_input_event(id);
+    on_input_event_(id);
   }
+}
+
+bool InputMan::emit_fake_joypad_events(const SDL_Event& event) {
+  if(!(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) { return false; }
+
+  SDL_Joystick* joystick = NULL;
+
+  if(is_fake_joypad_game_ctrl_) {
+    if(main_game_ctrl_) {
+      joystick = SDL_GameControllerGetJoystick(main_game_ctrl_.object());
+    }
+  } else if(main_joystick_) {
+    joystick = main_joystick_.object();
+  }
+
+  if(joystick == NULL) { return false; }
+
+  const bool is_down = (event.type == SDL_KEYDOWN);
+
+  int axis = -1;
+  Sint16 axis_value = is_down ? (kJoypadAxisDeadZone + 1) : 0;
+  const Uint8 old_hat_value = SDL_JoystickGetHat(joystick,0);
+  Uint8 hat_value = 0;
+  int dpad = -1;
+  int button = -1;
+  const Uint8 button_value = is_down ? SDL_PRESSED : SDL_RELEASED;
+
+  switch(event.key.keysym.scancode) {
+    // Up.
+    case SDL_SCANCODE_KP_8:
+      axis = is_fake_joypad_game_ctrl_ ? SDL_CONTROLLER_AXIS_LEFTY : 1;
+      axis_value = -axis_value;
+      hat_value = SDL_HAT_UP;
+      dpad = SDL_CONTROLLER_BUTTON_DPAD_UP;
+      break;
+
+    // Down.
+    case SDL_SCANCODE_KP_2:
+      axis = is_fake_joypad_game_ctrl_ ? SDL_CONTROLLER_AXIS_LEFTY : 1;
+      hat_value = SDL_HAT_DOWN;
+      dpad = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+      break;
+
+    // Left.
+    case SDL_SCANCODE_KP_4:
+      axis = is_fake_joypad_game_ctrl_ ? SDL_CONTROLLER_AXIS_LEFTX : 0;
+      axis_value = -axis_value;
+      hat_value = SDL_HAT_LEFT;
+      dpad = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+      break;
+
+    // Right.
+    case SDL_SCANCODE_KP_6:
+      axis = is_fake_joypad_game_ctrl_ ? SDL_CONTROLLER_AXIS_LEFTX : 0;
+      hat_value = SDL_HAT_RIGHT;
+      dpad = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+      break;
+
+    // Button A.
+    case SDL_SCANCODE_KP_5:
+      dpad = SDL_CONTROLLER_BUTTON_A;
+      button = 0;
+      break;
+
+    // Button B.
+    case SDL_SCANCODE_KP_0:
+      dpad = SDL_CONTROLLER_BUTTON_B;
+      button = 1;
+      break;
+
+    default: break;
+  }
+
+  switch(fake_joypad_input_type_) {
+    case FakeJoypadInputType::kAxis:
+      if(axis != -1) {
+        std::cout << "[INFO] Faking joypad axis event: " << axis << ',' << axis_value << '.' << std::endl;
+        SDL_JoystickSetVirtualAxis(joystick,axis,axis_value);
+        SDL_JoystickUpdate();
+        return true;
+      }
+      break;
+
+    case FakeJoypadInputType::kHat:
+      if(hat_value != 0) {
+        hat_value = is_down ? (old_hat_value | hat_value) : (old_hat_value & ~hat_value);
+
+        std::cout << "[INFO] Faking joypad hat event: " << static_cast<int>(hat_value) << '.' << std::endl;
+        SDL_JoystickSetVirtualHat(joystick,0,hat_value);
+        SDL_JoystickUpdate();
+        return true;
+      }
+      break;
+
+    case FakeJoypadInputType::kDpad:
+      if(dpad != -1) {
+        std::cout << "[INFO] Faking joypad dpad event: " << dpad << ',' << static_cast<int>(button_value)
+                  << '.' << std::endl;
+        SDL_JoystickSetVirtualButton(joystick,dpad,button_value);
+        SDL_JoystickUpdate();
+        return true;
+      }
+      break;
+  }
+
+  // NOTE: Must process dpad before button, else button will eat dpad events.
+  if(button != -1) {
+    std::cout << "[INFO] Faking joypad button event: " << button << ',' << static_cast<int>(button_value)
+              << '.' << std::endl;
+    SDL_JoystickSetVirtualButton(joystick,button,button_value);
+    SDL_JoystickUpdate();
+    return true;
+  }
+
+  return false;
 }
 
 void InputMan::update_states() {
@@ -243,85 +457,17 @@ void InputMan::update_key_states() {
 }
 
 void InputMan::update_joypad_states() {
-  if(!is_joypad_alive_) { return; }
+  if(!is_joypad_alive_ || !(main_game_ctrl_ || main_joystick_)) { return; }
 
-  if(main_game_ctrl_) {
-    set_state(check_game_ctrl_axis(),true);
-    set_state(check_game_ctrl_button(),true);
-  } else if(main_joystick_) {
-    set_state(check_joystick_axis(),true);
-    set_state(check_joystick_button(),true);
+  constexpr auto max = static_cast<std::size_t>(JoypadInput::kMax);
 
-    const auto hat_value = main_joystick_.state.hat_value;
-
-    if(hat_value > 0) {
-      if(hat_value & SDL_HAT_UP) { set_state(JoypadInput::kUp,true); }
-      if(hat_value & SDL_HAT_DOWN) { set_state(JoypadInput::kDown,true); }
-      if(hat_value & SDL_HAT_LEFT) { set_state(JoypadInput::kLeft,true); }
-      if(hat_value & SDL_HAT_RIGHT) { set_state(JoypadInput::kRight,true); }
-    }
+  for(std::size_t input = static_cast<std::size_t>(JoypadInput::kNone) + 1; input < max; ++input) {
+    set_state(static_cast<JoypadInput>(input),joypad_input_to_state_[input]);
   }
 }
 
-JoypadInput InputMan::check_joystick_axis() {
-  const auto value = main_joystick_.state.axis_value;
-
-  if(std::abs(value) > kJoypadAxisDeadZone) {
-    switch(main_joystick_.state.axis) {
-      // X-axis.
-      case 0: return (value < 0) ? JoypadInput::kLeft : JoypadInput::kRight;
-      // Y-axis.
-      case 1: return (value < 0) ? JoypadInput::kUp : JoypadInput::kDown;
-
-      default: break;
-    }
-  }
-
-  return JoypadInput::kNone;
-}
-
-JoypadInput InputMan::check_joystick_button() {
-  switch(main_joystick_.state.button) {
-    case 0: return JoypadInput::kA;
-    case 1: return JoypadInput::kB;
-
-    default: return JoypadInput::kNone;
-  }
-}
-
-JoypadInput InputMan::check_game_ctrl_axis() {
-  const auto value = main_game_ctrl_.state.axis_value;
-
-  if(std::abs(value) > kJoypadAxisDeadZone) {
-    switch(main_game_ctrl_.state.axis) {
-      // X-axis.
-      case SDL_CONTROLLER_AXIS_LEFTX:
-      case SDL_CONTROLLER_AXIS_RIGHTX:
-        return (value < 0) ? JoypadInput::kLeft : JoypadInput::kRight;
-
-      // Y-axis.
-      case SDL_CONTROLLER_AXIS_LEFTY:
-      case SDL_CONTROLLER_AXIS_RIGHTY:
-        return (value < 0) ? JoypadInput::kUp : JoypadInput::kDown;
-
-      default: break;
-    }
-  }
-
-  return JoypadInput::kNone;
-}
-
-JoypadInput InputMan::check_game_ctrl_button() {
-  switch(main_game_ctrl_.state.button) {
-    case SDL_CONTROLLER_BUTTON_DPAD_UP: return JoypadInput::kUp;
-    case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return JoypadInput::kDown;
-    case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return JoypadInput::kLeft;
-    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return JoypadInput::kRight;
-    case SDL_CONTROLLER_BUTTON_A: return JoypadInput::kA;
-    case SDL_CONTROLLER_BUTTON_B: return JoypadInput::kB;
-
-    default: return JoypadInput::kNone;
-  }
+void InputMan::reset_joypad_states() {
+  std::fill(joypad_input_to_state_.begin(),joypad_input_to_state_.end(),false);
 }
 
 void InputMan::set_state(const RawKeyInput& key,bool state) {
@@ -343,8 +489,6 @@ void InputMan::set_state(const SymKeyInput& key,bool state) {
 }
 
 void InputMan::set_state(JoypadInput input,bool state) {
-  if(input == JoypadInput::kNone) { return; }
-
   const auto it = joypad_input_to_ids_.find(input);
   if(it == joypad_input_to_ids_.end()) { return; }
 

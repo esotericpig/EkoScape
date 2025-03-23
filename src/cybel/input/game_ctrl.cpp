@@ -22,7 +22,6 @@ void GameCtrl::move_from(GameCtrl&& other) noexcept {
   other.object_ = NULL;
 
   id_ = std::exchange(other.id_,-1);
-  state = std::exchange(other.state,State{});
 }
 
 GameCtrl::~GameCtrl() noexcept {
@@ -57,7 +56,6 @@ void GameCtrl::close() noexcept {
     object_ = NULL;
 
     id_ = -1;
-    state = State{};
   }
 }
 

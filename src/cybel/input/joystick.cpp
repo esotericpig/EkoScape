@@ -22,7 +22,6 @@ void Joystick::move_from(Joystick&& other) noexcept {
   other.object_ = NULL;
 
   id_ = std::exchange(other.id_,-1);
-  state = std::exchange(other.state,State{});
 }
 
 Joystick::~Joystick() noexcept {
@@ -57,7 +56,6 @@ void Joystick::close() noexcept {
     object_ = NULL;
 
     id_ = -1;
-    state = State{};
   }
 }
 

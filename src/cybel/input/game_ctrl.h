@@ -14,14 +14,6 @@ namespace cybel {
 
 class GameCtrl {
 public:
-  struct State {
-    SDL_GameControllerAxis axis = SDL_CONTROLLER_AXIS_INVALID;
-    Sint16 axis_value = 0;
-    SDL_GameControllerButton button = SDL_CONTROLLER_BUTTON_INVALID;
-  };
-
-  State state{};
-
   explicit GameCtrl() noexcept = default;
 
   GameCtrl(const GameCtrl& other) = delete;

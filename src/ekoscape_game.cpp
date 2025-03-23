@@ -22,7 +22,7 @@ EkoScapeGame::EkoScapeGame() {
   CybelEngine::Config config{
     .title = kTitle,
     .scale_factor = 0.8333f, // Arrival?
-    // .size = Size2i{740,500}, // For GIFs/screenshots.
+    //.size = Size2i{740,500}, // For GIFs/screenshots.
     .fps = 60,
     .vsync = true,
     .max_input_id = InputAction::kMaxId,
@@ -47,6 +47,9 @@ EkoScapeGame::EkoScapeGame() {
   ctx_ = std::make_unique<GameContext>(*cybel_engine_,*assets_);
 
   cybel_engine_->set_icon(assets_->icon_img());
+
+  // TEST: Uncomment to test joypad code.
+  //cybel_engine_->input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
   init_input_map();
 
   if(!scene_man_->push_scene(SceneAction::kGoToMenu)) {

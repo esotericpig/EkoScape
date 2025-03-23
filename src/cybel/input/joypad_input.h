@@ -12,8 +12,8 @@
 
 namespace cybel {
 
-enum class JoypadInput {
-  kNone,
+enum class JoypadInput : std::uint8_t {
+  kNone = 0,
 
   kUp,
   kDown,
@@ -22,6 +22,14 @@ enum class JoypadInput {
 
   kA,
   kB,
+
+  kMax
+};
+
+enum class FakeJoypadInputType {
+  kAxis, // Joystick & Game controller.
+  kHat,  // Joystick only.
+  kDpad, // Game controller only.
 };
 
 } // namespace cybel
