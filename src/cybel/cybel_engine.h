@@ -94,6 +94,9 @@ public:
   CybelEngine& operator=(const CybelEngine& other) = delete;
   CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
+  void on_context_lost();
+  void restore_context();
+
   void run_loop();
   bool run_frame();
   void request_stop();
@@ -133,6 +136,7 @@ private:
   void handle_input_event(int id);
 
   std::string title_{};
+  bool is_vsync_ = false;
 
   std::unique_ptr<Renderer> renderer_{};
   Scene& main_scene_;
@@ -141,6 +145,7 @@ private:
   InputMan::OnInputEvent on_input_event_ = [&](int id) { handle_input_event(id); };
 
   bool is_running_ = false;
+  bool has_context_ = true;
   Timer frame_timer_{};
   int target_fps_ = 0;
   Duration target_dpf_{};
@@ -151,6 +156,7 @@ private:
   void init_hints();
   void init_config(Config& config);
   void init_gui(const Config& config);
+  void init_context();
   void check_versions();
   void init_scene(Scene& scene);
   void init_run();

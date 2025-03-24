@@ -76,9 +76,6 @@ void run_ems_frame() {
   }
 }
 
-// Decided not to use this for now because it's too much work to restore the game state after GL context
-// restored. It's better to just reload the entire page.
-//
 // To simulate GL context lost & restored in JS:
 //   let gle = Module.canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
 //   gle.loseContext();
@@ -88,13 +85,30 @@ void run_ems_frame() {
 // - https://www.khronos.org/webgl/wiki/HandlingContextLost
 // - https://emscripten.org/docs/api_reference/html5.h.html#id93
 bool on_ems_gl_context_changed(int event_type,const void* /*reserved*/,void* /*user_data*/) {
+  using namespace ekoscape;
+
   switch(event_type) {
     case EMSCRIPTEN_EVENT_WEBGLCONTEXTLOST:
       std::cerr << "[WARN] WebGL context lost." << std::endl;
+      if(eko_game) { eko_game->on_context_lost(); }
       break;
 
     case EMSCRIPTEN_EVENT_WEBGLCONTEXTRESTORED:
-      // std::cout << "[INFO] WebGL context restored. Attempting to re-store the game." << std::endl;
+      if(eko_game) {
+        std::cout << "[INFO] WebGL context restored. Attempting to restore the game." << std::endl;
+        EM_ASM( Module.setStatus("<br>WebGL context restored. Attempting to restore the game...<br><br>"); );
+
+        try {
+          eko_game->restore_context();
+          EM_ASM( Module.setStatus(""); );
+        } catch(const CybelError& e) {
+          eko_game->show_error(e.what());
+          eko_game = nullptr;
+          emscripten_cancel_main_loop();
+        }
+      } else {
+        std::cerr << "[WARN] WebGL context restored, but the game was destroyed." << std::endl;
+      }
       break;
   }
 

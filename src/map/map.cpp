@@ -290,7 +290,9 @@ Map& Map::shrink_grids_to_fit() {
   return *this;
 }
 
-Map& Map::add_to_bridge() { return *this; }
+void Map::add_to_bridge() {}
+
+void Map::on_context_restored() {}
 
 bool Map::move_thing(const Pos3i& from_pos,const Pos3i& to_pos) {
   Space* from_space = mutable_space(from_pos);

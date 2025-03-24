@@ -20,6 +20,8 @@ class RendererGl : public Renderer {
 public:
   explicit RendererGl(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
+  void on_context_restored() override;
+
   Renderer& begin_2d_scene() override;
   Renderer& begin_3d_scene() override;
 
@@ -41,6 +43,9 @@ public:
   void delete_quad_buffers(GLuint id,int count) override;
   void compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) override;
   void draw_quad_buffer(GLuint id,int index) override;
+
+private:
+  void init();
 };
 
 } // namespace cybel

@@ -86,4 +86,6 @@ Scene& SceneMan::curr_scene() const { return *curr_scene_bag_.scene; }
 
 int SceneMan::curr_scene_type() const { return curr_scene_bag_.type; }
 
+std::vector<SceneBag>& SceneMan::prev_scene_bags() { return prev_scene_bags_; }
+
 } // namespace cybel

@@ -32,6 +32,11 @@ public:
   Texture& operator=(const Texture& other) = delete;
   Texture& operator=(Texture&& other) noexcept;
 
+  /**
+   * For WebGL context lost/restored so that it won't try to delete the now invalid OpenGL ID.
+   */
+  void zombify();
+
   GLuint gl_id() const;
   const Size2i& size() const;
 

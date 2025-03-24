@@ -139,7 +139,16 @@ if(EMSCRIPTEN)
       COMMAND "${CMAKE_COMMAND}" -E copy
               "$<TARGET_FILE:${BIN_NAME}>"
               "$<TARGET_FILE_DIR:${BIN_NAME}>/index.html"
-      COMMENT "Copying target file to `index.html`."
+      COMMENT "Copying target file as `index.html`."
+      VERBATIM
+      USES_TERMINAL
+  )
+  add_custom_command(TARGET "${BIN_NAME}"
+      POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy
+              "${ASSETS_DIR}/icons/${PROJECT_NAME}.ico"
+              "$<TARGET_FILE_DIR:${BIN_NAME}>/favicon.ico"
+      COMMENT "Copying favicon to target dir."
       VERBATIM
       USES_TERMINAL
   )
@@ -151,10 +160,14 @@ if(EMSCRIPTEN)
 #      -sSTRICT=1
 #      -sSUPPORT_LONGJMP=0
 
+      # Uncomment to not minify JS.
+#      -g2
+#      --minify 0
+
       # Code optimization.
       # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
       # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
-      # - NOTE: These increase compile/link time a lot. If not desired, comment out.
+      # - NOTE: There are optimizations that can increase compile/link time. If not desired, comment out.
       -flto
       -fno-rtti
 
@@ -199,12 +212,6 @@ if(EMSCRIPTEN)
       -sMIN_WEBGL_VERSION=2
       -sMAX_WEBGL_VERSION=2
 #      -sFULL_ES3=1
-
-      # Code optimization.
-      # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
-      # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
-      # - NOTE: These increase link time a lot. If not desired, comment out.
-      --closure 1
 
       # Using `--preload-file` (instead of `--embed-file`) because it produces a separate `.data` file,
       #   which means if the the game is updated but not the assets, the user won't have to re-download

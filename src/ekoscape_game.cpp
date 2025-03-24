@@ -211,19 +211,22 @@ void EkoScapeGame::pop_scene() {
   if(!scene_man_->pop_scene()) {
     #if defined(__EMSCRIPTEN__)
       std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
-
-      EM_ASM(
-        window.history.back();
-      );
+      EM_ASM( window.history.back(); );
     #else
       std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
     #endif
   }
 }
 
+void EkoScapeGame::on_context_lost() { cybel_engine_->on_context_lost(); }
+
+void EkoScapeGame::restore_context() { cybel_engine_->restore_context(); }
+
 void EkoScapeGame::run_loop() { cybel_engine_->run_loop(); }
 
 bool EkoScapeGame::run_frame() { return cybel_engine_->run_frame(); }
+
+void EkoScapeGame::on_context_restored() { assets_->on_context_restored(); }
 
 void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
   switch(action) {

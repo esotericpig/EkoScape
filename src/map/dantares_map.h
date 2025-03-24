@@ -39,7 +39,8 @@ public:
   explicit DantaresMap(Dantares2& dantares,const TexturesSetter& set_texs);
 
   Map& clear_grids() override;
-  Map& add_to_bridge() override;
+  void add_to_bridge() override;
+  void on_context_restored() override;
 
   bool move_player(const Pos3i& pos) override;
   bool sync_player_pos() override;

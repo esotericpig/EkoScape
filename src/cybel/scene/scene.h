@@ -38,6 +38,11 @@ public:
   virtual void resize_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
 
   /**
+   * For WebGL context restored.
+   */
+  virtual void on_context_restored() {}
+
+  /**
    * Called when this scene is no longer the current scene (scene changed).
    * Should not delete objects in here (i.e., not a destructor).
    */

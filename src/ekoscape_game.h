@@ -32,9 +32,13 @@ public:
 
   explicit EkoScapeGame();
 
+  void on_context_lost();
+  void restore_context();
+
   void run_loop();
   bool run_frame();
 
+  void on_context_restored() override;
   void on_input_event(int action,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;

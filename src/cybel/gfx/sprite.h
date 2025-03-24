@@ -29,6 +29,8 @@ public:
 
   virtual ~Sprite() noexcept = default;
 
+  void zombify();
+
   const Texture& tex() const;
   const Pos4f& src() const;
   const Size2i& size() const;

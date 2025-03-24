@@ -41,6 +41,7 @@ public:
   explicit GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file);
 
   void init_scene(const ViewDimens& dimens) override;
+  void on_context_restored() override;
   void on_scene_exit() override;
   void on_input_event(int action,const ViewDimens& dimens) override;
   void handle_input_states(const std::vector<bool>& states,const ViewDimens& dimens) override;

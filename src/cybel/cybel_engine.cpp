@@ -58,7 +58,7 @@ Size2i CybelEngine::calc_scaled_view(const Size2i& view,float scale_factor,const
 }
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
-  : title_(config.title),main_scene_(main_scene) {
+  : title_(config.title),is_vsync_(config.vsync),main_scene_(main_scene) {
   init_hints();
 
   // Don't use SDL_INIT_AUDIO here, since audio is optional.
@@ -71,6 +71,7 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
 
   init_config(config);
   init_gui(config);
+  init_context();
   check_versions();
 
   #if defined(CYBEL_RENDERER_GLES)
@@ -124,7 +125,7 @@ void CybelEngine::init_config(Config& config) {
   target_fps_ = (config.fps >= 0) ? config.fps : kFallbackFps;
 
   if(target_fps_ > 0) { // Avoid divide by 0.
-    // Convert from FPS to Duration (milliseconds) Per Frame.
+    // Convert from FPS to Duration (millis) Per Frame.
     target_dpf_.set_from_millis(std::round(1000.0 / static_cast<double>(target_fps_)));
   }
 }
@@ -169,12 +170,16 @@ void CybelEngine::init_gui(const Config& config) {
   // The SDL_WINDOW_RESIZABLE flag in SDL_CreateWindow() increases the size for some reason
   //     (even w/o SDL_WINDOW_ALLOW_HIGHDPI), but this explicit call doesn't.
   SDL_SetWindowResizable(res_.window,SDL_TRUE);
+}
 
+void CybelEngine::init_context() {
   res_.context = SDL_GL_CreateContext(res_.window);
 
   if(res_.context == NULL) {
     throw CybelError{"Failed to create OpenGL context: ",Util::get_sdl_error(),'.'};
   }
+
+  has_context_ = true;
 
   const GLenum error = glewInit();
 
@@ -182,7 +187,8 @@ void CybelEngine::init_gui(const Config& config) {
     throw CybelError{"Failed to init OpenGL GLEW [",error,"]: ",Util::get_glew_error(error),'.'};
   }
 
-  set_vsync(config.vsync);
+  set_vsync(is_vsync_);
+  Util::clear_gl_errors(); // Mainly for WebGL context restored.
 }
 
 void CybelEngine::check_versions() {
@@ -230,10 +236,41 @@ void CybelEngine::init_run() {
   sync_size(true);
 }
 
+void CybelEngine::on_context_lost() {
+  has_context_ = false;
+  main_scene_.on_scene_exit();
+  scene_man_->curr_scene().on_scene_exit();
+}
+
+void CybelEngine::restore_context() {
+  init_context();
+  renderer_->on_context_restored();
+
+  // NOTE: Must call main scene first so that it can reload textures, etc.
+  main_scene_.on_context_restored();
+  scene_man_->curr_scene().on_context_restored();
+
+  for(auto& bag : scene_man_->prev_scene_bags()) {
+    if(bag.scene) { bag.scene->on_context_restored(); }
+  }
+
+  main_scene_.init_scene(renderer_->dimens());
+  scene_man_->curr_scene().init_scene(renderer_->dimens());
+  sync_size(true); // Call scenes' resize_scene().
+}
+
 void CybelEngine::run_loop() { while(run_frame()) {} }
 
 bool CybelEngine::run_frame() {
   if(!is_running_) { return false; }
+
+  if(!has_context_) {
+    // Don't hog CPU while waiting for WebGL context to be restored.
+    // - NOTE: Must use at least 30 FPS to avoid `[Violation] '...' handler took <N>ms`.
+    SDL_Delay(33);
+    start_frame_timer();
+    return true;
+  }
 
   // NOTE: For the Web, we must call stop_frame_timer() here and not at the end of this function.
   //       I'm not sure of the exact cause, but could be because of double/Uint32 [Duration/SDL_Delay()],
@@ -407,6 +444,8 @@ void CybelEngine::set_vsync(bool enable) {
     SDL_SetHint(SDL_HINT_RENDER_VSYNC,"0");
     SDL_GL_SetSwapInterval(0);
   }
+
+  is_vsync_ = (SDL_GL_GetSwapInterval() != 0);
 }
 
 const std::string& CybelEngine::title() const { return title_; }
@@ -419,7 +458,7 @@ bool CybelEngine::is_fullscreen() const {
 
 bool CybelEngine::is_cursor_visible() const { return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE; }
 
-bool CybelEngine::is_vsync() const { return SDL_GL_GetSwapInterval() != 0; }
+bool CybelEngine::is_vsync() const { return is_vsync_; }
 
 Renderer& CybelEngine::renderer() const { return *renderer_; }
 

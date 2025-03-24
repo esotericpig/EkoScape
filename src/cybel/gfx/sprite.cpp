@@ -62,6 +62,8 @@ Sprite::Sprite(std::shared_ptr<Texture> tex,const Pos2i& offset,const Size2i& si
   src_ = build_src(*tex_,offset,size_,padding);
 }
 
+void Sprite::zombify() { tex_->zombify(); }
+
 const Texture& Sprite::tex() const { return *tex_; }
 
 const Pos4f& Sprite::src() const { return src_; }

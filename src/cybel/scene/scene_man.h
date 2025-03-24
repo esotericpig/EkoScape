@@ -38,6 +38,7 @@ public:
 
   Scene& curr_scene() const;
   int curr_scene_type() const;
+  std::vector<SceneBag>& prev_scene_bags();
 
 private:
   SceneBuilder build_scene_{};

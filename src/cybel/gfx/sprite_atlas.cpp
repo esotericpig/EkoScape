@@ -84,6 +84,8 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
   }
 }
 
+void SpriteAtlas::zombify() { tex_->zombify(); }
+
 const Texture& SpriteAtlas::tex() const { return *tex_; }
 
 const Pos4f* SpriteAtlas::src(int index) const {

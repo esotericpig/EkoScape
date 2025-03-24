@@ -81,6 +81,37 @@ Assets::Assets(std::string_view tex_style,bool has_audio_player,bool make_weird)
   reload_music();
 }
 
+void Assets::on_context_restored() {
+  for(auto& st : styled_texs_bag_) {
+    st.ceiling_tex->zombify();
+    st.cell_tex->zombify();
+    st.dead_space_tex->zombify();
+    st.dead_space_ghost_tex->zombify();
+    st.end_tex->zombify();
+    st.end_wall_tex->zombify();
+    st.floor_tex->zombify();
+    st.fruit_tex->zombify();
+    st.portal_tex->zombify();
+    st.robot_tex->zombify();
+    st.wall_tex->zombify();
+    st.wall_ghost_tex->zombify();
+    st.white_tex->zombify();
+    st.white_ghost_tex->zombify();
+  }
+
+  star1_tex_->zombify();
+  star2_tex_->zombify();
+  logo_sprite_->zombify();
+  keys_sprite_->zombify();
+  dantares_sprite_->zombify();
+  boring_work_sprite_->zombify();
+  goodnight_sprite_->zombify();
+  corngrits_sprite_->zombify();
+  font_atlas_->zombify();
+
+  reload_gfx();
+}
+
 void Assets::reload_gfx() { reload_gfx(is_weird_); }
 
 void Assets::reload_gfx(bool make_weird) { reload_gfx(styled_texs_bag_it_->dirname,make_weird); }

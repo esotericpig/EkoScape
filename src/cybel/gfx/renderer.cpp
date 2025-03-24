@@ -23,10 +23,10 @@ Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& c
     (target_size.h > 0) ? target_size.h : 1
   };
 
-  init_gl();
+  init_context();
 }
 
-void Renderer::init_gl() {
+void Renderer::init_context() {
   SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE,&depth_bits_);
   std::cout << "[INFO] OpenGL depth bits: " << depth_bits_ << '.' << std::endl;
 
@@ -43,6 +43,11 @@ void Renderer::init_gl() {
   if(error != GL_NO_ERROR) {
     throw CybelError{"Failed to init OpenGL [",error,"]: ",Util::get_gl_error(error),'.'};
   }
+}
+
+void Renderer::on_context_restored() {
+  Util::clear_gl_errors();
+  init_context();
 }
 
 void Renderer::resize(const Size2i& size) {

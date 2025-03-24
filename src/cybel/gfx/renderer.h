@@ -159,6 +159,7 @@ public:
   Renderer& operator=(const Renderer& other) = delete;
   Renderer& operator=(Renderer&& other) noexcept = delete;
 
+  virtual void on_context_restored();
   virtual void resize(const Size2i& size);
   void clear_view();
 
@@ -238,7 +239,7 @@ private:
 
   BlendMode curr_blend_mode_ = kDefaultBlendMode;
 
-  void init_gl();
+  void init_context();
 
   Renderer& begin_blend(const BlendMode& mode);
 

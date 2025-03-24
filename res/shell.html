@@ -90,20 +90,6 @@
     console.info("Emscripten version: @EMSCRIPTEN_VERSION@.");
     canvasElement.addEventListener('oncontextmenu',(e) => e.preventDefault());
 
-    // To simulate GL context lost & restored in JS:
-    //   let gle = Module.canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
-    //   gle.loseContext();
-    //   gle.restoreContext();
-    //
-    // See:
-    // - https://www.khronos.org/webgl/wiki/HandlingContextLost
-    // - https://emscripten.org/docs/api_reference/html5.h.html#id93
-    canvasElement.addEventListener('webglcontextlost',(e) => {
-      alert('WebGL context lost. Reloading the page.');
-      e.preventDefault();
-      location.reload();
-    },false);
-
     // NOTE: Must be var; can't be const or let.
     var Module = {
       print(...args) { console.log(...args); },
@@ -155,8 +141,8 @@
       console.error('Unknown error object:',error);
 
       Module.setStatus(
-          '<br>\nAn unknown error occurred. See the JavaScript console for details.<br><br>\n"' +
-          message + '"<br><br>\n'
+          '<br>An unknown error occurred. Please see the JavaScript console for details.<br><br>\n"' +
+          message + '"<br><br>'
       );
       spinnerElement.style.display = 'none';
       Module.setStatus = (text) => {
@@ -168,6 +154,18 @@
       alert('Your browser does not currently support WebGL 2.0 (OpenGL ES 3.0).\n\n' +
             'The game might not function properly.');
     }
+
+    canvasElement.addEventListener('webglcontextlost',(e) => {
+      e.preventDefault();
+
+      // alert('WebGL context lost. Reloading the page.');
+      // location.reload();
+
+      Module.setStatus(
+        '<br>WebGL context lost. Waiting for it to be restored...<br>\n' +
+        'If this error persists, please try a diferent browser.<br><br>'
+      );
+    },false);
 
     // Because both the game and web browsers use F11 as fullscreen, the C++ code doesn't get run to
     //     re-show the cursor after fullscreen, so have to do this hack.

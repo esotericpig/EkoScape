@@ -22,10 +22,13 @@
 
 namespace cybel {
 
+// NOTE: There are inner classes have an init() function that must be called, like a constructor.
+//       This design pattern was chosen for implementing WebGL context restored.
 class RendererGles : public Renderer {
 public:
   explicit RendererGles(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
+  void on_context_restored() override;
   void resize(const Size2i& size) override;
 
   Renderer& begin_2d_scene() override;
@@ -74,7 +77,8 @@ private:
 
   class Program {
   public:
-    explicit Program(GLuint vert_shader,GLuint frag_shader);
+    explicit Program() = default;
+    void init(GLuint vert_shader,GLuint frag_shader);
 
     Program(const Program& other) = delete;
     Program(Program&& other) noexcept = delete;
@@ -93,7 +97,8 @@ private:
 
   class QuadBuffer {
   public:
-    explicit QuadBuffer();
+    explicit QuadBuffer() = default;
+    void init();
 
     QuadBuffer(const QuadBuffer& other) = delete;
     QuadBuffer(QuadBuffer&& other) noexcept;
@@ -142,6 +147,7 @@ private:
   class QuadBufferBag {
   public:
     explicit QuadBufferBag(int count);
+    void init();
 
     QuadBuffer* buffer(int index);
     std::size_t size() const;
@@ -152,7 +158,7 @@ private:
 
   static constexpr auto kIdentityMat = glm::mat4(1.0f);
 
-  std::unique_ptr<Program> prog_{};
+  Program prog_{};
   GLint proj_mat_loc_ = -1;
   GLint model_mat_loc_ = -1;
   GLint vertex_pos_loc_ = -1;
@@ -166,13 +172,14 @@ private:
   glm::mat4 model_mat_ = kIdentityMat;
   std::stack<glm::mat4> model_mats_{};
 
-  std::unique_ptr<QuadBuffer> quad_buffer_{};
+  QuadBuffer quad_buffer_{};
   // `unordered_set` is more efficient, but using `set` as it's better for debugging.
   std::set<GLuint> free_quad_buffer_ids_{};
   std::vector<std::unique_ptr<QuadBufferBag>> quad_buffer_bags_{};
 
   static std::string fetch_info_log(GLuint object,InfoLogType type);
 
+  void init();
   void init_prog();
 
   Renderer& begin_tex(GLuint tex_id);

@@ -40,6 +40,7 @@ public:
 
   explicit Assets(std::string_view tex_style,bool has_audio_player,bool make_weird = false);
 
+  void on_context_restored();
   void reload_gfx();
   void reload_music();
   void make_weird();

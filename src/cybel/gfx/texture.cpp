@@ -172,6 +172,8 @@ Texture& Texture::operator=(Texture&& other) noexcept {
   return *this;
 }
 
+void Texture::zombify() { gl_id_ = 0; }
+
 GLuint Texture::gl_id() const { return gl_id_; }
 
 const Size2i& Texture::size() const { return size_; }

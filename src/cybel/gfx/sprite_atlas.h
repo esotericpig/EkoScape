@@ -51,6 +51,8 @@ public:
 
   virtual ~SpriteAtlas() noexcept = default;
 
+  void zombify();
+
   const Texture& tex() const;
   const Pos4f* src(int index) const;
   const Pos4f* src(const Pos2i& cell) const;

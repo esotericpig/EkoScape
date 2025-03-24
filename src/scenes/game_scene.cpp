@@ -7,6 +7,7 @@
 
 #include "game_scene.h"
 
+#include "cybel/types/cybel_error.h"
 #include "cybel/util/rando.h"
 
 #include "input/input_action.h"
@@ -169,6 +170,15 @@ void GameScene::init_scene(const ViewDimens& /*dimens*/) {
       break;
 
     default: break;
+  }
+}
+
+void GameScene::on_context_restored() {
+  try {
+    map_->on_context_restored();
+  } catch(const CybelError& e) {
+    std::cerr << "[WARN] Error on context restored: " << e.what() << std::endl;
+    scene_action_ = SceneAction::kGoBack;
   }
 }
 

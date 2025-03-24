@@ -16,6 +16,10 @@ namespace cybel {
 
 RendererGl::RendererGl(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)
   : Renderer(size,target_size,clear_color) {
+  init();
+}
+
+void RendererGl::init() {
   glClearDepth(1.0);
 
   glEnable(GL_TEXTURE_2D);
@@ -33,6 +37,11 @@ RendererGl::RendererGl(const Size2i& size,const Size2i& target_size,const Color4
   if(error != GL_NO_ERROR) {
     throw CybelError{"Failed to init OpenGL renderer: ",Util::get_gl_error(error),'.'};
   }
+}
+
+void RendererGl::on_context_restored() {
+  Renderer::on_context_restored();
+  init();
 }
 
 Renderer& RendererGl::begin_2d_scene() {
