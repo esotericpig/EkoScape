@@ -2,10 +2,10 @@
 Pyramid
 Bradley
 
-9 6
+4.5 12
 
 'W'
-900
+1100
 
 xWWWxxxxxxxxxxxxxxxxxxxxxxxxxxxWWWx
 xW0Wwwwwww###############wwwwwwW1Wx

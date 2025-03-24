@@ -2,10 +2,10 @@
 Pac-Man
 Toru Iwatani
 
-9 8
+5.5 11
 
 'w'
-700
+900
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

@@ -2,7 +2,7 @@
 Hidden Treasure
 Bradley
 
-9 6
+4.5 12
 
 ' '
 2400
