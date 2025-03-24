@@ -26,7 +26,6 @@ Desktop:
 - OpenGL 2.1+
   - Use Mesa if you have a lower version.
 - Linux x86_64 (AppImage)
-  - glibc 2.14+ (Ubuntu 22.04+; Fedora 16+)
   - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
 - macOS arm64 or x86_64
   - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning when running:

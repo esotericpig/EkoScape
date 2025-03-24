@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    # This corresponds to oldest glibc supported.
+    # Try to use the lowest version available.
     # - https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#choosing-github-hosted-runners
     runs-on: ubuntu-22.04
 
@@ -99,12 +99,13 @@ jobs:
       - name: Build AppImage
         run: cmake --build --preset default --config Release --target appimage
 
-      - name: Check min glibc version required (highest version number)
-        run: >
-          objdump -T bin/Release/*
-          | grep -i glibc
-          | grep -oP '[0-9]+\.[0-9.]+'
-          | sort -uV
+      # This is no longer needed, since AppImage now replaced glibc with musl libc and is statically linked.
+#      - name: Check min glibc version required (highest version number)
+#        run: >
+#          objdump -T build/AppImage/*.AppImage
+#          | grep -i glibc
+#          | grep -oP '[0-9]+\.[0-9.]+'
+#          | sort -uV
 
       - name: Package up
         run: cmake --build --preset default --config Release --target package

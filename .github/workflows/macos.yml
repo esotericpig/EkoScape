@@ -144,7 +144,7 @@ jobs:
       - name: Verify bundle deps
         run: otool -L '${{ env.GHW_BUNDLE_DIR }}/Contents/MacOS/${{ env.GHW_BIN_NAME }}'
 
-      - name: Test opening bundle
+      - name: Test running bundle
         run: |
           set -x
           xattr -r -d com.apple.quarantine '${{ env.GHW_BUNDLE_DIR }}'
