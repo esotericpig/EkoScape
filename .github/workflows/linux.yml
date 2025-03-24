@@ -99,9 +99,9 @@ jobs:
       - name: Build AppImage
         run: cmake --build --preset default --config Release --target appimage
 
-      - name: Check min glibc version required (i.e., highest version number)
+      - name: Check min glibc version required (highest version number)
         run: >
-          objdump -T build/AppImage/*.AppImage
+          objdump -T bin/Release/*
           | grep -i glibc
           | grep -oP '[0-9]+\.[0-9.]+'
           | sort -uV
