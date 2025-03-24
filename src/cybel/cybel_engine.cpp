@@ -179,8 +179,6 @@ void CybelEngine::init_context() {
     throw CybelError{"Failed to create OpenGL context: ",Util::get_sdl_error(),'.'};
   }
 
-  has_context_ = true;
-
   const GLenum error = glewInit();
 
   if(error != GLEW_OK) {
@@ -237,7 +235,8 @@ void CybelEngine::init_run() {
 }
 
 void CybelEngine::on_context_lost() {
-  has_context_ = false;
+  res_.context = NULL;
+
   main_scene_.on_scene_exit();
   scene_man_->curr_scene().on_scene_exit();
 }
@@ -256,7 +255,7 @@ void CybelEngine::restore_context() {
 
   main_scene_.init_scene(renderer_->dimens());
   scene_man_->curr_scene().init_scene(renderer_->dimens());
-  sync_size(true); // Call scenes' resize_scene().
+  sync_size(true); // Call renderer's resize() & scenes' resize_scene().
 }
 
 void CybelEngine::run_loop() { while(run_frame()) {} }
@@ -264,7 +263,10 @@ void CybelEngine::run_loop() { while(run_frame()) {} }
 bool CybelEngine::run_frame() {
   if(!is_running_) { return false; }
 
-  if(!has_context_) {
+  if(res_.context == NULL) {
+    handle_non_context_events_only();
+    if(!is_running_) { return false; }
+
     // Don't hog CPU while waiting for WebGL context to be restored.
     // - NOTE: Must use at least 30 FPS to avoid `[Violation] '...' handler took <N>ms`.
     SDL_Delay(33);
@@ -367,6 +369,19 @@ void CybelEngine::handle_events() {
 
   if(!is_running_) { return; }
   if(should_resize) { sync_size(false); }
+}
+
+void CybelEngine::handle_non_context_events_only() {
+  SDL_Event event{};
+
+  while(SDL_PollEvent(&event) != 0) {
+    switch(event.type) {
+      case SDL_QUIT:
+        std::cout << "[EVENT] Received Quit event." << std::endl;
+        request_stop();
+        return;
+    }
+  }
 }
 
 void CybelEngine::handle_input_event(int id) {

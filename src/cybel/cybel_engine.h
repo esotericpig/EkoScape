@@ -145,7 +145,6 @@ private:
   InputMan::OnInputEvent on_input_event_ = [&](int id) { handle_input_event(id); };
 
   bool is_running_ = false;
-  bool has_context_ = true;
   Timer frame_timer_{};
   int target_fps_ = 0;
   Duration target_dpf_{};
@@ -164,6 +163,7 @@ private:
   void start_frame_timer();
   void stop_frame_timer();
   void handle_events();
+  void handle_non_context_events_only();
   void handle_input_states();
 
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);

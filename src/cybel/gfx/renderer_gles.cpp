@@ -112,10 +112,9 @@ void RendererGles::init_prog() {
       //out_color = mix(color,texture(tex_2d,frag_tex_coord) * color,float(use_tex));
     }
   )"};
+  GLenum error = GL_NO_ERROR;
 
   prog_.init(vert_shader.object(),frag_shader.object());
-
-  GLenum error = GL_NO_ERROR;
 
   glUseProgram(prog_.object());
   error = glGetError();

@@ -76,14 +76,17 @@ void run_ems_frame() {
   }
 }
 
-// To simulate GL context lost & restored in JS:
-//   let gle = Module.canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
-//   gle.loseContext();
-//   gle.restoreContext();
-//
-// See:
-// - https://www.khronos.org/webgl/wiki/HandlingContextLost
-// - https://emscripten.org/docs/api_reference/html5.h.html#id93
+/**
+ * To simulate GL context lost & restored in JS:
+ *   // On itch.io, select `index.html` or inspect the canvas first.
+ *   let gle = Module.canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
+ *   gle.loseContext();
+ *   gle.restoreContext();
+ *
+ * See:
+ * - https://www.khronos.org/webgl/wiki/HandlingContextLost
+ * - https://emscripten.org/docs/api_reference/html5.h.html#id93
+ */
 bool on_ems_gl_context_changed(int event_type,const void* /*reserved*/,void* /*user_data*/) {
   using namespace ekoscape;
 

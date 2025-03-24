@@ -123,7 +123,7 @@ void MenuPlayScene::glob_maps() {
 
   map_opts_.clear();
   map_opts_.emplace_back("< random map >");
-  map_opts_.emplace_back("< back >");
+  map_opts_.emplace_back("< go back >");
   map_opt_index_ = 0;
 
   ctx_.assets.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {

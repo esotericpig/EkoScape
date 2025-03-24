@@ -22,7 +22,7 @@
 
 namespace cybel {
 
-// NOTE: There are inner classes have an init() function that must be called, like a constructor.
+// NOTE: There are inner classes that have an init() function that must be called, like a constructor.
 //       This design pattern was chosen for implementing WebGL context restored.
 class RendererGles : public Renderer {
 public:

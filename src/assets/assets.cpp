@@ -109,6 +109,7 @@ void Assets::on_context_restored() {
   corngrits_sprite_->zombify();
   font_atlas_->zombify();
 
+  Util::clear_gl_errors();
   reload_gfx();
 }
 
