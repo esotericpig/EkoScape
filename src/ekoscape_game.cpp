@@ -48,9 +48,9 @@ EkoScapeGame::EkoScapeGame() {
 
   cybel_engine_->set_icon(assets_->icon_img());
 
-  // TEST: Uncomment to test joypad code.
+  // TEST: Uncomment to test joypad input.
   //cybel_engine_->input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
-  // TEST: Uncomment to test finger code.
+  // TEST: Uncomment to test touch input.
   //cybel_engine_->input_man().use_mouse_as_finger();
 
   init_input_map();

@@ -14,7 +14,8 @@ namespace cybel {
 InputMan::InputMan(int max_id)
   : max_id_(max_id),
     id_to_state_((max_id > 0) ? (max_id + 1) : 25,false),
-    id_to_event_state_(id_to_state_.size(),false) {
+    id_to_event_state_(id_to_state_.size(),false),
+    touch_input_to_state_(static_cast<std::size_t>(JoypadInput::kMax),false) {
   init_joypad();
 }
 
@@ -146,6 +147,7 @@ void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_
 
     case SDL_FINGERDOWN:
     case SDL_FINGERUP:
+    //case SDL_FINGERMOTION: // Can't currently handle correctly.
       handle_finger_event(event.tfinger);
       break;
 
@@ -445,32 +447,61 @@ void InputMan::handle_finger_event(const SDL_TouchFingerEvent& tfinger) {
   static constexpr float kCenterMax = 1.0f - kCenterMin;
 
   const bool is_pressed = (tfinger.type == SDL_FINGERDOWN || tfinger.type == SDL_FINGERMOTION);
-  std::int8_t rel_x = 3; // Not pressed.
-  std::int8_t rel_y = 3;
+  const float x = tfinger.x;
+  const float y = tfinger.y;
 
-  if(is_pressed) {
-    if(tfinger.x < kCenterMin) {
-      rel_x = -1;
-    } else if(tfinger.x > kCenterMax) {
-      rel_x = 1;
+  // Center?
+  if((x >= kCenterMin && x <= kCenterMax) &&
+     (y >= kCenterMin && y <= kCenterMax)) {
+    handle_touch_event(JoypadInput::kA,is_pressed);
+  } else if(x < kCenterMin) {
+    // If holding left & right, emit down.
+    if(is_pressed && touch_input_to_state_[static_cast<std::size_t>(JoypadInput::kRight)]) {
+      handle_touch_event(JoypadInput::kLeft,false);
+      handle_touch_event(JoypadInput::kRight,false);
+      handle_touch_event(JoypadInput::kDown,is_pressed);
     } else {
-      rel_x = 0;
+      handle_touch_event(JoypadInput::kLeft,is_pressed);
+      handle_touch_event(JoypadInput::kDown,false);
     }
-
-    if(tfinger.y < kCenterMin) {
-      rel_y = -1;
-    } else if(tfinger.y > kCenterMax) {
-      rel_y = 1;
+  } else if(x > kCenterMax) {
+    // If holding left & right, emit down.
+    if(is_pressed && touch_input_to_state_[static_cast<std::size_t>(JoypadInput::kLeft)]) {
+      handle_touch_event(JoypadInput::kLeft,false);
+      handle_touch_event(JoypadInput::kRight,false);
+      handle_touch_event(JoypadInput::kDown,is_pressed);
     } else {
-      rel_y = 0;
+      handle_touch_event(JoypadInput::kRight,is_pressed);
+      handle_touch_event(JoypadInput::kDown,false);
     }
+  } else if(y < kCenterMin) {
+    handle_touch_event(JoypadInput::kUp,is_pressed);
+  } else if(y > kCenterMax) {
+    handle_touch_event(JoypadInput::kDown,is_pressed);
+  } else {
+    // Shouldn't happen technically.
+    handle_touch_event(JoypadInput::kUp,false);
+    handle_touch_event(JoypadInput::kDown,false);
+    handle_touch_event(JoypadInput::kLeft,false);
+    handle_touch_event(JoypadInput::kRight,false);
+    handle_touch_event(JoypadInput::kA,false);
   }
+}
 
-  handle_joypad_event(JoypadInput::kUp,rel_y == -1);
-  handle_joypad_event(JoypadInput::kDown,rel_y == 1);
-  handle_joypad_event(JoypadInput::kLeft,rel_x == -1);
-  handle_joypad_event(JoypadInput::kRight,rel_x == 1);
-  handle_joypad_event(JoypadInput::kA,rel_x == 0 && rel_y == 0); // Center.
+void InputMan::handle_touch_event(JoypadInput input,bool state) {
+  if(input <= JoypadInput::kNone || input >= JoypadInput::kMax) { return; }
+
+  touch_input_to_state_[static_cast<std::size_t>(input)] = state;
+  set_state(input,state);
+
+  if(!state) { return; } // Don't emit event.
+
+  for(auto id : fetch_ids(input)) {
+    // Not inserted? (already processed)
+    if(!processed_ids_.insert(id).second) { continue; }
+
+    on_input_event_(id);
+  }
 }
 
 void InputMan::update_states() {

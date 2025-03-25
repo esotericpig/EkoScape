@@ -25,7 +25,7 @@ namespace cybel {
 using InputIds = std::unordered_set<int>;
 
 /**
- * TODO: Finger input is not implemented seriously for now, but just for fun,
+ * TODO: Touch (finger) input is not implemented seriously for now, but just for fun,
  *       and it currently relies on the joypad logic.
  */
 class InputMan {
@@ -96,6 +96,8 @@ private:
   bool is_fake_joypad_game_ctrl_ = false;
   FakeJoypadInputType fake_joypad_input_type_{};
 
+  std::vector<bool> touch_input_to_state_{};
+
   void init_joypad();
   void load_joypads();
 
@@ -111,6 +113,7 @@ private:
   void handle_joypad_event(JoypadInput input,bool state);
   bool emit_fake_joypad_events(const SDL_Event& event);
   void handle_finger_event(const SDL_TouchFingerEvent& tfinger);
+  void handle_touch_event(JoypadInput input,bool state);
 
   void reset_joypad_states();
 };
