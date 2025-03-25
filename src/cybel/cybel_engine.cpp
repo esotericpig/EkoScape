@@ -264,14 +264,11 @@ bool CybelEngine::run_frame() {
   if(!is_running_) { return false; }
 
   if(res_.context == NULL) {
+    // NOTE: Don't sleep or call SDL_Delay()/stop_frame_timer(), since SDL_Delay()/sleep is just a while-loop
+    //       in Emscripten, and because requestAnimationFrame() is used, it won't hog the CPU unnecessarily.
     handle_non_context_events_only();
-    if(!is_running_) { return false; }
-
-    // Don't hog CPU while waiting for WebGL context to be restored.
-    // - NOTE: Must use at least 30 FPS to avoid `[Violation] '...' handler took <N>ms`.
-    SDL_Delay(33);
     start_frame_timer();
-    return true;
+    return is_running_;
   }
 
   // NOTE: For the Web, we must call stop_frame_timer() here and not at the end of this function.
