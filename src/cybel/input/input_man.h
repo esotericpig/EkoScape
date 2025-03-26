@@ -116,6 +116,7 @@ private:
   void handle_touch_event(JoypadInput input,bool state);
 
   void reset_joypad_states();
+  void reset_touch_states();
 };
 
 } // namespace cybel

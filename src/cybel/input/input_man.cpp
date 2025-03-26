@@ -147,7 +147,7 @@ void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_
 
     case SDL_FINGERDOWN:
     case SDL_FINGERUP:
-    //case SDL_FINGERMOTION: // Can't currently handle correctly.
+    //case SDL_FINGERMOTION: // TODO: Touch drag is not currently handled.
       handle_finger_event(event.tfinger);
       break;
 
@@ -444,7 +444,7 @@ void InputMan::handle_finger_event(const SDL_TouchFingerEvent& tfinger) {
   static constexpr float kCenterMin = 1.0f / 3.0f;
   static constexpr float kCenterMax = 1.0f - kCenterMin;
 
-  const bool is_pressed = (tfinger.type == SDL_FINGERDOWN || tfinger.type == SDL_FINGERMOTION);
+  const bool is_pressed = (tfinger.type == SDL_FINGERDOWN);
   const float x = tfinger.x;
   const float y = tfinger.y;
 
@@ -476,13 +476,8 @@ void InputMan::handle_finger_event(const SDL_TouchFingerEvent& tfinger) {
     handle_touch_event(JoypadInput::kUp,is_pressed);
   } else if(y > kCenterMax) {
     handle_touch_event(JoypadInput::kDown,is_pressed);
-  } else {
-    // Shouldn't happen technically.
-    handle_touch_event(JoypadInput::kUp,false);
-    handle_touch_event(JoypadInput::kDown,false);
-    handle_touch_event(JoypadInput::kLeft,false);
-    handle_touch_event(JoypadInput::kRight,false);
-    handle_touch_event(JoypadInput::kA,false);
+  } else { // Shouldn't happen technically.
+    reset_touch_states();
   }
 }
 
@@ -528,6 +523,11 @@ void InputMan::reset_joypad_states() {
   for(; input_value < kMaxJoypadInputValue; ++input_value) {
     set_state(static_cast<JoypadInput>(input_value),false);
   }
+}
+
+void InputMan::reset_touch_states() {
+  std::fill(touch_input_to_state_.begin(),touch_input_to_state_.end(),false);
+  reset_joypad_states();
 }
 
 void InputMan::set_state(const RawKeyInput& key,bool state) {
