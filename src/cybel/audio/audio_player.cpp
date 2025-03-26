@@ -19,18 +19,19 @@ AudioPlayer::AudioPlayer(int music_types) {
 
   int result = -1;
 
+  // NOTE: Use a chunk size of 4096 to avoid staticky audio on the Web.
   if(music_types & MIX_INIT_MID) {
     // Since we're playing a MIDI file, use these settings according to the doc:
     // - https://wiki.libsdl.org/SDL2_mixer/FrontPage
     // - For SDL3, use SDL_AUDIO_S8, probably? Not defined in SDL2.
-    result = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,AUDIO_S8,1,2048);
+    result = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,AUDIO_S8,1,4096);
   } else {
     // Defaults:
-    //   MIX_DEFAULT_FREQUENCY(44100) or 48000,
-    //   MIX_DEFAULT_FORMAT(SDL_AUDIO_S16 or AUDIO_S16SYS),
-    //   MIX_DEFAULT_CHANNELS(2),
-    //   2048
-    result = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,MIX_DEFAULT_FORMAT,MIX_DEFAULT_CHANNELS,2048);
+    //   frequency = MIX_DEFAULT_FREQUENCY(44100) or 48000,
+    //   format    = MIX_DEFAULT_FORMAT(AUDIO_S16SYS or SDL_AUDIO_S16),
+    //   channels  = MIX_DEFAULT_CHANNELS(2),
+    //   chunksize = 2048
+    result = Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
   }
 
   if(result != 0) {
