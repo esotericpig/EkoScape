@@ -210,7 +210,9 @@ void GameScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
       break;
   }
 
-  scene_action_ = overlay_->on_input_event(action);
+  if(scene_action_ == SceneAction::kNil) {
+    scene_action_ = overlay_->on_input_event(action);
+  }
 }
 
 void GameScene::handle_input_states(const std::vector<bool>& states,const ViewDimens& /*dimens*/) {
