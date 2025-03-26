@@ -184,7 +184,6 @@ void InputMan::handle_joystick_device_event(const SDL_JoyDeviceEvent& jdevice) {
 
     if(main_joystick_) {
       std::cout << "[INFO] Added joystick: " << jdevice.which << '.' << std::endl;
-
       main_game_ctrl_.close();
       reset_joypad_states();
     }
@@ -192,10 +191,10 @@ void InputMan::handle_joystick_device_event(const SDL_JoyDeviceEvent& jdevice) {
     if(!main_joystick_.matches(jdevice.which)) { return; }
 
     main_joystick_.close();
+    reset_joypad_states();
     std::cout << "[INFO] Removed joystick: " << jdevice.which << '.' << std::endl;
 
     if(!main_game_ctrl_) {
-      reset_joypad_states();
       load_joypads(); // Try to find another one.
     }
   }
@@ -247,7 +246,6 @@ void InputMan::handle_game_ctrl_device_event(const SDL_ControllerDeviceEvent& cd
 
     if(main_game_ctrl_) {
       std::cout << "[INFO] Added game controller: " << cdevice.which << '.' << std::endl;
-
       main_joystick_.close();
       reset_joypad_states();
     }
@@ -255,10 +253,10 @@ void InputMan::handle_game_ctrl_device_event(const SDL_ControllerDeviceEvent& cd
     if(!main_game_ctrl_.matches(cdevice.which)) { return; }
 
     main_game_ctrl_.close();
+    reset_joypad_states();
     std::cout << "[INFO] Removed game controller: " << cdevice.which << '.' << std::endl;
 
     if(!main_joystick_) {
-      reset_joypad_states();
       load_joypads(); // Try to find another one.
     }
   }
