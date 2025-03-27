@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,user-scalable=yes,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,viewport-fit=cover">
   <title>@PROJECT_NAME@ v@PROJECT_VERSION@</title>
   <style>
     body {
@@ -66,6 +66,28 @@
       to { transform: rotate(360deg); }
     }
   </style>
+  <script>
+    function try_unlock_orientation() {
+      if(screen.orientation && screen.orientation.unlock) {
+        try {
+          screen.orientation.unlock();
+        } catch(e) {
+          console.warn('Failed to unlock orientation:',e);
+        }
+      }
+    }
+
+    // Let mobile/tablet users decide the orientation.
+    // NOTE: Fixes itch.io bug.
+    if(screen.orientation && screen.orientation.unlock) {
+      try_unlock_orientation();
+
+      // For older browsers.
+      window.addEventListener('orientationchange',() => { try_unlock_orientation(); });
+      // For modern browsers.
+      screen.orientation.addEventListener('change',() => { try_unlock_orientation(); });
+    }
+  </script>
 </head>
 <body>
   <figure id="spinner" style="overflow:visible;">
@@ -175,9 +197,9 @@
       if(!document.fullscreenElement) {
         try {
           Module.ccall('SDL_ShowCursor',null,['number'],[1]); // SDL_ENABLE.
-        } catch(err) {
-          console.warn('Failed to re-show cursor after fullscreen: ' + err + '. Using fallback instead.');
-          canvasElement.style.cursor = 'auto'; // Fallback.
+        } catch(e) {
+          console.warn('Failed to re-show cursor after fullscreen (using fallback instead):',e);
+          canvasElement.style.cursor = 'auto'; // Use fallback.
         }
       }
     });
