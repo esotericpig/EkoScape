@@ -843,7 +843,7 @@ bool Dantares2::StepForward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_EAST:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
@@ -854,7 +854,7 @@ bool Dantares2::StepForward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_SOUTH:
             if (CameraY > 0 &&
@@ -865,7 +865,7 @@ bool Dantares2::StepForward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_WEST:
             if (CameraX > 0 &&
@@ -876,7 +876,7 @@ bool Dantares2::StepForward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
     }
 
     return false;
@@ -900,7 +900,7 @@ bool Dantares2::StepBackward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_EAST:
             if (CameraX > 0 &&
@@ -911,7 +911,7 @@ bool Dantares2::StepBackward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_SOUTH:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
@@ -922,7 +922,7 @@ bool Dantares2::StepBackward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_WEST:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
@@ -933,7 +933,7 @@ bool Dantares2::StepBackward(bool Force)
 
                 return true;
             }
-            return false;
+            break;
     }
 
     return false;
@@ -957,7 +957,7 @@ bool Dantares2::StepLeft(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_EAST:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
@@ -968,7 +968,7 @@ bool Dantares2::StepLeft(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_SOUTH:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
@@ -979,7 +979,7 @@ bool Dantares2::StepLeft(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_WEST:
             if (CameraY > 0 &&
@@ -990,7 +990,7 @@ bool Dantares2::StepLeft(bool Force)
 
                 return true;
             }
-            return false;
+            break;
     }
 
     return false;
@@ -1014,7 +1014,7 @@ bool Dantares2::StepRight(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_EAST:
             if (CameraY > 0 &&
@@ -1025,7 +1025,7 @@ bool Dantares2::StepRight(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_SOUTH:
             if (CameraX > 0 &&
@@ -1036,7 +1036,7 @@ bool Dantares2::StepRight(bool Force)
 
                 return true;
             }
-            return false;
+            break;
 
         case DIR_WEST:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
@@ -1047,7 +1047,7 @@ bool Dantares2::StepRight(bool Force)
 
                 return true;
             }
-            return false;
+            break;
     }
 
     return false;
