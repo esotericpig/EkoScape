@@ -22,8 +22,8 @@ MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
   refresh_maps();
 }
 
-void MenuPlayScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
-  switch(action) {
+void MenuPlayScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+  switch(input_id) {
     case InputAction::kSelect:
       if(map_opt_index_ == 1) {
         scene_action_ = SceneAction::kGoBack;

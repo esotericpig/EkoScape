@@ -364,11 +364,11 @@ void CybelEngine::restore_context() {
   renderer_->on_context_restored();
 
   // NOTE: Must call main scene first so that it can reload textures, etc.
-  main_scene_.on_context_restored();
-  scene_man_->curr_scene().on_context_restored();
+  main_scene_.on_scene_context_restored();
+  scene_man_->curr_scene().on_scene_context_restored();
 
   for(auto& bag : scene_man_->prev_scene_bags()) {
-    if(bag.scene) { bag.scene->on_context_restored(); }
+    if(bag.scene) { bag.scene->on_scene_context_restored(); }
   }
 
   main_scene_.init_scene(renderer_->dimens());
@@ -454,16 +454,16 @@ void CybelEngine::handle_non_context_events_only() {
   }
 }
 
-void CybelEngine::handle_input_event(int id) {
-  main_scene_.on_input_event(id,renderer_->dimens());
-  scene_man_->curr_scene().on_input_event(id,renderer_->dimens());
+void CybelEngine::handle_input_event(int input_id) {
+  main_scene_.on_scene_input_event(input_id,renderer_->dimens());
+  scene_man_->curr_scene().on_scene_input_event(input_id,renderer_->dimens());
 }
 
 void CybelEngine::handle_input_states() {
   input_man_->update_states();
 
-  main_scene_.handle_input_states(input_man_->states(),renderer_->dimens());
-  scene_man_->curr_scene().handle_input_states(input_man_->states(),renderer_->dimens());
+  main_scene_.handle_scene_input_states(input_man_->states(),renderer_->dimens());
+  scene_man_->curr_scene().handle_scene_input_states(input_man_->states(),renderer_->dimens());
 }
 
 void CybelEngine::show_error(const std::string& error) const {

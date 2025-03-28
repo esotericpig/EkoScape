@@ -40,7 +40,7 @@ public:
   void fade_to(const Color4f& color);
   void game_over();
 
-  int on_input_event(int action);
+  int on_input_event(int input_id);
 
   void update(const FrameStep& step);
   void update_game_over(const FrameStep& step,const ViewDimens& dimens);

@@ -134,7 +134,7 @@ public:
   double delta_time() const;
 
 private:
-  void handle_input_event(int id);
+  void handle_input_event(int input_id);
 
   std::string title_{};
   bool is_vsync_ = false;

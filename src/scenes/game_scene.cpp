@@ -173,15 +173,6 @@ void GameScene::init_scene(const ViewDimens& /*dimens*/) {
   }
 }
 
-void GameScene::on_context_restored() {
-  try {
-    map_->on_context_restored();
-  } catch(const CybelError& e) {
-    std::cerr << "[WARN] Error on context restored: " << e.what() << std::endl;
-    scene_action_ = SceneAction::kGoBack;
-  }
-}
-
 void GameScene::on_scene_exit() {
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
@@ -196,8 +187,17 @@ void GameScene::on_scene_exit() {
   }
 }
 
-void GameScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
-  switch(action) {
+void GameScene::on_scene_context_restored() {
+  try {
+    map_->on_context_restored();
+  } catch(const CybelError& e) {
+    std::cerr << "[WARN] Error on context restored: " << e.what() << std::endl;
+    scene_action_ = SceneAction::kGoBack;
+  }
+}
+
+void GameScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+  switch(input_id) {
     case InputAction::kToggleMiniMap:
       state_.show_mini_map = !state_.show_mini_map;
       break;
@@ -211,11 +211,11 @@ void GameScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
   }
 
   if(scene_action_ == SceneAction::kNil) {
-    scene_action_ = overlay_->on_input_event(action);
+    scene_action_ = overlay_->on_input_event(input_id);
   }
 }
 
-void GameScene::handle_input_states(const std::vector<bool>& states,const ViewDimens& /*dimens*/) {
+void GameScene::handle_scene_input_states(const std::vector<bool>& states,const ViewDimens& /*dimens*/) {
   // Input states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.

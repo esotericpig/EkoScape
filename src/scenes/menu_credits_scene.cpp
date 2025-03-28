@@ -22,15 +22,15 @@ Color4f MenuCreditsScene::rand_color() {
 MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
   : ctx_(ctx),wtfs_(150,WtfParticle{}) {}
 
-void MenuCreditsScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
-  switch(action) {
+void MenuCreditsScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+  switch(input_id) {
     case InputAction::kSelect:
       scene_action_ = SceneAction::kGoBack;
       break;
   }
 }
 
-void MenuCreditsScene::handle_input_states(const std::vector<bool>& states,const ViewDimens& dimens) {
+void MenuCreditsScene::handle_scene_input_states(const std::vector<bool>& states,const ViewDimens& dimens) {
   // Shhh... Don't Tell.
   if(states[InputAction::kMakeWeird]) {
     ctx_.assets.make_weird();

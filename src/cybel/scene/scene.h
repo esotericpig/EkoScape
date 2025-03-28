@@ -21,26 +21,21 @@ namespace cybel {
 class Scene {
 public:
   /**
-   * Return in update_scene_logic() to indicate no scene change (default).
+   * Return this in update_scene_logic() to indicate no scene change (default).
    * Do not use this for your own scene types, else they'll be ignored.
    */
   static inline const int kNilType = 0;
 
   virtual ~Scene() noexcept = default;
 
-  virtual void init_scene(const ViewDimens& /*dimens*/) {}
+  virtual void init_scene([[maybe_unused]] const ViewDimens& dimens) {}
 
   /**
    * If you know that all of your scenes will only either be in 2D or 3D, then you can call
-   * begin_2d_scene()/begin_3d_scene() in resize_scene(), instead of in the main loop with draw_scene().
-   * - This also applies to: begin_*center(), begin_*scale(), begin_*offset(), etc.
+   *     begin_2d_scene()/begin_3d_scene() in resize_scene(), instead of in the main loop with draw_scene().
+   * This also applies to: begin_*center(), begin_*scale(), begin_*offset(), etc.
    */
-  virtual void resize_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
-
-  /**
-   * For WebGL context restored.
-   */
-  virtual void on_context_restored() {}
+  virtual void resize_scene([[maybe_unused]] Renderer& ren,[[maybe_unused]] const ViewDimens& dimens) {}
 
   /**
    * Called when this scene is no longer the current scene (scene changed).
@@ -48,11 +43,19 @@ public:
    */
   virtual void on_scene_exit() {}
 
-  virtual void on_input_event(int /*id*/,const ViewDimens& /*dimens*/) {}
-  virtual void handle_input_states(const std::vector<bool>& /*states*/,const ViewDimens& /*dimens*/) {}
+  /**
+   * On WebGL context restored, reload textures, re-init OpenGL states, etc.
+   */
+  virtual void on_scene_context_restored() {}
 
-  virtual int update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) { return kNilType; }
-  virtual void draw_scene(Renderer& /*ren*/,const ViewDimens& /*dimens*/) {}
+  virtual void on_scene_input_event([[maybe_unused]] int input_id,
+                                    [[maybe_unused]] const ViewDimens& dimens) {}
+  virtual void handle_scene_input_states([[maybe_unused]] const std::vector<bool>& states,
+                                         [[maybe_unused]] const ViewDimens& dimens) {}
+
+  virtual int update_scene_logic([[maybe_unused]] const FrameStep& step,
+                                 [[maybe_unused]] const ViewDimens& dimens) { return kNilType; }
+  virtual void draw_scene([[maybe_unused]] Renderer& ren,[[maybe_unused]] const ViewDimens& dimens) {}
 };
 
 } // namespace cybel

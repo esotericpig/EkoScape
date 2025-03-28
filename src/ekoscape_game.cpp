@@ -46,7 +46,7 @@ EkoScapeGame::EkoScapeGame() {
   config.target_size = Size2i{1600,900};
 
   cybel_engine_ = std::make_shared<CybelEngine>(
-    *this,config,[&](int action) { return build_scene(action); }
+    *this,config,[&](int type) { return build_scene(type); }
   );
   scene_man_ = &cybel_engine_->scene_man();
   assets_ = std::make_unique<Assets>("realistic",cybel_engine_->audio_player().is_alive());
@@ -139,10 +139,10 @@ void EkoScapeGame::init_input_map() {
   });
 }
 
-SceneBag EkoScapeGame::build_scene(int action) {
-  SceneBag result{action};
+SceneBag EkoScapeGame::build_scene(int type) {
+  SceneBag result{type};
 
-  switch(action) {
+  switch(type) {
     case SceneAction::kQuit:
       cybel_engine_->request_stop();
       break;
@@ -199,9 +199,9 @@ SceneBag EkoScapeGame::build_scene(int action) {
 
   if(!result.scene) { return result; }
 
-  if(SceneActions::is_menu(action)) {
+  if(SceneActions::is_menu(type)) {
     if(star_sys_.is_empty()) { star_sys_.init(cybel_engine_->dimens()); }
-  } else if(action != SceneAction::kGoToBoringWork) {
+  } else if(type != SceneAction::kGoToBoringWork) {
     star_sys_.clear(); // Free memory, for GameScene in particular.
   }
 
@@ -234,10 +234,10 @@ void EkoScapeGame::run_on_web() {
 #endif
 }
 
-void EkoScapeGame::on_context_restored() { assets_->on_context_restored(); }
+void EkoScapeGame::on_scene_context_restored() { assets_->on_context_restored(); }
 
-void EkoScapeGame::on_input_event(int action,const ViewDimens& /*dimens*/) {
-  switch(action) {
+void EkoScapeGame::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+  switch(input_id) {
     // Go back a scene.
     case InputAction::kGoBack:
       pop_scene();

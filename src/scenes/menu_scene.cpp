@@ -70,10 +70,10 @@ MenuScene::MenuScene(GameContext& ctx)
   };
 }
 
-void MenuScene::on_input_event(int action,const ViewDimens& /*dimens*/) {
+void MenuScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
   Option& sel_opt = opts_.at(opt_index_);
 
-  switch(action) {
+  switch(input_id) {
     case InputAction::kSelect:
       sel_opt.select();
       break;
