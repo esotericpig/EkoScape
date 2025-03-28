@@ -18,6 +18,12 @@
 
 namespace ekoscape {
 
+#if defined(__EMSCRIPTEN__)
+
+std::unique_ptr<EkoScapeGame> g_eko_game{};
+
+#endif // __EMSCRIPTEN__
+
 EkoScapeGame::EkoScapeGame() {
   CybelEngine::Config config{
     .title = kTitle,
@@ -39,7 +45,7 @@ EkoScapeGame::EkoScapeGame() {
   // These are fixed values and should not be changed.
   config.target_size = Size2i{1600,900};
 
-  cybel_engine_ = std::make_unique<CybelEngine>(
+  cybel_engine_ = std::make_shared<CybelEngine>(
     *this,config,[&](int action) { return build_scene(action); }
   );
   scene_man_ = &cybel_engine_->scene_man();
@@ -218,13 +224,15 @@ void EkoScapeGame::pop_scene() {
   }
 }
 
-void EkoScapeGame::on_context_lost() { cybel_engine_->on_context_lost(); }
-
-void EkoScapeGame::restore_context() { cybel_engine_->restore_context(); }
-
 void EkoScapeGame::run_loop() { cybel_engine_->run_loop(); }
 
-bool EkoScapeGame::run_frame() { return cybel_engine_->run_frame(); }
+void EkoScapeGame::run_on_web() {
+#if defined(__EMSCRIPTEN__)
+  g_eko_game = std::make_unique<EkoScapeGame>();
+
+  g_eko_game->cybel_engine_->run_on_web(g_eko_game->cybel_engine_);
+#endif
+}
 
 void EkoScapeGame::on_context_restored() { assets_->on_context_restored(); }
 

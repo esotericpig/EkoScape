@@ -25,18 +25,15 @@ namespace ekoscape {
 
 class EkoScapeGame : public Scene {
   // NOTE: This must be defined first so that its dtor is called last.
-  std::unique_ptr<CybelEngine> cybel_engine_{};
+  std::shared_ptr<CybelEngine> cybel_engine_{};
 
 public:
   static inline const std::string kTitle = "EkoScape v2.3";
 
   explicit EkoScapeGame();
 
-  void on_context_lost();
-  void restore_context();
-
   void run_loop();
-  bool run_frame();
+  static void run_on_web();
 
   void on_context_restored() override;
   void on_input_event(int action,const ViewDimens& dimens) override;

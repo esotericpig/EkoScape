@@ -19,6 +19,69 @@
 
 namespace cybel {
 
+#if defined(__EMSCRIPTEN__)
+
+std::shared_ptr<CybelEngine> g_cybel_engine{};
+
+void run_ems_frame() {
+  if(!g_cybel_engine) { return; }
+
+  try {
+    if(!g_cybel_engine->run_frame()) {
+      std::cout << "[INFO] Stopping gracefully." << std::endl;
+      g_cybel_engine = nullptr;
+      emscripten_cancel_main_loop();
+    }
+  } catch(const CybelError& e) {
+    g_cybel_engine->show_error(e.what());
+    g_cybel_engine = nullptr;
+    emscripten_cancel_main_loop();
+  }
+}
+
+/**
+ * To simulate GL context lost & restored in JS:
+ *   // On itch.io, select `index.html` or inspect the canvas first.
+ *   let gle = Module.canvas.getContext('webgl2').getExtension('WEBGL_lose_context');
+ *   gle.loseContext();
+ *   gle.restoreContext();
+ *
+ * See:
+ * - https://www.khronos.org/webgl/wiki/HandlingContextLost
+ * - https://emscripten.org/docs/api_reference/html5.h.html#id93
+ */
+bool on_ems_gl_context_changed(int event_type,const void* /*reserved*/,void* /*user_data*/) {
+  switch(event_type) {
+    case EMSCRIPTEN_EVENT_WEBGLCONTEXTLOST:
+      std::cerr << "[WARN] WebGL context lost." << std::endl;
+      if(g_cybel_engine) { g_cybel_engine->on_context_lost(); }
+      break;
+
+    case EMSCRIPTEN_EVENT_WEBGLCONTEXTRESTORED:
+      if(!g_cybel_engine) {
+        std::cerr << "[WARN] WebGL context restored, but the game was destroyed." << std::endl;
+        break;
+      }
+
+      std::cout << "[INFO] WebGL context restored. Attempting to restore the game." << std::endl;
+      EM_ASM( Module.setStatus("<br>WebGL context restored. Attempting to restore the game...<br><br>"); );
+
+      try {
+        g_cybel_engine->restore_context();
+        EM_ASM( Module.setStatus(""); );
+      } catch(const CybelError& e) {
+        g_cybel_engine->show_error(e.what());
+        g_cybel_engine = nullptr;
+        emscripten_cancel_main_loop();
+      }
+      break;
+  }
+
+  return false;
+}
+
+#endif // __EMSCRIPTEN__
+
 CybelEngine::Resources::~Resources() noexcept {
   if(context != NULL) {
     SDL_GL_DeleteContext(context);
@@ -234,31 +297,17 @@ void CybelEngine::init_run() {
   sync_size(true);
 }
 
-void CybelEngine::on_context_lost() {
-  res_.context = NULL;
-
-  main_scene_.on_scene_exit();
-  scene_man_->curr_scene().on_scene_exit();
-}
-
-void CybelEngine::restore_context() {
-  init_context();
-  renderer_->on_context_restored();
-
-  // NOTE: Must call main scene first so that it can reload textures, etc.
-  main_scene_.on_context_restored();
-  scene_man_->curr_scene().on_context_restored();
-
-  for(auto& bag : scene_man_->prev_scene_bags()) {
-    if(bag.scene) { bag.scene->on_context_restored(); }
-  }
-
-  main_scene_.init_scene(renderer_->dimens());
-  scene_man_->curr_scene().init_scene(renderer_->dimens());
-  sync_size(true); // Call renderer's resize() & scenes' resize_scene().
-}
-
 void CybelEngine::run_loop() { while(run_frame()) {} }
+
+void CybelEngine::run_on_web([[maybe_unused]] std::shared_ptr<CybelEngine> cybel_engine) {
+#if defined(__EMSCRIPTEN__)
+  g_cybel_engine = std::move(cybel_engine);
+
+  emscripten_set_webglcontextlost_callback("#canvas",nullptr,false,on_ems_gl_context_changed);
+  emscripten_set_webglcontextrestored_callback("#canvas",nullptr,false,on_ems_gl_context_changed);
+  emscripten_set_main_loop(run_ems_frame,0,false);
+#endif
+}
 
 bool CybelEngine::run_frame() {
   if(!is_running_) { return false; }
@@ -302,6 +351,30 @@ bool CybelEngine::run_frame() {
 }
 
 void CybelEngine::request_stop() { is_running_ = false; }
+
+void CybelEngine::on_context_lost() {
+  res_.context = NULL;
+
+  main_scene_.on_scene_exit();
+  scene_man_->curr_scene().on_scene_exit();
+}
+
+void CybelEngine::restore_context() {
+  init_context();
+  renderer_->on_context_restored();
+
+  // NOTE: Must call main scene first so that it can reload textures, etc.
+  main_scene_.on_context_restored();
+  scene_man_->curr_scene().on_context_restored();
+
+  for(auto& bag : scene_man_->prev_scene_bags()) {
+    if(bag.scene) { bag.scene->on_context_restored(); }
+  }
+
+  main_scene_.init_scene(renderer_->dimens());
+  scene_man_->curr_scene().init_scene(renderer_->dimens());
+  sync_size(true); // Call renderer's resize() & scenes' resize_scene().
+}
 
 void CybelEngine::sync_size(bool force) {
   Size2i size{};

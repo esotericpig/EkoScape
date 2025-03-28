@@ -94,12 +94,13 @@ public:
   CybelEngine& operator=(const CybelEngine& other) = delete;
   CybelEngine& operator=(CybelEngine&& other) noexcept = delete;
 
-  void on_context_lost();
-  void restore_context();
-
   void run_loop();
+  void run_on_web(std::shared_ptr<CybelEngine> cybel_engine);
   bool run_frame();
   void request_stop();
+
+  void on_context_lost();
+  void restore_context();
 
   void sync_size(bool force = true);
   void resize(const Size2i& size,bool force = true);
