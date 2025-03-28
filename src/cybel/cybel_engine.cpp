@@ -74,11 +74,11 @@ CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBu
   init_context();
   check_versions();
 
-  #if defined(CYBEL_RENDERER_GLES)
-    renderer_ = std::make_unique<RendererGles>(config.size,config.target_size,config.clear_color);
-  #else // CYBEL_RENDERER_GL
-    renderer_ = std::make_unique<RendererGl>(config.size,config.target_size,config.clear_color);
-  #endif
+#if defined(CYBEL_RENDERER_GLES)
+  renderer_ = std::make_unique<RendererGles>(config.size,config.target_size,config.clear_color);
+#else // CYBEL_RENDERER_GL
+  renderer_ = std::make_unique<RendererGl>(config.size,config.target_size,config.clear_color);
+#endif
 
   scene_man_ = std::make_unique<SceneMan>(build_scene,[&](Scene& scene) { init_scene(scene); });
   input_man_ = std::make_unique<InputMan>(config.max_input_id);
@@ -132,16 +132,16 @@ void CybelEngine::init_config(Config& config) {
 
 void CybelEngine::init_gui(const Config& config) {
   // NOTE: Must set GL attrs after SDL_Init() and before SDL_CreateWindow().
-  #if defined(CYBEL_RENDERER_GLES)
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
-  #else // CYBEL_RENDERER_GL
-    // Use a 2004-2008 version.
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
-  #endif
+#if defined(CYBEL_RENDERER_GLES)
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_ES);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
+#else // CYBEL_RENDERER_GL
+  // Use a 2004-2008 version.
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
+#endif
 
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 
@@ -151,11 +151,11 @@ void CybelEngine::init_gui(const Config& config) {
 
   Uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
 
+#if defined(__EMSCRIPTEN__)
   // NOTE: There is a bug in SDL2 where SDL_SetWindowResizable() doesn't work to enable receiving resize
   //       events from the browser. We must explicitly pass SDL_WINDOW_RESIZABLE in the flags.
-  #if defined(__EMSCRIPTEN__)
-    window_flags |= SDL_WINDOW_RESIZABLE;
-  #endif
+  window_flags |= SDL_WINDOW_RESIZABLE;
+#endif
 
   // With the SDL_WINDOW_ALLOW_HIGHDPI flag, the size might change after, therefore it's important that
   //     we call sync_size() later, which we do in init_run().
@@ -190,12 +190,12 @@ void CybelEngine::init_context() {
 }
 
 void CybelEngine::check_versions() {
-  #if defined(__EMSCRIPTEN__)
-    // Output Emscripten version because different/newer versions can break the build,
-    //     and Emscripten doesn't store the version anywhere in the generated files.
-    std::cout << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
-              << __EMSCRIPTEN_tiny__ << '.' << std::endl;
-  #endif
+#if defined(__EMSCRIPTEN__)
+  // Output Emscripten version because different/newer versions can break the build,
+  //     and Emscripten doesn't store the version anywhere in the generated files.
+  std::cout << "[INFO] Emscripten version: " << __EMSCRIPTEN_major__ << '.' << __EMSCRIPTEN_minor__ << '.'
+            << __EMSCRIPTEN_tiny__ << '.' << std::endl;
+#endif
 
   const auto gl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
   const std::string gl_version = (gl_version_cstr != nullptr)

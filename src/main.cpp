@@ -30,28 +30,28 @@ int main(int argc,char** argv) {
     }
   }
 
-  #if defined(__EMSCRIPTEN__)
-    try {
-      eko_game = std::make_unique<EkoScapeGame>();
-    } catch(const CybelError& e) {
-      EkoScapeGame::show_error_global(e.what());
-      return 1;
-    }
+#if defined(__EMSCRIPTEN__)
+  try {
+    eko_game = std::make_unique<EkoScapeGame>();
+  } catch(const CybelError& e) {
+    EkoScapeGame::show_error_global(e.what());
+    return 1;
+  }
 
-    emscripten_set_webglcontextlost_callback("#canvas",nullptr,false,on_ems_gl_context_changed);
-    emscripten_set_webglcontextrestored_callback("#canvas",nullptr,false,on_ems_gl_context_changed);
-    emscripten_set_main_loop(run_ems_frame,0,false);
-  #else
-    try {
-      EkoScapeGame eko_game{};
-      eko_game.run_loop();
+  emscripten_set_webglcontextlost_callback("#canvas",nullptr,false,on_ems_gl_context_changed);
+  emscripten_set_webglcontextrestored_callback("#canvas",nullptr,false,on_ems_gl_context_changed);
+  emscripten_set_main_loop(run_ems_frame,0,false);
+#else
+  try {
+    EkoScapeGame eko_game{};
+    eko_game.run_loop();
 
-      std::cout << "[INFO] Stopping gracefully." << std::endl;
-    } catch(const CybelError& e) {
-      EkoScapeGame::show_error_global(e.what());
-      return 1;
-    }
-  #endif
+    std::cout << "[INFO] Stopping gracefully." << std::endl;
+  } catch(const CybelError& e) {
+    EkoScapeGame::show_error_global(e.what());
+    return 1;
+  }
+#endif
 
   return 0;
 }

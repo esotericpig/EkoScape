@@ -133,11 +133,11 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
   goodnight_sprite_ = load_sprite(kImgsSubdir / "goodnight.png");
   corngrits_sprite_ = load_sprite(kImgsSubdir / "corngrits.png");
 
-  #if defined(__EMSCRIPTEN__)
-    keys_sprite_ = load_sprite(kImgsSubdir / "keys_web.png");
-  #else
-    keys_sprite_ = load_sprite(kImgsSubdir / "keys.png");
-  #endif
+#if defined(__EMSCRIPTEN__)
+  keys_sprite_ = load_sprite(kImgsSubdir / "keys_web.png");
+#else
+  keys_sprite_ = load_sprite(kImgsSubdir / "keys.png");
+#endif
 
   load_asset([&](const auto& base_dir) {
     font_atlas_ = std::make_unique<FontAtlas>(

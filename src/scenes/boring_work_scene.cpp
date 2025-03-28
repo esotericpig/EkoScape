@@ -45,17 +45,17 @@ int BoringWorkScene::update_scene_logic(const FrameStep& /*step*/,const ViewDime
 void BoringWorkScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_2d_scene();
 
-  #if defined(__EMSCRIPTEN__)
-    ren.begin_auto_center_scale();
-    ren.wrap_sprite(ctx_.assets.boring_work_sprite(),[&](auto& s) {
-      s.draw_quad(Pos3i{0,0,0},dimens.target_size);
-    });
-    ren.end_scale();
-  #else
-    ren.wrap_sprite(ctx_.assets.boring_work_sprite(),[&](auto& s) {
-      s.draw_quad(Pos3i{0,0,0},dimens.size);
-    });
-  #endif
+#if defined(__EMSCRIPTEN__)
+  ren.begin_auto_center_scale();
+  ren.wrap_sprite(ctx_.assets.boring_work_sprite(),[&](auto& s) {
+    s.draw_quad(Pos3i{0,0,0},dimens.target_size);
+  });
+  ren.end_scale();
+#else
+  ren.wrap_sprite(ctx_.assets.boring_work_sprite(),[&](auto& s) {
+    s.draw_quad(Pos3i{0,0,0},dimens.size);
+  });
+#endif
 }
 
 } // namespace ekoscape

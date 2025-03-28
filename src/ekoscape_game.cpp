@@ -30,10 +30,10 @@ EkoScapeGame::EkoScapeGame() {
     .music_types = MIX_INIT_OGG,
   };
 
-  #if defined(__EMSCRIPTEN__)
-    // In Emscripten, VSync is emulated, so it's slower. Therefore, turn it off by default.
-    config.vsync = false;
-  #endif
+#if defined(__EMSCRIPTEN__)
+  // In Emscripten, VSync is emulated, so it's slower. Therefore, turn it off by default.
+  config.vsync = false;
+#endif
 
   // This is the width/height that the game is developed in and used for scaling 2D sprites (menu, etc.).
   // These are fixed values and should not be changed.
@@ -98,11 +98,11 @@ void EkoScapeGame::init_input_map() {
     i.raw_key({SDL_SCANCODE_BACKSPACE});
     i.joypad({JoypadInput::kB});
   });
-  #if !defined(__EMSCRIPTEN__)
-    im.map_input(InputAction::kQuit,[](auto& i) {
-        i.raw_key({SDL_SCANCODE_ESCAPE});
-    });
-  #endif
+#if !defined(__EMSCRIPTEN__)
+  im.map_input(InputAction::kQuit,[](auto& i) {
+      i.raw_key({SDL_SCANCODE_ESCAPE});
+  });
+#endif
 
   // Options/Features.
   im.map_input(InputAction::kToggleMusic,[](auto& i) {
@@ -209,12 +209,12 @@ void EkoScapeGame::pop_scene() {
   }
 
   if(!scene_man_->pop_scene()) {
-    #if defined(__EMSCRIPTEN__)
-      std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
-      EM_ASM( window.history.back(); );
-    #else
-      std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
-    #endif
+#if defined(__EMSCRIPTEN__)
+    std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
+    EM_ASM( window.history.back(); );
+#else
+    std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
+#endif
   }
 }
 

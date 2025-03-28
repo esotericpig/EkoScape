@@ -64,9 +64,9 @@ MenuScene::MenuScene(GameContext& ctx)
     gfx_opt,
     vsync_opt,
     Option{"credits",[&] { scene_action_ = SceneAction::kGoToMenuCredits; }},
-    #if !defined(__EMSCRIPTEN__)
-      Option{"quit",[&] { scene_action_ = SceneAction::kQuit; }},
-    #endif
+#if !defined(__EMSCRIPTEN__)
+    Option{"quit",[&] { scene_action_ = SceneAction::kQuit; }},
+#endif
   };
 }
 
