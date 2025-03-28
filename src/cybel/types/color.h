@@ -17,6 +17,18 @@ namespace cybel {
  */
 class Color4f {
 public:
+  static const Color4f kBlack;
+  static const Color4f kBlue;
+  static const Color4f kCopper;
+  static const Color4f kCyan;
+  static const Color4f kGreen;
+  static const Color4f kHotPink;
+  static const Color4f kPink;
+  static const Color4f kPurple;
+  static const Color4f kRed;
+  static const Color4f kWhite;
+  static const Color4f kYellow;
+
   float r = 0.0f;
   float g = 0.0f;
   float b = 0.0f;
@@ -29,6 +41,8 @@ public:
   explicit Color4f() noexcept = default;
   explicit Color4f(float rgb,float a = 1.0f) noexcept;
   explicit Color4f(float r,float g,float b,float a = 1.0f) noexcept;
+
+  auto operator<=>(const Color4f& other) const = default;
 
   Color4f& set(float rgb);
   Color4f& set(float rgb,float a);

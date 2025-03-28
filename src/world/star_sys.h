@@ -38,13 +38,13 @@ public:
   bool is_empty() const;
 
 private:
-  // Cannot be empty!
-  static inline const std::vector<Color4f> kColors = {
-    Color4f::hex(0x0000ff), // Blue.
-    Color4f::hex(0x00ffff), // Cyan.
-    Color4f::hex(0xff00ff), // Purple.
-    Color4f::hex(0xffffff), // White.
-    Color4f::hex(0xffff00), // Yellow.
+  // NOTE: Cannot be empty!
+  static inline const std::array<Color4f,5> kColors = {
+    Color4f::kBlue,
+    Color4f::kCyan,
+    Color4f::kPurple,
+    Color4f::kWhite,
+    Color4f::kYellow,
   };
 
   ViewDimens view_dimens_{};

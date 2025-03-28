@@ -12,7 +12,7 @@
 
 namespace cybel {
 
-Image::Image(const std::filesystem::path& file,bool make_weird)
+Image::Image(const std::filesystem::path& file,bool make_weird,const Color4f& weird_color)
   : id_(file.string()) {
   const auto file_str = file.u8string();
   const auto* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
@@ -26,7 +26,13 @@ Image::Image(const std::filesystem::path& file,bool make_weird)
   size_.w = surface_->w;
   size_.h = surface_->h;
 
-  if(make_weird) { this->make_weird(); }
+  if(make_weird) {
+    if(weird_color == Color4f::kBlack) {
+      this->make_weird();
+    } else {
+      colorize(weird_color);
+    }
+  }
 }
 
 Image::Image(Image&& other) noexcept {

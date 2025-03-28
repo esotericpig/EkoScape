@@ -33,7 +33,11 @@ void MenuCreditsScene::on_scene_input_event(int input_id,const ViewDimens& /*dim
 void MenuCreditsScene::handle_scene_input_states(const std::vector<bool>& states,const ViewDimens& dimens) {
   // Shhh... Don't Tell.
   if(states[InputAction::kMakeWeird]) {
-    ctx_.assets.make_weird();
+    if(!ctx_.assets.is_weird()) {
+      ctx_.assets.make_weird();
+      ctx_.cybel_engine.set_icon(ctx_.assets.icon_img());
+    }
+
     birth_wtfs(dimens);
   }
 }

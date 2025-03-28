@@ -119,6 +119,13 @@ private:
   static std::vector<std::filesystem::path> fetch_base_dirs();
   static inline const std::vector<std::filesystem::path> kBaseDirs = fetch_base_dirs();
 
+  // For images that don't really work well with make_weird().
+  // - The names mean "for mostly black images," etc.
+  // - The black & white colors were chosen as throwbacks to the original code in relics (v1.0).
+  static inline const Color4f kWeirdBlackColor{0.01f,1.0f};
+  static inline const Color4f kWeirdGrayColor = Color4f::kHotPink;
+  static inline const Color4f kWeirdWhiteColor{1.0f,1.0f};
+
   bool has_audio_player_ = false;
   bool is_weird_ = false;
 
@@ -156,7 +163,8 @@ private:
 
   void load_asset(const AssetLoader& load_from) const;
   std::unique_ptr<Image> load_img(const std::filesystem::path& subfile) const;
-  std::unique_ptr<Sprite> load_sprite(const std::filesystem::path& subfile) const;
+  std::unique_ptr<Sprite> load_sprite(const std::filesystem::path& subfile,
+                                      const Color4f& weird_color = Color4f::kBlack) const;
   std::unique_ptr<Texture> load_tex(const std::filesystem::path& subfile) const;
 };
 

@@ -9,6 +9,18 @@
 
 namespace cybel {
 
+const Color4f Color4f::kBlack = hex(0x000000);
+const Color4f Color4f::kBlue = hex(0x0000ff);
+const Color4f Color4f::kCopper = hex(0xb87333);
+const Color4f Color4f::kCyan = hex(0x00ffff);
+const Color4f Color4f::kGreen = hex(0x00ff00);
+const Color4f Color4f::kHotPink = hex(0xff69b4);
+const Color4f Color4f::kPink = hex(0xffc0cb);
+const Color4f Color4f::kPurple = hex(0xff00ff);
+const Color4f Color4f::kRed = hex(0xff0000);
+const Color4f Color4f::kWhite = hex(0xffffff);
+const Color4f Color4f::kYellow = hex(0xffff00);
+
 Color4f Color4f::hex(std::uint32_t rgb,std::uint8_t a) noexcept { return Color4f{}.set_hex(rgb,a); }
 
 Color4f Color4f::bytes(std::uint8_t rgb,std::uint8_t a) noexcept { return Color4f{}.set_bytes(rgb,a); }

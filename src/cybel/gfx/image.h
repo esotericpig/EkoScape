@@ -25,7 +25,8 @@ class Image {
 public:
   using EditPixel = std::function<void(Color4f&)>;
 
-  explicit Image(const std::filesystem::path& file,bool make_weird = false);
+  explicit Image(const std::filesystem::path& file,bool make_weird = false,
+                 const Color4f& weird_color = Color4f::kBlack);
 
   Image(const Image& other) = delete;
   Image(Image&& other) noexcept;

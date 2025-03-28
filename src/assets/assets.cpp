@@ -127,11 +127,11 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
   star_tex_ = is_weird_ ? star2_tex_.get() : star1_tex_.get();
 
   icon_img_ = load_img(kIconsSubdir / "io.github.esotericpig.ekoscape.png");
-  logo_sprite_ = load_sprite(kImgsSubdir / "EkoScape.png");
+  logo_sprite_ = load_sprite(kImgsSubdir / "EkoScape.png",kWeirdGrayColor);
   dantares_sprite_ = load_sprite(kImgsSubdir / "Dantares.png");
-  boring_work_sprite_ = load_sprite(kImgsSubdir / "boring_work.png");
+  boring_work_sprite_ = load_sprite(kImgsSubdir / "boring_work.png",kWeirdGrayColor);
   goodnight_sprite_ = load_sprite(kImgsSubdir / "goodnight.png");
-  corngrits_sprite_ = load_sprite(kImgsSubdir / "corngrits.png");
+  corngrits_sprite_ = load_sprite(kImgsSubdir / "corngrits.png",kWeirdGrayColor);
 
 #if defined(__EMSCRIPTEN__)
   keys_sprite_ = load_sprite(kImgsSubdir / "keys_web.png");
@@ -162,19 +162,19 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
   });
   font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,is_weird_);
 
-  eko_color_.set_hex(0xff0000);
-  end_color_.set_hex(0xb87333); // Copper.
-  fruit_color_.set_hex(0xff69b4); // Hot Pink.
-  portal_color_.set_hex(0x00ffff); // Cyan.
+  eko_color_ = Color4f::kRed;
+  end_color_ = Color4f::kCopper;
+  fruit_color_ = Color4f::kHotPink;
+  portal_color_ = Color4f::kCyan;
   robot_color_.set_bytes(214);
-  wall_color_.set_hex(0x00ff00);
+  wall_color_ = Color4f::kGreen;
 
   if(is_weird_) {
     std::swap(eko_color_.r,eko_color_.b);
     std::swap(end_color_.r,end_color_.b);
     std::swap(fruit_color_.r,fruit_color_.b);
     std::swap(portal_color_.r,portal_color_.b);
-    robot_color_.set_hex(0xff69b4); // Hot Pink.
+    robot_color_ = kWeirdGrayColor;
     std::swap(wall_color_.r,wall_color_.b);
   }
 }
@@ -247,26 +247,21 @@ Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir
   st.dirname = dir.filename().string();
   st.name = utf8::StrUtil::ellipsize(st.dirname,18);
 
-  Image robot_img{dir / "robot.png"};
-
-  if(is_weird_) {
-    robot_img.colorize(Color4f::hex(0xff69b4)); // Hot Pink.
-  }
-
   st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png",is_weird_});
   st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png",is_weird_});
-  st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png",is_weird_});
-  st.dead_space_ghost_tex = std::make_unique<Texture>(Image{dir / "dead_space_ghost.png",is_weird_});
+  st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png",is_weird_,kWeirdBlackColor});
+  st.dead_space_ghost_tex = std::make_unique<Texture>(Image{dir / "dead_space_ghost.png",is_weird_,
+                                                      kWeirdBlackColor});
   st.end_tex = std::make_unique<Texture>(Image{dir / "end.png",is_weird_});
   st.end_wall_tex = std::make_unique<Texture>(Image{dir / "end_wall.png",is_weird_});
   st.floor_tex = std::make_unique<Texture>(Image{dir / "floor.png",is_weird_});
   st.fruit_tex = std::make_unique<Texture>(Image{dir / "fruit.png",is_weird_});
   st.portal_tex = std::make_unique<Texture>(Image{dir / "portal.png",is_weird_});
-  st.robot_tex = std::make_unique<Texture>(robot_img);
+  st.robot_tex = std::make_unique<Texture>(Image{dir / "robot.png",is_weird_,kWeirdGrayColor});
   st.wall_tex = std::make_unique<Texture>(Image{dir / "wall.png",is_weird_});
   st.wall_ghost_tex = std::make_unique<Texture>(Image{dir / "wall_ghost.png",is_weird_});
-  st.white_tex = std::make_unique<Texture>(Image{dir / "white.png",is_weird_});
-  st.white_ghost_tex = std::make_unique<Texture>(Image{dir / "white_ghost.png",is_weird_});
+  st.white_tex = std::make_unique<Texture>(Image{dir / "white.png",is_weird_,kWeirdWhiteColor});
+  st.white_ghost_tex = std::make_unique<Texture>(Image{dir / "white_ghost.png",is_weird_,kWeirdWhiteColor});
 
   return st; // NRVO (Named Return Value Optimization).
 }
@@ -306,17 +301,18 @@ std::unique_ptr<Image> Assets::load_img(const std::filesystem::path& subfile) co
   std::unique_ptr<Image> img{};
 
   load_asset([&](const auto& base_dir) {
-    img = std::make_unique<Image>(base_dir / subfile);
+    img = std::make_unique<Image>(base_dir / subfile,is_weird_);
   });
 
   return img;
 }
 
-std::unique_ptr<Sprite> Assets::load_sprite(const std::filesystem::path& subfile) const {
+std::unique_ptr<Sprite> Assets::load_sprite(const std::filesystem::path& subfile,
+                                            const Color4f& weird_color) const {
   std::unique_ptr<Sprite> sprite{};
 
   load_asset([&](const auto& base_dir) {
-    sprite = std::make_unique<Sprite>(Texture{Image{base_dir / subfile,is_weird_}});
+    sprite = std::make_unique<Sprite>(Texture{Image{base_dir / subfile,is_weird_,weird_color}});
   });
 
   return sprite;
