@@ -84,6 +84,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   });
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.60f,[&](auto& font) {
+    font.puts("Coding, music, & game gfx by Bradley Whited");
     font.puts("Monogram font by datagoblin.itch.io");
     font.puts("Star textures by Kronbits.itch.io");
   });
