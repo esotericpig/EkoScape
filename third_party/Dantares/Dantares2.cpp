@@ -27,9 +27,11 @@ Dantares2::Dantares2(RendererClass &Renderer, float SquareSize, float FloorHeigh
     : Renderer(&Renderer),
       SqSize(SquareSize),
       Floor(FloorHeight),
-      Ceiling(CeilingHeight),
-      WalkSpeed(SquareSize / 15.0f)
+      Ceiling(CeilingHeight)
 {
+    //0 uses the default values.
+    SetWalkingSpeed(0.0f);
+    SetTurningSpeed(0.0f);
 }
 
 Dantares2::Dantares2(Dantares2 &&Other) noexcept
@@ -57,7 +59,7 @@ void Dantares2::MoveFrom(Dantares2 &&Other) noexcept
     Ceiling = Other.Ceiling;
     CameraX = std::exchange(Other.CameraX, 0);
     CameraY = std::exchange(Other.CameraY, 0);
-    CameraFacing = std::exchange(Other.CameraFacing, 0);
+    CameraFacing = Other.CameraFacing;
     Walking = std::exchange(Other.Walking, -1);
     Turning = std::exchange(Other.Turning, 0);
     DeltaTime = Other.DeltaTime;

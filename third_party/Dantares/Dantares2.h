@@ -287,7 +287,7 @@ public:
         YCoord, facing the current direction.  If the player is currently moving,
         this function will cancel the movement.
 
-        Space (0, 0) is considered to be the bottom left corner of the map.
+        Space (0,0) is considered to be the bottom left corner of the map.
 
         Parameters:
         int XCoord - The X coordinate of the space to place the camera.  This
@@ -306,7 +306,7 @@ public:
         YCoord, facing the direction specified by Facing.  If the player is currently
         moving, this function will cancel the movement.
 
-        Space (0, 0) is considered to be the bottom left corner of the map.
+        Space (0,0) is considered to be the bottom left corner of the map.
 
         Parameters:
         int XCoord - The X coordinate of the space to place the camera.  This
@@ -370,7 +370,8 @@ public:
     */
 
     bool MovePlayer();
-    /*  Increments the player's movement.
+    /*  Increments the player's movement. Unnecessary to call if Draw() was called with
+        the MovePlayer param set to true.
 
         Returns - Function returns true if successful, and false otherwise.
     */
@@ -652,7 +653,7 @@ protected:
     //X coordinate of the camera.
     int CameraY = 0;
     //Y coordinate of the camera.
-    int CameraFacing = 0;
+    int CameraFacing = DIR_NORTH;
     //Direction the camera is facing.
     int Walking = -1;
     //Flag that indicates whether or not the player is moving, and which direction.
@@ -660,9 +661,9 @@ protected:
     //Flag that indicates whether or not the player is turning, and which direction.
     float DeltaTime = 1.0f;
     //The delta time in seconds for speed calculations that has been adjusted by TARGET_DELTA_TIME.
-    float WalkSpeed = 0.0083f;
+    float WalkSpeed{};
     //Walking distance covered per frame.
-    float TurnSpeed = 5.0f;
+    float TurnSpeed{};
     //Degrees turned per frame.
     float WalkOffset = 0.0f;
     //Distance between squares when walking.

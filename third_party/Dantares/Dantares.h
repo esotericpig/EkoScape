@@ -28,9 +28,9 @@
         - Fixed TurnLeft() and TurnRight() to also update the DegreesTurned so that the MovePlayer
           logic in Draw() doesn't go over 90 degrees, which caused a jerky drawing animation
           when TurnSpeed wasn't a multiple of 10.
-        - Fixed IDE warnings.
+        - Applied IDE suggestions.
     - v1.2
-        - Changed SetPlayerPosition(int,int) to reuse the current CameraFacing.
+        - Changed SetPlayerPosition(int, int) to reuse the current CameraFacing.
     - v1.1
         - Changed MAXMAPS to be inside Dantares.
         - Changed to use smart pointers and vector.
@@ -121,7 +121,6 @@ public:
     */
 
     int AddMap(const void *Map, int SizeX, int SizeY);
-    //See: https://isocpp.org/wiki/faq/const-correctness#constptrptr-conversion
     int AddMap(const int* const *Map, int SizeX, int SizeY);
     /*  Adds a map and returns the map number.  The map must be a two-dimensional integer array.
         0s in the map are treated as empty spaces, all other numbers are solid squares.
