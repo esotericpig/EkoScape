@@ -50,20 +50,18 @@ private:
   std::unique_ptr<GameContext> ctx_{};
 
   StarSys star_sys_{};
-  float avg_fps_age_{};
-  double avg_fps_ = -1.0;
+  float avg_fps_age_ = -1.0f;
   std::string avg_fps_str_{};
 
   MenuPlayScene::State menu_play_scene_state_{};
   GameScene::State game_scene_state_{};
 
   void init_input_map();
+  SceneBag build_scene(int type);
+  void pop_scene();
 
   void play_music(bool rand_pos = false);
   void stop_music(bool going_to_boring_work = false);
-
-  SceneBag build_scene(int type);
-  void pop_scene();
 };
 
 } // namespace ekoscape

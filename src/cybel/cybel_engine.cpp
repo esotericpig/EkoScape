@@ -121,7 +121,11 @@ Size2i CybelEngine::calc_scaled_view(const Size2i& view,float scale_factor,const
 }
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
-  : title_(config.title),is_vsync_(config.vsync),main_scene_(main_scene) {
+  : title_(config.title),
+    avg_fps_smoothing_(std::clamp(config.avg_fps_smoothing,0.0f,1.0f)),
+    avg_fps_(static_cast<float>((config.fps > 0) ? config.fps : kFallbackFps)),
+    is_vsync_(config.vsync),
+    main_scene_(main_scene) {
   init_hints();
 
   // Don't use SDL_INIT_AUDIO here, since audio is optional.
@@ -407,6 +411,13 @@ void CybelEngine::stop_frame_timer() {
 
   frame_step_.dpf = frame_timer_.pause();
   frame_step_.delta_time = frame_step_.dpf.secs(); // Delta time should be in fractional seconds.
+
+  const float mpf = static_cast<float>(frame_step_.dpf.millis()); // Milliseconds Per Frame.
+  const float fps = (mpf > 0.0f) ? (1000.0f / mpf) : 0.0f;
+
+  // Exponential Moving Average (EMA) to reduce the effects of hiccups,
+  //     instead of a typical average: avg = (avg + fps) / 2.
+  avg_fps_ = (avg_fps_ * (1.0f - avg_fps_smoothing_)) + (fps * avg_fps_smoothing_);
 }
 
 void CybelEngine::handle_events() {
@@ -564,5 +575,7 @@ const Duration& CybelEngine::target_dpf() const { return target_dpf_; }
 const Duration& CybelEngine::dpf() const { return frame_step_.dpf; }
 
 double CybelEngine::delta_time() const { return frame_step_.delta_time; }
+
+float CybelEngine::avg_fps() const { return avg_fps_; }
 
 } // namespace cybel

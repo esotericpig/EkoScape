@@ -55,6 +55,7 @@ public:
     Size2i size{kFallbackWidth,kFallbackHeight};
     Size2i target_size{0,0};
     int fps = kFallbackFps;
+    float avg_fps_smoothing = 0.3f; /// Smoothing factor. Usually from 0.1 to 0.3.
     bool vsync = false;
     Color4f clear_color{0.0f,1.0f};
     int max_input_id = 0;
@@ -132,11 +133,16 @@ public:
   const Duration& target_dpf() const;
   const Duration& dpf() const;
   double delta_time() const;
+  float avg_fps() const;
 
 private:
   void handle_input_event(int input_id);
 
   std::string title_{};
+  int target_fps_ = 0;
+  Duration target_dpf_{};
+  float avg_fps_smoothing_{};
+  float avg_fps_{};
   bool is_vsync_ = false;
 
   std::unique_ptr<Renderer> renderer_{};
@@ -147,8 +153,6 @@ private:
 
   bool is_running_ = false;
   Timer frame_timer_{};
-  int target_fps_ = 0;
-  Duration target_dpf_{};
   FrameStep frame_step_{};
 
   static Size2i calc_scaled_view(const Size2i& view,float scale_factor,const Size2i& target_size);

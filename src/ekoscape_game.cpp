@@ -278,11 +278,10 @@ void EkoScapeGame::on_scene_input_event(int input_id,const ViewDimens& /*dimens*
       break;
 
     case InputAction::kToggleFps:
-      if(avg_fps_ < 0.0) {
+      if(avg_fps_age_ < 0.0f) {
         avg_fps_age_ = 1.0f; // Show immediately.
-        avg_fps_ = 0.0;
       } else {
-        avg_fps_ = -1.0;
+        avg_fps_age_ = -1.0f;
       }
       break;
   }
@@ -291,25 +290,10 @@ void EkoScapeGame::on_scene_input_event(int input_id,const ViewDimens& /*dimens*
 int EkoScapeGame::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   star_sys_.update(step);
 
-  if(avg_fps_ >= 0.0) {
-    const double mpf = step.dpf.millis(); // Milliseconds Per Frame.
-    const double fps = (mpf > 0.0) ? (1000.0 / mpf) : 0.0;
-
-    if(avg_fps_ == 0.0) {
-      avg_fps_ = fps;
-    } else {
-      constexpr double smoothing_factor = 0.3; // Usually 0.1 to 0.3.
-
-      // Exponential Moving Average (EMA) to reduce the effects of hiccups,
-      //     instead of a typical average: avg = (avg + fps) / 2.
-      avg_fps_ = (avg_fps_ * (1.0 - smoothing_factor)) + (fps * smoothing_factor);
-    }
-
-    // Only update the shown FPS at an interval, else the digits change too fast to read.
-    if((avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
-      avg_fps_str_ = std::to_string(static_cast<int>(std::round(avg_fps_)));
-      avg_fps_age_ = 0.0f;
-    }
+  // Only update the shown FPS at an interval, else the digits change too fast to read.
+  if(avg_fps_age_ >= 0.0f && (avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
+    avg_fps_str_ = std::to_string(static_cast<int>(std::round(cybel_engine_->avg_fps())));
+    avg_fps_age_ = 0.0f;
   }
 
   return SceneAction::kNil;
@@ -327,7 +311,7 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
        .end_scale();
   }
 
-  if(avg_fps_ >= 0.0) {
+  if(avg_fps_age_ >= 0.0f) {
     ren.begin_2d_scene()
        .begin_auto_anchor_scale(Pos2f{0.0f,0.0f}); // Top left.
 
