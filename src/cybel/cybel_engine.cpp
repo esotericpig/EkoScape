@@ -122,7 +122,6 @@ Size2i CybelEngine::calc_scaled_view(const Size2i& view,float scale_factor,const
 
 CybelEngine::CybelEngine(Scene& main_scene,Config config,const SceneMan::SceneBuilder& build_scene)
   : title_(config.title),
-    avg_fps_smoothing_(std::clamp(config.avg_fps_smoothing,0.0f,1.0f)),
     avg_fps_(static_cast<float>((config.fps > 0) ? config.fps : kFallbackFps)),
     is_vsync_(config.vsync),
     main_scene_(main_scene) {
@@ -417,7 +416,7 @@ void CybelEngine::stop_frame_timer() {
 
   // Exponential Moving Average (EMA) to reduce the effects of hiccups,
   //     instead of a typical average: avg = (avg + fps) / 2.
-  avg_fps_ = (avg_fps_ * (1.0f - avg_fps_smoothing_)) + (fps * avg_fps_smoothing_);
+  avg_fps_ = (avg_fps_ * (1.0f - kAvgFpsSmoothing)) + (fps * kAvgFpsSmoothing);
 }
 
 void CybelEngine::handle_events() {

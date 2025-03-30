@@ -55,7 +55,6 @@ public:
     Size2i size{kFallbackWidth,kFallbackHeight};
     Size2i target_size{0,0};
     int fps = kFallbackFps;
-    float avg_fps_smoothing = 0.3f; /// Smoothing factor. Usually from 0.1 to 0.3.
     bool vsync = false;
     Color4f clear_color{0.0f,1.0f};
     int max_input_id = 0;
@@ -136,12 +135,13 @@ public:
   float avg_fps() const;
 
 private:
+  static constexpr float kAvgFpsSmoothing = 0.3f; // Smoothing factor. Usually from 0.1 to 0.3.
+
   void handle_input_event(int input_id);
 
   std::string title_{};
   int target_fps_ = 0;
   Duration target_dpf_{};
-  float avg_fps_smoothing_{};
   float avg_fps_{};
   bool is_vsync_ = false;
 
