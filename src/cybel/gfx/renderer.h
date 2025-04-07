@@ -159,6 +159,7 @@ public:
   Renderer& operator=(const Renderer& other) = delete;
   Renderer& operator=(Renderer&& other) noexcept = delete;
 
+  virtual void on_context_lost();
   virtual void on_context_restored();
   virtual void resize(const Size2i& size);
   void clear_view();

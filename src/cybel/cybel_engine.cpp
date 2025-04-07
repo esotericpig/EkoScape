@@ -360,6 +360,7 @@ void CybelEngine::on_context_lost() {
 
   main_scene_.on_scene_exit();
   scene_man_->curr_scene().on_scene_exit();
+  renderer_->on_context_lost();
 }
 
 void CybelEngine::restore_context() {
@@ -377,6 +378,8 @@ void CybelEngine::restore_context() {
   main_scene_.init_scene(renderer_->dimens());
   scene_man_->curr_scene().init_scene(renderer_->dimens());
   sync_size(true); // Call renderer's resize() & scenes' resize_scene().
+
+  start_frame_timer(); // Try to set delta time close to 0 to allow player to adjust.
 }
 
 void CybelEngine::sync_size(bool force) {

@@ -145,6 +145,16 @@ void RendererGles::init_prog() {
   }
 }
 
+void RendererGles::on_context_lost() {
+  Renderer::on_context_lost();
+  prog_.zombify();
+  quad_buffer_.zombify();
+
+  for(auto& quad_bag : quad_buffer_bags_) {
+    quad_bag->zombify();
+  }
+}
+
 void RendererGles::on_context_restored() {
   Renderer::on_context_restored();
   init();
@@ -424,6 +434,10 @@ void RendererGles::Program::destroy() noexcept {
   }
 }
 
+void RendererGles::Program::zombify() {
+  object_ = 0;
+}
+
 GLuint RendererGles::Program::object() const { return object_; }
 
 void RendererGles::QuadBuffer::init() {
@@ -497,6 +511,12 @@ void RendererGles::QuadBuffer::destroy() noexcept {
   }
 }
 
+void RendererGles::QuadBuffer::zombify() {
+  ebo_ = 0;
+  vbo_ = 0;
+  vao_ = 0;
+}
+
 RendererGles::QuadBuffer& RendererGles::QuadBuffer::operator=(QuadBuffer&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
 
@@ -557,6 +577,12 @@ RendererGles::QuadBufferBag::QuadBufferBag(int count)
 void RendererGles::QuadBufferBag::init() {
   for(auto& buffer : buffers_) {
     buffer.init();
+  }
+}
+
+void RendererGles::QuadBufferBag::zombify() {
+  for(auto& buffer : buffers_) {
+    buffer.zombify();
   }
 }
 

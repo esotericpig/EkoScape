@@ -28,6 +28,7 @@ class RendererGles : public Renderer {
 public:
   explicit RendererGles(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 
+  void on_context_lost() override;
   void on_context_restored() override;
   void resize(const Size2i& size) override;
 
@@ -84,6 +85,8 @@ private:
     Program(Program&& other) noexcept = delete;
     virtual ~Program() noexcept;
 
+    void zombify();
+
     Program& operator=(const Program& other) = delete;
     Program& operator=(Program&& other) noexcept = delete;
 
@@ -103,6 +106,8 @@ private:
     QuadBuffer(const QuadBuffer& other) = delete;
     QuadBuffer(QuadBuffer&& other) noexcept;
     virtual ~QuadBuffer() noexcept;
+
+    void zombify();
 
     QuadBuffer& operator=(const QuadBuffer& other) = delete;
     QuadBuffer& operator=(QuadBuffer&& other) noexcept;
@@ -148,6 +153,8 @@ private:
   public:
     explicit QuadBufferBag(int count);
     void init();
+
+    void zombify();
 
     QuadBuffer* buffer(int index);
     std::size_t size() const;
