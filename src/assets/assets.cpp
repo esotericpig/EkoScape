@@ -134,9 +134,9 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
   corngrits_sprite_ = load_sprite(kImgsSubdir / "corngrits.png",kWeirdGrayColor);
 
 #if defined(__EMSCRIPTEN__)
-  keys_sprite_ = load_sprite(kImgsSubdir / "keys_web.png");
+  keys_sprite_ = load_sprite(kImgsSubdir / "keys_web.png",kWeirdGrayColor);
 #else
-  keys_sprite_ = load_sprite(kImgsSubdir / "keys.png");
+  keys_sprite_ = load_sprite(kImgsSubdir / "keys.png",kWeirdGrayColor);
 #endif
 
   load_asset([&](const auto& base_dir) {

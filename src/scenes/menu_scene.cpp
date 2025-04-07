@@ -108,7 +108,7 @@ int MenuScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*
   return std::exchange(scene_action_,SceneAction::kNil);
 }
 
-void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
+void MenuScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();
@@ -141,7 +141,15 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     tex.draw_quad(Pos3i{10,634,0},Size2i{300,256});
   });
   ren.wrap_sprite(ctx_.assets.keys_sprite(),[&](auto& s) {
-    s.draw_quad(Pos3i{804,560,0},Size2i{s.sprite.size().w / 2,s.sprite.size().h / 2});
+    constexpr int padding = 10;
+    const Size2i size{s.sprite.size().w / 2,s.sprite.size().h / 2};
+    const Pos3i pos{
+      dimens.target_size.w - size.w - padding,
+      dimens.target_size.h - size.h - padding,
+      0
+    };
+
+    s.draw_quad(pos,size);
   });
 
   ren.end_blend()
