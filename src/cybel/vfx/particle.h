@@ -29,9 +29,9 @@ namespace cybel {
  */
 class Particle {
 public:
-  float lifespan{};
-  float age{};
-  int past_lives{};
+  float lifespan = 1.0f;
+  float age = 0.0f;
+  int past_lives = 0;
 
   /**
    * Use this for drawing so that the size changes around a center point.
@@ -46,8 +46,8 @@ public:
    */
   Pos3f pos{};
   Pos3f pos_vel{};
-  float spin_angle{};
-  float spin_vel{};
+  float spin_angle = 0.0f;
+  float spin_vel = 0.0f;
 
   Size2f size{};
   Size2f baby_size{110.0f,110.0f};
@@ -70,7 +70,7 @@ public:
   bool is_alive() const;
   bool is_dead() const;
 
-  float calc_clamped_age() const;
+  float clamped_age() const;
 };
 
 } // namespace cybel

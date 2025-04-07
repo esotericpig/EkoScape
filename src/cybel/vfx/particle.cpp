@@ -18,15 +18,17 @@ Particle& Particle::die() {
 }
 
 Particle& Particle::age_by(float delta_time) {
+  if(lifespan == 0.0f) { return *this; } // Prevent divide by 0.
+
   age += (delta_time / lifespan); // Divide by lifespan to normalize to [0,1].
 
-  const float cage = calc_clamped_age(); // Prevent invalid values, Nicolas Cage style.
+  const float cage = clamped_age(); // Prevent invalid values, Nicolas Cage style.
 
   pos.x += (pos_vel.x * delta_time);
   pos.y += (pos_vel.y * delta_time);
   pos.z += (pos_vel.z * delta_time);
-  render_pos.x = pos.x - (size.w / 2);
-  render_pos.y = pos.y - (size.h / 2);
+  render_pos.x = pos.x - (size.w / 2.0f);
+  render_pos.y = pos.y - (size.h / 2.0f);
   render_pos.z = pos.z;
   spin_angle += (spin_vel * delta_time);
 
@@ -74,11 +76,6 @@ bool Particle::is_alive() const { return age <= 1.0f; }
 
 bool Particle::is_dead() const { return !is_alive(); }
 
-float Particle::calc_clamped_age() const {
-  if(age < 0.0f) { return 0.0f; }
-  if(age > 1.0f) { return 1.0f; }
-
-  return age;
-}
+float Particle::clamped_age() const { return std::clamp(age,0.0f,1.0f); }
 
 } // namespace cybel
