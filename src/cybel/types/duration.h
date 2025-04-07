@@ -42,7 +42,7 @@ public:
 
   Duration& set_from_millis(double millis);
   Duration& set_from_secs(double secs);
-  Duration& zero();
+  Duration& set_to_zero();
 
   double millis() const;
   double secs() const;

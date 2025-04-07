@@ -86,7 +86,7 @@ Duration& Duration::set_from_secs(double secs) {
   return *this;
 }
 
-Duration& Duration::zero() {
+Duration& Duration::set_to_zero() {
   value_ = 0.0;
 
   return *this;

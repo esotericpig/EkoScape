@@ -28,7 +28,7 @@ void GameHud::update(const FrameStep& step) {
   // Update the speedrun time str on Game Over or at an interval.
   if(state.speedrun_time != last_speedrun_time_ &&
      (state.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
-    last_updated_speedrun_time_.zero();
+    last_updated_speedrun_time_.set_to_zero();
     last_speedrun_time_ = state.speedrun_time;
     update_speedrun_time_str();
   }

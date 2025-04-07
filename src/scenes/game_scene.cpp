@@ -307,7 +307,7 @@ void GameScene::update_player(const FrameStep& step) {
 
   if(player_warp_time_ > Duration::kZero) {
     player_warp_time_ -= step.dpf;
-    if(player_warp_time_ < Duration::kZero) { player_warp_time_.zero(); }
+    if(player_warp_time_ < Duration::kZero) { player_warp_time_.set_to_zero(); }
   }
   if(player_fruit_time_ > Duration::kZero) {
     const auto prev_fruit_secs = player_fruit_time_.round_secs();
@@ -315,7 +315,7 @@ void GameScene::update_player(const FrameStep& step) {
     player_fruit_time_ -= step.dpf;
 
     if(player_fruit_time_ < Duration::kZero) {
-      player_fruit_time_.zero();
+      player_fruit_time_.set_to_zero();
     } else {
       const auto fruit_secs = player_fruit_time_.round_secs();
 

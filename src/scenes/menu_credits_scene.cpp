@@ -104,7 +104,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 void MenuCreditsScene::birth_wtfs(const ViewDimens& dimens) {
   if(active_wtf_count_ > 0 && wtf_cooldown_time_.secs() < 0.110f) { return; }
 
-  wtf_cooldown_time_.zero();
+  wtf_cooldown_time_.set_to_zero();
 
   auto& r = Rando::it();
   int max_births = (active_wtf_count_ <= 20) ? 25 : 8;

@@ -17,7 +17,7 @@ Timer::Timer(bool start) {
 
 Timer& Timer::start() {
   raw_duration_ = 0;
-  duration_.zero();
+  duration_.set_to_zero();
 
   return resume();
 }
