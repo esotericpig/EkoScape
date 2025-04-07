@@ -59,11 +59,11 @@ private:
   static inline const int kLikeStatue = 1 << 0; // No movement.
   static inline const int kLikeNormal = 1 << 1;
   static inline const int kLikeGhost = 1 << 2; // Can go through walls.
-  static inline const int kLikeSnake = 1 << 3; // Leaves behind a "shadow"/tail of statues.
+  static inline const int kLikeSnake = 1 << 3; // Leaves behind a tail of statues.
 
-  static inline const float kDefaultLifespan{};
+  static inline const float kDefaultLifespan = 0.0f; // 0.0f is immortal.
   static inline const float kSnakeTailLifespan = 9.0f;
-  static inline std::vector<Pos2i> rand_move_vels_{
+  static inline std::array<Pos2i,4> rand_move_vels_{
     Pos2i{ 0,-1}, // North.
     Pos2i{ 0, 1}, // South.
     Pos2i{ 1, 0}, // East.
@@ -72,9 +72,9 @@ private:
 
   SpaceType type_ = SpaceType::kNil;
   Pos3i pos_{};
-  int moves_like_{};
-  float lifespan_{};
-  float age_{};
+  int moves_like_ = 0;
+  float lifespan_ = kDefaultLifespan;
+  float age_ = 0.0f;
 
   Pos3i last_seen_player_pos_{0,0,-1};
   SpaceType portal_type_ = SpaceType::kNil;

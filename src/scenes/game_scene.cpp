@@ -469,10 +469,15 @@ std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType port
   if(bros.size() <= 1) { return std::nullopt; } // No bros. :(
 
   if(bros.size() > 2) { // More than 1 bro?
+    // Try once without shuffling.
+    const auto& rand_bro_pos = bros[Rando::it().rand_sizet(bros.size())];
+
+    if(rand_bro_pos != pos && can_move_to(rand_bro_pos)) { return rand_bro_pos; }
+
     Rando::it().shuffle(bros.begin(),bros.end());
   }
 
-  for(auto& bro_pos : bros) { // Find Luigi.
+  for(const auto& bro_pos : bros) { // Find Luigi.
     if(bro_pos != pos && can_move_to(bro_pos)) { return bro_pos; }
   }
 

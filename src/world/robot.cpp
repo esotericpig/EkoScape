@@ -79,7 +79,7 @@ bool Robot::move_smart(MoveData& data) {
   if(on_player_x && on_player_y) {
     // Move randomly again, to try to hit a Portal nearby if the last seen pos is off.
     last_seen_player_pos_.z = -1;
-    return false;
+    return move_rand(data);
   }
 
   int x_vel;
@@ -139,6 +139,14 @@ bool Robot::move_smart(MoveData& data) {
 }
 
 bool Robot::move_rand(MoveData& data) {
+  // ReSharper disable once CppDFAUnreachableCode
+  if constexpr(rand_move_vels_.empty()) { return false; }
+
+  // Try once without shuffling.
+  const auto& rand_move_vel = rand_move_vels_[Rando::it().rand_sizet(rand_move_vels_.size())];
+
+  if(try_move(data,rand_move_vel.x,rand_move_vel.y)) { return true; }
+
   Rando::it().shuffle(rand_move_vels_.begin(),rand_move_vels_.end());
 
   for(const auto& move_vel : rand_move_vels_) {
@@ -155,7 +163,7 @@ bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
   if(!can_move_to(to_space)) { return false; }
   if(!data.map.move_thing(pos_,to_pos)) { return false; }
 
-  const Pos3i from_pos = pos_; // Store origin for snake's tail.
+  const auto from_pos = pos_; // Store origin for snake's tail.
   pos_ = to_pos;
   portal_type_ = to_space->is_portal() ? to_space->empty_type() : SpaceType::kNil;
 
@@ -163,6 +171,7 @@ bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
     warped_ = false;
 
     if((moves_like_ & kLikeSnake) && data.map.place_thing(SpaceType::kRobotStatue,from_pos)) {
+      // Grow tail.
       data.new_robots.push_back(build_statue(from_pos,kSnakeTailLifespan));
     }
   }

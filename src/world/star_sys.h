@@ -38,11 +38,12 @@ public:
   bool is_empty() const;
 
 private:
-  // NOTE: Cannot be empty!
-  static inline const std::array<Color4f,5> kColors = {
+  static inline const std::array<Color4f,7> kColors{
     Color4f::kBlue,
+    Color4f::kBrown,
     Color4f::kCyan,
     Color4f::kPurple,
+    Color4f::kRed,
     Color4f::kWhite,
     Color4f::kYellow,
   };

@@ -11,6 +11,7 @@ namespace cybel {
 
 const Color4f Color4f::kBlack = hex(0x000000);
 const Color4f Color4f::kBlue = hex(0x0000ff);
+const Color4f Color4f::kBrown = hex(0x964b00);
 const Color4f Color4f::kCopper = hex(0xb87333);
 const Color4f Color4f::kCyan = hex(0x00ffff);
 const Color4f Color4f::kGreen = hex(0x00ff00);

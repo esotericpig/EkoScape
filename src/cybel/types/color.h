@@ -19,6 +19,7 @@ class Color4f {
 public:
   static const Color4f kBlack;
   static const Color4f kBlue;
+  static const Color4f kBrown;
   static const Color4f kCopper;
   static const Color4f kCyan;
   static const Color4f kGreen;
