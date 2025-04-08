@@ -314,10 +314,10 @@ Example workflow:
 # Use `-n` to only perform a dry-run.
 # Use `-c <channel>` to filter which artifacts/channels to use (fuzzy search).
 
-# Download GitHub artifacts to `build/artifacts/`.
+# Download GitHub artifacts to `pkgs/`.
 ./scripts/artifacts.rb -g
 
-# Extract (decompress) artifacts to `build/artifacts/`.
+# Extract (decompress) artifacts to `pkgs/`.
 ./scripts/artifacts.rb -x
 
 # Validate artifact folders for itch.io.

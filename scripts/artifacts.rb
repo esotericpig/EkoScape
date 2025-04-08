@@ -10,10 +10,10 @@
 #   # Use `-n` to only perform a dry-run.
 #   # Use `-c <channel>` to filter which artifacts/channels to use (fuzzy search).
 #
-#   # Download GitHub artifacts to `build/artifacts/`.
+#   # Download GitHub artifacts to `pkgs/`.
 #   ./scripts/artifacts.rb -g
 #
-#   # Extract (decompress) artifacts to `build/artifacts/`.
+#   # Extract (decompress) artifacts to `pkgs/`.
 #   ./scripts/artifacts.rb -x
 #
 #   # Validate artifact folders for itch.io.
@@ -45,9 +45,9 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.8'
+  VERSION = '0.1.9'
 
-  ARTIFACTS_DIR = File.join('build','artifacts')
+  DEST_DIR = File.join('pkgs')
   USER_GAME = 'esotericpig/ekoscape'
 
   ARTIFACTS = [
@@ -83,8 +83,8 @@ class ArtifactsMan
 
   # Order matters! Because user can specify all actions.
   ACTIONS = [
-    [:C,"[clean] delete '#{ARTIFACTS_DIR}/'",:clean],
-    [:g,"[get] download artifacts to '#{ARTIFACTS_DIR}/'",:fetch],
+    [:C,"[clean] delete artifacts (& their folders) in '#{DEST_DIR}/'",:clean],
+    [:g,"[get] download artifacts to '#{DEST_DIR}/'",:fetch],
     [:k,'[checksum] verify artifact checksums',:check],
     [:x,'[extract] extract artifacts',:extract],
     [:v,'[validate] validate artifacts for itch.io',:validate_for_itch],
@@ -96,8 +96,8 @@ class ArtifactsMan
 
   def initialize
     @artifacts = ARTIFACTS.map do |artifact|
-      artifact[:file] = File.join(ARTIFACTS_DIR,artifact[:file]) unless artifact[:file].nil?
-      artifact[:dest_dir] = File.join(ARTIFACTS_DIR,artifact[:dest_dir]) unless artifact[:dest_dir].nil?
+      artifact[:file] = File.join(DEST_DIR,artifact[:file]) unless artifact[:file].nil?
+      artifact[:dest_dir] = File.join(DEST_DIR,artifact[:dest_dir]) unless artifact[:dest_dir].nil?
 
       Artifact.new(**artifact)
     end
@@ -145,7 +145,9 @@ class ArtifactsMan
 
       op.separator ''
       op.separator 'Channels'
-      @artifacts.each { |artifact| op.separator "#{si}#{artifact.channel}" }
+      @artifacts.each do |artifact|
+        op.separator format('%s%-20s %-40p %p',si,artifact.channel,artifact.file,artifact.dest_dir)
+      end
 
       op.separator ''
       op.separator 'Options'
@@ -184,21 +186,32 @@ class ArtifactsMan
   end
 
   def clean
-    if File.directory?(ARTIFACTS_DIR)
-      FileUtils.rm_r(ARTIFACTS_DIR,noop: @dry_run,verbose: true)
-    else
-      puts "Already gone: #{ARTIFACTS_DIR}"
+    each_artifact(pauses: false,show_result: false) do |artifact|
+      next :skip if artifact.file.nil? || artifact.dest_dir.nil?
+
+      if File.file?(artifact.file)
+        FileUtils.rm(artifact.file,noop: @dry_run,verbose: true)
+      else
+        puts "[gone] '#{artifact.file}'"
+      end
+      if File.directory?(artifact.dest_dir)
+        FileUtils.rm_r(artifact.dest_dir,noop: @dry_run,verbose: true)
+      else
+        puts "[gone] '#{artifact.dest_dir}'"
+      end
+
+      true
     end
   end
 
   def fetch
-    FileUtils.mkdir_p(ARTIFACTS_DIR,noop: @dry_run,verbose: true) unless File.directory?(ARTIFACTS_DIR)
+    FileUtils.mkdir_p(DEST_DIR,noop: @dry_run,verbose: true) unless File.directory?(DEST_DIR)
 
     # NOTE: Must download each one separately so that it doesn't create subdirs.
     each_artifact do |artifact|
       next :skip if artifact.name.nil?
 
-      run_cmd(GH_CMD,'run','download','--dir',ARTIFACTS_DIR,'--name',artifact.name)
+      run_cmd(GH_CMD,'run','download','--dir',DEST_DIR,'--name',artifact.name)
     end
 
     check
