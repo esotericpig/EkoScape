@@ -1,3 +1,5 @@
+/assets/*
+!/assets/maps/
 /.idea/*
 !/.idea/cmake.xml
 !/.idea/runConfigurations/
@@ -14,17 +16,11 @@ CMakeUserPresets.json
 *.a
 *.app
 *.AppImage
-*.bmp
 *.d
 *.dll
 *.dylib
 *.exe
 *.gch
-*.gif
-*.icns
-*.ico
-*.jpeg
-*.jpg
 *.la
 *.lai
 *.lib
@@ -32,10 +28,8 @@ CMakeUserPresets.json
 *.mod
 *.o
 *.obj
-*.ogg
 *.out
 *.pch
-*.png
 *.slo
 *.smod
 *.so

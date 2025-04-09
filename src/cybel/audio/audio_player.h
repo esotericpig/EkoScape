@@ -10,6 +10,7 @@
 
 #include "cybel/common.h"
 
+#include "cybel/audio/audio.h"
 #include "cybel/audio/music.h"
 #include "cybel/types/duration.h"
 
@@ -68,6 +69,8 @@ public:
   void play_or_resume_music(const Music* music);
   void pause_music();
   void stop_music();
+
+  void play_audio(const Audio* audio);
 
   void set_music_pos(const Duration& pos);
 

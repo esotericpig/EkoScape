@@ -33,7 +33,7 @@ public:
 
 private:
   std::string id_{};
-  Mix_Music* music_ = NULL;
+  Mix_Music* object_ = NULL;
 
   void move_from(Music&& other) noexcept;
   void destroy() noexcept;

@@ -24,7 +24,7 @@ AudioPlayer::AudioPlayer(int music_types) {
     // Since we're playing a MIDI file, use these settings according to the doc:
     // - https://wiki.libsdl.org/SDL2_mixer/FrontPage
     // - For SDL3, use SDL_AUDIO_S8, probably? Not defined in SDL2.
-    result = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,AUDIO_S8,1,4096);
+    result = Mix_OpenAudio(44100,AUDIO_S8,1,4096);
   } else {
     // Defaults:
     //   frequency = MIX_DEFAULT_FREQUENCY(44100) or 48000,
@@ -46,9 +46,12 @@ AudioPlayer::AudioPlayer(int music_types) {
 AudioPlayer::~AudioPlayer() noexcept {
   if(is_alive_) {
     is_alive_ = false;
+
     // Mix_CloseAudio() is supposed to auto-stop audio, but found it not to work once,
     //     so calling Mix_HaltMusic() just to make sure.
     Mix_HaltMusic();
+    Mix_HaltChannel(-1); // -1 for all channels.
+
     Mix_CloseAudio();
     Mix_Quit();
   }
@@ -61,7 +64,7 @@ void AudioPlayer::play_music(const Music* music) {
   curr_music_id_.clear();
 
   // -1 to play indefinitely.
-  if(Mix_PlayMusic(music->music_,-1) != 0) {
+  if(Mix_PlayMusic(music->object_,-1) != 0) {
     std::cerr << "[WARN] Failed to play music: " << Util::get_sdl_mix_error() << '.' << std::endl;
     // Don't fail, since music is optional.
   } else {
@@ -97,6 +100,13 @@ void AudioPlayer::stop_music() {
   curr_music_id_.clear();
 }
 
+void AudioPlayer::play_audio(const Audio* audio) {
+  if(!is_alive_ || audio == nullptr) { return; }
+
+  // -1 to play on the first free track ("channel").
+  Mix_PlayChannel(-1,audio->object_,0);
+}
+
 void AudioPlayer::set_music_pos(const Duration& pos) {
   if(!is_alive_) { return; }
 
@@ -106,7 +116,7 @@ void AudioPlayer::set_music_pos(const Duration& pos) {
 Duration AudioPlayer::fetch_duration(const Music* music,const Duration& fallback) const {
   if(!is_alive_ || music == nullptr) { return fallback; }
 
-  const double secs = Mix_MusicDuration(music->music_);
+  const double secs = Mix_MusicDuration(music->object_);
 
   return (secs <= 0.0) ? fallback : Duration::from_secs(secs);
 }
