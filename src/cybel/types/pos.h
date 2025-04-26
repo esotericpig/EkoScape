@@ -25,7 +25,9 @@ public:
   explicit Pos2(T x,T y) noexcept
     : x(x),y(y) {}
 
-  bool operator==(const Pos2&) const = default;
+  auto operator<=>(const Pos2&) const = default;
+
+  Pos2 operator-() const { return Pos2{-x,-y}; }
 
   Pos2& set(T x,T y) {
     this->x = x;
@@ -56,7 +58,7 @@ public:
   explicit Pos3(T x,T y,T z) noexcept
     : x(x),y(y),z(z) {}
 
-  bool operator==(const Pos3&) const = default;
+  auto operator<=>(const Pos3&) const = default;
 
   Pos3 operator-() const { return Pos3{-x,-y,-z}; }
 
@@ -94,6 +96,16 @@ struct Pos5f {
   float y2{};
   float z{};
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out,const Pos2<T>& pos) {
+  return out << '(' << pos.x << ',' << pos.y << ')';
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out,const Pos3<T>& pos) {
+  return out << '(' << pos.x << ',' << pos.y << ',' << pos.z << ')';
+}
 
 } // namespace cybel
 #endif

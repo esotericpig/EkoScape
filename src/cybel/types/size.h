@@ -24,6 +24,8 @@ public:
   explicit Size2(T w,T h) noexcept
     : w(w),h(h) {}
 
+  auto operator<=>(const Size2&) const = default;
+
   bool in_bounds(const Pos2<T>& pos,const Size2& size) const {
     return ((pos.x + size.w) >= 0 && pos.x < w) &&
            ((pos.y + size.h) >= 0 && pos.y < h);
@@ -36,12 +38,21 @@ public:
     return *this;
   }
 
+  float aspect_ratio() const {
+    return static_cast<float>(w) / static_cast<float>(h);
+  }
+
   template <typename T2>
   Size2<T2> to_size2() const { return Size2<T2>{static_cast<T2>(w),static_cast<T2>(h)}; }
 };
 
 using Size2f = Size2<float>;
 using Size2i = Size2<int>;
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out,const Size2<T>& size) {
+  return out << size.w << 'x' << size.h;
+}
 
 } // namespace cybel
 #endif
