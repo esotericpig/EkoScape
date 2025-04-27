@@ -61,8 +61,20 @@ public:
     CellStyle tall{};
   };
 
+  struct Cell {
+    std::shared_ptr<UiComp> comp{};
+    CellStyles styles{};
+
+    CellStyle style{};
+    bool is_dirty = true;
+    Pos3i pos{};
+    Size2i size{};
+  };
+
   GridStyles grid_styles{};
   DefaultCellStyles default_cell_styles{};
+
+  using UiComp::resize;
 
   explicit UiFlexGrid() noexcept = default;
   explicit UiFlexGrid(const GridStyles& grid_styles,const DefaultCellStyles& default_cell_styles) noexcept;
@@ -72,19 +84,14 @@ public:
   void resize(const Pos3i& pos,const Size2i& size) override;
   void draw(Renderer& ren) override;
 
+  void update_styles();
+
+  /**
+   * This is just for debugging purposes.
+   */
+  const Cell* cell(std::size_t index) const;
+
 private:
-  struct Cell {
-    std::shared_ptr<UiComp> comp{};
-    CellStyles styles{};
-
-    CellStyle style{};
-    bool is_visible = false;
-
-    bool is_dirty = true;
-    Pos3i pos{};
-    Size2i size{};
-  };
-
   enum class Layout : std::uint8_t {
     kUnknown,
     kWide,
@@ -103,7 +110,6 @@ private:
   GridStyle grid_style_{};
   DefaultCellStyle default_cell_style_{};
 
-  void update_styles();
   void build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_data_bag);
   void resize_cell(Cell& cell,const Pos3i& cell_pos,const Size2i& cell_size);
 

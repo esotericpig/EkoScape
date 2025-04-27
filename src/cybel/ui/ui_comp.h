@@ -21,6 +21,7 @@ public:
   virtual ~UiComp() noexcept = default;
 
   virtual void resize([[maybe_unused]] const Pos3i& pos,[[maybe_unused]] const Size2i& size) {}
+  void resize(const Size2i& size) { resize(Pos3i{},size); }
   virtual void draw([[maybe_unused]] Renderer& ren) {}
 };
 

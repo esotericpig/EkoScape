@@ -21,8 +21,9 @@ void UiFlexGrid::add(std::shared_ptr<UiComp> comp,const CellStyles& styles) {
 
 void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
   const auto new_layout = (size.w > size.h) ? Layout::kWide : Layout::kTall;
+  const bool layout_changed = (new_layout != layout_);
 
-  if(new_layout != layout_) {
+  if(layout_changed) {
     layout_ = new_layout;
     update_styles();
   }
@@ -61,8 +62,8 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
             std::max(base_cell_size.h * cell->style.rowspan,1)
           };
 
-          // Did the pos or size change?
-          if(cell_pos != cell->pos || cell_size != cell->size) {
+          // Did the layout/pos/size change?
+          if(layout_changed || (cell_pos != cell->pos || cell_size != cell->size)) {
             resize_cell(*cell,cell_pos,cell_size);
           }
         }
@@ -75,16 +76,6 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
     }
 
     base_cell_pos.x = pos.x;
-  }
-}
-
-void UiFlexGrid::update_styles() {
-  grid_style_ = merge_grid_styles();
-  default_cell_style_ = merge_default_cell_styles();
-
-  for(auto& cell : cells_) {
-    cell.style = merge_cell_styles(cell.styles);
-    cell.is_visible = (cell.style.visible == 1);
   }
 }
 
@@ -103,7 +94,7 @@ void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_d
         for(; free_cell_i < cells_.size(); ++free_cell_i) {
           auto& free_cell = cells_[free_cell_i];
 
-          if(free_cell.is_visible) {
+          if(free_cell.style.visible == 1) {
             cell = &free_cell;
             ++free_cell_i;
             break;
@@ -177,7 +168,16 @@ void UiFlexGrid::resize_cell(Cell& cell,const Pos3i& cell_pos,const Size2i& cell
 
 void UiFlexGrid::draw(Renderer& ren) {
   for(auto& cell : cells_) {
-    if(cell.is_visible) { cell.comp->draw(ren); }
+    if(cell.style.visible == 1) { cell.comp->draw(ren); }
+  }
+}
+
+void UiFlexGrid::update_styles() {
+  grid_style_ = merge_grid_styles();
+  default_cell_style_ = merge_default_cell_styles();
+
+  for(auto& cell : cells_) {
+    cell.style = merge_cell_styles(cell.styles);
   }
 }
 
@@ -255,6 +255,10 @@ UiFlexGrid::boolish UiFlexGrid::pick_from_boolish2(boolish base_opt,boolish alt_
 UiFlexGrid::boolish UiFlexGrid::pick_from_boolish3(boolish base_opt,boolish alt_opt1,boolish alt_opt2,
                                                    boolish fallback_opt) {
   return pick_from3<boolish>(base_opt,alt_opt1,alt_opt2,fallback_opt,0);
+}
+
+const UiFlexGrid::Cell* UiFlexGrid::cell(std::size_t index) const {
+  return (index < cells_.size()) ? &cells_[index] : nullptr;
 }
 
 } // namespace cybel
