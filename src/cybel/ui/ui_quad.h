@@ -11,24 +11,21 @@
 #include "cybel/common.h"
 
 #include "cybel/types/color.h"
-#include "cybel/ui/ui_node.h"
+#include "cybel/ui/ui_box_node.h"
 
 namespace cybel {
 
 /**
  * Mainly used for testing/debugging purposes.
  */
-class UiQuad : public UiNode {
+class UiQuad : public UiBoxNode {
 public:
   explicit UiQuad(const Color4f& color) noexcept;
 
-  void resize(const Pos3i& pos,const Size2i& size) override;
   void draw(Renderer& ren) override;
 
 private:
   Color4f color_{};
-  Pos3i pos_{};
-  Size2i size_{};
 };
 
 } // namespace cybel

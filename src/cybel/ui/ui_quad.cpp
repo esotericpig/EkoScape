@@ -12,11 +12,6 @@ namespace cybel {
 UiQuad::UiQuad(const Color4f& color) noexcept
   : color_(color) {}
 
-void UiQuad::resize(const Pos3i& pos,const Size2i& size) {
-  pos_ = pos;
-  size_ = size;
-}
-
 void UiQuad::draw(Renderer& ren) {
   ren.wrap_color(color_,[&] { ren.draw_quad(pos_,size_); });
 }

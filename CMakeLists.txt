@@ -378,6 +378,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/cybel/types/cybel_error.cpp"
     "${SRC_DIR}/cybel/types/duration.cpp"
     "${SRC_DIR}/cybel/types/range.cpp"
+    "${SRC_DIR}/cybel/ui/ui_box_node.cpp"
     "${SRC_DIR}/cybel/ui/ui_flex_grid.cpp"
     "${SRC_DIR}/cybel/ui/ui_quad.cpp"
     "${SRC_DIR}/cybel/util/rando.cpp"
