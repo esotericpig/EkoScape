@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_UI_UI_COMP_H_
-#define CYBEL_UI_UI_COMP_H_
+#ifndef CYBEL_UI_UI_NODE_H_
+#define CYBEL_UI_UI_NODE_H_
 
 #include "cybel/common.h"
 
@@ -16,16 +16,16 @@
 
 namespace cybel {
 
-class UiComp {
+class UiNode {
 public:
-  virtual ~UiComp() noexcept = default;
+  virtual ~UiNode() noexcept = default;
 
   virtual void resize([[maybe_unused]] const Pos3i& pos,[[maybe_unused]] const Size2i& size) {}
   void resize(const Size2i& size) { resize(Pos3i{},size); }
   virtual void draw([[maybe_unused]] Renderer& ren) {}
 };
 
-inline auto kUiSpacer = std::make_shared<UiComp>();
+inline auto kUiSpacer = std::make_shared<UiNode>();
 
 } // namespace cybel
 #endif

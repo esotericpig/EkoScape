@@ -12,9 +12,9 @@ namespace cybel {
 UiFlexGrid::UiFlexGrid(const GridStyles& grid_styles,const DefaultCellStyles& default_cell_styles) noexcept
   : grid_styles(grid_styles),default_cell_styles(default_cell_styles) {}
 
-void UiFlexGrid::add(std::shared_ptr<UiComp> comp,const CellStyles& styles) {
+void UiFlexGrid::add(std::shared_ptr<UiNode> node,const CellStyles& styles) {
   cells_.push_back(Cell{
-    .comp = std::move(comp),
+    .node = std::move(node),
     .styles = styles,
   });
 }
@@ -137,38 +137,38 @@ void UiFlexGrid::resize_cell(Cell& cell,const Pos3i& cell_pos,const Size2i& cell
   const int vpadding = std::min(cell.style.padding,
                                 static_cast<int>(static_cast<float>(cell.size.h) * kMinPaddingRatio));
 
-  auto comp_pos = cell.pos;
-  auto comp_size = cell.size;
+  auto node_pos = cell.pos;
+  auto node_size = cell.size;
 
-  comp_pos.x += hpadding;
-  comp_pos.y += vpadding;
-  comp_size.w -= (hpadding * 2);
-  comp_size.h -= (vpadding * 2);
+  node_pos.x += hpadding;
+  node_pos.y += vpadding;
+  node_size.w -= (hpadding * 2);
+  node_size.h -= (vpadding * 2);
 
   if(cell.style.aspect_ratio != 1.0f) {
-    if(comp_size.aspect_ratio() <= cell.style.aspect_ratio) {
-      comp_size.h = static_cast<int>(std::round(static_cast<float>(comp_size.w) / cell.style.aspect_ratio));
+    if(node_size.aspect_ratio() <= cell.style.aspect_ratio) {
+      node_size.h = static_cast<int>(std::round(static_cast<float>(node_size.w) / cell.style.aspect_ratio));
     } else {
-      comp_size.w = static_cast<int>(std::round(static_cast<float>(comp_size.h) * cell.style.aspect_ratio));
+      node_size.w = static_cast<int>(std::round(static_cast<float>(node_size.h) * cell.style.aspect_ratio));
     }
   }
 
-  if(comp_size.w < 1) { comp_size.w = 1; }
-  if(comp_size.h < 1) { comp_size.h = 1; }
+  if(node_size.w < 1) { node_size.w = 1; }
+  if(node_size.h < 1) { node_size.h = 1; }
 
-  comp_pos.x += static_cast<int>(
-    std::round(static_cast<float>(cell.size.w - comp_size.w) * cell.style.halign)
+  node_pos.x += static_cast<int>(
+    std::round(static_cast<float>(cell.size.w - node_size.w) * cell.style.halign)
   );
-  comp_pos.y += static_cast<int>(
-    std::round(static_cast<float>(cell.size.h - comp_size.h) * cell.style.valign)
+  node_pos.y += static_cast<int>(
+    std::round(static_cast<float>(cell.size.h - node_size.h) * cell.style.valign)
   );
 
-  cell.comp->resize(comp_pos,comp_size);
+  cell.node->resize(node_pos,node_size);
 }
 
 void UiFlexGrid::draw(Renderer& ren) {
   for(auto& cell : cells_) {
-    if(cell.style.visible == 1) { cell.comp->draw(ren); }
+    if(cell.style.visible == 1) { cell.node->draw(ren); }
   }
 }
 

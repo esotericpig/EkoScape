@@ -11,14 +11,14 @@
 #include "cybel/common.h"
 
 #include "cybel/types/color.h"
-#include "cybel/ui/ui_comp.h"
+#include "cybel/ui/ui_node.h"
 
 namespace cybel {
 
 /**
  * Mainly used for testing/debugging purposes.
  */
-class UiQuad : public UiComp {
+class UiQuad : public UiNode {
 public:
   explicit UiQuad(const Color4f& color) noexcept;
 

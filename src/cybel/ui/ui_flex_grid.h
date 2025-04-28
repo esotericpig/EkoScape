@@ -10,11 +10,11 @@
 
 #include "cybel/common.h"
 
-#include "cybel/ui/ui_comp.h"
+#include "cybel/ui/ui_node.h"
 
 namespace cybel {
 
-class UiFlexGrid : public UiComp {
+class UiFlexGrid : public UiNode {
 public:
   using boolish = std::int8_t; /// -1, 0, or 1.
 
@@ -62,7 +62,7 @@ public:
   };
 
   struct Cell {
-    std::shared_ptr<UiComp> comp{};
+    std::shared_ptr<UiNode> node{};
     CellStyles styles{};
 
     CellStyle style{};
@@ -74,12 +74,12 @@ public:
   GridStyles grid_styles{};
   DefaultCellStyles default_cell_styles{};
 
-  using UiComp::resize;
+  using UiNode::resize;
 
   explicit UiFlexGrid() noexcept = default;
   explicit UiFlexGrid(const GridStyles& grid_styles,const DefaultCellStyles& default_cell_styles) noexcept;
 
-  void add(std::shared_ptr<UiComp> comp,const CellStyles& styles);
+  void add(std::shared_ptr<UiNode> node,const CellStyles& styles);
 
   void resize(const Pos3i& pos,const Size2i& size) override;
   void draw(Renderer& ren) override;
