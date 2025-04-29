@@ -72,7 +72,7 @@ private:
   void update_speedrun_time_str();
 
   void draw_map_mod(Renderer& ren,const ViewDimens& dimens);
-  void draw_mini_map(Renderer& ren,Pos3i& pos);
+  void draw_mini_map(Renderer& ren,Pos3i pos);
   void draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens);
 };
 

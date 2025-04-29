@@ -317,7 +317,7 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
     const Size2i padding{5,5};
 
-    assets_->font_renderer().wrap(ren,Pos3i{padding.w,padding.h,0},0.33f,[&](auto& font) {
+    assets_->font_renderer().wrap(ren,Pos3i{5 + padding.w,5 + padding.h,0},0.33f,[&](auto& font) {
       font.draw_bg(Color4f{0.0f,0.5f},Size2i{static_cast<int>(avg_fps_str_.length()),1},padding);
       font.print(avg_fps_str_);
     });

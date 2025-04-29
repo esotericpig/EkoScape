@@ -70,7 +70,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_auto_anchor_scale(Pos2f{0.0f,1.0f}); // Anchor to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (state.show_mini_map ? kMiniMapSize.h : 0);
-  Pos3i pos{0,dimens.target_size.h - total_h,0};
+  const Pos3i pos{5,dimens.target_size.h - 5 - total_h,0};
 
   ren.wrap_color(mini_map_walkable_color_,[&] {
     ren.draw_quad(pos,Size2i{kMiniMapSize.w,kMiniMapBlockSize.h});
@@ -104,7 +104,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.end_scale();
 }
 
-void GameHud::draw_mini_map(Renderer& ren,Pos3i& pos) {
+void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
   pos.y += kMiniMapBlockSize.h;
 
   const Pos3i player_pos = state.map.player_pos();
@@ -193,8 +193,8 @@ void GameHud::draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens) {
 
     // Minus total_size by padding once because draw_bg() minuses the pos by padding once
     //     (moves the BG negative instead of moving the text positive) to center the BG around the text.
-    font.font.pos.x = dimens.target_size.w - (total_size.w - padding.w);
-    font.font.pos.y = dimens.target_size.h - (total_size.h - padding.h);
+    font.font.pos.x = (dimens.target_size.w - 5) - (total_size.w - padding.w);
+    font.font.pos.y = (dimens.target_size.h - 5) - (total_size.h - padding.h);
 
     font.draw_bg(mini_map_walkable_color_,str_size,padding);
     font.print(speedrun_time_str_);
