@@ -22,7 +22,8 @@
 
 namespace cybel {
 
-using InputIds = std::unordered_set<int>;
+using input_id_t = int;
+using InputIds = std::unordered_set<input_id_t>;
 
 /**
  * TODO: Touch (finger) input is not implemented seriously for now, but just for fun,
@@ -32,29 +33,29 @@ class InputMan {
 public:
   class InputMapper {
   public:
-    explicit InputMapper(InputMan& input_man,int id);
+    explicit InputMapper(InputMan& input_man,input_id_t id);
 
-    void raw_key(std::initializer_list<RawKey> keys,KeyMods mods = 0);
+    void raw_key(std::initializer_list<RawKey> keys,key_mods_t mods = 0);
     void raw_key(std::initializer_list<RawKeyInput> keys);
 
-    void sym_key(std::initializer_list<SymKey> keys,KeyMods mods = 0);
+    void sym_key(std::initializer_list<SymKey> keys,key_mods_t mods = 0);
     void sym_key(std::initializer_list<SymKeyInput> keys);
 
     void joypad(std::initializer_list<JoypadInput> inputs);
 
   private:
     InputMan& input_man_;
-    int id_{};
+    input_id_t id_{};
   };
 
   using MapInputCallback = std::function<void(InputMapper&)>;
-  using OnInputEvent = std::function<void(int id)>;
+  using OnInputEvent = std::function<void(input_id_t id)>;
 
   static inline const InputIds kEmptyIds{};
 
-  explicit InputMan(int max_id = 0);
+  explicit InputMan(input_id_t max_id = 0);
 
-  void map_input(int id,const MapInputCallback& callback);
+  void map_input(input_id_t id,const MapInputCallback& callback);
 
   /// TEST: Only use for testing purposes.
   void use_fake_joypad(bool use_game_ctrl,FakeJoypadInputType input_type);
@@ -78,10 +79,10 @@ private:
   // About 24% of range: SDL_JOYSTICK_AXIS_MAX(32'767) * 0.24f
   static constexpr Sint16 kJoypadAxisDeadZone = 8'000;
 
-  int max_id_{};
+  input_id_t max_id_{};
   std::vector<bool> id_to_state_{};
   std::vector<bool> id_to_event_state_{};
-  std::unordered_set<int> processed_ids_{};
+  std::unordered_set<input_id_t> processed_ids_{};
   OnInputEvent on_input_event_{};
 
   std::unordered_map<RawKeyInput,InputIds,RawKeyInput::Hash> raw_key_to_ids_{};

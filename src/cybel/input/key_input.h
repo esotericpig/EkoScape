@@ -14,7 +14,7 @@
 
 namespace cybel {
 
-using KeyMods = Uint16;
+using key_mods_t = Uint16;
 
 template <typename T>
 class KeyInput {
@@ -26,7 +26,7 @@ public:
     }
   };
 
-  explicit KeyInput(T key,KeyMods mods = KeyMods{}) noexcept
+  explicit KeyInput(T key,key_mods_t mods = 0) noexcept
     : key_(key),mods_(mods & kNormMods) {}
 
   bool operator==(const KeyInput& other) const {
@@ -34,22 +34,22 @@ public:
   }
 
   T key() const { return key_; }
-  KeyMods mods() const { return mods_; }
+  key_mods_t mods() const { return mods_; }
 
 private:
   // Ignore Caps Lock, etc.
   // See: https://wiki.libsdl.org/SDL2/SDL_Keymod
-  static inline const KeyMods kNormMods = static_cast<KeyMods>(
+  static inline const key_mods_t kNormMods = static_cast<key_mods_t>(
     ~(KMOD_NUM | KMOD_CAPS | KMOD_MODE | KMOD_SCROLL)
   );
 
   T key_{};
-  KeyMods mods_{};
+  key_mods_t mods_{};
 };
 
 using RawKey = SDL_Scancode;
 using RawKeyInput = KeyInput<RawKey>;
-using SymKey = SDL_Keycode;
+using SymKey = SDL_KeyCode;
 using SymKeyInput = KeyInput<SymKey>;
 
 } // namespace cybel

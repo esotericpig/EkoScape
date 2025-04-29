@@ -9,7 +9,7 @@
 
 namespace cybel {
 
-Timer::Timestamp Timer::now() { return SDL_GetTicks64(); }
+Timer::timestamp_t Timer::now() { return SDL_GetTicks64(); }
 
 Timer::Timer(bool start) {
   if(start) { this->start(); }
@@ -32,7 +32,7 @@ Timer& Timer::resume() {
 Duration Timer::peek() const {
   if(is_paused_) { return duration_; }
 
-  const auto dur = raw_duration_ + (now() - start_time_);
+  const auto dur = raw_duration_ + (now() - start_time_); // Add to duration for resuming.
 
   return Duration::from_millis(static_cast<double>(dur));
 }
@@ -40,7 +40,7 @@ Duration Timer::peek() const {
 const Duration& Timer::pause() {
   if(!is_paused_) {
     is_paused_ = true;
-    raw_duration_ += (now() - start_time_); // `+=` for resuming.
+    raw_duration_ += (now() - start_time_); // Add to duration for resuming.
     duration_.set_from_millis(static_cast<double>(raw_duration_));
   }
 

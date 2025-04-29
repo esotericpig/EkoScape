@@ -26,14 +26,14 @@ public:
   const Duration& duration() const;
 
 private:
-  using Timestamp = Uint64;
+  using timestamp_t = Uint64;
 
-  Timestamp start_time_{};
+  timestamp_t start_time_{};
   bool is_paused_ = false;
-  Timestamp raw_duration_{};
+  timestamp_t raw_duration_{};
   Duration duration_{};
 
-  static Timestamp now();
+  static timestamp_t now();
 };
 
 } // namespace cybel

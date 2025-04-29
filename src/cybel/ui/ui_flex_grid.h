@@ -16,7 +16,7 @@ namespace cybel {
 
 class UiFlexGrid : public UiNode {
 public:
-  using boolish = std::int8_t; /// -1, 0, or 1.
+  using boolish_t = std::int8_t; /// -1, 0, or 1.
 
   struct GridStyle {
     int cols = -1;
@@ -30,7 +30,7 @@ public:
   };
 
   struct DefaultCellStyle {
-    boolish visible = -1;
+    boolish_t visible = -1;
     int padding = -1;
     float align = -1.0f;
     float halign = -1.0f;
@@ -44,7 +44,7 @@ public:
   };
 
   struct CellStyle {
-    boolish visible = -1;
+    boolish_t visible = -1;
     int colspan = -1;
     int rowspan = -1;
     int padding = -1;
@@ -122,8 +122,9 @@ private:
   static T pick_from2(T base_opt,T alt_opt,T fallback_opt,T min_opt);
   template <typename T>
   static T pick_from3(T base_opt,T alt_opt1,T alt_opt2,T fallback_opt,T min_opt);
-  static boolish pick_from_boolish2(boolish base_opt,boolish alt_opt,boolish fallback_opt);
-  static boolish pick_from_boolish3(boolish base_opt,boolish alt_opt1,boolish alt_opt2,boolish fallback_opt);
+  static boolish_t pick_from_boolish2(boolish_t base_opt,boolish_t alt_opt,boolish_t fallback_opt);
+  static boolish_t pick_from_boolish3(boolish_t base_opt,boolish_t alt_opt1,boolish_t alt_opt2,
+                                      boolish_t fallback_opt);
 };
 
 template <typename T>

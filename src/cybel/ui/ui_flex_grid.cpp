@@ -248,13 +248,14 @@ Size2i UiFlexGrid::calc_base_cell_size(const Size2i& view_size) const {
   return Size2i{std::max(w,1),std::max(h,1)};
 }
 
-UiFlexGrid::boolish UiFlexGrid::pick_from_boolish2(boolish base_opt,boolish alt_opt,boolish fallback_opt) {
-  return pick_from2<boolish>(base_opt,alt_opt,fallback_opt,0);
+UiFlexGrid::boolish_t UiFlexGrid::pick_from_boolish2(boolish_t base_opt,boolish_t alt_opt,
+                                                     boolish_t fallback_opt) {
+  return pick_from2<boolish_t>(base_opt,alt_opt,fallback_opt,0);
 }
 
-UiFlexGrid::boolish UiFlexGrid::pick_from_boolish3(boolish base_opt,boolish alt_opt1,boolish alt_opt2,
-                                                   boolish fallback_opt) {
-  return pick_from3<boolish>(base_opt,alt_opt1,alt_opt2,fallback_opt,0);
+UiFlexGrid::boolish_t UiFlexGrid::pick_from_boolish3(boolish_t base_opt,boolish_t alt_opt1,boolish_t alt_opt2,
+                                                     boolish_t fallback_opt) {
+  return pick_from3<boolish_t>(base_opt,alt_opt1,alt_opt2,fallback_opt,0);
 }
 
 const UiFlexGrid::Cell* UiFlexGrid::cell(std::size_t index) const {

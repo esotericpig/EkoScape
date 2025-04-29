@@ -12,9 +12,9 @@
 
 namespace cybel {
 
-using JoypadInputT = std::uint8_t;
+using joypad_input_t = std::uint8_t;
 
-enum class JoypadInput : JoypadInputT {
+enum class JoypadInput : joypad_input_t {
   kNone = 0,
 
   kUp,

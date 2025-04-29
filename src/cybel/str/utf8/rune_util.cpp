@@ -15,7 +15,7 @@ char32_t RuneUtil::next_rune(std::string_view str,std::size_t index,std::uint8_t
 
   if(index >= str.size()) { return kInvalidRune; }
 
-  const auto octet1 = static_cast<Octet>(str[index]);
+  const auto octet1 = static_cast<octet_t>(str[index]);
 
   // UTF8-1 = 0x00-7F.
   if(octet1 <= kMaxAsciiOctet) { return octet1; }
@@ -31,13 +31,13 @@ char32_t RuneUtil::prev_rune(std::string_view str,std::size_t index,std::uint8_t
 
   if(index >= str.size()) { return kInvalidRune; }
 
-  auto octet = static_cast<Octet>(str[index]);
+  auto octet = static_cast<octet_t>(str[index]);
 
   // UTF8-1 = 0x00-7F.
   if(octet <= kMaxAsciiOctet) { return octet; }
 
   for(std::uint8_t octet_count = 2; index > 0 && octet_count <= 4; --index,++octet_count) {
-    octet = static_cast<Octet>(str[index - 1]);
+    octet = static_cast<octet_t>(str[index - 1]);
     const auto type = octet & 0b1100'0000;
 
     // Head/Lead octet?
@@ -55,7 +55,7 @@ char32_t RuneUtil::prev_rune(std::string_view str,std::size_t index,std::uint8_t
   return kInvalidRune;
 }
 
-std::uint8_t RuneUtil::_count_seq(Octet octet1) {
+std::uint8_t RuneUtil::_count_seq(octet_t octet1) {
   // UTF8-2 = 0b110xxxxx.
   if((octet1 & 0b1110'0000) == 0b1100'0000) { return 2; }
 
@@ -68,7 +68,7 @@ std::uint8_t RuneUtil::_count_seq(Octet octet1) {
   return 0;
 }
 
-char32_t RuneUtil::_unpack_seq(std::string_view str,std::size_t index,std::uint8_t& byte_count,Octet octet1,
+char32_t RuneUtil::_unpack_seq(std::string_view str,std::size_t index,std::uint8_t& byte_count,octet_t octet1,
                                std::uint8_t octet_count) {
   // The _unpack_seq*() funcs update `byte_count` instead of us updating it here to `octet_count` if the
   //     resulting rune is valid, because a trickster could use the literal `kInvalidRune` in the text,
@@ -83,13 +83,13 @@ char32_t RuneUtil::_unpack_seq(std::string_view str,std::size_t index,std::uint8
 }
 
 char32_t RuneUtil::_unpack_seq2(std::string_view str,std::size_t index,std::uint8_t& byte_count,
-                                Octet octet1) {
+                                octet_t octet1) {
   if(index >= str.size()) { return kInvalidRune; }
 
   // UTF8-2 = 0xC2-DF UTF8-tail.
   if(octet1 < 0xC2 || octet1 > 0xDF) { return kInvalidRune; }
 
-  const auto octet2 = static_cast<Octet>(str[index]);
+  const auto octet2 = static_cast<octet_t>(str[index]);
 
   if(octet2 < kMinTailOctet || octet2 > kMaxTailOctet) {
     return kInvalidRune;
@@ -105,11 +105,11 @@ char32_t RuneUtil::_unpack_seq2(std::string_view str,std::size_t index,std::uint
 }
 
 char32_t RuneUtil::_unpack_seq3(std::string_view str,std::size_t index,std::uint8_t& byte_count,
-                                Octet octet1) {
+                                octet_t octet1) {
   if((index + 1) >= str.size()) { return kInvalidRune; }
 
-  const auto octet2 = static_cast<Octet>(str[index]);
-  const auto octet3 = static_cast<Octet>(str[++index]);
+  const auto octet2 = static_cast<octet_t>(str[index]);
+  const auto octet3 = static_cast<octet_t>(str[++index]);
 
   // UTF8-3 = 0xE0    0xA0-BF   UTF8-tail.
   // UTF8-3 = 0xE1-EC UTF8-tail UTF8-tail.
@@ -141,12 +141,12 @@ char32_t RuneUtil::_unpack_seq3(std::string_view str,std::size_t index,std::uint
 }
 
 char32_t RuneUtil::_unpack_seq4(std::string_view str,std::size_t index,std::uint8_t& byte_count,
-                                Octet octet1) {
+                                octet_t octet1) {
   if((index + 2) >= str.size()) { return kInvalidRune; }
 
-  const auto octet2 = static_cast<Octet>(str[index]);
-  const auto octet3 = static_cast<Octet>(str[++index]);
-  const auto octet4 = static_cast<Octet>(str[++index]);
+  const auto octet2 = static_cast<octet_t>(str[index]);
+  const auto octet3 = static_cast<octet_t>(str[++index]);
+  const auto octet4 = static_cast<octet_t>(str[++index]);
 
   // UTF8-4 = 0xF0    0x90-BF   UTF8-tail UTF8-tail.
   // UTF8-4 = 0xF1-F3 UTF8-tail UTF8-tail UTF8-tail.

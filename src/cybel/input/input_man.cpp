@@ -11,7 +11,7 @@
 
 namespace cybel {
 
-InputMan::InputMan(int max_id)
+InputMan::InputMan(input_id_t max_id)
   : max_id_(max_id),
     id_to_state_((max_id > 0) ? (max_id + 1) : 25,false),
     id_to_event_state_(id_to_state_.size(),false),
@@ -47,11 +47,11 @@ void InputMan::load_joypads() {
   }
 }
 
-void InputMan::map_input(int id,const MapInputCallback& callback) {
+void InputMan::map_input(input_id_t id,const MapInputCallback& callback) {
   if(id < 0) { throw CybelError{"Invalid input ID [",id,"] is < 0."}; }
 
   // Growable and too small?
-  if(max_id_ <= 0 && id >= static_cast<int>(id_to_state_.size())) {
+  if(max_id_ <= 0 && id >= static_cast<input_id_t>(id_to_state_.size())) {
     const auto new_size = std::max(static_cast<std::size_t>(id) + 1,
                                    (id_to_state_.size() + 1) << 1);
 
@@ -59,9 +59,9 @@ void InputMan::map_input(int id,const MapInputCallback& callback) {
     id_to_event_state_.resize(new_size,false);
   }
   // Not `else if`, in case of casting overflow.
-  if(id >= static_cast<int>(id_to_state_.size())) {
+  if(id >= static_cast<input_id_t>(id_to_state_.size())) {
     throw CybelError{"Invalid input ID [",id,"] is >= maximum ID count [",
-                     static_cast<int>(id_to_state_.size()),'/',id_to_state_.size(),"]."};
+                     static_cast<input_id_t>(id_to_state_.size()),'/',id_to_state_.size(),"]."};
   }
 
   InputMapper mapper{*this,id};
@@ -157,7 +157,7 @@ void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_
 
 void InputMan::handle_key_down_event(const SDL_KeyboardEvent& key) {
   const RawKeyInput raw_key{key.keysym.scancode,key.keysym.mod};
-  const SymKeyInput sym_key{key.keysym.sym,key.keysym.mod};
+  const SymKeyInput sym_key{static_cast<SymKey>(key.keysym.sym),key.keysym.mod};
 
   for(auto id : fetch_ids(raw_key)) {
     // Not inserted? (already processed)
@@ -502,12 +502,12 @@ void InputMan::update_states() {
 
   int num_keys = 0;
   const auto* raw_keys = SDL_GetKeyboardState(&num_keys);
-  const KeyMods mods = SDL_GetModState();
+  const key_mods_t mods = SDL_GetModState();
 
   for(int i = 0; i < num_keys; ++i) {
     if(raw_keys[i] == 1) {
       const auto raw_key = static_cast<RawKey>(i);
-      const SymKey sym_key = SDL_GetKeyFromScancode(raw_key);
+      const auto sym_key = static_cast<SymKey>(SDL_GetKeyFromScancode(raw_key));
 
       set_state(RawKeyInput{raw_key,mods},true);
       set_state(SymKeyInput{sym_key,mods},true);
@@ -516,9 +516,9 @@ void InputMan::update_states() {
 }
 
 void InputMan::reset_joypad_states() {
-  static constexpr auto kMaxJoypadInputValue = static_cast<JoypadInputT>(JoypadInput::kMax);
+  static constexpr auto kMaxJoypadInputValue = static_cast<joypad_input_t>(JoypadInput::kMax);
 
-  JoypadInputT input_value = static_cast<JoypadInputT>(JoypadInput::kNone) + 1;
+  joypad_input_t input_value = static_cast<joypad_input_t>(JoypadInput::kNone) + 1;
 
   for(; input_value < kMaxJoypadInputValue; ++input_value) {
     set_state(static_cast<JoypadInput>(input_value),false);
@@ -577,10 +577,10 @@ const InputIds& InputMan::fetch_ids(JoypadInput input) const {
 
 const std::vector<bool>& InputMan::states() const { return id_to_state_; }
 
-InputMan::InputMapper::InputMapper(InputMan& input_man,int id)
+InputMan::InputMapper::InputMapper(InputMan& input_man,input_id_t id)
   : input_man_(input_man),id_(id) {}
 
-void InputMan::InputMapper::raw_key(std::initializer_list<RawKey> keys,KeyMods mods) {
+void InputMan::InputMapper::raw_key(std::initializer_list<RawKey> keys,key_mods_t mods) {
   for(const auto& key : keys) {
     input_man_.raw_key_to_ids_[RawKeyInput{key,mods}].insert(id_);
   }
@@ -592,7 +592,7 @@ void InputMan::InputMapper::raw_key(std::initializer_list<RawKeyInput> keys) {
   }
 }
 
-void InputMan::InputMapper::sym_key(std::initializer_list<SymKey> keys,KeyMods mods) {
+void InputMan::InputMapper::sym_key(std::initializer_list<SymKey> keys,key_mods_t mods) {
   for(const auto& key : keys) {
     input_man_.sym_key_to_ids_[SymKeyInput{key,mods}].insert(id_);
   }

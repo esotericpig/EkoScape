@@ -12,7 +12,7 @@
 
 namespace cybel::utf8 {
 
-using Octet = unsigned char;
+using octet_t = unsigned char;
 
 /**
  * UTF-8 links:
@@ -26,10 +26,10 @@ namespace RuneUtil {
   inline const char32_t kInvalidRune = U'�'; // \uFFFD.
   inline const std::string kInvalidPackedRune = "�"; // \xEF\xBF\xBD.
 
-  inline const Octet kMaxAsciiOctet = 0x7F; // 0b0111'1111.
-  inline const Octet kMinTailOctet = 0x80; // 0b1000'0000.
-  inline const Octet kMaxTailOctet = 0xBF; // 0b1011'1111.
-  inline const Octet kTailOctetMask = 0b0011'1111; // 0b10xxxxxx.
+  inline const octet_t kMaxAsciiOctet = 0x7F; // 0b0111'1111.
+  inline const octet_t kMinTailOctet = 0x80; // 0b1000'0000.
+  inline const octet_t kMaxTailOctet = 0xBF; // 0b1011'1111.
+  inline const octet_t kTailOctetMask = 0b0011'1111; // 0b10xxxxxx.
 
   char32_t next_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count);
   char32_t prev_rune(std::string_view str,std::size_t index,std::uint8_t& byte_count);
@@ -38,12 +38,12 @@ namespace RuneUtil {
 
   bool is_whitespace(char32_t rune);
 
-  std::uint8_t _count_seq(Octet octet1);
-  char32_t _unpack_seq(std::string_view str,std::size_t index,std::uint8_t& byte_count,Octet octet1,
+  std::uint8_t _count_seq(octet_t octet1);
+  char32_t _unpack_seq(std::string_view str,std::size_t index,std::uint8_t& byte_count,octet_t octet1,
                        std::uint8_t octet_count);
-  char32_t _unpack_seq2(std::string_view str,std::size_t index,std::uint8_t& byte_count,Octet octet1);
-  char32_t _unpack_seq3(std::string_view str,std::size_t index,std::uint8_t& byte_count,Octet octet1);
-  char32_t _unpack_seq4(std::string_view str,std::size_t index,std::uint8_t& byte_count,Octet octet1);
+  char32_t _unpack_seq2(std::string_view str,std::size_t index,std::uint8_t& byte_count,octet_t octet1);
+  char32_t _unpack_seq3(std::string_view str,std::size_t index,std::uint8_t& byte_count,octet_t octet1);
+  char32_t _unpack_seq4(std::string_view str,std::size_t index,std::uint8_t& byte_count,octet_t octet1);
 }
 
 } // namespace cybel::utf8

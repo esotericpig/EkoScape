@@ -10,10 +10,12 @@
 
 #include "common.h"
 
+#include "cybel/input/input_man.h"
+
 namespace ekoscape {
 
 namespace InputAction {
-  enum : int {
+  enum : input_id_t {
     kUp = 1,
     kDown,
     kLeft,
@@ -37,7 +39,7 @@ namespace InputAction {
     kMakeWeird,
     kToggleFps,
 
-    kMaxId // Must be defined last.
+    kMaxId
   };
 }
 
