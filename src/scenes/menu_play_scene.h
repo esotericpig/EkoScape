@@ -72,12 +72,11 @@ private:
   int map_opt_index_ = 0;
   std::vector<MapOption> map_opts_{};
 
-  void refresh_maps();
   void glob_maps();
   void prev_map_opt_group();
   void next_map_opt_group();
-  void sync_map_opt();
-  void select_map_opt(int index,bool wrap,bool force = false);
+  void select_map_opt(int index,bool wrap);
+  void select_map();
 };
 
 } // namespace ekoscape

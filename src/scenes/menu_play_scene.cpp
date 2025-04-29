@@ -19,7 +19,7 @@ MenuPlayScene::MapOption::MapOption(std::string_view text)
 
 MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
   : ctx_(ctx),state_(state) {
-  refresh_maps();
+  glob_maps();
 }
 
 void MenuPlayScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
@@ -31,7 +31,7 @@ void MenuPlayScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens
         if(map_opts_.size() <= kNonMapOptCount) {
           ctx_.cybel_engine.show_error("No map to select.");
         } else {
-          sync_map_opt(); // Justin Case.
+          select_map();
           scene_action_ = SceneAction::kGoToGame;
         }
       }
@@ -62,7 +62,7 @@ void MenuPlayScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens
       break;
 
     case InputAction::kRefresh:
-      refresh_maps();
+      glob_maps();
       break;
   }
 }
@@ -110,11 +110,6 @@ void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 
   ren.end_blend()
      .end_scale();
-}
-
-void MenuPlayScene::refresh_maps() {
-  glob_maps();
-  sync_map_opt();
 }
 
 void MenuPlayScene::glob_maps() {
@@ -209,12 +204,11 @@ void MenuPlayScene::next_map_opt_group() {
   select_map_opt(i,true);
 }
 
-void MenuPlayScene::sync_map_opt() {
-  select_map_opt(map_opt_index_,false,true);
-}
-
-void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
-  if(map_opts_.empty()) { return; }
+void MenuPlayScene::select_map_opt(int index,bool wrap) {
+  if(map_opts_.empty()) {
+    map_opt_index_ = 0;
+    return;
+  }
 
   const auto opts_len = static_cast<int>(map_opts_.size());
 
@@ -223,18 +217,29 @@ void MenuPlayScene::select_map_opt(int index,bool wrap,bool force) {
   } else if(index >= opts_len) {
     index = wrap ? 0 : (opts_len - 1);
   }
-  if(!force && index == map_opt_index_) { return; }
 
   map_opt_index_ = index;
+}
+
+void MenuPlayScene::select_map() {
+  const auto opts_len = static_cast<int>(map_opts_.size());
+
+  // No maps?
+  if(opts_len <= kNonMapOptCount) { return; }
+
   state_.is_rand_map = (map_opt_index_ == 0);
 
-  if(opts_len <= kNonMapOptCount) {
-    if(force) {
-      state_.map_file.clear();
-      state_.is_rand_map = true;
+  if(state_.is_rand_map) {
+    std::filesystem::path new_map_file{};
+
+    // Try not to grab the same map as last time.
+    for(int i = 0; i < 10; ++i) {
+      new_map_file = map_opts_.at(Rando::it().rand_int(kNonMapOptCount,opts_len)).file;
+
+      if(new_map_file != state_.map_file) { break; }
     }
-  } else if(state_.is_rand_map) {
-    state_.map_file = map_opts_.at(Rando::it().rand_int(kNonMapOptCount,opts_len)).file;
+
+    state_.map_file = new_map_file;
   } else {
     state_.map_file = map_opts_.at(map_opt_index_).file;
   }
