@@ -29,11 +29,11 @@ public:
 
   bool matches(int id) const;
   int id() const;
-  SDL_GameController* object() const;
+  SDL_GameController* handle() const;
 
 private:
   int id_ = -1;
-  SDL_GameController* object_ = NULL;
+  SDL_GameController* handle_ = NULL;
 
   void move_from(GameCtrl&& other) noexcept;
 };

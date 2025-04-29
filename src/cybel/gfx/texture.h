@@ -33,15 +33,15 @@ public:
   Texture& operator=(Texture&& other) noexcept;
 
   /**
-   * For WebGL context lost/restored so that it won't try to delete the now invalid OpenGL ID.
+   * For WebGL context lost/restored so that it won't try to delete the now invalid OpenGL handle.
    */
   void zombify();
 
-  GLuint gl_id() const;
+  GLuint handle() const;
   const Size2i& size() const;
 
 private:
-  GLuint gl_id_ = 0;
+  GLuint handle_ = 0;
   Size2i size_{};
 
   void move_from(Texture&& other) noexcept;

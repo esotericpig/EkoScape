@@ -17,9 +17,9 @@ Music::Music(const std::filesystem::path& file)
   const auto file_str = file.u8string();
   const auto* file_cstr = reinterpret_cast<const char*>(file_str.c_str());
 
-  object_ = Mix_LoadMUS(file_cstr);
+  handle_ = Mix_LoadMUS(file_cstr);
 
-  if(object_ == NULL) {
+  if(handle_ == NULL) {
     throw CybelError{"Failed to load music [",file_cstr,"]: ",Util::get_sdl_mix_error(),'.'};
   }
 }
@@ -31,8 +31,8 @@ Music::Music(Music&& other) noexcept {
 void Music::move_from(Music&& other) noexcept {
   destroy();
 
-  object_ = other.object_;
-  other.object_ = NULL;
+  handle_ = other.handle_;
+  other.handle_ = NULL;
 
   id_ = std::exchange(other.id_,"");
 }
@@ -42,9 +42,9 @@ Music::~Music() noexcept {
 }
 
 void Music::destroy() noexcept {
-  if(object_ != NULL) {
-    Mix_FreeMusic(object_);
-    object_ = NULL;
+  if(handle_ != NULL) {
+    Mix_FreeMusic(handle_);
+    handle_ = NULL;
   }
 }
 

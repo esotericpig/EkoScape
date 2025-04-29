@@ -18,16 +18,16 @@
 
 namespace cybel {
 
-std::string RendererGles::fetch_info_log(GLuint object,InfoLogType type) {
+std::string RendererGles::fetch_info_log(GLuint handle,InfoLogType type) {
   GLint len = 0;
 
   switch(type) {
     case InfoLogType::kShader:
-      glGetShaderiv(object,GL_INFO_LOG_LENGTH,&len);
+      glGetShaderiv(handle,GL_INFO_LOG_LENGTH,&len);
       break;
 
     case InfoLogType::kProgram:
-      glGetProgramiv(object,GL_INFO_LOG_LENGTH,&len);
+      glGetProgramiv(handle,GL_INFO_LOG_LENGTH,&len);
       break;
   }
 
@@ -37,11 +37,11 @@ std::string RendererGles::fetch_info_log(GLuint object,InfoLogType type) {
 
   switch(type) {
     case InfoLogType::kShader:
-      glGetShaderInfoLog(object,len,NULL,msg.data());
+      glGetShaderInfoLog(handle,len,NULL,msg.data());
       break;
 
     case InfoLogType::kProgram:
-      glGetProgramInfoLog(object,len,NULL,msg.data());
+      glGetProgramInfoLog(handle,len,NULL,msg.data());
       break;
   }
 
@@ -114,22 +114,22 @@ void RendererGles::init_prog() {
   )"};
   GLenum error = GL_NO_ERROR;
 
-  prog_.init(vert_shader.object(),frag_shader.object());
+  prog_.init(vert_shader,frag_shader);
 
-  glUseProgram(prog_.object());
+  glUseProgram(prog_.handle());
   error = glGetError();
 
   if(error != GL_NO_ERROR) {
     throw CybelError{"Failed to use GLES program: ",Util::get_gl_error(error),'.'};
   }
 
-  proj_mat_loc_ = glGetUniformLocation(prog_.object(),"proj_mat");
-  model_mat_loc_ = glGetUniformLocation(prog_.object(),"model_mat");
-  vertex_pos_loc_ = glGetUniformLocation(prog_.object(),"vertex_pos");
-  tex_coord_loc_ = glGetUniformLocation(prog_.object(),"tex_coord");
-  color_loc_ = glGetUniformLocation(prog_.object(),"color");
-  use_tex_loc_ = glGetUniformLocation(prog_.object(),"use_tex");
-  tex_2d_loc_ = glGetUniformLocation(prog_.object(),"tex_2d");
+  proj_mat_loc_ = glGetUniformLocation(prog_.handle(),"proj_mat");
+  model_mat_loc_ = glGetUniformLocation(prog_.handle(),"model_mat");
+  vertex_pos_loc_ = glGetUniformLocation(prog_.handle(),"vertex_pos");
+  tex_coord_loc_ = glGetUniformLocation(prog_.handle(),"tex_coord");
+  color_loc_ = glGetUniformLocation(prog_.handle(),"color");
+  use_tex_loc_ = glGetUniformLocation(prog_.handle(),"use_tex");
+  tex_2d_loc_ = glGetUniformLocation(prog_.handle(),"tex_2d");
 
   // Init Vertex & Fragment shaders' vars.
   RendererGles::end_color();
@@ -195,12 +195,12 @@ Renderer& RendererGles::begin_color(const Color4f& color) {
 }
 
 Renderer& RendererGles::begin_tex(const Texture& tex) {
-  return begin_tex(tex.gl_id());
+  return begin_tex(tex.handle());
 }
 
-Renderer& RendererGles::begin_tex(GLuint tex_id) {
+Renderer& RendererGles::begin_tex(GLuint handle) {
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D,tex_id);
+  glBindTexture(GL_TEXTURE_2D,handle);
 
   glUniform1i(tex_2d_loc_,0); // GL_TEXTURE0.
   glUniform1i(use_tex_loc_,GL_TRUE);
@@ -256,9 +256,9 @@ void RendererGles::pop_model_matrix() {
 
 GLuint RendererGles::gen_quad_buffers(int count) {
   auto bag = std::make_unique<QuadBufferBag>(count);
-  GLuint id = 0;
-
   bag->init();
+
+  GLuint id = 0;
 
   for(auto it = free_quad_buffer_ids_.begin(); it != free_quad_buffer_ids_.end();) {
     id = *it;
@@ -300,9 +300,9 @@ void RendererGles::draw_quad_buffer(GLuint id,int index) {
 
   if(buffer == nullptr) { return; }
 
-  if(buffer->tex_id() != 0) {
-    // This is basically `wrap_tex(GLuint tex_id)` w/o the overhead.
-    begin_tex(buffer->tex_id());
+  if(buffer->tex_handle() != 0) {
+    // This is basically `wrap_tex(GLuint)` w/o the overhead.
+    begin_tex(buffer->tex_handle());
     buffer->draw();
 
     if(curr_tex_ != nullptr) {
@@ -333,9 +333,10 @@ RendererGles::QuadBuffer* RendererGles::quad_buffer(GLuint id,int index) {
   return bag->buffer(index);
 }
 
-RendererGles::Shader::Shader(GLenum type,const std::string& src)
-  : object_(glCreateShader(type)) {
-  if(object_ == 0) {
+RendererGles::Shader::Shader(GLenum type,const std::string& src) {
+  handle_ = glCreateShader(type);
+
+  if(handle_ == 0) {
     throw CybelError{"Failed to create GLES shader [",type,"]: ",Util::get_gl_error(glGetError()),'.'};
   }
 
@@ -344,7 +345,7 @@ RendererGles::Shader::Shader(GLenum type,const std::string& src)
   const auto* src_cstr = reinterpret_cast<const GLchar*>(src.c_str());
   const auto len = static_cast<GLint>(src.size());
 
-  glShaderSource(object_,1,&src_cstr,&len);
+  glShaderSource(handle_,1,&src_cstr,&len);
   error = glGetError();
 
   if(error != GL_NO_ERROR) {
@@ -352,7 +353,7 @@ RendererGles::Shader::Shader(GLenum type,const std::string& src)
     throw CybelError{"Failed to set source of GLES shader [",type,"]: ",Util::get_gl_error(error),'.'};
   }
 
-  glCompileShader(object_);
+  glCompileShader(handle_);
   error = glGetError();
 
   if(error != GL_NO_ERROR) {
@@ -361,10 +362,10 @@ RendererGles::Shader::Shader(GLenum type,const std::string& src)
   }
 
   GLint compiled = GL_FALSE;
-  glGetShaderiv(object_,GL_COMPILE_STATUS,&compiled);
+  glGetShaderiv(handle_,GL_COMPILE_STATUS,&compiled);
 
   if(compiled == GL_FALSE) {
-    const auto log = fetch_info_log(object_,InfoLogType::kShader);
+    const auto log = fetch_info_log(handle_,InfoLogType::kShader);
 
     destroy();
     throw CybelError{"Failed to compile GLES shader [",type,"]: ",Util::get_gl_error(glGetError()),
@@ -377,25 +378,25 @@ RendererGles::Shader::~Shader() noexcept {
 }
 
 void RendererGles::Shader::destroy() noexcept {
-  if(object_ != 0) {
-    glDeleteShader(object_);
-    object_ = 0;
+  if(handle_ != 0) {
+    glDeleteShader(handle_);
+    handle_ = 0;
   }
 }
 
-GLuint RendererGles::Shader::object() const { return object_; }
+GLuint RendererGles::Shader::handle() const { return handle_; }
 
-void RendererGles::Program::init(GLuint vert_shader,GLuint frag_shader) {
-  object_ = glCreateProgram();
+void RendererGles::Program::init(const Shader& vert_shader,const Shader& frag_shader) {
+  handle_ = glCreateProgram();
 
-  if(object_ == 0) {
+  if(handle_ == 0) {
     throw CybelError{"Failed to create GLES program: ",Util::get_gl_error(glGetError()),'.'};
   }
 
   GLenum error = GL_NO_ERROR;
 
-  glAttachShader(object_,vert_shader);
-  glAttachShader(object_,frag_shader);
+  glAttachShader(handle_,vert_shader.handle());
+  glAttachShader(handle_,frag_shader.handle());
   error = glGetError();
 
   if(error != GL_NO_ERROR) {
@@ -403,7 +404,7 @@ void RendererGles::Program::init(GLuint vert_shader,GLuint frag_shader) {
     throw CybelError{"Failed to attach shaders to GLES program: ",Util::get_gl_error(error),'.'};
   }
 
-  glLinkProgram(object_);
+  glLinkProgram(handle_);
   error = glGetError();
 
   if(error != GL_NO_ERROR) {
@@ -412,10 +413,10 @@ void RendererGles::Program::init(GLuint vert_shader,GLuint frag_shader) {
   }
 
   GLint linked = GL_FALSE;
-  glGetProgramiv(object_,GL_LINK_STATUS,&linked);
+  glGetProgramiv(handle_,GL_LINK_STATUS,&linked);
 
   if(linked == GL_FALSE) {
-    const auto log = fetch_info_log(object_,InfoLogType::kProgram);
+    const auto log = fetch_info_log(handle_,InfoLogType::kProgram);
 
     destroy();
     throw CybelError{"Failed to link GLES program: ",Util::get_gl_error(glGetError()),
@@ -428,17 +429,17 @@ RendererGles::Program::~Program() noexcept {
 }
 
 void RendererGles::Program::destroy() noexcept {
-  if(object_ != 0) {
-    glDeleteProgram(object_);
-    object_ = 0;
+  if(handle_ != 0) {
+    glDeleteProgram(handle_);
+    handle_ = 0;
   }
 }
 
 void RendererGles::Program::zombify() {
-  object_ = 0;
+  handle_ = 0;
 }
 
-GLuint RendererGles::Program::object() const { return object_; }
+GLuint RendererGles::Program::handle() const { return handle_; }
 
 void RendererGles::QuadBuffer::init() {
   static constexpr std::size_t kRowByteCount = kVertexDataColCount * sizeof(GLfloat);
@@ -485,7 +486,7 @@ RendererGles::QuadBuffer::QuadBuffer(QuadBuffer&& other) noexcept {
 void RendererGles::QuadBuffer::move_from(QuadBuffer&& other) noexcept {
   destroy();
 
-  tex_id_ = std::exchange(other.tex_id_,0);
+  tex_handle_ = std::exchange(other.tex_handle_,0);
   vao_ = std::exchange(other.vao_,0);
   vbo_ = std::exchange(other.vbo_,0);
   ebo_ = std::exchange(other.ebo_,0);
@@ -533,7 +534,7 @@ void RendererGles::QuadBuffer::set_data(const QuadBufferData& data) {
   const auto* v = data.vertices;
   const auto& src = kDefaultSrc;
 
-  tex_id_ = data.tex_id;
+  tex_handle_ = data.tex_handle;
   vertex_data_ = {
     // Vertex.             TexCoord.
     v[0].x,v[0].y,v[0].z,  src.x1,src.y1,
@@ -564,7 +565,7 @@ void RendererGles::QuadBuffer::update_vertex_data() {
   glBufferSubData(GL_ARRAY_BUFFER,0,kVertexDataByteCount,vertex_data_.data());
 }
 
-GLuint RendererGles::QuadBuffer::tex_id() const { return tex_id_; }
+GLuint RendererGles::QuadBuffer::tex_handle() const { return tex_handle_; }
 
 RendererGles::QuadBufferBag::QuadBufferBag(int count)
   : buffers_(count) {

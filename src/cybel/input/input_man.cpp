@@ -332,10 +332,10 @@ bool InputMan::emit_fake_joypad_events(const SDL_Event& event) {
 
   if(is_fake_joypad_game_ctrl_) {
     if(main_game_ctrl_) {
-      joystick = SDL_GameControllerGetJoystick(main_game_ctrl_.object());
+      joystick = SDL_GameControllerGetJoystick(main_game_ctrl_.handle());
     }
   } else if(main_joystick_) {
-    joystick = main_joystick_.object();
+    joystick = main_joystick_.handle();
   }
 
   if(joystick == NULL) { return false; }

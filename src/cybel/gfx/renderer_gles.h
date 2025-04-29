@@ -68,10 +68,10 @@ private:
     Shader& operator=(const Shader& other) = delete;
     Shader& operator=(Shader&& other) noexcept = delete;
 
-    GLuint object() const;
+    GLuint handle() const;
 
   private:
-    GLuint object_ = 0;
+    GLuint handle_ = 0;
 
     void destroy() noexcept;
   };
@@ -79,7 +79,7 @@ private:
   class Program {
   public:
     explicit Program() = default;
-    void init(GLuint vert_shader,GLuint frag_shader);
+    void init(const Shader& vert_shader,const Shader& frag_shader);
 
     Program(const Program& other) = delete;
     Program(Program&& other) noexcept = delete;
@@ -90,10 +90,10 @@ private:
     Program& operator=(const Program& other) = delete;
     Program& operator=(Program&& other) noexcept = delete;
 
-    GLuint object() const;
+    GLuint handle() const;
 
   private:
-    GLuint object_ = 0;
+    GLuint handle_ = 0;
 
     void destroy() noexcept;
   };
@@ -117,7 +117,7 @@ private:
     void set_data(const QuadBufferData& data);
     void set_vertex_data(const Pos4f& src,const Pos5f& pos);
 
-    GLuint tex_id() const;
+    GLuint tex_handle() const;
 
   private:
     static constexpr std::size_t kVertexDataColCount = 5;
@@ -130,7 +130,7 @@ private:
       2,3,0, // Bottom triangle.
     };
 
-    GLuint tex_id_ = 0;
+    GLuint tex_handle_ = 0;
     GLuint vao_ = 0;
     GLuint vbo_ = 0;
     GLuint ebo_ = 0;
@@ -184,12 +184,12 @@ private:
   std::set<GLuint> free_quad_buffer_ids_{};
   std::vector<std::unique_ptr<QuadBufferBag>> quad_buffer_bags_{};
 
-  static std::string fetch_info_log(GLuint object,InfoLogType type);
+  static std::string fetch_info_log(GLuint handle,InfoLogType type);
 
   void init();
   void init_prog();
 
-  Renderer& begin_tex(GLuint tex_id);
+  Renderer& begin_tex(GLuint handle);
 
   QuadBufferBag* quad_buffer_bag(GLuint id);
   QuadBuffer* quad_buffer(GLuint id,int index);

@@ -29,11 +29,11 @@ public:
 
   bool matches(int id) const;
   int id() const;
-  SDL_Joystick* object() const;
+  SDL_Joystick* handle() const;
 
 private:
   int id_ = -1;
-  SDL_Joystick* object_ = NULL;
+  SDL_Joystick* handle_ = NULL;
 
   void move_from(Joystick&& other) noexcept;
 };

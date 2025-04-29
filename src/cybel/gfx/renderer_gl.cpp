@@ -77,7 +77,7 @@ Renderer& RendererGl::begin_color(const Color4f& color) {
 
 Renderer& RendererGl::begin_tex(const Texture& tex) {
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D,tex.gl_id());
+  glBindTexture(GL_TEXTURE_2D,tex.handle());
 
   return *this;
 }
@@ -144,7 +144,7 @@ void RendererGl::delete_quad_buffers(GLuint id,int count) {
 void RendererGl::compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) {
   glNewList(id + index,GL_COMPILE);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,data.tex_id);
+    glBindTexture(GL_TEXTURE_2D,data.tex_handle);
 
     glBegin(GL_QUADS);
       glNormal3f(data.normal.x,data.normal.y,data.normal.z);

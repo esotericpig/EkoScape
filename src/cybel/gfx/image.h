@@ -52,7 +52,7 @@ public:
 
 private:
   std::string id_{};
-  SDL_Surface* surface_ = NULL;
+  SDL_Surface* handle_ = NULL;
   Size2i size_{};
   bool is_locked_ = false;
 

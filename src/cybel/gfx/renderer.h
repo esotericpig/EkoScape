@@ -137,7 +137,7 @@ public:
   };
 
   struct QuadBufferData {
-    GLuint tex_id = 0;
+    GLuint tex_handle = 0;
     Pos3f normal{};
     Pos3f vertices[4] = {Pos3f{},Pos3f{},Pos3f{},Pos3f{}};
   };

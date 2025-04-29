@@ -18,8 +18,8 @@ GameCtrl::GameCtrl(GameCtrl&& other) noexcept {
 void GameCtrl::move_from(GameCtrl&& other) noexcept {
   close();
 
-  object_ = other.object_;
-  other.object_ = NULL;
+  handle_ = other.handle_;
+  other.handle_ = NULL;
 
   id_ = std::exchange(other.id_,-1);
 }
@@ -34,14 +34,14 @@ GameCtrl& GameCtrl::operator=(GameCtrl&& other) noexcept {
   return *this;
 }
 
-GameCtrl::operator bool() const { return object_ != NULL; }
+GameCtrl::operator bool() const { return handle_ != NULL; }
 
 void GameCtrl::open(int id) noexcept {
   close();
 
-  object_ = SDL_GameControllerOpen(id);
+  handle_ = SDL_GameControllerOpen(id);
 
-  if(object_ == NULL) {
+  if(handle_ == NULL) {
     std::cerr << "[WARN] Failed to open game controller [" << id << "]: " << Util::get_sdl_error() << '.'
               << std::endl;
     return;
@@ -51,18 +51,18 @@ void GameCtrl::open(int id) noexcept {
 }
 
 void GameCtrl::close() noexcept {
-  if(object_ != NULL) {
-    SDL_GameControllerClose(object_);
-    object_ = NULL;
+  if(handle_ != NULL) {
+    SDL_GameControllerClose(handle_);
+    handle_ = NULL;
 
     id_ = -1;
   }
 }
 
-bool GameCtrl::matches(int id) const { return object_ != NULL && id_ == id; }
+bool GameCtrl::matches(int id) const { return handle_ != NULL && id_ == id; }
 
 int GameCtrl::id() const { return id_; }
 
-SDL_GameController* GameCtrl::object() const { return object_; }
+SDL_GameController* GameCtrl::handle() const { return handle_; }
 
 } // namespace cybel

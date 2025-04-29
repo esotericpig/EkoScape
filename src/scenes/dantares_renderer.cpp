@@ -46,7 +46,7 @@ void DantaresRenderer::DeleteQuadLists(GLuint id,int count) {
 
 void DantaresRenderer::CompileQuadList(GLuint id,int index,const QuadListData& data) {
   renderer_.compile_quad_buffer(id,index,Renderer::QuadBufferData{
-    .tex_id = data.TextureID,
+    .tex_handle = data.TextureID,
     .normal = Pos3f{data.Normal.X,data.Normal.Y,data.Normal.Z},
     .vertices = {
       Pos3f{data.Vertices[0].X,data.Vertices[0].Y,data.Vertices[0].Z},

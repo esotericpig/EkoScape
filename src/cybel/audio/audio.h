@@ -27,13 +27,10 @@ public:
   Audio& operator=(const Audio& other) = delete;
   Audio& operator=(Audio&& other) noexcept;
 
-  const std::string& id() const;
-
   friend class AudioPlayer;
 
 private:
-  std::string id_{};
-  Mix_Chunk* object_ = NULL;
+  Mix_Chunk* handle_ = NULL;
 
   void move_from(Audio&& other) noexcept;
   void destroy() noexcept;

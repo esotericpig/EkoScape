@@ -525,9 +525,9 @@ void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Textu
   const int space_id = SpaceTypes::value_of(type);
 
   // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
-  if(ceiling != nullptr) { dantares_->SetFloorTexture(space_id,static_cast<int>(ceiling->gl_id())); }
-  if(wall != nullptr) { dantares_->SetWallTexture(space_id,static_cast<int>(wall->gl_id())); }
-  if(floor != nullptr) { dantares_->SetCeilingTexture(space_id,static_cast<int>(floor->gl_id())); }
+  if(ceiling != nullptr) { dantares_->SetFloorTexture(space_id,static_cast<int>(ceiling->handle())); }
+  if(wall != nullptr) { dantares_->SetWallTexture(space_id,static_cast<int>(wall->handle())); }
+  if(floor != nullptr) { dantares_->SetCeilingTexture(space_id,static_cast<int>(floor->handle())); }
 }
 
 } // namespace ekoscape

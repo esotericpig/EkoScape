@@ -29,8 +29,8 @@ Texture::Texture(Image& img) {
       throw CybelError{"Unsupported Bytes Per Pixel [",static_cast<int>(bypp),"] for image [",img.id(),"]."};
   }
 
-  glGenTextures(1,&gl_id_);
-  glBindTexture(GL_TEXTURE_2D,gl_id_);
+  glGenTextures(1,&handle_);
+  glBindTexture(GL_TEXTURE_2D,handle_);
 
   // I didn't have any problems without this, but could be needed.
   // See: https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_upload_and_pixel_reads
@@ -102,8 +102,8 @@ Texture::Texture(const Color4f& color,bool make_weird) {
     p[3] = a;
   }
 
-  glGenTextures(1,&gl_id_);
-  glBindTexture(GL_TEXTURE_2D,gl_id_);
+  glGenTextures(1,&handle_);
+  glBindTexture(GL_TEXTURE_2D,handle_);
 
   if(GLEW_VERSION_3_0) {
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
@@ -151,7 +151,7 @@ Texture::Texture(Texture&& other) noexcept {
 void Texture::move_from(Texture&& other) noexcept {
   destroy();
 
-  gl_id_ = std::exchange(other.gl_id_,0);
+  handle_ = std::exchange(other.handle_,0);
   size_ = std::exchange(other.size_,Size2i{});
 }
 
@@ -160,9 +160,9 @@ Texture::~Texture() noexcept {
 }
 
 void Texture::destroy() noexcept {
-  if(gl_id_ != 0) {
-    glDeleteTextures(1,&gl_id_);
-    gl_id_ = 0;
+  if(handle_ != 0) {
+    glDeleteTextures(1,&handle_);
+    handle_ = 0;
   }
 }
 
@@ -172,9 +172,9 @@ Texture& Texture::operator=(Texture&& other) noexcept {
   return *this;
 }
 
-void Texture::zombify() { gl_id_ = 0; }
+void Texture::zombify() { handle_ = 0; }
 
-GLuint Texture::gl_id() const { return gl_id_; }
+GLuint Texture::handle() const { return handle_; }
 
 const Size2i& Texture::size() const { return size_; }
 
