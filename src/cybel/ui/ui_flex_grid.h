@@ -10,6 +10,7 @@
 
 #include "cybel/common.h"
 
+#include "cybel/ui/ui_layout.h"
 #include "cybel/ui/ui_node.h"
 
 namespace cybel {
@@ -86,18 +87,15 @@ public:
 
   void update_styles();
 
+  UiLayout layout() const;
+  bool layout_changed() const;
+
   /**
    * This is just for debugging purposes.
    */
   const Cell* cell(std::size_t index) const;
 
 private:
-  enum class Layout : std::uint8_t {
-    kUnknown,
-    kWide,
-    kTall,
-  };
-
   struct RowData {
     float total_width_slices = 0.0f;
   };
@@ -106,7 +104,9 @@ private:
 
   std::vector<Cell> cells_{};
 
-  Layout layout_ = Layout::kUnknown;
+  UiLayout layout_ = UiLayout::kUnknown;
+  bool layout_changed_ = false;
+
   GridStyle grid_style_{};
   DefaultCellStyle default_cell_style_{};
 

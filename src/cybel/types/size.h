@@ -39,7 +39,7 @@ public:
   }
 
   float aspect_ratio() const {
-    return static_cast<float>(w) / static_cast<float>(h);
+    return static_cast<float>(w) / std::max(static_cast<float>(h),0.01f);
   }
 
   template <typename T2>

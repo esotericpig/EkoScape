@@ -20,10 +20,10 @@ void UiFlexGrid::add(std::shared_ptr<UiNode> node,const CellStyles& styles) {
 }
 
 void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
-  const auto new_layout = (size.w > size.h) ? Layout::kWide : Layout::kTall;
-  const bool layout_changed = (new_layout != layout_);
+  const auto new_layout = (size.w > size.h) ? UiLayout::kWide : UiLayout::kTall;
+  layout_changed_ = (new_layout != layout_);
 
-  if(layout_changed) {
+  if(layout_changed_) {
     layout_ = new_layout;
     update_styles();
   }
@@ -63,7 +63,7 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
           };
 
           // Did the layout/pos/size change?
-          if(layout_changed || (cell_pos != cell->pos || cell_size != cell->size)) {
+          if(layout_changed_ || (cell_pos != cell->pos || cell_size != cell->size)) {
             resize_cell(*cell,cell_pos,cell_size);
           }
         }
@@ -183,7 +183,7 @@ void UiFlexGrid::update_styles() {
 
 UiFlexGrid::GridStyle UiFlexGrid::merge_grid_styles() const {
   const auto& all = grid_styles.all;
-  const auto& gs = (layout_ == Layout::kWide) ? grid_styles.wide : grid_styles.tall;
+  const auto& gs = (layout_ == UiLayout::kTall) ? grid_styles.tall : grid_styles.wide;
 
   const int cols = pick_from2(all.cols,gs.cols,1,1);
   int rows = pick_from2(all.rows,gs.rows,0,1);
@@ -204,7 +204,7 @@ UiFlexGrid::GridStyle UiFlexGrid::merge_grid_styles() const {
 
 UiFlexGrid::DefaultCellStyle UiFlexGrid::merge_default_cell_styles() const {
   const auto& all = default_cell_styles.all;
-  const auto& ds = (layout_ == Layout::kWide) ? default_cell_styles.wide : default_cell_styles.tall;
+  const auto& ds = (layout_ == UiLayout::kTall) ? default_cell_styles.tall : default_cell_styles.wide;
 
   const float align = pick_from2(all.align,ds.align,0.0f,0.0f);
 
@@ -220,7 +220,7 @@ UiFlexGrid::DefaultCellStyle UiFlexGrid::merge_default_cell_styles() const {
 UiFlexGrid::CellStyle UiFlexGrid::merge_cell_styles(const CellStyles& cell_styles) const {
   const auto& ds = default_cell_style_;
   const auto& all = cell_styles.all;
-  const auto& cs = (layout_ == Layout::kWide) ? cell_styles.wide : cell_styles.tall;
+  const auto& cs = (layout_ == UiLayout::kTall) ? cell_styles.tall : cell_styles.wide;
 
   const float align = pick_from3(ds.align,all.align,cs.align,0.0f,0.0f);
 
@@ -257,6 +257,10 @@ UiFlexGrid::boolish_t UiFlexGrid::pick_from_boolish3(boolish_t base_opt,boolish_
                                                      boolish_t fallback_opt) {
   return pick_from3<boolish_t>(base_opt,alt_opt1,alt_opt2,fallback_opt,0);
 }
+
+UiLayout UiFlexGrid::layout() const { return layout_; }
+
+bool UiFlexGrid::layout_changed() const { return layout_changed_; }
 
 const UiFlexGrid::Cell* UiFlexGrid::cell(std::size_t index) const {
   return (index < cells_.size()) ? &cells_[index] : nullptr;
