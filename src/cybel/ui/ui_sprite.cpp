@@ -20,4 +20,6 @@ void UiSprite::draw(Renderer& ren) {
   ren.wrap_sprite(*sprite,[&](auto& t) { t.draw_quad(pos_,size_); });
 }
 
+void UiSprite::set_sprite(const SpriteRef& sprite_ref) { sprite_ref_ = sprite_ref; }
+
 } // namespace cybel

@@ -12,8 +12,8 @@
 namespace cybel {
 
 SpriteRef::SpriteRef(AssetMan& asset_man,asset_id_t id) noexcept
-  : asset_man_(asset_man),id_(id) {}
+  : asset_man_(&asset_man),id_(id) {}
 
-Sprite* SpriteRef::get() { return asset_man_.sprite(id_); }
+Sprite* SpriteRef::get() { return asset_man_->sprite(id_); }
 
 } // namespace cybel

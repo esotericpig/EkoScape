@@ -12,8 +12,8 @@
 namespace cybel {
 
 TextureRef::TextureRef(AssetMan& asset_man,asset_id_t id) noexcept
-  : asset_man_(asset_man),id_(id) {}
+  : asset_man_(&asset_man),id_(id) {}
 
-Texture* TextureRef::get() { return asset_man_.tex(id_); }
+Texture* TextureRef::get() { return asset_man_->tex(id_); }
 
 } // namespace cybel

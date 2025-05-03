@@ -24,7 +24,7 @@ public:
   Sprite* get();
 
 private:
-  AssetMan& asset_man_;
+  AssetMan* asset_man_ = nullptr;
   asset_id_t id_ = 0;
 };
 

@@ -12,8 +12,8 @@
 namespace cybel {
 
 FontAtlasRef::FontAtlasRef(AssetMan& asset_man,asset_id_t id) noexcept
-  : asset_man_(asset_man),id_(id) {}
+  : asset_man_(&asset_man),id_(id) {}
 
-FontAtlas* FontAtlasRef::get() { return asset_man_.font_atlas(id_); }
+FontAtlas* FontAtlasRef::get() { return asset_man_->font_atlas(id_); }
 
 } // namespace cybel

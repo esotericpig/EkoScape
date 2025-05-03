@@ -24,6 +24,8 @@ public:
 
   void draw(Renderer& ren) override;
 
+  void set_color(const Color4f& color);
+
 private:
   Color4f color_{};
 };

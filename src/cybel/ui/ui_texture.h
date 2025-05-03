@@ -21,6 +21,8 @@ public:
 
   void draw(Renderer& ren) override;
 
+  void set_tex(const TextureRef& tex_ref);
+
 private:
   TextureRef tex_ref_;
 };

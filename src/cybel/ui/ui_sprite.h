@@ -21,6 +21,8 @@ public:
 
   void draw(Renderer& ren) override;
 
+  void set_sprite(const SpriteRef& sprite_ref);
+
 private:
   SpriteRef sprite_ref_;
 };
