@@ -67,6 +67,8 @@ public:
   SpriteRef sprite_ref(SpriteId id);
   FontAtlas& font_atlas();
   FontAtlas* font_atlas(FontAtlasId id);
+  FontAtlasRef font_atlas_ref();
+  FontAtlasRef font_atlas_ref(FontAtlasId id);
 
   const Color4f& eko_color() const;
   const Color4f& end_color() const;
@@ -104,7 +106,9 @@ private:
    *       which is an expensive operation.
    */
   static std::vector<std::filesystem::path> fetch_base_dirs();
-  static inline const std::vector<std::filesystem::path> kBaseDirs = fetch_base_dirs();
+  static inline const auto kBaseDirs = fetch_base_dirs();
+
+  static constexpr auto kDefaultFontAtlasId = FontAtlasId::kMonogram;
 
   // For images that don't really work well with make_weird().
   // - The names mean "for mostly black images," etc.
@@ -137,6 +141,7 @@ private:
 
   using AssetMan::tex_ref;
   using AssetMan::sprite_ref;
+  using AssetMan::font_atlas_ref;
 
   void reload_gfx(bool make_weird);
   void reload_gfx(std::string_view tex_style,bool make_weird);

@@ -421,7 +421,7 @@ Sprite* Assets::sprite(asset_id_t id) {
 
 SpriteRef Assets::sprite_ref(SpriteId id) { return sprite_ref(static_cast<asset_id_t>(id)); }
 
-FontAtlas& Assets::font_atlas() { return *font_atlas(FontAtlasId::kMonogram); }
+FontAtlas& Assets::font_atlas() { return *font_atlas(kDefaultFontAtlasId); }
 
 FontAtlas* Assets::font_atlas(FontAtlasId id) { return font_atlas(static_cast<asset_id_t>(id)); }
 
@@ -430,6 +430,10 @@ FontAtlas* Assets::font_atlas(asset_id_t id) {
 
   return font_atlases_[id].get();
 }
+
+FontAtlasRef Assets::font_atlas_ref() { return font_atlas_ref(kDefaultFontAtlasId); }
+
+FontAtlasRef Assets::font_atlas_ref(FontAtlasId id) { return font_atlas_ref(static_cast<asset_id_t>(id)); }
 
 const Color4f& Assets::eko_color() const { return eko_color_; }
 
