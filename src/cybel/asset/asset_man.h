@@ -11,6 +11,7 @@
 #include "cybel/common.h"
 
 #include "cybel/asset/asset_types.h"
+#include "cybel/asset/font_atlas_ref.h"
 #include "cybel/asset/sprite_ref.h"
 #include "cybel/asset/texture_ref.h"
 #include "cybel/audio/audio.h"
@@ -27,6 +28,10 @@ class AssetMan {
 public:
   virtual ~AssetMan() noexcept = default;
 
+  TextureRef tex_ref(asset_id_t id);
+  SpriteRef sprite_ref(asset_id_t id);
+  FontAtlasRef font_atlas_ref(asset_id_t id);
+
   virtual Image* image([[maybe_unused]] asset_id_t id) { return nullptr; }
   virtual Texture* tex([[maybe_unused]] asset_id_t id) { return nullptr; }
   virtual Sprite* sprite([[maybe_unused]] asset_id_t id) { return nullptr; }
@@ -35,9 +40,6 @@ public:
 
   virtual Audio* audio([[maybe_unused]] asset_id_t id) { return nullptr; }
   virtual Music* music([[maybe_unused]] asset_id_t id) { return nullptr; }
-
-  TextureRef tex_ref(asset_id_t id);
-  SpriteRef sprite_ref(asset_id_t id);
 };
 
 } // namespace cybel

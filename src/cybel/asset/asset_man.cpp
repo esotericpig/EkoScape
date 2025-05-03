@@ -13,4 +13,6 @@ TextureRef AssetMan::tex_ref(asset_id_t id) { return TextureRef{*this,id}; }
 
 SpriteRef AssetMan::sprite_ref(asset_id_t id) { return SpriteRef{*this,id}; }
 
+FontAtlasRef AssetMan::font_atlas_ref(asset_id_t id) { return FontAtlasRef{*this,id}; }
+
 } // namespace cybel

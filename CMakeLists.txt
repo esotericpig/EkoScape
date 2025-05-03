@@ -352,6 +352,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares2GL.cpp"
 
     "${SRC_DIR}/cybel/asset/asset_man.cpp"
+    "${SRC_DIR}/cybel/asset/font_atlas_ref.cpp"
     "${SRC_DIR}/cybel/asset/sprite_ref.cpp"
     "${SRC_DIR}/cybel/asset/texture_ref.cpp"
     "${SRC_DIR}/cybel/audio/audio.cpp"
