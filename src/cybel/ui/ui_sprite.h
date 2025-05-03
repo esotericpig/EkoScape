@@ -5,24 +5,24 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef CYBEL_UI_UI_TEXTURE_H_
-#define CYBEL_UI_UI_TEXTURE_H_
+#ifndef CYBEL_UI_UI_SPRITE_H_
+#define CYBEL_UI_UI_SPRITE_H_
 
 #include "cybel/common.h"
 
-#include "cybel/asset/texture_ref.h"
+#include "cybel/asset/sprite_ref.h"
 #include "cybel/ui/ui_box_node.h"
 
 namespace cybel {
 
-class UiTexture : public UiBoxNode {
+class UiSprite : public UiBoxNode {
 public:
-  explicit UiTexture(const TextureRef& tex_ref) noexcept;
+  explicit UiSprite(const SpriteRef& sprite_ref) noexcept;
 
   void draw(Renderer& ren) override;
 
 private:
-  TextureRef tex_ref_;
+  SpriteRef sprite_ref_;
 };
 
 } // namespace cybel

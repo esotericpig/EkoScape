@@ -351,6 +351,9 @@ target_sources("${BIN_NAME}" PRIVATE
     "${TP_DIR}/Dantares/Dantares2.cpp"
     "${TP_DIR}/Dantares/Dantares2GL.cpp"
 
+    "${SRC_DIR}/cybel/asset/asset_man.cpp"
+    "${SRC_DIR}/cybel/asset/sprite_ref.cpp"
+    "${SRC_DIR}/cybel/asset/texture_ref.cpp"
     "${SRC_DIR}/cybel/audio/audio.cpp"
     "${SRC_DIR}/cybel/audio/audio_player.cpp"
     "${SRC_DIR}/cybel/audio/music.cpp"
@@ -381,6 +384,7 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/cybel/ui/ui_box_node.cpp"
     "${SRC_DIR}/cybel/ui/ui_flex_grid.cpp"
     "${SRC_DIR}/cybel/ui/ui_quad.cpp"
+    "${SRC_DIR}/cybel/ui/ui_sprite.cpp"
     "${SRC_DIR}/cybel/ui/ui_texture.cpp"
     "${SRC_DIR}/cybel/util/rando.cpp"
     "${SRC_DIR}/cybel/util/timer.cpp"
