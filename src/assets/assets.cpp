@@ -78,36 +78,14 @@ std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
 Assets::Assets(std::string_view tex_style,bool has_audio_player,bool make_weird)
   : has_audio_player_(has_audio_player) {
   reload_gfx(tex_style,make_weird);
-  reload_music();
+  reload_audio();
 }
 
 void Assets::on_context_restored() {
-  for(auto& st : styled_texs_bag_) {
-    st.ceiling_tex->zombify();
-    st.cell_tex->zombify();
-    st.dead_space_tex->zombify();
-    st.dead_space_ghost_tex->zombify();
-    st.end_tex->zombify();
-    st.end_wall_tex->zombify();
-    st.floor_tex->zombify();
-    st.fruit_tex->zombify();
-    st.portal_tex->zombify();
-    st.robot_tex->zombify();
-    st.wall_tex->zombify();
-    st.wall_ghost_tex->zombify();
-    st.white_tex->zombify();
-    st.white_ghost_tex->zombify();
-  }
-
-  star1_tex_->zombify();
-  star2_tex_->zombify();
-  logo_sprite_->zombify();
-  keys_sprite_->zombify();
-  dantares_sprite_->zombify();
-  boring_work_sprite_->zombify();
-  goodnight_sprite_->zombify();
-  corngrits_sprite_->zombify();
-  font_atlas_->zombify();
+  for(auto& st : styled_texs_bag_) { st.zombify(); }
+  for(auto& tex : texs_) { tex->zombify(); }
+  for(auto& sprite : sprites_) { sprite->zombify(); }
+  for(auto& font : font_atlases_) { font->zombify(); }
 
   Util::clear_gl_errors();
   reload_gfx();
@@ -122,45 +100,44 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
 
   reload_styled_texs_bag(tex_style);
 
-  star1_tex_ = load_tex(kTexsSubdir / "star.png");
-  star2_tex_ = load_tex(kTexsSubdir / "star2.png");
-  star_tex_ = is_weird_ ? star2_tex_.get() : star1_tex_.get();
+  load_image(ImageId::kEkoScapeIcon,kIconsSubdir / "io.github.esotericpig.ekoscape.png");
 
-  icon_img_ = load_img(kIconsSubdir / "io.github.esotericpig.ekoscape.png");
-  logo_sprite_ = load_sprite(kImgsSubdir / "EkoScape.png",kWeirdGrayColor);
-  dantares_sprite_ = load_sprite(kImgsSubdir / "Dantares.png");
-  boring_work_sprite_ = load_sprite(kImgsSubdir / "boring_work.png",kWeirdGrayColor);
-  goodnight_sprite_ = load_sprite(kImgsSubdir / "goodnight.png");
-  corngrits_sprite_ = load_sprite(kImgsSubdir / "corngrits.png",kWeirdGrayColor);
+  load_tex(TextureId::kStar1,kTexsSubdir / "star.png");
+  load_tex(TextureId::kStar2,kTexsSubdir / "star2.png");
+  star_tex_ = is_weird_ ? tex(TextureId::kStar2) : tex(TextureId::kStar1);
+
+  load_sprite(SpriteId::kEkoScapeLogo,kImagesSubdir / "EkoScape.png",kWeirdGrayColor);
+  load_sprite(SpriteId::kDantaresLogo,kImagesSubdir / "Dantares.png");
+  load_sprite(SpriteId::kBoringWork,kImagesSubdir / "boring_work.png",kWeirdGrayColor);
+  load_sprite(SpriteId::kGoodnight,kImagesSubdir / "goodnight.png");
+  load_sprite(SpriteId::kCorngrits,kImagesSubdir / "corngrits.png",kWeirdGrayColor);
 
 #if defined(__EMSCRIPTEN__)
-  keys_sprite_ = load_sprite(kImgsSubdir / "keys_web.png",kWeirdGrayColor);
+  load_sprite(SpriteId::kKeys,kImagesSubdir / "keys_web.png",kWeirdGrayColor);
 #else
-  keys_sprite_ = load_sprite(kImgsSubdir / "keys.png",kWeirdGrayColor);
+  load_sprite(SpriteId::kKeys,kImagesSubdir / "keys.png",kWeirdGrayColor);
 #endif
 
-  load_asset([&](const auto& base_dir) {
-    font_atlas_ = std::make_unique<FontAtlas>(
-      FontAtlas::Builder{Texture{Image{base_dir / kImgsSubdir / "font_monogram.png"}}}
-        .offset(0,0)
-        .cell_size(9,14)
-        .cell_padding(2)
-        .spacing(5,5)
-        .default_rune(U'¿')
-        .index_to_rune({
-          R"( !"#$%&'()*+,-./)",
-          R"(0123456789:;<=>?)",
-          R"(@ABCDEFGHIJKLMNO)",
-          R"(PQRSTUVWXYZ[\]^_)",
-          R"(`abcdefghijklmno)",
-          R"(pqrstuvwxyz{|}~…)",
-          R"(¿¡←↑→↓©®×÷±«¤»¬¯)",
-          R"(₀₁₂₃₄₅₆₇₈₉°ªº£¥¢)",
-        })
-        .build()
-    );
-  });
-  font_renderer_ = std::make_unique<FontRenderer>(*font_atlas_,is_weird_);
+  load_font_atlas(
+    FontAtlasId::kMonogram,kImagesSubdir / "font_monogram.png",
+    FontAtlas::Builder{}
+      .offset(0,0)
+      .cell_size(9,14)
+      .cell_padding(2)
+      .spacing(5,5)
+      .default_rune(U'¿')
+      .index_to_rune({
+        R"( !"#$%&'()*+,-./)",
+        R"(0123456789:;<=>?)",
+        R"(@ABCDEFGHIJKLMNO)",
+        R"(PQRSTUVWXYZ[\]^_)",
+        R"(`abcdefghijklmno)",
+        R"(pqrstuvwxyz{|}~…)",
+        R"(¿¡←↑→↓©®×÷±«¤»¬¯)",
+        R"(₀₁₂₃₄₅₆₇₈₉°ªº£¥¢)",
+      })
+  );
+  font_renderer_ = std::make_unique<FontRenderer>(font_atlas(),is_weird_);
 
   eko_color_ = Color4f::kRed;
   end_color_ = Color4f::kCopper;
@@ -177,11 +154,13 @@ void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
     robot_color_ = kWeirdGrayColor;
     std::swap(wall_color_.r,wall_color_.b);
   }
+
+  check_gfx(); // Validate all graphics were loaded.
 }
 
 void Assets::reload_styled_texs_bag(std::string_view tex_style) {
   styled_texs_bag_.clear();
-  styled_texs_bag_it_ = styled_texs_bag_.cbegin();
+  styled_texs_bag_it_ = styled_texs_bag_.begin();
 
   std::unordered_set<std::filesystem::path> loaded_dirnames{};
   std::ostringstream errors{};
@@ -201,7 +180,7 @@ void Assets::reload_styled_texs_bag(std::string_view tex_style) {
 
         if(loaded_dirnames.contains(style_dirname)) { continue; }
 
-        styled_texs_bag_.push_back(load_styled_texs(style_dir));
+        styled_texs_bag_.emplace_back(style_dir,is_weird_);
         loaded_dirnames.insert(style_dirname);
       }
     } catch(const CybelError& e) {
@@ -215,7 +194,7 @@ void Assets::reload_styled_texs_bag(std::string_view tex_style) {
   }
 
   styled_texs_bag_.shrink_to_fit();
-  styled_texs_bag_it_ = styled_texs_bag_.cbegin();
+  styled_texs_bag_it_ = styled_texs_bag_.begin();
 
   if(styled_texs_bag_.empty()) {
     throw CybelError{
@@ -230,56 +209,41 @@ void Assets::reload_styled_texs_bag(std::string_view tex_style) {
   });
 
   // Auto-select the style that matches `tex_style`, ignoring case.
-  for(styled_texs_bag_it_ = styled_texs_bag_.cbegin(); styled_texs_bag_it_ < styled_texs_bag_.cend();
+  for(styled_texs_bag_it_ = styled_texs_bag_.begin(); styled_texs_bag_it_ < styled_texs_bag_.end();
       ++styled_texs_bag_it_) {
     if(utf8::StrUtil::casecmp_ascii(styled_texs_bag_it_->dirname,tex_style) == 0) { break; }
   }
 
-  if(styled_texs_bag_it_ >= styled_texs_bag_.cend()) {
+  if(styled_texs_bag_it_ >= styled_texs_bag_.end()) {
     std::cerr << "[WARN] Failed to find/load graphics style [" << tex_style << "]." << std::endl;
-    styled_texs_bag_it_ = styled_texs_bag_.cbegin();
+    styled_texs_bag_it_ = styled_texs_bag_.begin();
   }
 }
 
-Assets::StyledTextures Assets::load_styled_texs(const std::filesystem::path& dir) const {
-  StyledTextures st{};
+void Assets::check_gfx() {
+  for(auto& st : styled_texs_bag_) { st.check_texs(); }
 
-  st.dirname = dir.filename().string();
-  st.name = utf8::StrUtil::ellipsize(st.dirname,18);
-
-  st.ceiling_tex = std::make_unique<Texture>(Image{dir / "ceiling.png",is_weird_});
-  st.cell_tex = std::make_unique<Texture>(Image{dir / "cell.png",is_weird_});
-  st.dead_space_tex = std::make_unique<Texture>(Image{dir / "dead_space.png",is_weird_,kWeirdBlackColor});
-  st.dead_space_ghost_tex = std::make_unique<Texture>(Image{dir / "dead_space_ghost.png",is_weird_,
-                                                      kWeirdBlackColor});
-  st.end_tex = std::make_unique<Texture>(Image{dir / "end.png",is_weird_});
-  st.end_wall_tex = std::make_unique<Texture>(Image{dir / "end_wall.png",is_weird_});
-  st.floor_tex = std::make_unique<Texture>(Image{dir / "floor.png",is_weird_});
-  st.fruit_tex = std::make_unique<Texture>(Image{dir / "fruit.png",is_weird_});
-  st.portal_tex = std::make_unique<Texture>(Image{dir / "portal.png",is_weird_});
-  st.robot_tex = std::make_unique<Texture>(Image{dir / "robot.png",is_weird_,kWeirdGrayColor});
-  st.wall_tex = std::make_unique<Texture>(Image{dir / "wall.png",is_weird_});
-  st.wall_ghost_tex = std::make_unique<Texture>(Image{dir / "wall_ghost.png",is_weird_});
-  st.white_tex = std::make_unique<Texture>(Image{dir / "white.png",is_weird_,kWeirdWhiteColor});
-  st.white_ghost_tex = std::make_unique<Texture>(Image{dir / "white_ghost.png",is_weird_,kWeirdWhiteColor});
-
-  return st; // NRVO (Named Return Value Optimization).
+  for(std::size_t id = 0; id < images_.size(); ++id) {
+    if(!images_[id]) { throw CybelError{"Image ID [",id,"] was not loaded."}; }
+  }
+  for(std::size_t id = 0; id < texs_.size(); ++id) {
+    if(!texs_[id]) { throw CybelError{"Texture ID [",id,"] was not loaded."}; }
+  }
+  for(std::size_t id = 0; id < sprites_.size(); ++id) {
+    if(!sprites_[id]) { throw CybelError{"Sprite ID [",id,"] was not loaded."}; }
+  }
+  for(std::size_t id = 0; id < font_atlases_.size(); ++id) {
+    if(!font_atlases_[id]) { throw CybelError{"Font atlas ID [",id,"] was not loaded."}; }
+  }
 }
 
-void Assets::reload_music() {
+void Assets::reload_audio() {
   if(!has_audio_player_) { return; }
 
-  try {
-    load_asset([&](const auto& base_dir) {
-      music_ = std::make_unique<Music>(base_dir / kMusicSubdir / "ekoscape.ogg");
-    });
-  } catch(const CybelError& e) {
-    std::cerr << "[WARN] " << e.what() << std::endl;
-    // Don't fail, since music is optional.
-  }
+  load_music(MusicId::kEkoScape,kMusicSubdir / "ekoscape.ogg");
 }
 
-void Assets::load_asset(const AssetLoader& load_from) const {
+void Assets::load_asset(const AssetLoader& load_from,bool fail_on_error) const {
   std::string error{};
 
   for(const auto& base_dir : kBaseDirs) {
@@ -294,38 +258,61 @@ void Assets::load_asset(const AssetLoader& load_from) const {
   if(error.empty()) {
     error = "Failed to find/load assets in assets folder [" + kAssetsSubdir.string() + "].";
   }
-  throw CybelError{error};
+  if(fail_on_error) { throw CybelError{error}; }
+
+  std::cerr << "[WARN] " << error << std::endl;
 }
 
-std::unique_ptr<Image> Assets::load_img(const std::filesystem::path& subfile) const {
-  std::unique_ptr<Image> img{};
+void Assets::load_image(ImageId id,const std::filesystem::path& subfile) {
+  const auto i = static_cast<std::size_t>(id);
+
+  if(i >= images_.size()) { throw CybelError{"Invalid image ID [",i,"] on load."}; }
 
   load_asset([&](const auto& base_dir) {
-    img = std::make_unique<Image>(base_dir / subfile,is_weird_);
+    images_[i] = std::make_unique<Image>(base_dir / subfile,is_weird_);
   });
-
-  return img;
 }
 
-std::unique_ptr<Sprite> Assets::load_sprite(const std::filesystem::path& subfile,
-                                            const Color4f& weird_color) const {
-  std::unique_ptr<Sprite> sprite{};
+void Assets::load_tex(TextureId id,const std::filesystem::path& subfile) {
+  const auto i = static_cast<std::size_t>(id);
+
+  if(i >= texs_.size()) { throw CybelError{"Invalid texture ID [",i,"] on load."}; }
 
   load_asset([&](const auto& base_dir) {
-    sprite = std::make_unique<Sprite>(Texture{Image{base_dir / subfile,is_weird_,weird_color}});
+    texs_[i] = std::make_unique<Texture>(Image{base_dir / subfile,is_weird_});
   });
-
-  return sprite;
 }
 
-std::unique_ptr<Texture> Assets::load_tex(const std::filesystem::path& subfile) const {
-  std::unique_ptr<Texture> tex{};
+void Assets::load_sprite(SpriteId id,const std::filesystem::path& subfile,const Color4f& weird_color) {
+  const auto i = static_cast<std::size_t>(id);
+
+  if(i >= sprites_.size()) { throw CybelError{"Invalid sprite ID [",i,"] on load."}; }
 
   load_asset([&](const auto& base_dir) {
-    tex = std::make_unique<Texture>(Image{base_dir / subfile,is_weird_});
+    sprites_[i] = std::make_unique<Sprite>(Texture{Image{base_dir / subfile,is_weird_,weird_color}});
   });
+}
 
-  return tex;
+void Assets::load_font_atlas(FontAtlasId id,const std::filesystem::path& subfile,
+                             FontAtlas::Builder& builder) {
+  const auto i = static_cast<std::size_t>(id);
+
+  if(i >= font_atlases_.size()) { throw CybelError{"Invalid font atlas ID [",i,"] on load."}; }
+
+  load_asset([&](const auto& base_dir) {
+    builder.tex(Texture{Image{base_dir / subfile}});
+    font_atlases_[i] = std::make_unique<FontAtlas>(builder.build());
+  });
+}
+
+void Assets::load_music(MusicId id,const std::filesystem::path& subfile) {
+  const auto i = static_cast<std::size_t>(id);
+
+  if(i >= music_bag_.size()) { throw CybelError{"Invalid music ID [",i,"] on load."}; }
+
+  load_asset([&](const auto& base_dir) {
+    music_bag_[i] = std::make_unique<Music>(base_dir / subfile);
+  },false);
 }
 
 void Assets::make_weird() {
@@ -375,8 +362,8 @@ void Assets::glob_maps_meta(const MapCallback& on_map) const {
 }
 
 const std::string& Assets::prev_tex_style() {
-  if(styled_texs_bag_it_ <= styled_texs_bag_.cbegin()) {
-    styled_texs_bag_it_ = styled_texs_bag_.cend(); // Wrap to end.
+  if(styled_texs_bag_it_ <= styled_texs_bag_.begin()) {
+    styled_texs_bag_it_ = styled_texs_bag_.end(); // Wrap to end.
   }
   --styled_texs_bag_it_;
 
@@ -385,8 +372,8 @@ const std::string& Assets::prev_tex_style() {
 
 const std::string& Assets::next_tex_style() {
   ++styled_texs_bag_it_;
-  if(styled_texs_bag_it_ >= styled_texs_bag_.cend()) {
-    styled_texs_bag_it_ = styled_texs_bag_.cbegin(); // Wrap to beginning.
+  if(styled_texs_bag_it_ >= styled_texs_bag_.end()) {
+    styled_texs_bag_it_ = styled_texs_bag_.begin(); // Wrap to beginning.
   }
 
   return styled_texs_bag_it_->name;
@@ -396,53 +383,53 @@ bool Assets::is_weird() const { return is_weird_; }
 
 const std::string& Assets::tex_style() const { return styled_texs_bag_it_->name; }
 
-const Texture& Assets::ceiling_tex() const { return *styled_texs_bag_it_->ceiling_tex; }
-
-const Texture& Assets::cell_tex() const { return *styled_texs_bag_it_->cell_tex; }
-
-const Texture& Assets::dead_space_tex() const { return *styled_texs_bag_it_->dead_space_tex; }
-
-const Texture& Assets::dead_space_ghost_tex() const { return *styled_texs_bag_it_->dead_space_ghost_tex; }
-
-const Texture& Assets::end_tex() const { return *styled_texs_bag_it_->end_tex; }
-
-const Texture& Assets::end_wall_tex() const { return *styled_texs_bag_it_->end_wall_tex; }
-
-const Texture& Assets::floor_tex() const { return *styled_texs_bag_it_->floor_tex; }
-
-const Texture& Assets::fruit_tex() const { return *styled_texs_bag_it_->fruit_tex; }
-
-const Texture& Assets::portal_tex() const { return *styled_texs_bag_it_->portal_tex; }
-
-const Texture& Assets::robot_tex() const { return *styled_texs_bag_it_->robot_tex; }
-
-const Texture& Assets::wall_tex() const { return *styled_texs_bag_it_->wall_tex; }
-
-const Texture& Assets::wall_ghost_tex() const { return *styled_texs_bag_it_->wall_ghost_tex; }
-
-const Texture& Assets::white_tex() const { return *styled_texs_bag_it_->white_tex; }
-
-const Texture& Assets::white_ghost_tex() const { return *styled_texs_bag_it_->white_ghost_tex; }
-
 const Texture& Assets::star_tex() const { return *star_tex_; }
 
-const Image& Assets::icon_img() const { return *icon_img_; }
+Texture* Assets::styled_tex(StyledTexId id) {
+  return styled_texs_bag_it_->tex(static_cast<asset_id_t>(id));
+}
 
-const Sprite& Assets::logo_sprite() const { return *logo_sprite_; }
-
-const Sprite& Assets::keys_sprite() const { return *keys_sprite_; }
-
-const Sprite& Assets::dantares_sprite() const { return *dantares_sprite_; }
-
-const Sprite& Assets::boring_work_sprite() const { return *boring_work_sprite_; }
-
-const Sprite& Assets::goodnight_sprite() const { return *goodnight_sprite_; }
-
-const Sprite& Assets::corngrits_sprite() const { return *corngrits_sprite_; }
+TextureRef Assets::styled_tex_ref(StyledTexId id) {
+  return styled_texs_bag_it_->tex_ref(static_cast<asset_id_t>(id));
+}
 
 FontRenderer& Assets::font_renderer() const { return *font_renderer_; }
 
-const FontAtlas& Assets::font_atlas() const { return *font_atlas_; }
+Image* Assets::image(ImageId id) { return image(static_cast<asset_id_t>(id)); }
+
+Image* Assets::image(asset_id_t id) {
+  if(id >= images_.size()) { throw CybelError{"Invalid image ID [",id,"] on get."}; }
+
+  return images_[id].get();
+}
+
+Texture* Assets::tex(TextureId id) { return tex(static_cast<asset_id_t>(id)); }
+
+Texture* Assets::tex(asset_id_t id) {
+  if(id >= texs_.size()) { throw CybelError{"Invalid texture ID [",id,"] on get."}; }
+
+  return texs_[id].get();
+}
+
+Sprite* Assets::sprite(SpriteId id) { return sprite(static_cast<asset_id_t>(id)); }
+
+Sprite* Assets::sprite(asset_id_t id) {
+  if(id >= sprites_.size()) { throw CybelError{"Invalid sprite ID [",id,"] on get."}; }
+
+  return sprites_[id].get();
+}
+
+SpriteRef Assets::sprite_ref(SpriteId id) { return sprite_ref(static_cast<asset_id_t>(id)); }
+
+FontAtlas& Assets::font_atlas() { return *font_atlas(FontAtlasId::kMonogram); }
+
+FontAtlas* Assets::font_atlas(FontAtlasId id) { return font_atlas(static_cast<asset_id_t>(id)); }
+
+FontAtlas* Assets::font_atlas(asset_id_t id) {
+  if(id >= font_atlases_.size()) { throw CybelError{"Invalid font atlas ID [",id,"] on get."}; }
+
+  return font_atlases_[id].get();
+}
 
 const Color4f& Assets::eko_color() const { return eko_color_; }
 
@@ -456,6 +443,57 @@ const Color4f& Assets::robot_color() const { return robot_color_; }
 
 const Color4f& Assets::wall_color() const { return wall_color_; }
 
-const Music* Assets::music() const { return music_.get(); }
+Music* Assets::music(MusicId id) { return music(static_cast<asset_id_t>(id)); }
+
+Music* Assets::music(asset_id_t id) {
+  if(id >= music_bag_.size()) { throw CybelError{"Invalid music ID [",id,"] on get."}; }
+
+  return music_bag_[id].get();
+}
+
+Assets::StyledTextures::StyledTextures(const std::filesystem::path& dir,bool make_weird) {
+  dirname = dir.filename().string();
+  name = utf8::StrUtil::ellipsize(dirname,18);
+
+  load_tex(StyledTexId::kCeiling,dir / "ceiling.png",make_weird);
+  load_tex(StyledTexId::kCell,dir / "cell.png",make_weird);
+  load_tex(StyledTexId::kDeadSpace,dir / "dead_space.png",make_weird,kWeirdBlackColor);
+  load_tex(StyledTexId::kDeadSpaceGhost,dir / "dead_space_ghost.png",make_weird,kWeirdBlackColor);
+  load_tex(StyledTexId::kEnd,dir / "end.png",make_weird);
+  load_tex(StyledTexId::kEndWall,dir / "end_wall.png",make_weird);
+  load_tex(StyledTexId::kFloor,dir / "floor.png",make_weird);
+  load_tex(StyledTexId::kFruit,dir / "fruit.png",make_weird);
+  load_tex(StyledTexId::kPortal,dir / "portal.png",make_weird);
+  load_tex(StyledTexId::kRobot,dir / "robot.png",make_weird,kWeirdGrayColor);
+  load_tex(StyledTexId::kWall,dir / "wall.png",make_weird);
+  load_tex(StyledTexId::kWallGhost,dir / "wall_ghost.png",make_weird);
+  load_tex(StyledTexId::kWhite,dir / "white.png",make_weird,kWeirdWhiteColor);
+  load_tex(StyledTexId::kWhiteGhost,dir / "white_ghost.png",make_weird,kWeirdWhiteColor);
+}
+
+void Assets::StyledTextures::load_tex(StyledTexId id,const std::filesystem::path& file,bool make_weird,
+                                      const Color4f& weird_color) {
+  const auto i = static_cast<std::size_t>(id);
+
+  if(i >= texs_.size()) { throw CybelError{"Invalid styled texture ID [",i,"] on load."}; }
+
+  texs_[i] = std::make_unique<Texture>(Image{file,make_weird,weird_color});
+}
+
+void Assets::StyledTextures::check_texs() {
+  for(std::size_t id = 0; id < texs_.size(); ++id) {
+    if(!texs_[id]) { throw CybelError{"Styled texture ID [",id,"] was not loaded."}; }
+  }
+}
+
+void Assets::StyledTextures::zombify() {
+  for(auto& tex : texs_) { tex->zombify(); }
+}
+
+Texture* Assets::StyledTextures::tex(asset_id_t id) {
+  if(id >= texs_.size()) { throw CybelError{"Invalid styled texture ID [",id,"] on get."}; }
+
+  return texs_[id].get();
+}
 
 } // namespace ekoscape

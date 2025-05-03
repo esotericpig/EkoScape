@@ -23,11 +23,11 @@ class FontAtlas : public SpriteAtlas {
 public:
   class Builder final {
   public:
-    explicit Builder(Texture&& tex);
-    explicit Builder(std::unique_ptr<Texture> tex);
-    explicit Builder(std::shared_ptr<Texture> tex);
-
     FontAtlas build();
+
+    Builder& tex(Texture&& tex);
+    Builder& tex(std::unique_ptr<Texture> tex);
+    Builder& tex(std::shared_ptr<Texture> tex);
 
     Builder& offset(int x,int y);
     Builder& cell_size(int width,int height);

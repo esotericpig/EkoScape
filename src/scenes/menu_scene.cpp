@@ -113,7 +113,7 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  ren.wrap_sprite(ctx_.assets.logo_sprite(),[&](auto& s) {
+  ren.wrap_sprite(*ctx_.assets.sprite(SpriteId::kEkoScapeLogo),[&](auto& s) {
     s.draw_quad(Pos3i{150,10,0},Size2i{1300,300});
   });
 
@@ -134,13 +134,13 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
     }
   });
 
-  ren.wrap_tex(ctx_.assets.robot_tex(),[&](auto& tex) {
+  ren.wrap_tex(*ctx_.assets.styled_tex(StyledTexId::kRobot),[&](auto& tex) {
     tex.draw_quad(Pos3i{10,368,0},Size2i{300,256});
   });
-  ren.wrap_tex(ctx_.assets.cell_tex(),[&](auto& tex) {
+  ren.wrap_tex(*ctx_.assets.styled_tex(StyledTexId::kCell),[&](auto& tex) {
     tex.draw_quad(Pos3i{10,634,0},Size2i{300,256});
   });
-  ren.wrap_sprite(ctx_.assets.keys_sprite(),[&](auto& s) {
+  ren.wrap_sprite(*ctx_.assets.sprite(SpriteId::kKeys),[&](auto& s) {
     constexpr int padding = 10;
     const Size2i size{s.sprite.size().w / 2,s.sprite.size().h / 2};
     const Pos3i pos{

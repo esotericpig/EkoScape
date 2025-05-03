@@ -39,7 +39,7 @@ namespace InputAction {
     kMakeWeird,
     kToggleFps,
 
-    kMaxId
+    kMax
   };
 }
 

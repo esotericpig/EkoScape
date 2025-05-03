@@ -172,10 +172,10 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   const int total_cells = state.map.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
   const bool perfect = freed_all && state.player_hit_end;
-  const auto& sprite = state.player_hit_end ? ctx_.assets.corngrits_sprite()
-                                            : ctx_.assets.goodnight_sprite();
+  const auto* game_over = ctx_.assets.sprite(state.player_hit_end ? SpriteId::kCorngrits
+                                                                  : SpriteId::kGoodnight);
 
-  ren.wrap_sprite(sprite,[&](auto& s) {
+  ren.wrap_sprite(*game_over,[&](auto& s) {
     ren.wrap_color(Color4f{1.0f,game_over_age_},[&] {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });

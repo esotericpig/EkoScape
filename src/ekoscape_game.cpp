@@ -31,7 +31,7 @@ EkoScapeGame::EkoScapeGame() {
     //.size = Size2i{740,500}, // For GIFs/screenshots.
     .fps = 60,
     .vsync = true,
-    .max_input_id = InputAction::kMaxId,
+    .max_input_id = InputAction::kMax,
     .image_types = IMG_INIT_PNG,
     .music_types = MIX_INIT_OGG,
   };
@@ -52,7 +52,7 @@ EkoScapeGame::EkoScapeGame() {
   assets_ = std::make_unique<Assets>("realistic",cybel_engine_->audio_player().is_alive());
   ctx_ = std::make_unique<GameContext>(*cybel_engine_,*assets_);
 
-  cybel_engine_->set_icon(assets_->icon_img());
+  cybel_engine_->set_icon(*assets_->image(ImageId::kEkoScapeIcon));
 
   // TEST: Uncomment to test joypad input.
   //cybel_engine_->input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
@@ -218,9 +218,9 @@ void EkoScapeGame::pop_scene() {
 #if defined(__EMSCRIPTEN__)
     std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
     EM_ASM( window.history.back(); );
-#else
-    std::cerr << "[WARN] No scene to go back to; ignoring pop." << std::endl;
 #endif
+
+    // No scene to go back to, just ignore pop.
   }
 }
 
@@ -327,20 +327,24 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
 }
 
 void EkoScapeGame::play_music(bool rand_pos) {
-  if(ctx_->audio_player.is_alive() && assets_->music() != nullptr) {
-    ctx_->audio_player.play_or_resume_music(assets_->music());
+  if(!ctx_->audio_player.is_alive()) { return; }
 
-    if(rand_pos) {
-      const auto dur_secs = ctx_->audio_player.fetch_duration(assets_->music()).secs();
+  const auto* music = assets_->music(MusicId::kEkoScape);
 
-      if(dur_secs > 1.0) {
-        ctx_->audio_player.set_music_pos(Duration::from_secs(Rando::it().rand_double(0.0,dur_secs - 1.0)));
-      }
-    }
-
-    was_music_playing_ = true;
-  } else {
+  if(music == nullptr) {
     was_music_playing_ = false;
+    return;
+  }
+
+  ctx_->audio_player.play_or_resume_music(music);
+  was_music_playing_ = true;
+
+  if(rand_pos) {
+    const auto dur_secs = ctx_->audio_player.fetch_duration(music).secs();
+
+    if(dur_secs > 1.0) {
+      ctx_->audio_player.set_music_pos(Duration::from_secs(Rando::it().rand_double(0.0,dur_secs - 1.0)));
+    }
   }
 }
 

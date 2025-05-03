@@ -11,16 +11,55 @@
 
 namespace cybel {
 
-FontAtlas::Builder::Builder(Texture&& tex)
-  : sprite_atlas_(std::move(tex)) {}
+FontAtlas::FontAtlas(const Builder& builder)
+  : SpriteAtlas(builder.sprite_atlas_),
+    spacing_(builder.spacing_),
+    rune_to_index_(builder.rune_to_index_) {
+  if(builder.default_index_ > 0) {
+    default_index_ = builder.default_index_;
+  } else if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
+    default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
+  } else if(builder.default_rune_ != 0) {
+    for(auto [rune,index] : rune_to_index_) {
+      if(rune == builder.default_rune_) {
+        default_index_ = index;
+        break;
+      }
+    }
+  }
 
-FontAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
-  : sprite_atlas_(std::move(tex)) {}
+  if(default_index_ >= static_cast<int>(rune_to_index_.size())) {
+    default_index_ = rune_to_index_.empty() ? 0 : static_cast<int>(rune_to_index_.size() - 1);
+  }
+}
 
-FontAtlas::Builder::Builder(std::shared_ptr<Texture> tex)
-  : sprite_atlas_(std::move(tex)) {}
+const Size2i& FontAtlas::spacing() const { return spacing_; }
+
+int FontAtlas::rune_index(char32_t rune) const {
+  const auto it = rune_to_index_.find(rune);
+
+  return (it != rune_to_index_.end()) ? it->second : default_index_;
+}
 
 FontAtlas FontAtlas::Builder::build() { return FontAtlas{*this}; }
+
+FontAtlas::Builder& FontAtlas::Builder::tex(Texture&& tex) {
+  sprite_atlas_.tex(std::move(tex));
+
+  return *this;
+}
+
+FontAtlas::Builder& FontAtlas::Builder::tex(std::unique_ptr<Texture> tex) {
+  sprite_atlas_.tex(std::move(tex));
+
+  return *this;
+}
+
+FontAtlas::Builder& FontAtlas::Builder::tex(std::shared_ptr<Texture> tex) {
+  sprite_atlas_.tex(std::move(tex));
+
+  return *this;
+}
 
 FontAtlas::Builder& FontAtlas::Builder::offset(int x,int y) {
   sprite_atlas_.offset(x,y);
@@ -115,36 +154,6 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::initializer_list<std:
   sprite_atlas_.grid_size(grid_size.w,grid_size.h);
 
   return *this;
-}
-
-FontAtlas::FontAtlas(const Builder& builder)
-  : SpriteAtlas(builder.sprite_atlas_),
-    spacing_(builder.spacing_),
-    rune_to_index_(builder.rune_to_index_) {
-  if(builder.default_index_ > 0) {
-    default_index_ = builder.default_index_;
-  } else if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
-    default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
-  } else if(builder.default_rune_ != 0) {
-    for(auto [rune,index] : rune_to_index_) {
-      if(rune == builder.default_rune_) {
-        default_index_ = index;
-        break;
-      }
-    }
-  }
-
-  if(default_index_ >= static_cast<int>(rune_to_index_.size())) {
-    default_index_ = !rune_to_index_.empty() ? static_cast<int>(rune_to_index_.size() - 1) : 0;
-  }
-}
-
-const Size2i& FontAtlas::spacing() const { return spacing_; }
-
-int FontAtlas::rune_index(char32_t rune) const {
-  const auto it = rune_to_index_.find(rune);
-
-  return (it != rune_to_index_.end()) ? it->second : default_index_;
 }
 
 } // namespace cybel

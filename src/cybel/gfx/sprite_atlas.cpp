@@ -8,62 +8,17 @@
 #include "sprite_atlas.h"
 
 #include "cybel/gfx/sprite.h"
+#include "cybel/types/cybel_error.h"
 
 namespace cybel {
-
-SpriteAtlas::Builder::Builder(Texture&& tex)
-  : Builder(std::make_shared<Texture>(std::move(tex))) {}
-
-SpriteAtlas::Builder::Builder(std::unique_ptr<Texture> tex)
-  : Builder(std::shared_ptr{std::move(tex)}) {}
-
-SpriteAtlas::Builder::Builder(std::shared_ptr<Texture> tex)
-  : tex_(std::move(tex)) {}
-
-SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas(*this); }
-
-SpriteAtlas::Builder& SpriteAtlas::Builder::offset(int x,int y) {
-  offset_.x = x;
-  offset_.y = y;
-
-  return *this;
-}
-
-SpriteAtlas::Builder& SpriteAtlas::Builder::cell_size(int width,int height) {
-  cell_size_.w = width;
-  cell_size_.h = height;
-
-  return *this;
-}
-
-SpriteAtlas::Builder& SpriteAtlas::Builder::cell_padding(int padding) {
-  cell_padding_ = padding;
-
-  return *this;
-}
-
-SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int cols,int rows) {
-  grid_size_.w = cols;
-  grid_size_.h = rows;
-
-  return *this;
-}
-
-std::shared_ptr<Texture> SpriteAtlas::Builder::tex() const { return tex_; }
-
-const Pos2i& SpriteAtlas::Builder::offset() const { return offset_; }
-
-const Size2i& SpriteAtlas::Builder::cell_size() const { return cell_size_; }
-
-int SpriteAtlas::Builder::cell_padding() const { return cell_padding_; }
-
-const Size2i& SpriteAtlas::Builder::grid_size() const { return grid_size_; }
 
 SpriteAtlas::SpriteAtlas(const Builder& builder)
   : tex_(builder.tex_),
     grid_size_(builder.grid_size_),
     cell_count_(grid_size_.w * grid_size_.h),
     index_to_src_(cell_count_,Pos4f{}) {
+  if(!tex_) { throw CybelError{"Texture is null on SpriteAtlas."}; }
+
   const int p2 = builder.cell_padding_ * 2;
 
   cell_size_.w = builder.cell_size_.w - p2;
@@ -103,5 +58,62 @@ const Size2i& SpriteAtlas::cell_size() const { return cell_size_; }
 const Size2i& SpriteAtlas::grid_size() const { return grid_size_; }
 
 int SpriteAtlas::cell_count() const { return cell_count_; }
+
+SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas{*this}; }
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::tex(Texture&& tex) {
+  tex_ = std::make_shared<Texture>(std::move(tex));
+
+  return *this;
+}
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::tex(std::unique_ptr<Texture> tex) {
+  tex_ = std::move(tex);
+
+  return *this;
+}
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::tex(std::shared_ptr<Texture> tex) {
+  tex_ = std::move(tex);
+
+  return *this;
+}
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::offset(int x,int y) {
+  offset_.x = x;
+  offset_.y = y;
+
+  return *this;
+}
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::cell_size(int width,int height) {
+  cell_size_.w = width;
+  cell_size_.h = height;
+
+  return *this;
+}
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::cell_padding(int padding) {
+  cell_padding_ = padding;
+
+  return *this;
+}
+
+SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int cols,int rows) {
+  grid_size_.w = cols;
+  grid_size_.h = rows;
+
+  return *this;
+}
+
+std::shared_ptr<Texture> SpriteAtlas::Builder::tex() const { return tex_; }
+
+const Pos2i& SpriteAtlas::Builder::offset() const { return offset_; }
+
+const Size2i& SpriteAtlas::Builder::cell_size() const { return cell_size_; }
+
+int SpriteAtlas::Builder::cell_padding() const { return cell_padding_; }
+
+const Size2i& SpriteAtlas::Builder::grid_size() const { return grid_size_; }
 
 } // namespace cybel

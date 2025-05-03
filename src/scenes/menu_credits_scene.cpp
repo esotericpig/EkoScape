@@ -35,7 +35,7 @@ void MenuCreditsScene::handle_scene_input_states(const std::vector<bool>& states
   if(states[InputAction::kMakeWeird]) {
     if(!ctx_.assets.is_weird()) {
       ctx_.assets.make_weird();
-      ctx_.cybel_engine.set_icon(ctx_.assets.icon_img());
+      ctx_.cybel_engine.set_icon(*ctx_.assets.image(ImageId::kEkoScapeIcon));
     }
 
     birth_wtfs(dimens);
@@ -57,10 +57,10 @@ void MenuCreditsScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   int y = 10;
   int right_x = x + 800;
 
-  ren.wrap_sprite(ctx_.assets.logo_sprite(),[&](auto& s) {
+  ren.wrap_sprite(*ctx_.assets.sprite(SpriteId::kEkoScapeLogo),[&](auto& s) {
     s.draw_quad(Pos3i{x,y,0},Size2i{780,180}); // 1300x300.
   });
-  ren.wrap_sprite(ctx_.assets.dantares_sprite(),[&](auto& s) {
+  ren.wrap_sprite(*ctx_.assets.sprite(SpriteId::kDantaresLogo),[&](auto& s) {
     s.draw_quad(Pos3i{right_x,y,0},Size2i{780,156}); // 600x120.
   });
   x += 35;

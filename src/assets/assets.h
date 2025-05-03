@@ -10,14 +10,16 @@
 
 #include "common.h"
 
-#include "cybel/audio/music.h"
-#include "cybel/gfx/font_atlas.h"
-#include "cybel/gfx/image.h"
-#include "cybel/gfx/sprite.h"
-#include "cybel/gfx/texture.h"
+#include "cybel/asset/asset_man.h"
 #include "cybel/types/color.h"
 
+#include "assets/font_atlas_id.h"
 #include "assets/font_renderer.h"
+#include "assets/image_id.h"
+#include "assets/music_id.h"
+#include "assets/sprite_id.h"
+#include "assets/styled_tex_id.h"
+#include "assets/texture_id.h"
 #include "map/map.h"
 
 #include <filesystem>
@@ -26,14 +28,15 @@
 
 namespace ekoscape {
 
-class Assets final {
+class Assets final : AssetMan {
 public:
-  using MapCallback = std::function<void(const std::string& group,const std::filesystem::path& map_file,
-                                         Map&)>;
+  using MapCallback = std::function<
+    void(const std::string& group,const std::filesystem::path& map_file,Map&)
+  >;
 
   static inline const std::filesystem::path kAssetsSubdir{"assets"};
   static inline const std::filesystem::path kIconsSubdir{kAssetsSubdir / "icons"};
-  static inline const std::filesystem::path kImgsSubdir{kAssetsSubdir / "images"};
+  static inline const std::filesystem::path kImagesSubdir{kAssetsSubdir / "images"};
   static inline const std::filesystem::path kMapsSubdir{kAssetsSubdir / "maps"};
   static inline const std::filesystem::path kMusicSubdir{kAssetsSubdir / "music"};
   static inline const std::filesystem::path kTexsSubdir{kAssetsSubdir / "textures"};
@@ -42,7 +45,7 @@ public:
 
   void on_context_restored();
   void reload_gfx();
-  void reload_music();
+  void reload_audio();
   void make_weird();
 
   void glob_maps_meta(const MapCallback& on_map) const;
@@ -53,32 +56,17 @@ public:
   bool is_weird() const;
   const std::string& tex_style() const;
 
-  const Texture& ceiling_tex() const;
-  const Texture& cell_tex() const;
-  const Texture& dead_space_tex() const;
-  const Texture& dead_space_ghost_tex() const;
-  const Texture& end_tex() const;
-  const Texture& end_wall_tex() const;
-  const Texture& floor_tex() const;
-  const Texture& fruit_tex() const;
-  const Texture& portal_tex() const;
-  const Texture& robot_tex() const;
-  const Texture& wall_tex() const;
-  const Texture& wall_ghost_tex() const;
-  const Texture& white_tex() const;
-  const Texture& white_ghost_tex() const;
   const Texture& star_tex() const;
-
-  const Image& icon_img() const;
-  const Sprite& logo_sprite() const;
-  const Sprite& keys_sprite() const;
-  const Sprite& dantares_sprite() const;
-  const Sprite& boring_work_sprite() const;
-  const Sprite& goodnight_sprite() const;
-  const Sprite& corngrits_sprite() const;
-
+  Texture* styled_tex(StyledTexId id);
+  TextureRef styled_tex_ref(StyledTexId id);
   FontRenderer& font_renderer() const;
-  const FontAtlas& font_atlas() const;
+
+  Image* image(ImageId id);
+  Texture* tex(TextureId id);
+  Sprite* sprite(SpriteId id);
+  SpriteRef sprite_ref(SpriteId id);
+  FontAtlas& font_atlas();
+  FontAtlas* font_atlas(FontAtlasId id);
 
   const Color4f& eko_color() const;
   const Color4f& end_color() const;
@@ -87,27 +75,26 @@ public:
   const Color4f& robot_color() const;
   const Color4f& wall_color() const;
 
-  const Music* music() const;
+  Music* music(MusicId id);
 
 private:
-  struct StyledTextures {
+  class StyledTextures final : public AssetMan {
+  public:
     std::string name{};
     std::string dirname{};
 
-    std::unique_ptr<Texture> ceiling_tex{};
-    std::unique_ptr<Texture> cell_tex{};
-    std::unique_ptr<Texture> dead_space_tex{};
-    std::unique_ptr<Texture> dead_space_ghost_tex{};
-    std::unique_ptr<Texture> end_tex{};
-    std::unique_ptr<Texture> end_wall_tex{};
-    std::unique_ptr<Texture> floor_tex{};
-    std::unique_ptr<Texture> fruit_tex{};
-    std::unique_ptr<Texture> portal_tex{};
-    std::unique_ptr<Texture> robot_tex{};
-    std::unique_ptr<Texture> wall_tex{};
-    std::unique_ptr<Texture> wall_ghost_tex{};
-    std::unique_ptr<Texture> white_tex{};
-    std::unique_ptr<Texture> white_ghost_tex{};
+    explicit StyledTextures(const std::filesystem::path& dir,bool make_weird);
+
+    void check_texs();
+    void zombify();
+
+    Texture* tex(asset_id_t id) override;
+
+  private:
+    std::array<std::unique_ptr<Texture>,static_cast<std::size_t>(StyledTexId::kMax)> texs_{};
+
+    void load_tex(StyledTexId id,const std::filesystem::path& file,bool make_weird,
+                  const Color4f& weird_color = Color4f::kBlack);
   };
 
   using AssetLoader = std::function<void(const std::filesystem::path& base_dir)>;
@@ -129,23 +116,15 @@ private:
   bool has_audio_player_ = false;
   bool is_weird_ = false;
 
-  std::vector<StyledTextures> styled_texs_bag_{};
-  std::vector<StyledTextures>::const_iterator styled_texs_bag_it_ = styled_texs_bag_.cbegin();
-
   Texture* star_tex_ = nullptr;
-  std::unique_ptr<Texture> star1_tex_{};
-  std::unique_ptr<Texture> star2_tex_{};
-
-  std::unique_ptr<Image> icon_img_{};
-  std::unique_ptr<Sprite> logo_sprite_{};
-  std::unique_ptr<Sprite> keys_sprite_{};
-  std::unique_ptr<Sprite> dantares_sprite_{};
-  std::unique_ptr<Sprite> boring_work_sprite_{};
-  std::unique_ptr<Sprite> goodnight_sprite_{};
-  std::unique_ptr<Sprite> corngrits_sprite_{};
-
-  std::unique_ptr<FontAtlas> font_atlas_{};
+  std::vector<StyledTextures> styled_texs_bag_{};
+  std::vector<StyledTextures>::iterator styled_texs_bag_it_ = styled_texs_bag_.begin();
   std::unique_ptr<FontRenderer> font_renderer_{};
+
+  std::array<std::unique_ptr<Image>,static_cast<std::size_t>(ImageId::kMax)> images_{};
+  std::array<std::unique_ptr<Texture>,static_cast<std::size_t>(TextureId::kMax)> texs_{};
+  std::array<std::unique_ptr<Sprite>,static_cast<std::size_t>(SpriteId::kMax)> sprites_{};
+  std::array<std::unique_ptr<FontAtlas>,static_cast<std::size_t>(FontAtlasId::kMax)> font_atlases_{};
 
   Color4f eko_color_{}; // Cell & Player.
   Color4f end_color_{};
@@ -154,18 +133,29 @@ private:
   Color4f robot_color_{};
   Color4f wall_color_{};
 
-  std::unique_ptr<Music> music_{};
+  std::array<std::unique_ptr<Music>,static_cast<std::size_t>(MusicId::kMax)> music_bag_{};
+
+  using AssetMan::tex_ref;
+  using AssetMan::sprite_ref;
 
   void reload_gfx(bool make_weird);
   void reload_gfx(std::string_view tex_style,bool make_weird);
   void reload_styled_texs_bag(std::string_view tex_style);
-  StyledTextures load_styled_texs(const std::filesystem::path& dir) const;
+  void check_gfx();
 
-  void load_asset(const AssetLoader& load_from) const;
-  std::unique_ptr<Image> load_img(const std::filesystem::path& subfile) const;
-  std::unique_ptr<Sprite> load_sprite(const std::filesystem::path& subfile,
-                                      const Color4f& weird_color = Color4f::kBlack) const;
-  std::unique_ptr<Texture> load_tex(const std::filesystem::path& subfile) const;
+  void load_asset(const AssetLoader& load_from,bool fail_on_error = true) const;
+  void load_image(ImageId id,const std::filesystem::path& subfile);
+  void load_tex(TextureId id,const std::filesystem::path& subfile);
+  void load_sprite(SpriteId id,const std::filesystem::path& subfile,
+                   const Color4f& weird_color = Color4f::kBlack);
+  void load_font_atlas(FontAtlasId id,const std::filesystem::path& subfile,FontAtlas::Builder& builder);
+  void load_music(MusicId id,const std::filesystem::path& subfile);
+
+  Image* image(asset_id_t id) override;
+  Texture* tex(asset_id_t id) override;
+  Sprite* sprite(asset_id_t id) override;
+  FontAtlas* font_atlas(asset_id_t id) override;
+  Music* music(asset_id_t id) override;
 };
 
 } // namespace ekoscape
