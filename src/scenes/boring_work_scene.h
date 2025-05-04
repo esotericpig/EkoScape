@@ -12,8 +12,8 @@
 
 #include "cybel/scene/scene.h"
 
+#include "core/game_context.h"
 #include "scenes/scene_action.h"
-#include "game_context.h"
 
 namespace ekoscape {
 

@@ -10,7 +10,7 @@
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/rando.h"
 
-#include "input/input_action.h"
+#include "core/input_action.h"
 #include "map/dantares_map.h"
 #include "scenes/dantares_renderer.h"
 

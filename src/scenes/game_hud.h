@@ -18,8 +18,8 @@
 #include "cybel/types/size.h"
 #include "cybel/types/view_dimens.h"
 
+#include "core/game_context.h"
 #include "map/map.h"
-#include "game_context.h"
 
 namespace ekoscape {
 

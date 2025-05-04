@@ -16,8 +16,8 @@
 #include "cybel/types/size.h"
 #include "cybel/vfx/particle.h"
 
+#include "core/game_context.h"
 #include "scenes/scene_action.h"
-#include "game_context.h"
 
 #include <vector>
 

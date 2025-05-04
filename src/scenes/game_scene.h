@@ -16,13 +16,13 @@
 #include "cybel/types/pos.h"
 #include "cybel/util/timer.h"
 
+#include "core/game_context.h"
 #include "map/map.h"
 #include "map/space_type.h"
 #include "scenes/game_hud.h"
 #include "scenes/game_overlay.h"
 #include "scenes/scene_action.h"
 #include "world/robot.h"
-#include "game_context.h"
 
 #include <filesystem>
 #include <functional>

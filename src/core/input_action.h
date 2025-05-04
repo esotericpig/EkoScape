@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_INPUT_INPUT_ACTION_H_
-#define EKOSCAPE_INPUT_INPUT_ACTION_H_
+#ifndef EKOSCAPE_CORE_INPUT_ACTION_H_
+#define EKOSCAPE_CORE_INPUT_ACTION_H_
 
 #include "common.h"
 
@@ -28,8 +28,8 @@ namespace InputAction {
     kQuit,
 
     kToggleMusic,
-    // kPlayMusic, // SDL_SCANCODE_AUDIOPLAY.
-    // kStopMusic, // SDL_SCANCODE_AUDIOSTOP.
+    //kPlayMusic, // SDL_SCANCODE_AUDIOPLAY.
+    //kStopMusic, // SDL_SCANCODE_AUDIOSTOP.
     kToggleFullscreen,
     kToggleMiniMap,
     kToggleSpeedrun,

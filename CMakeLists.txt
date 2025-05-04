@@ -417,7 +417,6 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/world/star_sys.cpp"
 
     "${SRC_DIR}/ekoscape_game.cpp"
-    "${SRC_DIR}/game_context.cpp"
     "${SRC_DIR}/main.cpp"
 )
 

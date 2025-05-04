@@ -5,12 +5,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_GAME_CONTEXT_H_
-#define EKOSCAPE_GAME_CONTEXT_H_
+#ifndef EKOSCAPE_CORE_GAME_CONTEXT_H_
+#define EKOSCAPE_CORE_GAME_CONTEXT_H_
 
 #include "common.h"
 
-#include "cybel/audio/audio_player.h"
 #include "cybel/cybel_engine.h"
 
 #include "assets/assets.h"
@@ -23,7 +22,10 @@ public:
   AudioPlayer& audio_player;
   Assets& assets;
 
-  explicit GameContext(CybelEngine& cybel_engine,Assets& assets) noexcept;
+  explicit GameContext(CybelEngine& cybel_engine,Assets& assets) noexcept
+    : cybel_engine(cybel_engine),
+      audio_player(cybel_engine.audio_player()),
+      assets(assets) {}
 };
 
 } // namespace ekoscape

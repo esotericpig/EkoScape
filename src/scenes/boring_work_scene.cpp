@@ -7,7 +7,7 @@
 
 #include "boring_work_scene.h"
 
-#include "input/input_action.h"
+#include "core/input_action.h"
 
 namespace ekoscape {
 

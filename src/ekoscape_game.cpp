@@ -11,7 +11,7 @@
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/rando.h"
 
-#include "input/input_action.h"
+#include "core/input_action.h"
 #include "scenes/boring_work_scene.h"
 #include "scenes/menu_credits_scene.h"
 #include "scenes/menu_scene.h"

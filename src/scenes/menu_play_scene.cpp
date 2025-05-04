@@ -10,7 +10,7 @@
 #include "cybel/str/utf8/str_util.h"
 #include "cybel/util/rando.h"
 
-#include "input/input_action.h"
+#include "core/input_action.h"
 
 namespace ekoscape {
 

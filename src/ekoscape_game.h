@@ -16,10 +16,10 @@
 #include "cybel/cybel_engine.h"
 
 #include "assets/assets.h"
+#include "core/game_context.h"
 #include "scenes/game_scene.h"
 #include "scenes/menu_play_scene.h"
 #include "world/star_sys.h"
-#include "game_context.h"
 
 namespace ekoscape {
 
