@@ -1,11 +1,26 @@
 {
   "builtin-baseline": "5f8c424e267b7360d451df406eeefb3767985b17",
   "dependencies": [
-    {"name": "glew"      ,"platform": "!emscripten"},
-    {"name": "glm"                                 },
-    {"name": "opengl"    ,"platform": "!emscripten"},
-    {"name": "sdl2"      ,"platform": "!emscripten"},
-    {"name": "sdl2-image","platform": "!emscripten"},
-    {"name": "sdl2-mixer","platform": "!emscripten"}
+    {
+      "name": "glew",
+      "platform": "!emscripten"
+    },
+    "glm",
+    {
+      "name": "opengl",
+      "platform": "!emscripten"
+    },
+    {
+      "name": "sdl2",
+      "platform": "!emscripten"
+    },
+    {
+      "name": "sdl2-image",
+      "platform": "!emscripten"
+    },
+    {
+      "name": "sdl2-mixer",
+      "platform": "!emscripten"
+    }
   ]
 }
