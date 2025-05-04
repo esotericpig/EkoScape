@@ -82,7 +82,7 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
 void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_data_bag) {
   std::size_t free_cell_i = 0;
 
-  for(int row = 0; row < grid_style_.rows; ++row) {
+  for(int row = 0; row < grid_style_.rows && free_cell_i < cells_.size(); ++row) {
     auto& row_data = row_data_bag[row];
 
     for(int col = 0; col < grid_style_.cols; ++col) {
