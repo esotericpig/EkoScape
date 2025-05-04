@@ -44,6 +44,11 @@ public:
   virtual void on_scene_exit() {}
 
   /**
+   * On WebGL context lost, zombify textures, etc.
+   */
+  virtual void on_scene_context_lost() {}
+
+  /**
    * On WebGL context restored, reload textures, re-init OpenGL states, etc.
    */
   virtual void on_scene_context_restored() {}

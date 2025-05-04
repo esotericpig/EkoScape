@@ -356,11 +356,18 @@ bool CybelEngine::run_frame() {
 void CybelEngine::request_stop() { is_running_ = false; }
 
 void CybelEngine::on_context_lost() {
-  res_.context = NULL;
-
   main_scene_.on_scene_exit();
   scene_man_->curr_scene().on_scene_exit();
+
+  main_scene_.on_scene_context_lost();
+  scene_man_->curr_scene().on_scene_context_lost();
+
+  for(auto& bag : scene_man_->prev_scene_bags()) {
+    if(bag.scene) { bag.scene->on_scene_context_lost(); }
+  }
+
   renderer_->on_context_lost();
+  res_.context = NULL;
 }
 
 void CybelEngine::restore_context() {

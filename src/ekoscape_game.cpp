@@ -234,6 +234,8 @@ void EkoScapeGame::run_on_web() {
 #endif
 }
 
+void EkoScapeGame::on_scene_context_lost() { assets_->on_context_lost(); }
+
 void EkoScapeGame::on_scene_context_restored() { assets_->on_context_restored(); }
 
 void EkoScapeGame::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {

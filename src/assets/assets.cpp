@@ -81,12 +81,14 @@ Assets::Assets(std::string_view tex_style,bool has_audio_player,bool make_weird)
   reload_audio();
 }
 
-void Assets::on_context_restored() {
+void Assets::on_context_lost() {
   for(auto& st : styled_texs_bag_) { st.zombify(); }
   for(auto& tex : texs_) { tex->zombify(); }
   for(auto& sprite : sprites_) { sprite->zombify(); }
   for(auto& font : font_atlases_) { font->zombify(); }
+}
 
+void Assets::on_context_restored() {
   Util::clear_gl_errors();
   reload_gfx();
 }

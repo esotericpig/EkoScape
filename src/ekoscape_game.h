@@ -35,6 +35,7 @@ public:
   void run_loop();
   static void run_on_web();
 
+  void on_scene_context_lost() override;
   void on_scene_context_restored() override;
   void on_scene_input_event(int input_id,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
