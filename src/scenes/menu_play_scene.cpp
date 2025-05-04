@@ -22,7 +22,7 @@ MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
   glob_maps();
 }
 
-void MenuPlayScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+void MenuPlayScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
   switch(input_id) {
     case InputAction::kSelect:
       if(map_opt_index_ == 1) {

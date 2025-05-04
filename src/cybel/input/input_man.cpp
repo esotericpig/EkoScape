@@ -48,20 +48,16 @@ void InputMan::load_joypads() {
 }
 
 void InputMan::map_input(input_id_t id,const MapInputCallback& callback) {
-  if(id < 0) { throw CybelError{"Invalid input ID [",id,"] is < 0."}; }
+  if(id >= id_to_state_.size()) {
+    // Growable?
+    if(max_id_ <= 0) {
+      const auto new_size = std::max(id << 1,(id_to_state_.size() + 1) << 1);
 
-  // Growable and too small?
-  if(max_id_ <= 0 && id >= static_cast<input_id_t>(id_to_state_.size())) {
-    const auto new_size = std::max(static_cast<std::size_t>(id) + 1,
-                                   (id_to_state_.size() + 1) << 1);
-
-    id_to_state_.resize(new_size,false);
-    id_to_event_state_.resize(new_size,false);
-  }
-  // Not `else if`, in case of casting overflow.
-  if(id >= static_cast<input_id_t>(id_to_state_.size())) {
-    throw CybelError{"Invalid input ID [",id,"] is >= maximum ID count [",
-                     static_cast<input_id_t>(id_to_state_.size()),'/',id_to_state_.size(),"]."};
+      id_to_state_.resize(new_size,false);
+      id_to_event_state_.resize(new_size,false);
+    } else {
+      throw CybelError{"Invalid input ID [",id,"] is >= maximum ID count [",id_to_state_.size(),"]."};
+    }
   }
 
   InputMapper mapper{*this,id};
@@ -516,13 +512,7 @@ void InputMan::update_states() {
 }
 
 void InputMan::reset_joypad_states() {
-  static constexpr auto kMaxJoypadInputValue = static_cast<joypad_input_t>(JoypadInput::kMax);
-
-  joypad_input_t input_value = static_cast<joypad_input_t>(JoypadInput::kNone) + 1;
-
-  for(; input_value < kMaxJoypadInputValue; ++input_value) {
-    set_state(static_cast<JoypadInput>(input_value),false);
-  }
+  std::fill(id_to_event_state_.begin(),id_to_event_state_.end(),false);
 }
 
 void InputMan::reset_touch_states() {

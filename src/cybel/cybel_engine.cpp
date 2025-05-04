@@ -474,7 +474,7 @@ void CybelEngine::handle_non_context_events_only() {
   }
 }
 
-void CybelEngine::handle_input_event(int input_id) {
+void CybelEngine::handle_input_event(input_id_t input_id) {
   main_scene_.on_scene_input_event(input_id,renderer_->dimens());
   scene_man_->curr_scene().on_scene_input_event(input_id,renderer_->dimens());
 }

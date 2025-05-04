@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-#include "cybel/input/input_man.h"
+#include "cybel/input/input_types.h"
 
 namespace ekoscape {
 

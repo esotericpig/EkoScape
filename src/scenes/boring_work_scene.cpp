@@ -30,7 +30,7 @@ void BoringWorkScene::on_scene_exit() {
   }
 }
 
-void BoringWorkScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+void BoringWorkScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
   switch(input_id) {
     case InputAction::kSelect:
       scene_action_ = SceneAction::kGoBack;

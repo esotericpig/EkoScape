@@ -11,6 +11,7 @@
 #include "cybel/common.h"
 
 #include "cybel/input/game_ctrl.h"
+#include "cybel/input/input_types.h"
 #include "cybel/input/joypad_input.h"
 #include "cybel/input/joystick.h"
 #include "cybel/input/key_input.h"
@@ -21,9 +22,6 @@
 #include <vector>
 
 namespace cybel {
-
-using input_id_t = int;
-using InputIds = std::unordered_set<input_id_t>;
 
 /**
  * TODO: Touch (finger) input is not implemented seriously for now, but just for fun,
@@ -79,7 +77,7 @@ private:
   // About 24% of range: SDL_JOYSTICK_AXIS_MAX(32'767) * 0.24f
   static constexpr Sint16 kJoypadAxisDeadZone = 8'000;
 
-  input_id_t max_id_{};
+  input_id_t max_id_ = 0;
   std::vector<bool> id_to_state_{};
   std::vector<bool> id_to_event_state_{};
   std::unordered_set<input_id_t> processed_ids_{};

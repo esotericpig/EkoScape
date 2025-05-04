@@ -11,6 +11,7 @@
 #include "common.h"
 
 #include "cybel/gfx/renderer.h"
+#include "cybel/input/input_types.h"
 #include "cybel/types/color.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/frame_step.h"
@@ -40,7 +41,7 @@ public:
   void fade_to(const Color4f& color);
   void game_over();
 
-  int on_input_event(int input_id);
+  input_id_t on_input_event(input_id_t input_id);
 
   void update(const FrameStep& step);
   void update_game_over(const FrameStep& step,const ViewDimens& dimens);

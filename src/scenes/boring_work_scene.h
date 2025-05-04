@@ -23,7 +23,7 @@ public:
 
   void init_scene(const ViewDimens& dimens) override;
   void on_scene_exit() override;
-  void on_scene_input_event(int input_id,const ViewDimens& dimens) override;
+  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 

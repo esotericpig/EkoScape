@@ -70,7 +70,7 @@ MenuScene::MenuScene(GameContext& ctx)
   };
 }
 
-void MenuScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+void MenuScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
   Option& sel_opt = opts_.at(opt_index_);
 
   switch(input_id) {

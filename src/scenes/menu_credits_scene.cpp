@@ -22,7 +22,7 @@ Color4f MenuCreditsScene::rand_color() {
 MenuCreditsScene::MenuCreditsScene(GameContext& ctx)
   : ctx_(ctx),wtfs_(150,WtfParticle{}) {}
 
-void MenuCreditsScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+void MenuCreditsScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
   switch(input_id) {
     case InputAction::kSelect:
       scene_action_ = SceneAction::kGoBack;

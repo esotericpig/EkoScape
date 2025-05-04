@@ -238,7 +238,7 @@ void EkoScapeGame::on_scene_context_lost() { assets_->on_context_lost(); }
 
 void EkoScapeGame::on_scene_context_restored() { assets_->on_context_restored(); }
 
-void EkoScapeGame::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+void EkoScapeGame::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
   switch(input_id) {
     // Go back a scene.
     case InputAction::kGoBack:

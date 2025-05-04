@@ -56,7 +56,7 @@ void GameOverlay::game_over() {
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
-int GameOverlay::on_input_event(int input_id) {
+input_id_t GameOverlay::on_input_event(input_id_t input_id) {
   const int game_over_opt_count = static_cast<int>(game_over_opts_.size());
 
   if(game_over_opt_index_ < 0 || game_over_opt_index_ >= game_over_opt_count) {

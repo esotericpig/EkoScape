@@ -210,7 +210,7 @@ void GameScene::on_scene_context_restored() {
   }
 }
 
-void GameScene::on_scene_input_event(int input_id,const ViewDimens& /*dimens*/) {
+void GameScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
   switch(input_id) {
     case InputAction::kToggleMiniMap:
       state_.show_mini_map = !state_.show_mini_map;

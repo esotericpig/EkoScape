@@ -57,7 +57,7 @@ public:
     int fps = kFallbackFps;
     bool vsync = false;
     Color4f clear_color{0.0f,1.0f};
-    int max_input_id = 0;
+    input_id_t max_input_id = 0;
 
     /**
      * All:
@@ -137,7 +137,7 @@ public:
 private:
   static constexpr float kAvgFpsSmoothing = 0.3f; // Smoothing factor. Usually from 0.1 to 0.3.
 
-  void handle_input_event(int input_id);
+  void handle_input_event(input_id_t input_id);
 
   std::string title_{};
   int target_fps_ = 0;
@@ -149,7 +149,7 @@ private:
   Scene& main_scene_;
   std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after `renderer_`.
   std::unique_ptr<InputMan> input_man_{};
-  InputMan::OnInputEvent on_input_event_ = [&](int id) { handle_input_event(id); };
+  InputMan::OnInputEvent on_input_event_ = [&](input_id_t id) { handle_input_event(id); };
 
   bool is_running_ = false;
   Timer frame_timer_{};
