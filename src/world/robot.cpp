@@ -143,7 +143,7 @@ bool Robot::move_rand(MoveData& data) {
   if constexpr(rand_move_vels_.empty()) { return false; }
 
   // Try once without shuffling.
-  const auto& rand_move_vel = rand_move_vels_[Rando::it().rand_sizet(rand_move_vels_.size())];
+  const auto& rand_move_vel = rand_move_vels_[Rando::it().rand_size_t(rand_move_vels_.size())];
 
   if(try_move(data,rand_move_vel.x,rand_move_vel.y)) { return true; }
 

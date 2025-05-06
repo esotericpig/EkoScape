@@ -233,7 +233,7 @@ void MenuPlayScene::select_map() {
 
     // Try not to grab the same map as last time.
     for(int i = 0; i < 10; ++i) {
-      new_map_file = map_opts_.at(Rando::it().rand_sizet(kNonMapOptCount,map_opts_.size())).file;
+      new_map_file = map_opts_.at(Rando::it().rand_size_t(kNonMapOptCount,map_opts_.size())).file;
 
       if(new_map_file != state_.map_file) { break; }
     }

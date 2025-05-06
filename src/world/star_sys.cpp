@@ -15,7 +15,7 @@ Color4f StarSys::rand_color() {
   // ReSharper disable once CppDFAUnreachableCode
   if constexpr(kColors.empty()) { return Color4f::kWhite; }
 
-  return kColors[Rando::it().rand_sizet(kColors.size())];
+  return kColors[Rando::it().rand_size_t(kColors.size())];
 }
 
 void StarSys::init(const ViewDimens& view_dimens,bool is_flying) {

@@ -69,8 +69,8 @@ public:
   int rand_int_vel(int min,int max);
   int rand_int_sign();
 
-  std::size_t rand_sizet(std::size_t max);
-  std::size_t rand_sizet(std::size_t min,std::size_t max);
+  std::size_t rand_size_t(std::size_t max);
+  std::size_t rand_size_t(std::size_t min,std::size_t max);
 
   template <typename RandIt>
   void shuffle(RandIt first,RandIt last);
@@ -83,7 +83,7 @@ private:
   std::uniform_real_distribution<> double_distr_{0.0,1.0};
   std::uniform_real_distribution<float> float_distr_{0.0f,1.0f};
   std::uniform_int_distribution<> int_distr_{0,99}; // I don't have 99 problems.
-  std::uniform_int_distribution<std::size_t> sizet_distr_{};
+  std::uniform_int_distribution<std::size_t> size_t_distr_{};
 
   explicit Rando() = default;
 };

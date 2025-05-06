@@ -65,12 +65,12 @@ int Rando::rand_int_vel(int min,int max) { return rand_int(min,max) * rand_int_s
 
 int Rando::rand_int_sign() { return rand_bool() ? 1 : -1; }
 
-std::size_t Rando::rand_sizet(std::size_t max) { return rand_sizet(0,max); }
+std::size_t Rando::rand_size_t(std::size_t max) { return rand_size_t(0,max); }
 
-std::size_t Rando::rand_sizet(std::size_t min,std::size_t max) {
+std::size_t Rando::rand_size_t(std::size_t min,std::size_t max) {
   if(max == 0) { return 0; }
 
-  return sizet_distr_(gen_,std::uniform_int_distribution<std::size_t>::param_type(min,max - 1));
+  return size_t_distr_(gen_,std::uniform_int_distribution<std::size_t>::param_type(min,max - 1));
 }
 
 } // namespace cybel
