@@ -84,8 +84,8 @@ public:
 private:
   class StyledTextures final : public AssetMan {
   public:
-    std::string name{};
     std::string dirname{};
+    std::string name{};
 
     explicit StyledTextures(const std::filesystem::path& dir,bool make_weird);
 

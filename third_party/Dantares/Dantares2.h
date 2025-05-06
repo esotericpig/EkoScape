@@ -622,16 +622,26 @@ protected:
         virtual ~MapClass() noexcept = default;
 
         SpaceClass &AddSpaceIfAbsent(int SpaceID);
+        SpaceClass *FindSpace(int XCoord, int YCoord);
         SpaceClass *FindSpace(int SpaceID);
+
+        void ChangeSquare(int XCoord, int YCoord, int NewType);
+        void ChangeWalkability(int XCoord, int YCoord, bool Walkable);
+
+        int GetSpaceType(int XCoord, int YCoord) const;
+        bool SpaceIsWalkable(int XCoord, int YCoord) const;
 
         void PrintDebugInfo(std::ostream &Out = std::cout, int Indent = 0) const;
 
         RendererClass *Renderer = nullptr;
-        std::vector<std::vector<int>> MapArray{};                        //Array for the map.
-        std::vector<std::vector<bool>> WalkArray{};                      //Array for walkability.
-        std::unordered_map<int, std::unique_ptr<SpaceClass>> SpaceInfo{};//Map of space information.
+        //Map of space information.
+        std::unordered_map<int, std::unique_ptr<SpaceClass>> SpaceInfo{};
         int XSize = 0;                                                   //Map width.
         int YSize = 0;                                                   //Map height.
+
+    protected:
+        std::vector<std::vector<int>> MapArray{};                        //Array for the map.
+        std::vector<std::vector<bool>> WalkArray{};                      //Array for walkability.
 
     private:
         void MoveFrom(MapClass &&Other) noexcept;

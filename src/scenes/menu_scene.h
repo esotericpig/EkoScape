@@ -63,7 +63,7 @@ private:
   int scene_action_ = SceneAction::kNil;
 
   std::vector<Option> opts_{};
-  int opt_index_ = 0;
+  std::size_t opt_index_ = 0;
 };
 
 } // namespace ekoscape

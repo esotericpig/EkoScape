@@ -266,11 +266,11 @@ Renderer::SpriteWrapper& Renderer::SpriteWrapper::draw_quad(const Pos3i& pos,con
 Renderer::SpriteAtlasWrapper::SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas)
   : ren(ren),atlas(atlas) {}
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos) {
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(std::size_t index,const Pos3i& pos) {
   return draw_quad(index,pos,atlas.cell_size());
 }
 
-Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(int index,const Pos3i& pos,
+Renderer::SpriteAtlasWrapper& Renderer::SpriteAtlasWrapper::draw_quad(std::size_t index,const Pos3i& pos,
                                                                       const Size2i& size) {
   const Pos4f* src = atlas.src(index);
 

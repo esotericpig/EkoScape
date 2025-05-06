@@ -102,8 +102,8 @@ public:
 
     explicit SpriteAtlasWrapper(Renderer& ren,const SpriteAtlas& atlas);
 
-    SpriteAtlasWrapper& draw_quad(int index,const Pos3i& pos);
-    SpriteAtlasWrapper& draw_quad(int index,const Pos3i& pos,const Size2i& size);
+    SpriteAtlasWrapper& draw_quad(std::size_t index,const Pos3i& pos);
+    SpriteAtlasWrapper& draw_quad(std::size_t index,const Pos3i& pos,const Size2i& size);
     SpriteAtlasWrapper& draw_quad(const Pos2i& cell,const Pos3i& pos);
     SpriteAtlasWrapper& draw_quad(const Pos2i& cell,const Pos3i& pos,const Size2i& size);
   };

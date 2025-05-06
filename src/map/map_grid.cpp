@@ -10,7 +10,8 @@
 namespace ekoscape {
 
 MapGrid::MapGrid(const Size2i& size)
-  : size_(size),spaces_(size_.w * size_.h,Space{}) {}
+  : size_(size),
+    spaces_(static_cast<std::size_t>(size_.area()),Space{}) {}
 
 const Size2i& MapGrid::size() const { return size_; }
 
@@ -38,12 +39,20 @@ const Space* MapGrid::space(const Pos3i& pos) const {
   return &unsafe_space(pos);
 }
 
-Space& MapGrid::unsafe_space(const Pos2i& pos) { return spaces_.at(pos.x + (pos.y * size_.w)); }
+Space& MapGrid::unsafe_space(const Pos2i& pos) {
+  return spaces_[static_cast<std::size_t>(pos.x + (pos.y * size_.w))];
+}
 
-Space& MapGrid::unsafe_space(const Pos3i& pos) { return spaces_.at(pos.x + (pos.y * size_.w)); }
+Space& MapGrid::unsafe_space(const Pos3i& pos) {
+  return spaces_[static_cast<std::size_t>(pos.x + (pos.y * size_.w))];
+}
 
-const Space& MapGrid::unsafe_space(const Pos2i& pos) const { return spaces_.at(pos.x + (pos.y * size_.w)); }
+const Space& MapGrid::unsafe_space(const Pos2i& pos) const {
+  return spaces_[static_cast<std::size_t>(pos.x + (pos.y * size_.w))];
+}
 
-const Space& MapGrid::unsafe_space(const Pos3i& pos) const { return spaces_.at(pos.x + (pos.y * size_.w)); }
+const Space& MapGrid::unsafe_space(const Pos3i& pos) const {
+  return spaces_[static_cast<std::size_t>(pos.x + (pos.y * size_.w))];
+}
 
 } // namespace ekoscape

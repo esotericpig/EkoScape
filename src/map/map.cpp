@@ -53,7 +53,7 @@ bool Map::parse_header(const std::string& line,int& version,bool warn) {
 }
 
 Map& Map::clear_grids() {
-  grid_index_ = -1;
+  grid_z_ = -1;
   total_cells_ = 0;
   total_rescues_ = 0;
   player_init_pos_ = Pos3i{};
@@ -236,7 +236,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
     int line_len = 0;
 
     if(pos.y < line_count) {
-      line = &lines.at(pos.y);
+      line = &lines[static_cast<std::size_t>(pos.y)];
       line_len = static_cast<int>(line->length());
     }
 
@@ -246,7 +246,7 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
       auto thing_type = SpaceType::kNil;
 
       if(line != nullptr && pos.x < line_len) {
-        SpaceType type = SpaceTypes::to_space_type(line->at(pos.x));
+        auto type = SpaceTypes::to_space_type((*line)[static_cast<std::size_t>(pos.x)]);
 
         if(on_space) { type = on_space(dan_pos,type); }
 
@@ -276,9 +276,9 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
   grids_.push_back(std::move(grid));
 
   if(has_player) {
-    grid_index_ = z;
-  } else if(grid_index_ < 0) {
-    grid_index_ = 0;
+    grid_z_ = z;
+  } else if(grid_z_ < 0) {
+    grid_z_ = 0;
   }
 
   return *this;
@@ -352,7 +352,7 @@ bool Map::sync_player_pos() { return move_player(player_pos()); }
 bool Map::change_grid(int z) {
   if(z < 0 || z >= static_cast<int>(grids_.size())) { return false; }
 
-  grid_index_ = z;
+  grid_z_ = z;
 
   return true;
 }
@@ -497,31 +497,35 @@ const Duration& Map::robot_delay() const { return robot_delay_; }
 
 int Map::grid_count() const { return static_cast<int>(grids_.size()); }
 
-int Map::grid_z() const { return grid_index_; }
+int Map::grid_z() const { return grid_z_; }
 
-Size2i Map::size() const { return size(grid_index_); }
+Size2i Map::size() const { return size(grid_z_); }
 
 Size2i Map::size(int z) const {
   if(z < 0 || z >= static_cast<int>(grids_.size())) { return Size2i{}; }
 
-  return grids_[z]->size();
+  return grids_[static_cast<std::size_t>(z)]->size();
 }
 
 Space* Map::mutable_space(const Pos3i& pos) {
   if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
 
-  return grids_[pos.z]->space(pos);
+  return grids_[static_cast<std::size_t>(pos.z)]->space(pos);
 }
 
 const Space* Map::space(const Pos3i& pos) const {
   if(pos.z < 0 || pos.z >= static_cast<int>(grids_.size())) { return nullptr; }
 
-  return grids_[pos.z]->space(pos);
+  return grids_[static_cast<std::size_t>(pos.z)]->space(pos);
 }
 
-Space& Map::unsafe_space(const Pos3i& pos) { return grids_.at(pos.z)->unsafe_space(pos); }
+Space& Map::unsafe_space(const Pos3i& pos) {
+  return grids_[static_cast<std::size_t>(pos.z)]->unsafe_space(pos);
+}
 
-const Space& Map::unsafe_space(const Pos3i& pos) const { return grids_.at(pos.z)->unsafe_space(pos); }
+const Space& Map::unsafe_space(const Pos3i& pos) const {
+  return grids_[static_cast<std::size_t>(pos.z)]->unsafe_space(pos);
+}
 
 int Map::total_cells() const { return total_cells_; }
 
@@ -554,7 +558,7 @@ std::ostream& Map::print(std::ostream& out,bool rstrip) const {
   for(int z = 0; z < static_cast<int>(grids_.size()); ++z) {
     out << '\n';
 
-    const auto& grid = grids_[z];
+    const auto& grid = grids_[static_cast<std::size_t>(z)];
 
     // Flip vertically, since internally, we match Dantares where
     //     the origin (0,0) is from the bottom left, instead of the top left.

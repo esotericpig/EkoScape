@@ -101,8 +101,8 @@ int Dantares2::AddMap(const void *Map, int SizeX, int SizeY)
         const int Space = *(static_cast<const int*>(Map) + z);
 
         Maps[NewMapID]->AddSpaceIfAbsent(Space);
-        Maps[NewMapID]->MapArray[x][y] = Space;
-        Maps[NewMapID]->WalkArray[x][y] = (Space == 0);
+        Maps[NewMapID]->ChangeSquare(x, y, Space);
+        Maps[NewMapID]->ChangeWalkability(x, y, (Space == 0));
 
         if (++y >= SizeY)
         {
@@ -139,9 +139,11 @@ int Dantares2::AddMap(const int* const *Map, int SizeX, int SizeY)
     {
         for (int y = 0; y < SizeY; y++)
         {
-            Maps[NewMapID]->AddSpaceIfAbsent(Map[x][y]);
-            Maps[NewMapID]->MapArray[x][y] = Map[x][y];
-            Maps[NewMapID]->WalkArray[x][y] = (Map[x][y] == 0);
+            const int Space = Map[x][y];
+
+            Maps[NewMapID]->AddSpaceIfAbsent(Space);
+            Maps[NewMapID]->ChangeSquare(x, y, Space);
+            Maps[NewMapID]->ChangeWalkability(x, y, (Space == 0));
         }
     }
 
@@ -281,8 +283,8 @@ bool Dantares2::ChangeSquare(int XCoord, int YCoord, int NewType)
     }
 
     Maps[CurrentMap]->AddSpaceIfAbsent(NewType);
-    Maps[CurrentMap]->MapArray[XCoord][YCoord] = NewType;
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord] = (NewType == 0);
+    Maps[CurrentMap]->ChangeSquare(XCoord, YCoord, NewType);
+    Maps[CurrentMap]->ChangeWalkability(XCoord, YCoord, (NewType == 0));
 
     return true;
 }
@@ -301,7 +303,7 @@ bool Dantares2::MakeSpaceNonWalkable(int XCoord, int YCoord)
         return false;
     }
 
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord] = false;
+    Maps[CurrentMap]->ChangeWalkability(XCoord, YCoord, false);
 
     return true;
 }
@@ -320,7 +322,7 @@ bool Dantares2::MakeSpaceWalkable(int XCoord, int YCoord)
         return false;
     }
 
-    Maps[CurrentMap]->WalkArray[XCoord][YCoord] = true;
+    Maps[CurrentMap]->ChangeWalkability(XCoord, YCoord, true);
 
     return true;
 }
@@ -533,7 +535,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                     Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
                     Renderer->UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(x, y);
 
                     if (Seeker->WallTexture != 0)
                     {
@@ -585,7 +587,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                     Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
                     Renderer->UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(x, y);
 
                     if (Seeker->WallTexture != 0)
                     {
@@ -637,7 +639,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                     Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
                     Renderer->UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(x, y);
 
                     if (Seeker->WallTexture != 0)
                     {
@@ -689,7 +691,7 @@ bool Dantares2::Draw(int Distance, bool MovePlayer)
                     Renderer->TranslateModelMatrix(0.0f, 0.0f, -SqSize);
                     Renderer->UpdateModelMatrix();
 
-                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(Maps[CurrentMap]->MapArray[x][y]);
+                    const SpaceClass *Seeker = Maps[CurrentMap]->FindSpace(x, y);
 
                     if (Seeker->WallTexture != 0)
                     {
@@ -838,7 +840,7 @@ bool Dantares2::StepForward(bool Force)
     {
         case DIR_NORTH:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY + 1)))
             {
                 Walking = DIR_NORTH;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -849,7 +851,7 @@ bool Dantares2::StepForward(bool Force)
 
         case DIR_EAST:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX + 1, CameraY)))
             {
                 Walking = DIR_EAST;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -860,7 +862,7 @@ bool Dantares2::StepForward(bool Force)
 
         case DIR_SOUTH:
             if (CameraY > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY - 1)))
             {
                 Walking = DIR_SOUTH;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -871,7 +873,7 @@ bool Dantares2::StepForward(bool Force)
 
         case DIR_WEST:
             if (CameraX > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX - 1, CameraY)))
             {
                 Walking = DIR_WEST;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -895,7 +897,7 @@ bool Dantares2::StepBackward(bool Force)
     {
         case DIR_NORTH:
             if (CameraY > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY - 1)))
             {
                 Walking = DIR_SOUTH;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -906,7 +908,7 @@ bool Dantares2::StepBackward(bool Force)
 
         case DIR_EAST:
             if (CameraX > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX - 1, CameraY)))
             {
                 Walking = DIR_WEST;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -917,7 +919,7 @@ bool Dantares2::StepBackward(bool Force)
 
         case DIR_SOUTH:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY + 1)))
             {
                 Walking = DIR_NORTH;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -928,7 +930,7 @@ bool Dantares2::StepBackward(bool Force)
 
         case DIR_WEST:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX + 1, CameraY)))
             {
                 Walking = DIR_EAST;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -952,7 +954,7 @@ bool Dantares2::StepLeft(bool Force)
     {
         case DIR_NORTH:
             if (CameraX > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX - 1, CameraY)))
             {
                 Walking = DIR_WEST;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -963,7 +965,7 @@ bool Dantares2::StepLeft(bool Force)
 
         case DIR_EAST:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY + 1)))
             {
                 Walking = DIR_NORTH;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -974,7 +976,7 @@ bool Dantares2::StepLeft(bool Force)
 
         case DIR_SOUTH:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX + 1, CameraY)))
             {
                 Walking = DIR_EAST;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -985,7 +987,7 @@ bool Dantares2::StepLeft(bool Force)
 
         case DIR_WEST:
             if (CameraY > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY - 1)))
             {
                 Walking = DIR_SOUTH;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -1009,7 +1011,7 @@ bool Dantares2::StepRight(bool Force)
     {
         case DIR_NORTH:
             if ((CameraX + 1) < Maps[CurrentMap]->XSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX + 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX + 1, CameraY)))
             {
                 Walking = DIR_EAST;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -1020,7 +1022,7 @@ bool Dantares2::StepRight(bool Force)
 
         case DIR_EAST:
             if (CameraY > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY - 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY - 1)))
             {
                 Walking = DIR_SOUTH;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -1031,7 +1033,7 @@ bool Dantares2::StepRight(bool Force)
 
         case DIR_SOUTH:
             if (CameraX > 0 &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX - 1][CameraY]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX - 1, CameraY)))
             {
                 Walking = DIR_WEST;
                 WalkOffset -= WalkSpeed * DeltaTime;
@@ -1042,7 +1044,7 @@ bool Dantares2::StepRight(bool Force)
 
         case DIR_WEST:
             if ((CameraY + 1) < Maps[CurrentMap]->YSize &&
-                (Force || Maps[CurrentMap]->WalkArray[CameraX][CameraY + 1]))
+                (Force || Maps[CurrentMap]->SpaceIsWalkable(CameraX, CameraY + 1)))
             {
                 Walking = DIR_NORTH;
                 WalkOffset += WalkSpeed * DeltaTime;
@@ -1194,7 +1196,7 @@ int Dantares2::GetCurrentSpace() const
         return -1;
     }
 
-    return Maps[CurrentMap]->MapArray[CameraX][CameraY];
+    return Maps[CurrentMap]->GetSpaceType(CameraX, CameraY);
 }
 
 int Dantares2::GetSpace(int XCoord, int YCoord) const
@@ -1206,7 +1208,7 @@ int Dantares2::GetSpace(int XCoord, int YCoord) const
         return -1;
     }
 
-    return Maps[CurrentMap]->MapArray[XCoord][YCoord];
+    return Maps[CurrentMap]->GetSpaceType(XCoord, YCoord);
 }
 
 bool Dantares2::SpaceIsWalkable(int XCoord, int YCoord) const
@@ -1218,7 +1220,7 @@ bool Dantares2::SpaceIsWalkable(int XCoord, int YCoord) const
         return false;
     }
 
-    return Maps[CurrentMap]->WalkArray[XCoord][YCoord];
+    return Maps[CurrentMap]->SpaceIsWalkable(XCoord, YCoord);
 }
 
 void Dantares2::PrintDebugInfo(std::ostream &Out) const
@@ -1323,7 +1325,7 @@ void Dantares2::SpaceClass::GenerateQuadLists()
 
 void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 {
-    const std::string Ind(Indent, ' ');
+    const std::string Ind(static_cast<std::size_t>(Indent), ' ');
     const std::string Indl = '\n' + Ind;
 
     Out << Ind  << "Renderer:          " << Renderer
@@ -1338,10 +1340,10 @@ void Dantares2::SpaceClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 
 Dantares2::MapClass::MapClass(RendererClass *Renderer, int MaxX, int MaxY)
     : Renderer(Renderer),
-      MapArray(MaxX, std::vector(MaxY, 0)),
-      WalkArray(MaxX, std::vector(MaxY, true)),
       XSize(MaxX),
-      YSize(MaxY)
+      YSize(MaxY),
+      MapArray(static_cast<std::size_t>(MaxX), std::vector(static_cast<std::size_t>(MaxY), 0)),
+      WalkArray(static_cast<std::size_t>(MaxX), std::vector(static_cast<std::size_t>(MaxY), true))
 {
 }
 
@@ -1382,6 +1384,11 @@ Dantares2::SpaceClass &Dantares2::MapClass::AddSpaceIfAbsent(int SpaceID)
     return *It->second;
 }
 
+Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int XCoord, int YCoord)
+{
+    return FindSpace(GetSpaceType(XCoord, YCoord));
+}
+
 Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int SpaceID)
 {
     const auto It = SpaceInfo.find(SpaceID);
@@ -1394,9 +1401,29 @@ Dantares2::SpaceClass *Dantares2::MapClass::FindSpace(int SpaceID)
     return It->second.get();
 }
 
+void Dantares2::MapClass::ChangeSquare(int XCoord, int YCoord, int NewType)
+{
+    MapArray[static_cast<std::size_t>(XCoord)][static_cast<std::size_t>(YCoord)] = NewType;
+}
+
+void Dantares2::MapClass::ChangeWalkability(int XCoord, int YCoord, bool Walkable)
+{
+    WalkArray[static_cast<std::size_t>(XCoord)][static_cast<std::size_t>(YCoord)] = Walkable;
+}
+
+int Dantares2::MapClass::GetSpaceType(int XCoord, int YCoord) const
+{
+    return MapArray[static_cast<std::size_t>(XCoord)][static_cast<std::size_t>(YCoord)];
+}
+
+bool Dantares2::MapClass::SpaceIsWalkable(int XCoord, int YCoord) const
+{
+    return WalkArray[static_cast<std::size_t>(XCoord)][static_cast<std::size_t>(YCoord)];
+}
+
 void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
 {
-    const std::string Ind(Indent, ' ');
+    const std::string Ind(static_cast<std::size_t>(Indent), ' ');
     std::string Indl = '\n' + Ind;
 
     Out << Ind  << "Renderer:    " << Renderer
@@ -1405,7 +1432,7 @@ void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
         ;
 
     Indent *= 2;
-    Indl = '\n' + std::string(Indent, ' ');
+    Indl = '\n' + std::string(static_cast<std::size_t>(Indent), ' ');
 
     Out << Indl << "{MapArray} = " << MapArray.data();
     for (int y = 0; y < YSize; y++)
@@ -1413,7 +1440,7 @@ void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
         Out << Indl;
         for (int x = 0; x < XSize; x++)
         {
-            Out << std::setw(4) << MapArray[x][y] << ' ';
+            Out << std::setw(4) << GetSpaceType(x, y) << ' ';
         }
     }
 
@@ -1423,7 +1450,7 @@ void Dantares2::MapClass::PrintDebugInfo(std::ostream &Out, int Indent) const
         Out << Indl;
         for (int x = 0; x < XSize; x++)
         {
-            Out << (WalkArray[x][y] ? ' ' : '1') << ' ';
+            Out << (SpaceIsWalkable(x, y) ? ' ' : '1') << ' ';
         }
     }
 

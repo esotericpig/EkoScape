@@ -56,12 +56,8 @@ void GameOverlay::game_over() {
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
-input_id_t GameOverlay::on_input_event(input_id_t input_id) {
-  const int game_over_opt_count = static_cast<int>(game_over_opts_.size());
-
-  if(game_over_opt_index_ < 0 || game_over_opt_index_ >= game_over_opt_count) {
-    return SceneAction::kNil;
-  }
+int GameOverlay::on_input_event(input_id_t input_id) {
+  if(game_over_opts_.empty()) { return SceneAction::kNil; }
 
   const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
 
@@ -74,15 +70,15 @@ input_id_t GameOverlay::on_input_event(input_id_t input_id) {
       break;
 
     case InputAction::kUp:
-      if(game_over_opt_index_ > 0) {
+      if(game_over_opt_index_ >= 1) {
         --game_over_opt_index_;
-      } else if(game_over_opt_count > 0) {
-        game_over_opt_index_ = game_over_opt_count - 1; // Wrap to bottom.
+      } else {
+        game_over_opt_index_ = game_over_opts_.size() - 1; // Wrap to bottom.
       }
       break;
 
     case InputAction::kDown:
-      if(game_over_opt_index_ < (game_over_opt_count - 1)) {
+      if((game_over_opt_index_ + 1) < game_over_opts_.size()) {
         ++game_over_opt_index_;
       } else {
         game_over_opt_index_ = 0; // Wrap to top.
@@ -216,12 +212,10 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   });
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{580,perfect ? 790 : 690,0},[&](auto& font) {
-    const int opt_count = static_cast<int>(game_over_opts_.size());
-
-    font.draw_bg(bg_color,Size2i{12,opt_count},kTextBgPadding);
+    font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())},kTextBgPadding);
     font.font_color.a *= game_over_age_;
 
-    for(int i = 0; i < opt_count; ++i) {
+    for(std::size_t i = 0; i < game_over_opts_.size(); ++i) {
       Option& opt = game_over_opts_[i];
       int styles = 0;
 

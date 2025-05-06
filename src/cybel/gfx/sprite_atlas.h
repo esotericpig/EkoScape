@@ -53,17 +53,16 @@ public:
   void zombify();
 
   const Texture& tex() const;
-  const Pos4f* src(int index) const;
+  const Pos4f* src(std::size_t index) const;
   const Pos4f* src(const Pos2i& cell) const;
   const Size2i& cell_size() const;
   const Size2i& grid_size() const;
-  int cell_count() const;
+  std::size_t cell_count() const;
 
 protected:
   std::shared_ptr<Texture> tex_{};
   Size2i cell_size_{};
   Size2i grid_size_{};
-  int cell_count_ = 0;
   std::vector<Pos4f> index_to_src_{};
 
   explicit SpriteAtlas(const Builder& builder);

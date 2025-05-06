@@ -41,7 +41,7 @@ public:
   void fade_to(const Color4f& color);
   void game_over();
 
-  input_id_t on_input_event(input_id_t input_id);
+  int on_input_event(input_id_t input_id);
 
   void update(const FrameStep& step);
   void update_game_over(const FrameStep& step,const ViewDimens& dimens);
@@ -85,7 +85,7 @@ private:
   float fade_age_ = -1.0f;
   float game_over_age_ = -1.0f;
   std::vector<Option> game_over_opts_{};
-  int game_over_opt_index_ = 0;
+  std::size_t game_over_opt_index_ = 0;
   StarSys star_sys_{};
 };
 

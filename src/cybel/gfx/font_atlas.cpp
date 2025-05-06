@@ -18,7 +18,9 @@ FontAtlas::FontAtlas(const Builder& builder)
   if(builder.default_index_ > 0) {
     default_index_ = builder.default_index_;
   } else if(builder.default_cell_.x > 0 || builder.default_cell_.y > 0) {
-    default_index_ = builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w);
+    default_index_ = static_cast<std::size_t>(
+      builder.default_cell_.x + (builder.default_cell_.y * grid_size_.w)
+    );
   } else if(builder.default_rune_ != 0) {
     for(auto [rune,index] : rune_to_index_) {
       if(rune == builder.default_rune_) {
@@ -28,14 +30,14 @@ FontAtlas::FontAtlas(const Builder& builder)
     }
   }
 
-  if(default_index_ >= static_cast<int>(rune_to_index_.size())) {
-    default_index_ = rune_to_index_.empty() ? 0 : static_cast<int>(rune_to_index_.size() - 1);
+  if(default_index_ >= rune_to_index_.size()) {
+    default_index_ = rune_to_index_.empty() ? 0 : (rune_to_index_.size() - 1);
   }
 }
 
 const Size2i& FontAtlas::spacing() const { return spacing_; }
 
-int FontAtlas::rune_index(char32_t rune) const {
+std::size_t FontAtlas::rune_index(char32_t rune) const {
   const auto it = rune_to_index_.find(rune);
 
   return (it != rune_to_index_.end()) ? it->second : default_index_;
@@ -92,7 +94,7 @@ FontAtlas::Builder& FontAtlas::Builder::spacing(int rune_spacing,int line_spacin
   return *this;
 }
 
-FontAtlas::Builder& FontAtlas::Builder::default_index(int index) {
+FontAtlas::Builder& FontAtlas::Builder::default_index(std::size_t index) {
   default_index_ = index;
   default_cell_.x = 0;
   default_cell_.y = 0;
@@ -120,7 +122,7 @@ FontAtlas::Builder& FontAtlas::Builder::default_rune(char32_t rune) {
 }
 
 FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::string_view str) {
-  int index = 0;
+  std::size_t index = 0;
 
   for(auto rune : utf8::RuneRange{str}) {
     rune_to_index_[rune] = index;
@@ -131,7 +133,7 @@ FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::string_view str) {
 }
 
 FontAtlas::Builder& FontAtlas::Builder::index_to_rune(std::initializer_list<std::string_view> lines) {
-  int index = 0;
+  std::size_t index = 0;
   int col_count = 0;
 
   for(const auto& line : lines) {

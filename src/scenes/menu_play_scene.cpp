@@ -72,39 +72,40 @@ int MenuPlayScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens
 }
 
 void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
+  if(map_opts_.empty()) { return; }
+
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{25,10,0},0.75f,[&](auto& font) {
-    if(!map_opts_.empty()) {
-      const int opts_len = static_cast<int>(map_opts_.size());
-      const int first_i = map_opt_index_ - kMapOptsHalf1;
-      const int max_len = std::min(map_opt_index_ + 1 + kMapOptsHalf2,opts_len);
+    const int opts_len = static_cast<int>(map_opts_.size());
+    const int half1_or_blanks = map_opt_index_ - kMapOptsHalf1;
+    const int max_len = std::min(map_opt_index_ + 1 + kMapOptsHalf2,opts_len);
 
-      if(first_i > 0) { // More options hidden at top?
-        font.print_blanks(kUpDownArrowIndent);
-        font.draw_menu_up_arrow();
+    if(half1_or_blanks >= 1) { // More options hidden at top?
+      font.print_blanks(kUpDownArrowIndent);
+      font.draw_menu_up_arrow();
+    } else {
+      font.puts();
+    }
+    for(int i = half1_or_blanks; i < map_opt_index_; ++i) {
+      if(i >= 0) {
+        font.draw_menu_opt(map_opts_.at(static_cast<std::size_t>(i)).text);
       } else {
         font.puts();
       }
-      for(int i = first_i; i < map_opt_index_; ++i) {
-        if(i >= 0) {
-          font.draw_menu_opt(map_opts_[i].text);
-        } else {
-          font.puts();
-        }
-      }
+    }
 
-      font.draw_menu_opt(map_opts_.at(map_opt_index_).text,FontRenderer::kMenuStyleSelected);
+    font.draw_menu_opt(map_opts_.at(static_cast<std::size_t>(map_opt_index_)).text,
+                       FontRenderer::kMenuStyleSelected);
 
-      for(int i = map_opt_index_ + 1; i < max_len; ++i) {
-        font.draw_menu_opt(map_opts_[i].text);
-      }
-      if(max_len < opts_len) { // More options hidden at bottom?
-        font.print_blanks(kUpDownArrowIndent);
-        font.draw_menu_down_arrow();
-      }
+    for(int i = map_opt_index_ + 1; i < max_len; ++i) {
+      font.draw_menu_opt(map_opts_[static_cast<std::size_t>(i)].text);
+    }
+    if(max_len < opts_len) { // More options hidden at bottom?
+      font.print_blanks(kUpDownArrowIndent);
+      font.draw_menu_down_arrow();
     }
   });
 
@@ -167,9 +168,9 @@ void MenuPlayScene::glob_maps() {
 
   // Select the correct map from the previous/current state.
   if(!state_.is_rand_map) {
-    for(int i = 0; i < static_cast<int>(map_opts_.size()); ++i) {
+    for(std::size_t i = 0; i < map_opts_.size(); ++i) {
       if(map_opts_[i].file == state_.map_file) {
-        map_opt_index_ = i;
+        map_opt_index_ = static_cast<int>(i);
         break;
       }
     }
@@ -179,11 +180,11 @@ void MenuPlayScene::glob_maps() {
 void MenuPlayScene::prev_map_opt_group() {
   if(map_opts_.empty()) { return; }
 
-  const MapOption& sel_opt = map_opts_.at(map_opt_index_);
+  const MapOption& sel_opt = map_opts_.at(static_cast<std::size_t>(map_opt_index_));
   int i = map_opt_index_;
 
   for(; i >= 0; --i) {
-    const MapOption& opt = map_opts_[i];
+    const MapOption& opt = map_opts_[static_cast<std::size_t>(i)];
     if(opt.group != sel_opt.group) { break; }
   }
 
@@ -193,11 +194,11 @@ void MenuPlayScene::prev_map_opt_group() {
 void MenuPlayScene::next_map_opt_group() {
   if(map_opts_.empty()) { return; }
 
-  const MapOption& sel_opt = map_opts_.at(map_opt_index_);
+  const MapOption& sel_opt = map_opts_.at(static_cast<std::size_t>(map_opt_index_));
   int i = map_opt_index_;
 
   for(; i < static_cast<int>(map_opts_.size()); ++i) {
-    const MapOption& opt = map_opts_[i];
+    const MapOption& opt = map_opts_[static_cast<std::size_t>(i)];
     if(opt.group != sel_opt.group) { break; }
   }
 
@@ -222,10 +223,8 @@ void MenuPlayScene::select_map_opt(int index,bool wrap) {
 }
 
 void MenuPlayScene::select_map() {
-  const auto opts_len = static_cast<int>(map_opts_.size());
-
   // No maps?
-  if(opts_len <= kNonMapOptCount) { return; }
+  if(map_opts_.size() <= kNonMapOptCount) { return; }
 
   state_.is_rand_map = (map_opt_index_ == 0);
 
@@ -234,14 +233,14 @@ void MenuPlayScene::select_map() {
 
     // Try not to grab the same map as last time.
     for(int i = 0; i < 10; ++i) {
-      new_map_file = map_opts_.at(Rando::it().rand_int(kNonMapOptCount,opts_len)).file;
+      new_map_file = map_opts_.at(Rando::it().rand_sizet(kNonMapOptCount,map_opts_.size())).file;
 
       if(new_map_file != state_.map_file) { break; }
     }
 
     state_.map_file = new_map_file;
   } else {
-    state_.map_file = map_opts_.at(map_opt_index_).file;
+    state_.map_file = map_opts_.at(static_cast<std::size_t>(map_opt_index_)).file;
   }
 }
 

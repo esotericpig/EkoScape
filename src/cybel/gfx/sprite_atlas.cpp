@@ -15,8 +15,7 @@ namespace cybel {
 SpriteAtlas::SpriteAtlas(const Builder& builder)
   : tex_(builder.tex_),
     grid_size_(builder.grid_size_),
-    cell_count_(grid_size_.w * grid_size_.h),
-    index_to_src_(cell_count_,Pos4f{}) {
+    index_to_src_(static_cast<std::size_t>(grid_size_.area()),Pos4f{}) {
   if(!tex_) { throw CybelError{"Texture is null on SpriteAtlas."}; }
 
   const int p2 = builder.cell_padding_ * 2;
@@ -27,9 +26,9 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
   const int x_offset = builder.offset_.x + builder.cell_padding_;
   const int y_offset = builder.offset_.y + builder.cell_padding_;
 
-  for(int i = 0; i < cell_count_; ++i) {
-    const int col = i % grid_size_.w;
-    const int row = i / grid_size_.w;
+  for(std::size_t i = 0; i < index_to_src_.size(); ++i) {
+    const int col = static_cast<int>(i) % grid_size_.w;
+    const int row = static_cast<int>(i) / grid_size_.w;
     const Pos2i offset{
       x_offset + (builder.cell_size_.w * col),
       y_offset + (builder.cell_size_.h * row),
@@ -43,21 +42,21 @@ void SpriteAtlas::zombify() { tex_->zombify(); }
 
 const Texture& SpriteAtlas::tex() const { return *tex_; }
 
-const Pos4f* SpriteAtlas::src(int index) const {
-  if(index < 0 || index >= cell_count_) { return nullptr; }
+const Pos4f* SpriteAtlas::src(std::size_t index) const {
+  if(index >= index_to_src_.size()) { return nullptr; }
 
-  return &index_to_src_.at(index);
+  return &index_to_src_[index];
 }
 
 const Pos4f* SpriteAtlas::src(const Pos2i& cell) const {
-  return src(cell.x + (cell.y * grid_size_.w));
+  return src(static_cast<std::size_t>(cell.x + (cell.y * grid_size_.w)));
 }
 
 const Size2i& SpriteAtlas::cell_size() const { return cell_size_; }
 
 const Size2i& SpriteAtlas::grid_size() const { return grid_size_; }
 
-int SpriteAtlas::cell_count() const { return cell_count_; }
+std::size_t SpriteAtlas::cell_count() const { return index_to_src_.size(); }
 
 SpriteAtlas SpriteAtlas::Builder::build() { return SpriteAtlas{*this}; }
 

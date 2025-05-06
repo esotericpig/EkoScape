@@ -85,10 +85,10 @@ private:
     Program(Program&& other) noexcept = delete;
     virtual ~Program() noexcept;
 
-    void zombify();
-
     Program& operator=(const Program& other) = delete;
     Program& operator=(Program&& other) noexcept = delete;
+
+    void zombify();
 
     GLuint handle() const;
 
@@ -107,11 +107,10 @@ private:
     QuadBuffer(QuadBuffer&& other) noexcept;
     virtual ~QuadBuffer() noexcept;
 
-    void zombify();
-
     QuadBuffer& operator=(const QuadBuffer& other) = delete;
     QuadBuffer& operator=(QuadBuffer&& other) noexcept;
 
+    void zombify();
     void draw();
 
     void set_data(const QuadBufferData& data);

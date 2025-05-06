@@ -27,8 +27,8 @@ Map& DantaresMap::clear_grids() {
 
 void DantaresMap::add_to_bridge() {
   if(grids_.empty()) { throw CybelError{"No grids in map [",title_,"]."}; }
-  if(grid_index_ < 0 || grid_index_ >= static_cast<int>(grids_.size())) {
-    throw CybelError{"Invalid grid index [",grid_index_,"] for map [",title_,"] of size [",
+  if(grid_z_ < 0 || grid_z_ >= static_cast<int>(grids_.size())) {
+    throw CybelError{"Invalid grid Z [",grid_z_,"] for map [",title_,"] of size [",
                      grids_.size(),"]."};
   }
   if(player_init_pos_.z < 0 || player_init_pos_.z >= static_cast<int>(grids_.size())) {
@@ -39,9 +39,9 @@ void DantaresMap::add_to_bridge() {
   grid_ids_.resize(grids_.size(),-1);
 
   for(int z = 0; z < static_cast<int>(grids_.size()); ++z) {
-    const auto& grid = grids_[z];
+    const auto& grid = grids_[static_cast<std::size_t>(z)];
     const Size2i& size = grid->size();
-    std::vector<int> int_spaces(size.w * size.h,0);
+    std::vector<int> int_spaces(static_cast<std::size_t>(size.area()),0);
 
     // Explicitly casting to ensure use of `const void*` overload.
     const int id = dantares_.AddMap(static_cast<const void*>(int_spaces.data()),size.w,size.h);
@@ -53,7 +53,7 @@ void DantaresMap::add_to_bridge() {
       throw CybelError{"Failed to make map grid [",z,',',id,':',title_,"] current in Dantares."};
     }
 
-    grid_ids_[z] = id;
+    grid_ids_[static_cast<std::size_t>(z)] = id;
 
     for(Pos2i pos{0,0}; pos.y < size.h; ++pos.y) {
       for(pos.x = 0; pos.x < size.w; ++pos.x) {
@@ -62,7 +62,7 @@ void DantaresMap::add_to_bridge() {
       }
     }
 
-    if(set_texs_) { set_texs_(dantares_,z,id); }
+    set_texs_(dantares_,z,id);
 
     // Must be called after setting the textures.
     if(!dantares_.GenerateMap()) {
@@ -71,7 +71,7 @@ void DantaresMap::add_to_bridge() {
   }
 
   const int z = player_init_pos_.z;
-  const int id = grid_ids_[z]; // Bounds checked at top of func.
+  const int id = grid_ids_[static_cast<std::size_t>(z)]; // Bounds checked at top of func.
   const int dan_facing = Facings::value_of(player_init_facing_);
 
   if(!change_grid(z,true)) {
@@ -105,7 +105,7 @@ void DantaresMap::on_context_restored() {
   }
 
   for(int z = 0; z < static_cast<int>(grid_ids_.size()); ++z) {
-    const int id = grid_ids_[z];
+    const int id = grid_ids_[static_cast<std::size_t>(z)];
 
     if(id == -1 || !dantares_.IsMap(id)) {
       throw CybelError{"Invalid map grid [",z,',',id,':',title_,"] in Dantares."};
@@ -114,7 +114,7 @@ void DantaresMap::on_context_restored() {
       throw CybelError{"Failed to make map grid [",z,',',id,':',title_,"] current in Dantares."};
     }
 
-    if(set_texs_) { set_texs_(dantares_,z,id); }
+    set_texs_(dantares_,z,id);
 
     // Must be called after setting the textures.
     if(!dantares_.GenerateMap()) {
@@ -123,7 +123,7 @@ void DantaresMap::on_context_restored() {
   }
 
   const int z = player_pos.z;
-  const int id = grid_ids_[z]; // Bounds checked at top of func.
+  const int id = grid_ids_[static_cast<std::size_t>(z)]; // Bounds checked at top of func.
 
   if(!change_grid(z,true)) {
     throw CybelError{"Failed to change to map grid [",z,',',id,':',title_,"] in Dantares."};
@@ -149,7 +149,7 @@ bool DantaresMap::sync_player_pos() {
 bool DantaresMap::change_grid(int z) { return change_grid(z,false); }
 
 bool DantaresMap::change_grid(int z,bool force) {
-  if(!force && z == grid_index_) { return true; }
+  if(!force && z == grid_z_) { return true; }
   if(!Map::change_grid(z)) { return false; }
 
   if(z < 0 || z >= static_cast<int>(grid_ids_.size())) {
@@ -158,7 +158,7 @@ bool DantaresMap::change_grid(int z,bool force) {
     return false;
   }
 
-  const int id = grid_ids_[z];
+  const int id = grid_ids_[static_cast<std::size_t>(z)];
 
   if(id == -1 || !dantares_.IsMap(id)) {
     std::cerr << "[ERROR] Invalid map grid ID [" << z << ',' << id << ':' << title_
@@ -171,7 +171,7 @@ bool DantaresMap::change_grid(int z,bool force) {
     return false;
   }
 
-  const Size2i& grid_size = grids_[z]->size();
+  const Size2i& grid_size = grids_[static_cast<std::size_t>(z)]->size();
   const Pos3i player_pos = this->player_pos();
 
   if((player_pos.x < 0 || player_pos.x >= grid_size.w) ||
@@ -183,7 +183,7 @@ bool DantaresMap::change_grid(int z,bool force) {
 }
 
 void DantaresMap::update_bridge_space(const Pos3i& pos,SpaceType type) {
-  if(pos.z == grid_index_) {
+  if(pos.z == grid_z_) {
     update_bridge_space(pos.x,pos.y,type);
     return;
   }
@@ -193,7 +193,7 @@ void DantaresMap::update_bridge_space(const Pos3i& pos,SpaceType type) {
     return;
   }
 
-  const int z_id = grid_ids_[pos.z];
+  const int z_id = grid_ids_[static_cast<std::size_t>(pos.z)];
   const int curr_id = dantares_.GetCurrentMap();
 
   // Luckily, changing the map in Dantares isn't an expensive operation.
@@ -220,7 +220,7 @@ void DantaresMap::update_bridge_space(int x,int y,SpaceType type) {
 }
 
 Pos3i DantaresMap::player_pos() const {
-  return Pos3i{dantares_.GetPlayerX(),dantares_.GetPlayerY(),grid_index_};
+  return Pos3i{dantares_.GetPlayerX(),dantares_.GetPlayerY(),grid_z_};
 }
 
 const Space* DantaresMap::player_space() const { return space(player_pos()); }

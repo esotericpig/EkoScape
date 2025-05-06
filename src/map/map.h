@@ -182,7 +182,7 @@ protected:
   Duration robot_delay_ = Duration::from_millis(900);
 
   std::vector<std::unique_ptr<MapGrid>> grids_{};
-  int grid_index_ = -1;
+  int grid_z_ = -1;
 
   int total_cells_ = 0;
   int total_rescues_ = 0;

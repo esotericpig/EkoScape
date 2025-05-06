@@ -35,7 +35,7 @@ public:
     Builder& grid_size(int cols,int rows);
 
     Builder& spacing(int rune_spacing,int line_spacing);
-    Builder& default_index(int index);
+    Builder& default_index(std::size_t index);
     Builder& default_cell(int col,int row);
     Builder& default_rune(char32_t rune);
     Builder& index_to_rune(std::string_view str);
@@ -49,20 +49,20 @@ public:
 
     // Since we don't know the final grid width & height until build,
     //     we have to store both `default_index_` & `default_cell_`.
-    int default_index_ = 0;
+    std::size_t default_index_ = 0;
     Pos2i default_cell_{};
     char32_t default_rune_ = 0;
 
-    std::unordered_map<char32_t,int> rune_to_index_{};
+    std::unordered_map<char32_t,std::size_t> rune_to_index_{};
   };
 
   const Size2i& spacing() const;
-  int rune_index(char32_t rune) const;
+  std::size_t rune_index(char32_t rune) const;
 
 protected:
   Size2i spacing_{};
-  int default_index_ = 0;
-  std::unordered_map<char32_t,int> rune_to_index_{};
+  std::size_t default_index_ = 0;
+  std::unordered_map<char32_t,std::size_t> rune_to_index_{};
 
   explicit FontAtlas(const Builder& builder);
 };

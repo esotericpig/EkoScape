@@ -142,7 +142,7 @@ void RendererGl::delete_quad_buffers(GLuint id,int count) {
 }
 
 void RendererGl::compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) {
-  glNewList(id + index,GL_COMPILE);
+  glNewList(id + static_cast<GLuint>(index),GL_COMPILE);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,data.tex_handle);
 
@@ -161,7 +161,7 @@ void RendererGl::compile_quad_buffer(GLuint id,int index,const QuadBufferData& d
 }
 
 void RendererGl::draw_quad_buffer(GLuint id,int index) {
-  glCallList(id + index);
+  glCallList(id + static_cast<GLuint>(index));
 }
 
 } // namespace cybel

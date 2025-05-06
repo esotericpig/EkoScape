@@ -28,26 +28,27 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
     update_styles();
   }
 
-  std::vector<Cell*> grid(grid_style_.cols * grid_style_.rows,nullptr);
-  std::vector row_data_bag(grid_style_.rows,RowData{});
+  const auto cols = static_cast<std::size_t>(grid_style_.cols);
+  const auto rows = static_cast<std::size_t>(grid_style_.rows);
+  std::vector<Cell*> grid(cols * rows,nullptr);
+  std::vector row_data_bag(rows,RowData{});
 
   build_grid(grid,row_data_bag);
 
   auto base_cell_pos = pos;
   const auto base_cell_size = calc_base_cell_size(size);
 
-  for(int row = 0; row < grid_style_.rows; ++row) {
+  for(std::size_t row = 0; row < rows; ++row) {
     const auto& row_data = row_data_bag[row];
 
-    for(int col = 0; col < grid_style_.cols; ++col) {
-      auto* cell = grid[col + (row * grid_style_.cols)];
+    for(std::size_t col = 0; col < cols; ++col) {
+      auto* cell = grid[col + (row * cols)];
 
       if(cell != nullptr) {
         if(cell->is_dirty) {
           cell->is_dirty = false;
 
-          const int top_cell_i = col + ((row - 1) * grid_style_.cols);
-          const Cell* top_cell = (top_cell_i >= 0) ? grid[top_cell_i] : nullptr;
+          const Cell* top_cell = (row == 0) ? nullptr : grid[col + ((row - 1) * cols)];
           const float width_slice = static_cast<float>(cell->style.colspan) * cell->style.hflex;
           const float width_ratio = width_slice / row_data.total_width_slices;
 
@@ -69,7 +70,8 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
         }
 
         base_cell_pos.x += cell->size.w;
-        col += (cell->style.colspan - 1);
+        // `colspan` is always >= 1, due to merge_cell_styles().
+        col += (static_cast<std::size_t>(cell->style.colspan) - 1);
       } else {
         base_cell_pos.x += base_cell_size.w;
       }
@@ -80,13 +82,15 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
 }
 
 void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_data_bag) {
+  const auto cols = static_cast<std::size_t>(grid_style_.cols);
+  const auto rows = static_cast<std::size_t>(grid_style_.rows);
   std::size_t free_cell_i = 0;
 
-  for(int row = 0; row < grid_style_.rows && free_cell_i < cells_.size(); ++row) {
+  for(std::size_t row = 0; row < rows && free_cell_i < cells_.size(); ++row) {
     auto& row_data = row_data_bag[row];
 
-    for(int col = 0; col < grid_style_.cols; ++col) {
-      auto* cell = grid[col + (row * grid_style_.cols)];
+    for(std::size_t col = 0; col < cols; ++col) {
+      auto* cell = grid[col + (row * cols)];
 
       // Owner cell? (not part of a subregion)
       if(cell == nullptr) {
@@ -102,23 +106,24 @@ void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_d
         }
 
         // Out of cells.
-        if(cell == nullptr) { continue; }
+        if(cell == nullptr) { break; }
 
         cell->is_dirty = true;
 
         // Set all grid cells in subregion (colspan * rowspan) to cell.
-        const int end_sub_col = std::min(col + cell->style.colspan,grid_style_.cols);
-        const int end_sub_row = std::min(row + cell->style.rowspan,grid_style_.rows);
+        const auto end_sub_col = std::min(col + static_cast<std::size_t>(cell->style.colspan),cols);
+        const auto end_sub_row = std::min(row + static_cast<std::size_t>(cell->style.rowspan),rows);
 
-        for(int sub_row = row; sub_row < end_sub_row; ++sub_row) {
-          for(int sub_col = col; sub_col < end_sub_col; ++sub_col) {
-            grid[sub_col + (sub_row * grid_style_.cols)] = cell;
+        for(std::size_t sub_row = row; sub_row < end_sub_row; ++sub_row) {
+          for(std::size_t sub_col = col; sub_col < end_sub_col; ++sub_col) {
+            grid[sub_col + (sub_row * cols)] = cell;
           }
         }
       }
 
       row_data.total_width_slices += (static_cast<float>(cell->style.colspan) * cell->style.hflex);
-      col += (cell->style.colspan - 1);
+      // `colspan` is always >= 1, due to merge_cell_styles().
+      col += (static_cast<std::size_t>(cell->style.colspan) - 1);
     }
 
     if(row_data.total_width_slices < kMinFloat) { row_data.total_width_slices = kMinFloat; }
@@ -189,7 +194,7 @@ UiFlexGrid::GridStyle UiFlexGrid::merge_grid_styles() const {
   int rows = pick_from2(all.rows,gs.rows,0,1);
 
   if(rows <= 0) {
-    // This doesn't take into account rowspan. Use explicit `rows` instead.
+    // This doesn't take into account rowspan; use explicit `rows` instead.
     const int guessed_rows = static_cast<int>(
       std::ceil(static_cast<float>(cells_.size()) / static_cast<float>(cols))
     );

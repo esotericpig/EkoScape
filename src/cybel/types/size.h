@@ -38,6 +38,8 @@ public:
     return *this;
   }
 
+  T area() const { return w * h; }
+
   float aspect_ratio() const {
     return static_cast<float>(w) / std::max(static_cast<float>(h),0.01f);
   }

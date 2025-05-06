@@ -457,10 +457,9 @@ Music* Assets::music(asset_id_t id) {
   return music_bag_[id].get();
 }
 
-Assets::StyledTextures::StyledTextures(const std::filesystem::path& dir,bool make_weird) {
-  dirname = dir.filename().string();
-  name = utf8::StrUtil::ellipsize(dirname,18);
-
+Assets::StyledTextures::StyledTextures(const std::filesystem::path& dir,bool make_weird)
+  : dirname(dir.filename().string()),
+    name(utf8::StrUtil::ellipsize(dirname,18)) {
   load_tex(StyledTexId::kCeiling,dir / "ceiling.png",make_weird);
   load_tex(StyledTexId::kCell,dir / "cell.png",make_weird);
   load_tex(StyledTexId::kDeadSpace,dir / "dead_space.png",make_weird,kWeirdBlackColor);

@@ -47,7 +47,7 @@ private:
   int scene_action_ = SceneAction::kNil;
 
   std::vector<WtfParticle> wtfs_{};
-  int active_wtf_count_ = 0;
+  std::size_t active_wtf_count_ = 0;
   Duration wtf_cooldown_time_{};
 
   void birth_wtfs(const ViewDimens& dimens);

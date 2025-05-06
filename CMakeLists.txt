@@ -185,7 +185,7 @@ if(EMSCRIPTEN)
       ${EMS_COMPILE_AND_LINK_OPTS}
 
       -Wall -Wconversion -Wextra -Wpedantic
-      -Wno-sign-conversion
+#      -Wno-sign-conversion
   )
 
   # - https://emscripten.org/docs/tools_reference/emcc.html
@@ -271,13 +271,8 @@ else() # elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   if(NOT APPLE AND NOT EMSCRIPTEN)
     target_compile_options("${BIN_NAME}" PRIVATE
         -Wall -Wconversion -Wextra -Wpedantic
+        -Wsign-conversion
     )
-
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      target_compile_options("${BIN_NAME}" PRIVATE
-          -Wno-sign-conversion
-      )
-    endif()
   endif()
 endif()
 

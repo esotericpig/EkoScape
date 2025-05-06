@@ -33,7 +33,7 @@ std::string RendererGles::fetch_info_log(GLuint handle,InfoLogType type) {
 
   if(len <= 0) { return ""; }
 
-  std::string msg(len,0);
+  std::string msg(static_cast<std::size_t>(len),0);
 
   switch(type) {
     case InfoLogType::kShader:
@@ -512,16 +512,16 @@ void RendererGles::QuadBuffer::destroy() noexcept {
   }
 }
 
-void RendererGles::QuadBuffer::zombify() {
-  ebo_ = 0;
-  vbo_ = 0;
-  vao_ = 0;
-}
-
 RendererGles::QuadBuffer& RendererGles::QuadBuffer::operator=(QuadBuffer&& other) noexcept {
   if(this != &other) { move_from(std::move(other)); }
 
   return *this;
+}
+
+void RendererGles::QuadBuffer::zombify() {
+  ebo_ = 0;
+  vbo_ = 0;
+  vao_ = 0;
 }
 
 void RendererGles::QuadBuffer::draw() {
@@ -568,9 +568,9 @@ void RendererGles::QuadBuffer::update_vertex_data() {
 GLuint RendererGles::QuadBuffer::tex_handle() const { return tex_handle_; }
 
 RendererGles::QuadBufferBag::QuadBufferBag(int count)
-  : buffers_(count) {
+  : buffers_(static_cast<std::size_t>(count)) {
   // Since no copy ctor, have to do this.
-  for(int i = 0; i < count; ++i) {
+  for(std::size_t i = 0; i < buffers_.size(); ++i) {
     buffers_[i] = QuadBuffer{};
   }
 }
@@ -588,9 +588,11 @@ void RendererGles::QuadBufferBag::zombify() {
 }
 
 RendererGles::QuadBuffer* RendererGles::QuadBufferBag::buffer(int index) {
-  if(index < 0 || static_cast<std::size_t>(index) >= buffers_.size()) { return nullptr; }
+  const auto i = static_cast<std::size_t>(index);
 
-  return &buffers_[index];
+  if(i >= buffers_.size()) { return nullptr; }
+
+  return &buffers_[i];
 }
 
 std::size_t RendererGles::QuadBufferBag::size() const { return buffers_.size(); }
