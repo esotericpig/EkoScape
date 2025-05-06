@@ -31,7 +31,6 @@ public:
     explicit Wrapper(FontRenderer& font_ren,Renderer::FontAtlasWrapper& font,const Color4f& font_color);
 
     Wrapper& draw_bg(const Color4f& color,const Size2i& str_size);
-    Wrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
     Wrapper& draw_menu_opt(std::string_view text,int styles = 0); // Julia Stiles?
     Wrapper& draw_menu_up_arrow();
     Wrapper& draw_menu_down_arrow();
@@ -44,6 +43,8 @@ public:
     Wrapper& puts(char32_t rune);
     Wrapper& puts(std::string_view str);
     Wrapper& puts_blanks(int count);
+
+    Wrapper& set_bg_padding(const Size2i& padding);
   };
 
   using WrapCallback = std::function<void(Wrapper&)>;

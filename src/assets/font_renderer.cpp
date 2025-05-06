@@ -60,13 +60,6 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const
   return *this;
 }
 
-FontRenderer::Wrapper& FontRenderer::Wrapper::draw_bg(const Color4f& color,const Size2i& str_size,
-                                                      const Size2i& padding) {
-  font.draw_bg(color,str_size,padding);
-
-  return *this;
-}
-
 FontRenderer::Wrapper& FontRenderer::Wrapper::draw_menu_opt(std::string_view text,int styles) {
   const bool is_selected = styles & kMenuStyleSelected;
   const bool is_cycle = styles & kMenuStyleCycle;
@@ -149,6 +142,12 @@ FontRenderer::Wrapper& FontRenderer::Wrapper::puts(std::string_view str) {
 
 FontRenderer::Wrapper& FontRenderer::Wrapper::puts_blanks(int count) {
   font.puts_blanks(count);
+
+  return *this;
+}
+
+FontRenderer::Wrapper& FontRenderer::Wrapper::set_bg_padding(const Size2i& padding) {
+  font.set_bg_padding(padding);
 
   return *this;
 }

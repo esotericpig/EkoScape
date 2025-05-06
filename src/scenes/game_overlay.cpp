@@ -143,7 +143,9 @@ void GameOverlay::draw_map_info(Renderer& ren) {
   ren.begin_auto_center_scale();
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
-    const auto true_size = font.font.calc_total_size(map_info_str_size_,kTextBgPadding);
+    font.set_bg_padding(kTextBgPadding);
+
+    const auto true_size = font.font.calc_total_size(map_info_str_size_);
     const Pos3i pos{
       std::max((ren.dimens().target_size.w - true_size.w) >> 1,0),
       std::max((ren.dimens().target_size.h - true_size.h) >> 1,0),
@@ -153,7 +155,7 @@ void GameOverlay::draw_map_info(Renderer& ren) {
     font.font.init_pos = pos;
     font.font.pos = pos;
 
-    font.draw_bg(kTextBgColor,map_info_str_size_,kTextBgPadding);
+    font.draw_bg(kTextBgColor,map_info_str_size_);
     font.puts(map_info_);
   });
 
@@ -177,13 +179,14 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     });
   });
   ctx_.assets.font_renderer().wrap(ren,Pos3i{460,460,0},0.60f,[&](auto& font) {
+    font.set_bg_padding(kTextBgPadding);
     font.font_color.a *= game_over_age_;
 
     const auto font_color = font.font_color;
     const auto miss_color = ctx_.assets.font_renderer().cycle_arrow_color().with_a(font_color.a);
     const auto goal_color = ctx_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
-    font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2},kTextBgPadding);
+    font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2});
     font.puts(state.player_hit_end ? "Congrats!" : "You're dead!");
 
     font.print("You freed ");
@@ -212,7 +215,8 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   });
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{580,perfect ? 790 : 690,0},[&](auto& font) {
-    font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())},kTextBgPadding);
+    font.set_bg_padding(kTextBgPadding);
+    font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())});
     font.font_color.a *= game_over_age_;
 
     for(std::size_t i = 0; i < game_over_opts_.size(); ++i) {

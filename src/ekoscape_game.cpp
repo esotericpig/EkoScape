@@ -317,10 +317,9 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
     ren.begin_2d_scene()
        .begin_auto_anchor_scale(Pos2f{0.0f,0.0f}); // Top left.
 
-    const Size2i padding{5,5};
-
-    assets_->font_renderer().wrap(ren,Pos3i{5 + padding.w,5 + padding.h,0},0.33f,[&](auto& font) {
-      font.draw_bg(Color4f{0.0f,0.5f},Size2i{static_cast<int>(avg_fps_str_.length()),1},padding);
+    assets_->font_renderer().wrap(ren,Pos3i{0,0,0},0.33f,[&](auto& font) {
+      font.set_bg_padding(Size2i{5,5});
+      font.draw_bg(Color4f{0.0f,0.5f},Size2i{static_cast<int>(avg_fps_str_.length()),1});
       font.print(avg_fps_str_);
     });
 

@@ -296,17 +296,11 @@ Renderer::FontAtlasWrapper::FontAtlasWrapper(Renderer& ren,const FontAtlas& font
                                              const Size2i& rune_size,const Size2i& spacing)
   : ren(ren),font(font),init_pos(pos),pos(pos),rune_size(rune_size),spacing(spacing) {}
 
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,
-                                                                const Size2i& str_size) {
-  return draw_bg(color,str_size,Size2i{});
-}
-
-Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size,
-                                                                const Size2i& padding) {
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::draw_bg(const Color4f& color,const Size2i& str_size) {
   ren.end_tex(); // Temporarily unbind the font texture.
-    ren.wrap_color(color,[&] {
-      ren.draw_quad(Pos3i{pos.x - padding.w,pos.y - padding.h,pos.z},calc_total_size(str_size,padding));
-    });
+  ren.wrap_color(color,[&] {
+    ren.draw_quad(Pos3i{pos.x - bg_padding_.w,pos.y - bg_padding_.h,pos.z},calc_total_size(str_size));
+  });
   ren.begin_tex(font.tex()); // Bind back the font texture.
 
   return *this;
@@ -360,15 +354,21 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {
   return *this;
 }
 
-Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size) {
-  return calc_total_size(str_size,Size2i{});
+Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size) const {
+  return Size2i{
+    (str_size.w * rune_size.w) + ((str_size.w - 1) * spacing.w) + (bg_padding_.w << 1),
+    (str_size.h * rune_size.h) + ((str_size.h - 1) * spacing.h) + (bg_padding_.h << 1)
+  };
 }
 
-Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size,const Size2i& padding) {
-  return Size2i{
-    (str_size.w * rune_size.w) + ((str_size.w - 1) * font.spacing().w) + (padding.w << 1),
-    (str_size.h * rune_size.h) + ((str_size.h - 1) * font.spacing().h) + (padding.h << 1)
-  };
+void Renderer::FontAtlasWrapper::set_bg_padding(const Size2i& padding) {
+  // Remove the previous padding (if any) and add the new padding.
+  init_pos.x = (init_pos.x - bg_padding_.w) + padding.w;
+  init_pos.y = (init_pos.y - bg_padding_.h) + padding.h;
+  pos.x = (pos.x - bg_padding_.w) + padding.w;
+  pos.y = (pos.y - bg_padding_.h) + padding.h;
+
+  bg_padding_ = padding;
 }
 
 } // namespace cybel

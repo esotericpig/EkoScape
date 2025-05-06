@@ -121,7 +121,6 @@ public:
                               const Size2i& spacing);
 
     FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size);
-    FontAtlasWrapper& draw_bg(const Color4f& color,const Size2i& str_size,const Size2i& padding);
 
     FontAtlasWrapper& print();
     FontAtlasWrapper& print(char32_t rune);
@@ -132,8 +131,12 @@ public:
     FontAtlasWrapper& puts(std::string_view str);
     FontAtlasWrapper& puts_blanks(int count);
 
-    Size2i calc_total_size(const Size2i& str_size);
-    Size2i calc_total_size(const Size2i& str_size,const Size2i& padding);
+    Size2i calc_total_size(const Size2i& str_size) const;
+
+    void set_bg_padding(const Size2i& padding);
+
+  private:
+    Size2i bg_padding_{};
   };
 
   struct QuadBufferData {

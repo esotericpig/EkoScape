@@ -70,7 +70,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_auto_anchor_scale(Pos2f{0.0f,1.0f}); // Anchor to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (state.show_mini_map ? kMiniMapSize.h : 0);
-  const Pos3i pos{5,dimens.target_size.h - 5 - total_h,0};
+  const Pos3i pos{0,dimens.target_size.h - total_h,0};
 
   ren.wrap_color(mini_map_walkable_color_,[&] {
     ren.draw_quad(pos,Size2i{kMiniMapSize.w,kMiniMapBlockSize.h});
@@ -86,14 +86,13 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     font.print(Util::build_str('/',state.map.total_cells()," ekos"));
   });
   if(state.player_fruit_time > Duration::kZero) {
-    constexpr int fruit_padding_w = 5;
-    const Pos3i fruit_pos{pos.x + kMiniMapSize.w + fruit_padding_w,pos.y,pos.z};
+    const Pos3i fruit_pos{pos.x + kMiniMapSize.w,pos.y,pos.z};
 
     ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
       const auto fruit_text = std::to_string(state.player_fruit_time.round_secs());
 
-      font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1},
-                   Size2i{fruit_padding_w,0});
+      font.set_bg_padding(Size2i{5,0});
+      font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1});
       font.font_color = mini_map_fruit_color_.with_a(1.0f);
       font.print(fruit_text);
     });
@@ -187,16 +186,15 @@ void GameHud::draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_auto_anchor_scale(Pos2f{1.0f,1.0f}); // Anchor to bottom right.
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{},kTextScale,[&](auto& font) {
+    font.set_bg_padding(Size2i{10,5});
+
     const Size2i str_size{static_cast<int>(speedrun_time_str_.length()),1};
-    const Size2i padding{10,5};
-    const auto total_size = font.font.calc_total_size(str_size,padding);
+    const auto total_size = font.font.calc_total_size(str_size);
 
-    // Minus total_size by padding once because draw_bg() minuses the pos by padding once
-    //     (moves the BG negative instead of moving the text positive) to center the BG around the text.
-    font.font.pos.x = (dimens.target_size.w - 5) - (total_size.w - padding.w);
-    font.font.pos.y = (dimens.target_size.h - 5) - (total_size.h - padding.h);
+    font.font.pos.x += (dimens.target_size.w - total_size.w);
+    font.font.pos.y += (dimens.target_size.h - total_size.h);
 
-    font.draw_bg(mini_map_walkable_color_,str_size,padding);
+    font.draw_bg(mini_map_walkable_color_,str_size);
     font.print(speedrun_time_str_);
   });
 
