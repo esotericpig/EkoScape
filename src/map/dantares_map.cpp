@@ -96,7 +96,7 @@ void DantaresMap::add_to_bridge() {
 void DantaresMap::on_context_restored() {
   if(grid_ids_.empty()) { throw CybelError{"No grid IDs in map [",title_,"]."}; }
 
-  // Store this before changing the current map.
+  // Store this before switching maps.
   const auto player_pos = this->player_pos();
 
   if(player_pos.z < 0 || player_pos.z >= static_cast<int>(grid_ids_.size())) {
