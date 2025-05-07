@@ -345,10 +345,9 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print(std::string_view s
   for(const auto rune : utf8::RuneRange{str}) {
     if(rune == '\n') {
       puts();
-      continue;
+    } else {
+      print(rune);
     }
-
-    print(rune);
   }
 
   return *this;
@@ -384,46 +383,49 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_fmt(
       // Escaped: `{{`.
       if(rune2 == '{') {
         print(rune);
+        continue;
       }
       // Arg: `{}`.
-      // - Note that this doesn't account for "escaped" `{}}`, which should be `{{}}`.
-      else if(rune2 == '}') {
+      // - Note that this doesn't account for erroneously "escaped" `{}}`, which should be `{{}}`.
+      if(rune2 == '}') {
         if(args_it != args.end()) {
           // Instead, this could call print_fmt() or use its own stack.
           print(*args_it);
           ++args_it;
         } else {
+          // Just print `{}`.
           print(rune);
           print(rune2);
         }
+
+        continue;
       }
+
       // Styled text: `{<color> `.
-      else {
-        const std::size_t first_i = it.index();
-        std::size_t last_i = it.index();
+      const std::size_t first_i = it.index();
+      std::size_t last_i = it.index();
 
-        do {
-          if(*it == ' ') {
-            last_i = it.index();
-            break;
-          }
-        } while((++it) != it_end);
-
-        const auto color_str = fmt.substr(first_i,last_i - first_i);
-        Color4f color = Color4f::kWhite; // Fallback color.
-
-        // RGB `0x112233` or RGBA `0x11223344`.
-        if(color_str.length() >= 2 && color_str[0] == '0' && (color_str[1] == 'x' || color_str[1] == 'X')) {
-          color = Color4f::hex(color_str,color);
-        } else {
-          const auto* color_ptr = ren.font_color(std::string{color_str});
-
-          if(color_ptr != nullptr) { color = *color_ptr; }
+      do {
+        if(*it == ' ') {
+          last_i = it.index();
+          break;
         }
+      } while((++it) != it_end);
 
-        color_stack.push(color);
-        ren.begin_color(color);
+      const auto color_str = fmt.substr(first_i,last_i - first_i);
+      Color4f color = Color4f::kWhite; // Fallback color.
+
+      // RGB `0x112233` or RGBA `0x11223344`.
+      if(color_str.length() >= 2 && color_str[0] == '0' && (color_str[1] == 'x' || color_str[1] == 'X')) {
+        color = Color4f::hex(color_str,color);
+      } else {
+        const auto* color_ptr = ren.font_color(std::string{color_str});
+
+        if(color_ptr != nullptr) { color = *color_ptr; }
       }
+
+      color_stack.push(color);
+      ren.begin_color(color);
     }
     // Handles: ` `, ` }}`, ` }`.
     else if(rune == ' ') {
@@ -440,32 +442,44 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_fmt(
       if(rune2 != '}') {
         // Process 2nd rune on next iteration.
         print(rune);
-      } else {
-        const auto peek_it3 = peek_it2 + 1;
-        const auto rune3 = (peek_it3 == it_end) ? 0 : *peek_it3;
+        continue;
+      }
 
-        // Escaped: ` }}`.
-        if(rune3 == '}') {
-          print(rune);
-          print(rune2);
+      const auto peek_it3 = peek_it2 + 1;
+      const auto rune3 = (peek_it3 == it_end) ? 0 : *peek_it3;
 
-          it = peek_it3;
-        }
-        // Styled text: ` }`.
-        else {
-          if(!color_stack.empty()) {
-            color_stack.pop();
+      // Escaped: ` }}`.
+      if(rune3 == '}') {
+        print(rune);
+        print(rune2);
 
-            if(!color_stack.empty()) {
-              ren.begin_color(color_stack.top());
-            } else {
-              ren.begin_color(ren.curr_color_);
-            }
-          }
+        it = peek_it3;
+        continue;
+      }
 
-          it = peek_it2;
+      // Styled text: ` }`.
+      if(!color_stack.empty()) {
+        color_stack.pop();
+
+        if(!color_stack.empty()) {
+          ren.begin_color(color_stack.top());
+        } else {
+          ren.begin_color(ren.curr_color_);
         }
       }
+
+      it = peek_it2;
+    } else if(rune == '}') {
+      print(rune);
+
+      const auto peek_it2 = it + 1;
+
+      if(peek_it2 == it_end) { break; }
+
+      const auto rune2 = *peek_it2;
+
+      // Escaped: `}}`.
+      if(rune2 == '}') { it = peek_it2; }
     } else if(rune == '\n') {
       puts();
     } else {
@@ -517,5 +531,7 @@ void Renderer::FontAtlasWrapper::set_bg_padding(const Size2i& padding) {
 
   bg_padding_ = padding;
 }
+
+const Size2i& Renderer::FontAtlasWrapper::bg_padding() const { return bg_padding_; }
 
 } // namespace cybel

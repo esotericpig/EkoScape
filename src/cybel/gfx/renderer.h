@@ -127,16 +127,39 @@ public:
     FontAtlasWrapper& print(char32_t rune);
     FontAtlasWrapper& print(std::string_view str);
     FontAtlasWrapper& print_blanks(int count);
+
+    /**
+     * Prints formatted text:
+     * - Replaces `{}` with the next arg from `args`, if there is one.
+     * - Colors `{<color> text }` with the `color`.
+     *   - NOTE: You must use a space at the end before the curly brace: ` }`.
+     *   - If <color> starts with `0x` (zero) or `0X`, then it's parsed as an RGB or RGBA hex value:
+     *     - `{0x112233 text } and {0x11223344 text }`
+     *   - Else, <color> is fetched from Renderer.font_color(), if it exists:
+     *     - `{green text }`
+     *
+     * Notes:
+     * - Escape `{` with 2 `{{` or `}` with 2 `}`:
+     *   - `This {{is }} escaped: {{}}.`
+     * - Shouldn't fail on invalid text, number of args, colors, etc.
+     */
     FontAtlasWrapper& print_fmt(std::string_view fmt,std::initializer_list<std::string_view> args = {});
+
     FontAtlasWrapper& puts();
     FontAtlasWrapper& puts(char32_t rune);
     FontAtlasWrapper& puts(std::string_view str);
     FontAtlasWrapper& puts_blanks(int count);
+
+    /**
+     * See: print_fmt()
+     */
     FontAtlasWrapper& puts_fmt(std::string_view fmt,std::initializer_list<std::string_view> args = {});
 
     Size2i calc_total_size(const Size2i& str_size) const;
 
     void set_bg_padding(const Size2i& padding);
+
+    const Size2i& bg_padding() const;
 
   private:
     Size2i bg_padding_{};
