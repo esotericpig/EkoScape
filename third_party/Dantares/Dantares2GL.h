@@ -47,7 +47,7 @@
     #include<GL/gl.h>
 #endif
 
-class Dantares2GLRenderer : public Dantares2::RendererClass
+class Dantares2GLRenderer final : public Dantares2::RendererClass
 {
 public:
     void BeginDraw() override;

@@ -31,7 +31,7 @@
 
 namespace ekoscape {
 
-class GameScene : public Scene {
+class GameScene final : public Scene {
 public:
   struct State {
     bool show_mini_map = true;

@@ -16,7 +16,7 @@
 
 namespace cybel::utf8 {
 
-class RuneRange : public std::ranges::view_interface<RuneRange> {
+class RuneRange final : public std::ranges::view_interface<RuneRange> {
 public:
   using const_iterator = RuneIterator;
   using const_reverse_iterator = RuneIterator::reverse_iterator;

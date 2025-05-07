@@ -17,7 +17,7 @@
 
 namespace ekoscape {
 
-class BoringWorkScene : public Scene {
+class BoringWorkScene final : public Scene {
 public:
   explicit BoringWorkScene(GameContext& ctx) noexcept;
 

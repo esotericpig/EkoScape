@@ -21,7 +21,7 @@
 
 namespace ekoscape {
 
-class MenuPlayScene : public Scene {
+class MenuPlayScene final : public Scene {
 public:
   struct State {
     std::filesystem::path map_file{};

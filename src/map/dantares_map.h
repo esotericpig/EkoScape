@@ -32,7 +32,7 @@ namespace ekoscape {
  *   // Now use map normally...
  *   @endcode
  */
-class DantaresMap : public Map {
+class DantaresMap final : public Map {
 public:
   using TexturesSetter = std::function<void(Dantares2&,int z,int grid_id)>;
 

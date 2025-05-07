@@ -16,7 +16,7 @@
 
 namespace cybel {
 
-class RendererGl : public Renderer {
+class RendererGl final : public Renderer {
 public:
   explicit RendererGl(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 

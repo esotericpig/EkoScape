@@ -23,7 +23,7 @@
 
 namespace ekoscape {
 
-class MenuCreditsScene : public Scene {
+class MenuCreditsScene final : public Scene {
 public:
   static Color4f rand_color();
 
@@ -35,7 +35,7 @@ public:
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
 private:
-  class WtfParticle : public Particle {
+  class WtfParticle final : public Particle {
   public:
     Pos3f true_pos{};
     Size2f true_size{};

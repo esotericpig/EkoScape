@@ -24,7 +24,7 @@ namespace cybel {
 
 // NOTE: There are inner classes that have an init() function that must be called, like a constructor.
 //       This design pattern was chosen for implementing WebGL context restored.
-class RendererGles : public Renderer {
+class RendererGles final : public Renderer {
 public:
   explicit RendererGles(const Size2i& size,const Size2i& target_size,const Color4f& clear_color);
 

@@ -14,7 +14,7 @@
 
 namespace ekoscape {
 
-class DantaresRenderer : public Dantares2::RendererClass
+class DantaresRenderer final : public Dantares2::RendererClass
 {
 public:
   explicit DantaresRenderer(Renderer& renderer) noexcept;

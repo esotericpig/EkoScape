@@ -20,7 +20,7 @@
 
 namespace ekoscape {
 
-class MenuScene : public Scene {
+class MenuScene final : public Scene {
 public:
   explicit MenuScene(GameContext& ctx);
 

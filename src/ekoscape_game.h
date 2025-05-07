@@ -23,7 +23,7 @@
 
 namespace ekoscape {
 
-class EkoScapeGame : public Scene {
+class EkoScapeGame final : public Scene {
   // NOTE: This must be defined first so that its dtor is called last.
   std::shared_ptr<CybelEngine> cybel_engine_{};
 

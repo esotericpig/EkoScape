@@ -27,7 +27,7 @@ namespace cybel {
  * - unget(), putback()    - pbackfail()
  *   - This is kind of implemented until the buffer is empty, but not recommended to be used.
  */
-class TextReaderBuf : public std::streambuf {
+class TextReaderBuf final : public std::streambuf {
 public:
   explicit TextReaderBuf(const std::filesystem::path& file,std::size_t buffer_size = 4 * 1024);
 
