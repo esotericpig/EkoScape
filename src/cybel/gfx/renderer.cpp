@@ -11,17 +11,30 @@
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/util.h"
 
+#include <stack>
+
 namespace cybel {
 
 Renderer::Renderer(const Size2i& size,const Size2i& target_size,const Color4f& clear_color)
   : clear_color_(clear_color) {
-  // Avoid divides by 0.
-  dimens_.init_size = Size2i{(size.w > 0) ? size.w : 1,(size.h > 0) ? size.h : 1};
+  // Ensure 1+ to avoid divides by 0.
+  dimens_.init_size = Size2i{std::max(size.w,1),std::max(size.h,1)};
   dimens_.size = dimens_.init_size;
-  dimens_.target_size = Size2i{
-    (target_size.w > 0) ? target_size.w : 1,
-    (target_size.h > 0) ? target_size.h : 1
-  };
+  dimens_.target_size = Size2i{std::max(target_size.w,1),std::max(target_size.h,1)};
+
+  // Add all standard colors.
+  font_colors_["black"] = Color4f::kBlack;
+  font_colors_["blue"] = Color4f::kBlue;
+  font_colors_["brown"] = Color4f::kBrown;
+  font_colors_["copper"] = Color4f::kCopper;
+  font_colors_["cyan"] = Color4f::kCyan;
+  font_colors_["green"] = Color4f::kGreen;
+  font_colors_["hotpink"] = Color4f::kHotPink;
+  font_colors_["pink"] = Color4f::kPink;
+  font_colors_["purple"] = Color4f::kPurple;
+  font_colors_["red"] = Color4f::kRed;
+  font_colors_["white"] = Color4f::kWhite;
+  font_colors_["yellow"] = Color4f::kYellow;
 
   init_context();
 }
@@ -233,9 +246,19 @@ Pos5f Renderer::build_dest_pos5f(const Pos3i& pos,const Size2i& size) const {
   return Pos5f{x1,y1,x2,y2,z};
 }
 
+void Renderer::set_font_color(const std::string& name,const Color4f& color) {
+  font_colors_[name] = color;
+}
+
 const ViewDimens& Renderer::dimens() const { return dimens_; }
 
-Color4f& Renderer::clear_color() { return clear_color_; }
+const Color4f& Renderer::clear_color() const { return clear_color_; }
+
+Color4f* Renderer::font_color(const std::string& name) {
+  const auto it = font_colors_.find(name);
+
+  return (it == font_colors_.end()) ? nullptr : &it->second;
+}
 
 Renderer::TextureWrapper::TextureWrapper(Renderer& ren,const Texture& tex,const Pos4f& src)
   : ren(ren),tex(tex),src(src) {}
@@ -337,6 +360,124 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_blanks(int count) 
   return *this;
 }
 
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_fmt(
+  std::string_view fmt,std::initializer_list<std::string_view> args
+) {
+  if(fmt.empty()) { return *this; }
+
+  const auto it_end = utf8::RuneIterator::end(fmt);
+  auto args_it = args.begin();
+  std::stack<Color4f> color_stack{};
+
+  for(auto it = utf8::RuneIterator::begin(fmt); it != it_end; ++it) {
+    const auto rune = *it;
+
+    // Handles: `{{`, `{}`, `{<color> `.
+    if(rune == '{') {
+      if((++it) == it_end) {
+        print(rune);
+        break;
+      }
+
+      const auto rune2 = *it;
+
+      // Escaped: `{{`.
+      if(rune2 == '{') {
+        print(rune);
+      }
+      // Arg: `{}`.
+      // - Note that this doesn't account for "escaped" `{}}`, which should be `{{}}`.
+      else if(rune2 == '}') {
+        if(args_it != args.end()) {
+          // Instead, this could call print_fmt() or use its own stack.
+          print(*args_it);
+          ++args_it;
+        } else {
+          print(rune);
+          print(rune2);
+        }
+      }
+      // Styled text: `{<color> `.
+      else {
+        const std::size_t first_i = it.index();
+        std::size_t last_i = it.index();
+
+        do {
+          if(*it == ' ') {
+            last_i = it.index();
+            break;
+          }
+        } while((++it) != it_end);
+
+        const auto color_str = fmt.substr(first_i,last_i - first_i);
+        Color4f color = Color4f::kWhite; // Fallback color.
+
+        // RGB `0x112233` or RGBA `0x11223344`.
+        if(color_str.length() >= 2 && color_str[0] == '0' && (color_str[1] == 'x' || color_str[1] == 'X')) {
+          color = Color4f::hex(color_str,color);
+        } else {
+          const auto* color_ptr = ren.font_color(std::string{color_str});
+
+          if(color_ptr != nullptr) { color = *color_ptr; }
+        }
+
+        color_stack.push(color);
+        ren.begin_color(color);
+      }
+    }
+    // Handles: ` `, ` }}`, ` }`.
+    else if(rune == ' ') {
+      const auto peek_it2 = it + 1;
+
+      if(peek_it2 == it_end) {
+        print(rune);
+        break;
+      }
+
+      const auto rune2 = *peek_it2;
+
+      // Just a normal space.
+      if(rune2 != '}') {
+        // Process 2nd rune on next iteration.
+        print(rune);
+      } else {
+        const auto peek_it3 = peek_it2 + 1;
+        const auto rune3 = (peek_it3 == it_end) ? 0 : *peek_it3;
+
+        // Escaped: ` }}`.
+        if(rune3 == '}') {
+          print(rune);
+          print(rune2);
+
+          it = peek_it3;
+        }
+        // Styled text: ` }`.
+        else {
+          if(!color_stack.empty()) {
+            color_stack.pop();
+
+            if(!color_stack.empty()) {
+              ren.begin_color(color_stack.top());
+            } else {
+              ren.begin_color(ren.curr_color_);
+            }
+          }
+
+          it = peek_it2;
+        }
+      }
+    } else if(rune == '\n') {
+      puts();
+    } else {
+      print(rune);
+    }
+  }
+
+  ren.begin_color(ren.curr_color_);
+
+  return *this;
+}
+
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts() { return puts_blanks(1); }
 
 Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts(char32_t rune) {
@@ -352,6 +493,12 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_blanks(int count) {
   pos.y += ((rune_size.h + spacing.h) * count);
 
   return *this;
+}
+
+Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::puts_fmt(
+  std::string_view fmt,std::initializer_list<std::string_view> args
+) {
+  return print_fmt(fmt,args).puts();
 }
 
 Size2i Renderer::FontAtlasWrapper::calc_total_size(const Size2i& str_size) const {

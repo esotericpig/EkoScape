@@ -20,6 +20,7 @@
 #include "cybel/types/view_dimens.h"
 
 #include <functional>
+#include <unordered_map>
 
 namespace cybel {
 
@@ -126,10 +127,12 @@ public:
     FontAtlasWrapper& print(char32_t rune);
     FontAtlasWrapper& print(std::string_view str);
     FontAtlasWrapper& print_blanks(int count);
+    FontAtlasWrapper& print_fmt(std::string_view fmt,std::initializer_list<std::string_view> args = {});
     FontAtlasWrapper& puts();
     FontAtlasWrapper& puts(char32_t rune);
     FontAtlasWrapper& puts(std::string_view str);
     FontAtlasWrapper& puts_blanks(int count);
+    FontAtlasWrapper& puts_fmt(std::string_view fmt,std::initializer_list<std::string_view> args = {});
 
     Size2i calc_total_size(const Size2i& str_size) const;
 
@@ -216,8 +219,11 @@ public:
   virtual void compile_quad_buffer(GLuint id,int index,const QuadBufferData& data) = 0;
   virtual void draw_quad_buffer(GLuint id,int index) = 0;
 
+  void set_font_color(const std::string& name,const Color4f& color);
+
   const ViewDimens& dimens() const;
-  Color4f& clear_color();
+  const Color4f& clear_color() const;
+  Color4f* font_color(const std::string& name);
 
 protected:
   ViewDimens dimens_{};
@@ -242,6 +248,7 @@ private:
   static constexpr BlendMode kAddBlendMode{GL_ONE,GL_ONE};
 
   BlendMode curr_blend_mode_ = kDefaultBlendMode;
+  std::unordered_map<std::string,Color4f> font_colors_{};
 
   void init_context();
 

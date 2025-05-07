@@ -7,6 +7,8 @@
 
 #include "color.h"
 
+#include <charconv>
+
 namespace cybel {
 
 const Color4f Color4f::kBlack = hex(0x000000);
@@ -23,6 +25,32 @@ const Color4f Color4f::kWhite = hex(0xffffff);
 const Color4f Color4f::kYellow = hex(0xffff00);
 
 Color4f Color4f::hex(std::uint32_t rgb,std::uint8_t a) noexcept { return Color4f{}.set_hex(rgb,a); }
+
+Color4f Color4f::hex(std::string_view str,const Color4f& fallback) {
+  if(str.length() >= 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
+    str.remove_prefix(2);
+  }
+
+  if(str.empty()) { return fallback; }
+
+  // RGBA: `11223344`.
+  if(str.length() >= 8) {
+    std::uint64_t rgba = 0;
+    const auto err = std::from_chars(str.data(),str.data() + str.size(),rgba,16).ec;
+
+    if(err != std::errc{}) { return fallback; }
+
+    return hex(static_cast<std::uint32_t>((rgba >> 8) & 0xffffff),static_cast<std::uint8_t>(rgba & 0xff));
+  }
+
+  // RGB: `112233`.
+  std::uint32_t rgb = 0;
+  const auto err = std::from_chars(str.data(),str.data() + str.size(),rgb,16).ec;
+
+  if(err != std::errc{}) { return fallback; }
+
+  return hex(rgb & 0xffffff);
+}
 
 Color4f Color4f::bytes(std::uint8_t rgb,std::uint8_t a) noexcept { return Color4f{}.set_bytes(rgb,a); }
 

@@ -36,6 +36,7 @@ public:
   float a = 1.0f;
 
   static Color4f hex(std::uint32_t rgb,std::uint8_t a = 255) noexcept;
+  static Color4f hex(std::string_view str,const Color4f& fallback = kWhite);
   static Color4f bytes(std::uint8_t rgb,std::uint8_t a = 255) noexcept;
   static Color4f bytes(std::uint8_t r,std::uint8_t g,std::uint8_t b,std::uint8_t a = 255) noexcept;
 
