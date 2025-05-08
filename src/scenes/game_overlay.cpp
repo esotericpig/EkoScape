@@ -178,7 +178,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
   });
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{460,460,0},0.60f,[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{445,450,0},0.60f,[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.font_color.a *= game_over_age_;
 
@@ -214,7 +214,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     }
   });
 
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{580,perfect ? 790 : 690,0},[&](auto& font) {
+  ctx_.assets.font_renderer().wrap(ren,Pos3i{565,perfect ? 780 : 680,0},[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())});
     font.font_color.a *= game_over_age_;
