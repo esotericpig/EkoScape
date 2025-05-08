@@ -64,12 +64,12 @@ Map& Map::clear_grids() {
 }
 
 Map& Map::load_file(const std::filesystem::path& file,const SpaceCallback& on_space,
-                    const DefaultEmptyCallback& on_def_empty,bool meta_only) {
+                    const DefaultEmptyCallback& on_default_empty,bool meta_only) {
   TextReader reader{file};
 
   load_metadata(reader,file.string());
   if(meta_only) { return *this; }
-  load_grids(reader,on_space,on_def_empty,file.string());
+  load_grids(reader,on_space,on_default_empty,file.string());
 
   return *this;
 }
@@ -130,7 +130,7 @@ void Map::load_metadata(TextReader& reader,std::string_view file) {
 }
 
 void Map::load_grids(TextReader& reader,const SpaceCallback& on_space,
-                     const DefaultEmptyCallback& on_def_empty,std::string_view file) {
+                     const DefaultEmptyCallback& on_default_empty,std::string_view file) {
   std::string line{};
   std::vector<std::string> lines{};
   Size2i size{};
@@ -165,7 +165,7 @@ void Map::load_grids(TextReader& reader,const SpaceCallback& on_space,
       }
 
       return type;
-    },on_def_empty,file);
+    },on_default_empty,file);
   }
 
   shrink_grids_to_fit();
@@ -194,12 +194,12 @@ Map& Map::load_file_meta(const std::filesystem::path& file) {
 }
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,const SpaceCallback& on_space,
-                     const DefaultEmptyCallback& on_def_empty) {
-  return parse_grid(lines,Size2i{},on_space,on_def_empty);
+                     const DefaultEmptyCallback& on_default_empty) {
+  return parse_grid(lines,Size2i{},on_space,on_default_empty);
 }
 
 Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const SpaceCallback& on_space,
-                     const DefaultEmptyCallback& on_def_empty,std::string_view file) {
+                     const DefaultEmptyCallback& on_default_empty,std::string_view file) {
   if(file.empty()) { file = title_; }
 
   if(grids_.size() >= Dantares2::MAXMAPS) {
@@ -256,12 +256,12 @@ Map& Map::parse_grid(const std::vector<std::string>& lines,Size2i size,const Spa
           player_init_facing_ = SpaceTypes::to_player_facing(type);
           has_player = true;
 
-          if(on_def_empty) { on_def_empty(dan_pos,empty_type); }
+          if(on_default_empty) { on_default_empty(dan_pos,empty_type); }
         } else if(SpaceTypes::is_thing(type)) {
           empty_type = default_empty_;
           thing_type = type;
 
-          if(on_def_empty) { on_def_empty(dan_pos,empty_type); }
+          if(on_default_empty) { on_default_empty(dan_pos,empty_type); }
         } else {
           empty_type = type;
         }
