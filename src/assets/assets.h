@@ -47,6 +47,7 @@ public:
   void on_context_restored();
 
   void reload_gfx();
+  void reload_gfx(bool make_weird);
   void reload_audio();
   void make_weird();
 
@@ -145,7 +146,6 @@ private:
   using AssetMan::sprite_ref;
   using AssetMan::font_atlas_ref;
 
-  void reload_gfx(bool make_weird);
   void reload_gfx(std::string_view tex_style,bool make_weird);
   void reload_styled_texs_bag(std::string_view tex_style);
   void check_gfx();

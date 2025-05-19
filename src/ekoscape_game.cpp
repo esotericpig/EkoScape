@@ -276,7 +276,7 @@ void EkoScapeGame::on_scene_input_event(input_id_t input_id,const ViewDimens& /*
     case InputAction::kRefresh:
       // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
       //     else it'll be all white due to not re-generating the map.
-      if(SceneActions::is_menu(scene_man_->curr_scene_type())) { assets_->reload_gfx(); }
+      if(SceneActions::is_menu(scene_man_->curr_scene_type())) { assets_->reload_gfx(false); }
       break;
 
     case InputAction::kToggleFps:
