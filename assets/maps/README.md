@@ -10,9 +10,10 @@ For making the Map Grids, it's recommended to use one of these visual/drawing ed
 
 ## Submitting Your Map Files ##
 
-You can submit your Map files [here on GitHub Discussions](https://github.com/esotericpig/EkoScape/discussions/1) or as an [Issue](https://github.com/esotericpig/EkoScape/issues) to have them included in the next version! Or to simply share them for others to try.
-
-Alternatively, you can just copy & paste them into a comment on [itch.io](https://esotericpig.itch.io/ekoscape) using a Markdown code block (backticks).
+To have your maps included in the next version of EkoScape (or to simply share them for others to try), submit them by either:
+- Posting a comment on the [EkoScape itch.io page](https://esotericpig.itch.io/ekoscape) (can use Markdown backticks).
+- Or by replying to [this GitHub Discussion](https://github.com/esotericpig/EkoScape/discussions/1).
+- Or by creating a [GitHub Issue](https://github.com/esotericpig/EkoScape/issues).
 
 ## Example Map Rundown ##
 

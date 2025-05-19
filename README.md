@@ -69,6 +69,7 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
   - [CMake for Web](#cmake-for-web)
   - [Misc. for Web](#misc-for-web)
 - [Releasing](#releasing)
+  - [Maps README](#maps-readme)
   - [New Release](#new-release)
   - [Publishing](#publishing)
 - [Credits](#credits)
@@ -286,6 +287,23 @@ emrun --no-browser bin_web/Release
 Both [scripts/dev.rb](scripts/dev.rb) and [scripts/artifacts.rb](scripts/artifacts.rb) have Web options, if you use those scripts.
 
 ## Releasing ##
+
+### Maps README ###
+
+Install the Python app [gh-md-to-html](https://github.com/phseiff/github-flavored-markdown-to-html):
+
+```bash
+pip install gh-md-to-html
+```
+
+Convert the README to HTML:
+
+```bash
+cd assets/maps
+gh-md-to-html -t file -w '' -i '' -c '' -e '' -b 933px -n README2 README.md
+```
+
+Diff, merge, commit, and push.
 
 ### New Release ###
 
