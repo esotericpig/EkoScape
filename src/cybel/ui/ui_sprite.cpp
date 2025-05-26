@@ -10,16 +10,13 @@
 namespace cybel {
 
 UiSprite::UiSprite(const SpriteRef& sprite_ref) noexcept
-  : sprite_ref_(sprite_ref) {}
+  : sprite_ref(sprite_ref) {}
 
 void UiSprite::draw(Renderer& ren) {
-  const auto* sprite = sprite_ref_.get();
-
+  const auto* sprite = sprite_ref.get();
   if(sprite == nullptr) { return; }
 
   ren.wrap_sprite(*sprite,[&](auto& t) { t.draw_quad(pos_,size_); });
 }
-
-void UiSprite::set_sprite(const SpriteRef& sprite_ref) { sprite_ref_ = sprite_ref; }
 
 } // namespace cybel

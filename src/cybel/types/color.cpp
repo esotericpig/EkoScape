@@ -11,6 +11,7 @@
 
 namespace cybel {
 
+const Color4f Color4f::kNone{0.0f,0.0f};
 const Color4f Color4f::kBlack = hex(0x000000);
 const Color4f Color4f::kBlue = hex(0x0000ff);
 const Color4f Color4f::kBrown = hex(0x964b00);

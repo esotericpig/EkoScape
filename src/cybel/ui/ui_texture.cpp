@@ -10,16 +10,13 @@
 namespace cybel {
 
 UiTexture::UiTexture(const TextureRef& tex_ref) noexcept
-  : tex_ref_(tex_ref) {}
+  : tex_ref(tex_ref) {}
 
 void UiTexture::draw(Renderer& ren) {
-  const auto* tex = tex_ref_.get();
-
+  const auto* tex = tex_ref.get();
   if(tex == nullptr) { return; }
 
   ren.wrap_tex(*tex,[&](auto& t) { t.draw_quad(pos_,size_); });
 }
-
-void UiTexture::set_tex(const TextureRef& tex_ref) { tex_ref_ = tex_ref; }
 
 } // namespace cybel

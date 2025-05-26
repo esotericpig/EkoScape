@@ -20,14 +20,12 @@ namespace cybel {
  */
 class UiQuad : public UiBoxNode {
 public:
+  Color4f color{};
+
+  explicit UiQuad() noexcept = default;
   explicit UiQuad(const Color4f& color) noexcept;
 
   void draw(Renderer& ren) override;
-
-  void set_color(const Color4f& color);
-
-private:
-  Color4f color_{};
 };
 
 } // namespace cybel

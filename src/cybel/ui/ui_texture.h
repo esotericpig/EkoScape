@@ -17,14 +17,11 @@ namespace cybel {
 
 class UiTexture : public UiBoxNode {
 public:
+  TextureRef tex_ref;
+
   explicit UiTexture(const TextureRef& tex_ref) noexcept;
 
   void draw(Renderer& ren) override;
-
-  void set_tex(const TextureRef& tex_ref);
-
-private:
-  TextureRef tex_ref_;
 };
 
 } // namespace cybel

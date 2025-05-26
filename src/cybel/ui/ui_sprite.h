@@ -17,14 +17,11 @@ namespace cybel {
 
 class UiSprite : public UiBoxNode {
 public:
+  SpriteRef sprite_ref;
+
   explicit UiSprite(const SpriteRef& sprite_ref) noexcept;
 
   void draw(Renderer& ren) override;
-
-  void set_sprite(const SpriteRef& sprite_ref);
-
-private:
-  SpriteRef sprite_ref_;
 };
 
 } // namespace cybel

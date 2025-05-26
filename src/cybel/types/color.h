@@ -17,6 +17,7 @@ namespace cybel {
  */
 class Color4f {
 public:
+  static const Color4f kNone;
   static const Color4f kBlack;
   static const Color4f kBlue;
   static const Color4f kBrown;

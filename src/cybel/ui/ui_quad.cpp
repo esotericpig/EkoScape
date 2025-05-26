@@ -10,12 +10,10 @@
 namespace cybel {
 
 UiQuad::UiQuad(const Color4f& color) noexcept
-  : color_(color) {}
+  : color(color) {}
 
 void UiQuad::draw(Renderer& ren) {
-  ren.wrap_color(color_,[&] { ren.draw_quad(pos_,size_); });
+  ren.wrap_color(color,[&] { ren.draw_quad(pos_,size_); });
 }
-
-void UiQuad::set_color(const Color4f& color) { color_ = color; }
 
 } // namespace cybel
