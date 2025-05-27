@@ -350,7 +350,7 @@ bool InputMan::emit_fake_joypad_events(const SDL_Event& event) {
     // Up.
     case SDL_SCANCODE_KP_8:
       axis = is_fake_joypad_game_ctrl_ ? SDL_CONTROLLER_AXIS_LEFTY : 1;
-      axis_value = -axis_value;
+      axis_value = static_cast<Sint16>(-axis_value);
       hat_value = SDL_HAT_UP;
       dpad = SDL_CONTROLLER_BUTTON_DPAD_UP;
       break;
@@ -365,7 +365,7 @@ bool InputMan::emit_fake_joypad_events(const SDL_Event& event) {
     // Left.
     case SDL_SCANCODE_KP_4:
       axis = is_fake_joypad_game_ctrl_ ? SDL_CONTROLLER_AXIS_LEFTX : 0;
-      axis_value = -axis_value;
+      axis_value = static_cast<Sint16>(-axis_value);
       hat_value = SDL_HAT_LEFT;
       dpad = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
       break;
