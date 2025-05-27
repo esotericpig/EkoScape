@@ -17,10 +17,10 @@ namespace ekoscape {
 GameOverlay::Option::Option(OptionType type,std::string_view text)
   : type(type),text(text) {}
 
-GameOverlay::GameOverlay(GameContext& ctx,const State& state)
-  : state(state),ctx_(ctx) {
-  const std::string& title = this->state.map.title();
-  const std::string author = "  by " + this->state.map.author();
+GameOverlay::GameOverlay(GameContext& ctx,const Map& map)
+  : ctx_(ctx),map_(map) {
+  const std::string& title = map_.title();
+  const std::string author = "  by " + map_.author();
 
   map_info_ = title + "\n" + author;
   map_info_str_size_.w = static_cast<int>(
@@ -40,32 +40,40 @@ void GameOverlay::fade_to(const Color4f& color) {
   fade_age_ = 0.0f;
 }
 
-void GameOverlay::game_over() {
+void GameOverlay::game_over(bool player_hit_end) {
+  state_.player_hit_end = player_hit_end;
+
   if(game_over_age_ >= 0.0f) { return; }
 
-  const bool perfect = (state.map.total_rescues() >= state.map.total_cells()) && state.player_hit_end;
+  const bool perfect = (map_.total_rescues() >= map_.total_cells()) && state_.player_hit_end;
 
   game_over_age_ = 0.0f;
   game_over_opt_index_ = 0;
 
   if(!perfect) {
     game_over_opts_.emplace_back(OptionType::kPlayAgain,"play again");
-    if(state.player_hit_end) { game_over_opt_index_ = 1; } // Auto-select 'go back'.
+    if(state_.player_hit_end) { game_over_opt_index_ = 1; } // Auto-select 'go back'.
   }
 
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
-int GameOverlay::on_input_event(input_id_t input_id) {
-  if(game_over_opts_.empty()) { return SceneAction::kNil; }
+void GameOverlay::update_state(const State& state) { state_ = state; }
+
+void GameOverlay::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
+  if(game_over_opts_.empty()) { return; }
 
   const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
 
   switch(input_id) {
     case InputAction::kSelect:
       switch(sel_opt.type) {
-        case OptionType::kPlayAgain: return SceneAction::kRestart;
-        case OptionType::kGoBack: return SceneAction::kGoBack;
+        case OptionType::kPlayAgain:
+          scene_action_ = SceneAction::kRestart;
+          break;
+        case OptionType::kGoBack:
+          scene_action_ = SceneAction::kGoBack;
+          break;
       }
       break;
 
@@ -85,11 +93,13 @@ int GameOverlay::on_input_event(input_id_t input_id) {
       }
       break;
   }
-
-  return SceneAction::kNil;
 }
 
-void GameOverlay::update(const FrameStep& step) {
+int GameOverlay::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
+  if(scene_action_ != SceneAction::kNil) {
+    return std::exchange(scene_action_,SceneAction::kNil);
+  }
+
   if(flash_age_ >= 0.0f) {
     flash_age_ += (static_cast<float>(step.delta_time / kFlashDuration.secs()) * flash_age_dir_);
 
@@ -105,24 +115,26 @@ void GameOverlay::update(const FrameStep& step) {
     fade_age_ += static_cast<float>(step.delta_time / kFadeDuration.secs());
     if(fade_age_ > 1.0f) { fade_age_ = 1.0f; }
   }
-}
 
-void GameOverlay::update_game_over(const FrameStep& step,const ViewDimens& dimens) {
-  if(game_over_age_ < 1.0f) {
-    game_over_age_ += static_cast<float>(step.delta_time / kGameOverDuration.secs());
-    if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
-  }
+  if(game_over_age_ >= 0.0f) {
+    if(game_over_age_ < 1.0f) {
+      game_over_age_ += static_cast<float>(step.delta_time / kGameOverDuration.secs());
+      if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
+    }
 
-  if(state.player_hit_end) {
-    if(star_sys_.is_empty()) {
-      star_sys_.init(dimens,true);
-    } else {
-      star_sys_.update(step);
+    if(state_.player_hit_end) {
+      if(star_sys_.is_empty()) {
+        star_sys_.init(dimens,true);
+      } else {
+        star_sys_.update(step);
+      }
     }
   }
+
+  return SceneAction::kNil;
 }
 
-void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
+void GameOverlay::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   if(flash_age_ >= 0.0f) {
     flash_color_.a = kAlpha * flash_age_;
 
@@ -137,9 +149,14 @@ void GameOverlay::draw(Renderer& ren,const ViewDimens& dimens) {
       ren.draw_quad(Pos3i{0,0,0},dimens.size);
     });
   }
+
+  draw_map_info(ren);
+  draw_game_over(ren);
 }
 
 void GameOverlay::draw_map_info(Renderer& ren) {
+  if(!state_.is_map_info) { return; }
+
   ren.begin_auto_center_scale();
 
   ctx_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
@@ -163,17 +180,20 @@ void GameOverlay::draw_map_info(Renderer& ren) {
 }
 
 void GameOverlay::draw_game_over(Renderer& ren) {
+  if(game_over_age_ < 0.0f) { return; }
+
   ren.begin_auto_center_scale();
 
   const auto bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);
-  const int total_rescues = state.map.total_rescues();
-  const int total_cells = state.map.total_cells();
+  const int total_rescues = map_.total_rescues();
+  const int total_cells = map_.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
-  const bool perfect = freed_all && state.player_hit_end;
-  const auto* game_over = ctx_.assets.sprite(state.player_hit_end ? SpriteId::kCorngrits
-                                                                  : SpriteId::kGoodnight);
+  const bool perfect = freed_all && state_.player_hit_end;
+  const auto* game_over_sprite = ctx_.assets.sprite(
+    state_.player_hit_end ? SpriteId::kCorngrits : SpriteId::kGoodnight
+  );
 
-  ren.wrap_sprite(*game_over,[&](auto& s) {
+  ren.wrap_sprite(*game_over_sprite,[&](auto& s) {
     ren.wrap_color(Color4f{1.0f,game_over_age_},[&] {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
@@ -187,7 +207,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     const auto goal_color = ctx_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
     font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2});
-    font.puts(state.player_hit_end ? "Congrats!" : "You're dead!");
+    font.puts(state_.player_hit_end ? "Congrats!" : "You're dead!");
 
     font.print("You freed ");
     font.font_color = freed_all ? goal_color : miss_color;

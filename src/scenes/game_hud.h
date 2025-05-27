@@ -10,38 +10,35 @@
 
 #include "common.h"
 
-#include "cybel/gfx/renderer.h"
+#include "cybel/scene/scene.h"
 #include "cybel/types/color.h"
 #include "cybel/types/duration.h"
-#include "cybel/types/frame_step.h"
 #include "cybel/types/pos.h"
 #include "cybel/types/size.h"
-#include "cybel/types/view_dimens.h"
 
 #include "core/game_context.h"
 #include "map/map.h"
 
 namespace ekoscape {
 
-class GameHud {
+class GameHud : public Scene {
 public:
   struct State {
-    const Map& map;
-    const bool& show_mini_map;
-    const Duration& player_fruit_time;
-    const bool& player_hit_end;
+    bool show_mini_map = false;
+    Duration player_fruit_time{};
+    bool player_hit_end = false;
 
     bool is_game_over = false;
     Duration speedrun_time{};
-    const bool& show_speedrun;
+    bool show_speedrun = false;
   };
 
-  State state;
+  explicit GameHud(GameContext& ctx,const Map& map);
 
-  explicit GameHud(GameContext& ctx,const State& state);
+  void update_state(const State& state);
 
-  void update(const FrameStep& step);
-  void draw(Renderer& ren,const ViewDimens& dimens);
+  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
+  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
 private:
   static constexpr float kTextScale = 0.33f;
@@ -56,6 +53,8 @@ private:
   };
 
   GameContext& ctx_;
+  const Map& map_;
+  State state_{};
 
   Color4f mini_map_eko_color_{}; // Cell & Player.
   Color4f mini_map_end_color_{};

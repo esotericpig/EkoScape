@@ -29,7 +29,7 @@ private:
   using timestamp_t = Uint64;
 
   timestamp_t start_time_{};
-  bool is_paused_ = false;
+  bool is_paused_ = true;
   timestamp_t raw_duration_{};
   Duration duration_{};
 

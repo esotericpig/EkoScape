@@ -10,45 +10,38 @@
 
 #include "common.h"
 
-#include "cybel/gfx/renderer.h"
-#include "cybel/input/input_types.h"
+#include "cybel/scene/scene.h"
 #include "cybel/types/color.h"
 #include "cybel/types/duration.h"
-#include "cybel/types/frame_step.h"
 #include "cybel/types/size.h"
-#include "cybel/types/view_dimens.h"
 
 #include "core/game_context.h"
 #include "map/map.h"
+#include "scenes/scene_action.h"
 #include "world/star_sys.h"
 
 #include <vector>
 
 namespace ekoscape {
 
-class GameOverlay {
+class GameOverlay : public Scene {
 public:
   struct State {
-    const Map& map;
-    const bool& player_hit_end;
+    bool is_map_info = true;
+    bool player_hit_end = false;
   };
 
-  State state;
-
-  explicit GameOverlay(GameContext& ctx,const State& state);
+  explicit GameOverlay(GameContext& ctx,const Map& map);
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
-  void game_over();
+  void game_over(bool player_hit_end);
 
-  int on_input_event(input_id_t input_id);
+  void update_state(const State& state);
 
-  void update(const FrameStep& step);
-  void update_game_over(const FrameStep& step,const ViewDimens& dimens);
-
-  void draw(Renderer& ren,const ViewDimens& dimens);
-  void draw_map_info(Renderer& ren);
-  void draw_game_over(Renderer& ren);
+  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
+  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
+  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
   float game_over_age() const;
 
@@ -75,6 +68,9 @@ private:
   static inline const Duration kGameOverDuration = Duration::from_millis(3'000);
 
   GameContext& ctx_;
+  const Map& map_;
+  State state_{};
+  int scene_action_ = SceneAction::kNil;
 
   std::string map_info_{};
   Size2i map_info_str_size_{};
@@ -87,6 +83,9 @@ private:
   std::vector<Option> game_over_opts_{};
   std::size_t game_over_opt_index_ = 0;
   StarSys star_sys_{};
+
+  void draw_map_info(Renderer& ren);
+  void draw_game_over(Renderer& ren);
 };
 
 } // namespace ekoscape

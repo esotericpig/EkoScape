@@ -37,17 +37,8 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
   // Extra delay to give some time for the Player to initially orient/adjust.
   robot_move_time_ = map_->robot_delay() + kInitExtraRobotDelay;
 
-  hud_ = std::make_unique<GameHud>(ctx,GameHud::State{
-    .map = *map_,
-    .show_mini_map = state_.show_mini_map,
-    .player_fruit_time = player_fruit_time_,
-    .player_hit_end = player_hit_end_,
-    .show_speedrun = state.show_speedrun,
-  });
-  overlay_ = std::make_unique<GameOverlay>(ctx,GameOverlay::State{
-    .map = *map_,
-    .player_hit_end = player_hit_end_,
-  });
+  hud_ = std::make_unique<GameHud>(ctx,*map_);
+  overlay_ = std::make_unique<GameOverlay>(ctx,*map_);
 }
 
 void GameScene::init_map(const std::filesystem::path& map_file) {
@@ -183,7 +174,8 @@ void GameScene::init_scene(const ViewDimens& /*dimens*/) {
       speedrun_timer_.resume();
       break;
 
-    default: break;
+    case GamePhase::kGameOver:
+      break;
   }
 }
 
@@ -197,7 +189,8 @@ void GameScene::on_scene_exit() {
       speedrun_timer_.pause();
       break;
 
-    default: break;
+    case GamePhase::kGameOver:
+      break;
   }
 }
 
@@ -210,7 +203,7 @@ void GameScene::on_scene_context_restored() {
   }
 }
 
-void GameScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
+void GameScene::on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) {
   switch(input_id) {
     case InputAction::kToggleMiniMap:
       state_.show_mini_map = !state_.show_mini_map;
@@ -222,10 +215,10 @@ void GameScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dim
         state_.show_speedrun = !state_.show_speedrun;
       }
       break;
-  }
 
-  if(scene_action_ == SceneAction::kNil) {
-    scene_action_ = overlay_->on_input_event(input_id);
+    default:
+      overlay_->on_scene_input_event(input_id,dimens);
+      break;
   }
 }
 
@@ -287,33 +280,17 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens
 
   dantares_->UpdateDeltaTime(static_cast<float>(step.delta_time));
 
-  switch(game_phase_) {
-    case GamePhase::kShowMapInfo:
-      // Still paused showing the Map Info?
-      if(map_info_timer_.peek() < kMapInfoDuration) { return SceneAction::kNil; }
-
-      game_phase_ = GamePhase::kPlay;
-      robot_move_time_ += step.dpf;
-      speedrun_timer_.start();
-      break;
-
-    case GamePhase::kPlay:
-      break;
-
-    case GamePhase::kGameOver:
-      overlay_->update_game_over(step,dimens);
-      break;
+  if(game_phase_ == GamePhase::kShowMapInfo && map_info_timer_.peek() >= kMapInfoDuration) {
+    game_phase_ = GamePhase::kPlay;
+    robot_move_time_ += step.dpf;
+    speedrun_timer_.start();
+  }
+  if(game_phase_ != GamePhase::kShowMapInfo) {
+    update_player(step);
+    update_robots(step);
   }
 
-  hud_->state.speedrun_time = speedrun_timer_.peek();
-  hud_->update(step);
-  overlay_->update(step);
-
-  update_player(step);
-  update_robots(step);
-  move_robots(step);
-
-  return SceneAction::kNil;
+  return update_mods(step,dimens);
 }
 
 void GameScene::update_player(const FrameStep& step) {
@@ -404,12 +381,10 @@ void GameScene::update_player(const FrameStep& step) {
   }
 }
 
-void GameScene::game_over(bool hit_end) {
-  hud_->state.speedrun_time = speedrun_timer_.pause();
-  hud_->state.is_game_over = true;
-
+void GameScene::game_over(bool player_hit_end) {
+  speedrun_timer_.pause();
   game_phase_ = GamePhase::kGameOver;
-  player_hit_end_ = hit_end;
+  player_hit_end_ = player_hit_end;
 
   // Because of how high speeds are handled, we need to manually sync the correct Player pos,
   //     since the pos might be beyond End, etc. after fully moving.
@@ -417,7 +392,7 @@ void GameScene::game_over(bool hit_end) {
 
   // Fade to death?
   if(!player_hit_end_) { overlay_->fade_to(ctx_.assets.eko_color()); }
-  overlay_->game_over();
+  overlay_->game_over(player_hit_end_);
 }
 
 void GameScene::update_robots(const FrameStep& step) {
@@ -432,6 +407,8 @@ void GameScene::update_robots(const FrameStep& step) {
     return false;
   });
   robots_.erase(dead_robots.begin(),dead_robots.end());
+
+  move_robots(step);
 }
 
 void GameScene::move_robots(const FrameStep& step) {
@@ -498,6 +475,31 @@ std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType port
   return std::nullopt;
 }
 
+int GameScene::update_mods(const FrameStep& step,const ViewDimens& dimens) {
+  hud_->update_state(GameHud::State{
+    .show_mini_map = state_.show_mini_map,
+    .player_fruit_time = player_fruit_time_,
+    .player_hit_end = player_hit_end_,
+
+    .is_game_over = (game_phase_ == GamePhase::kGameOver),
+    .speedrun_time = speedrun_timer_.peek(),
+    .show_speedrun = state_.show_speedrun,
+  });
+  overlay_->update_state(GameOverlay::State{
+    .is_map_info = (game_phase_ == GamePhase::kShowMapInfo),
+    .player_hit_end = player_hit_end_,
+  });
+
+  if((scene_action_ = hud_->update_scene_logic(step,dimens)) != SceneAction::kNil) {
+    return std::exchange(scene_action_,SceneAction::kNil);
+  }
+  if((scene_action_ = overlay_->update_scene_logic(step,dimens)) != SceneAction::kNil) {
+    return std::exchange(scene_action_,SceneAction::kNil);
+  }
+
+  return SceneAction::kNil;
+}
+
 void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_3d_scene();
 
@@ -511,21 +513,8 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   }
 
   ren.begin_2d_scene();
-  hud_->draw(ren,dimens);
-  overlay_->draw(ren,dimens);
-
-  switch(game_phase_) {
-    case GamePhase::kShowMapInfo:
-      overlay_->draw_map_info(ren);
-      break;
-
-    case GamePhase::kPlay:
-      break;
-
-    case GamePhase::kGameOver:
-      overlay_->draw_game_over(ren);
-      break;
-  }
+  hud_->draw_scene(ren,dimens);
+  overlay_->draw_scene(ren,dimens);
 }
 
 // ReSharper disable once CppDFAUnreachableFunctionCall

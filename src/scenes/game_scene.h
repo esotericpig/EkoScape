@@ -104,12 +104,14 @@ private:
   void init_map_texs();
 
   void update_player(const FrameStep& step);
-  void game_over(bool hit_end);
+  void game_over(bool player_hit_end);
 
   void update_robots(const FrameStep& step);
   void move_robots(const FrameStep& step);
   void remove_robots_at(const Pos3i& pos);
   std::optional<Pos3i> fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
+
+  int update_mods(const FrameStep& step,const ViewDimens& dimens);
 
   void set_space_texs(SpaceType type,const Texture* tex);
   void set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);

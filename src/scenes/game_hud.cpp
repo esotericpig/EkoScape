@@ -7,12 +7,14 @@
 
 #include "game_hud.h"
 
+#include "scenes/scene_action.h"
+
 #include <sstream>
 
 namespace ekoscape {
 
-GameHud::GameHud(GameContext& ctx,const State& state)
-  : state(state),ctx_(ctx) {
+GameHud::GameHud(GameContext& ctx,const Map& map)
+  : ctx_(ctx),map_(map) {
   mini_map_eko_color_ = ctx_.assets.eko_color().with_a(kAlpha);
   mini_map_end_color_ = ctx_.assets.end_color().with_a(kAlpha);
   mini_map_fruit_color_ = ctx_.assets.fruit_color().with_a(kAlpha);
@@ -24,19 +26,23 @@ GameHud::GameHud(GameContext& ctx,const State& state)
   update_speedrun_time_str();
 }
 
-void GameHud::update(const FrameStep& step) {
+void GameHud::update_state(const State& state) { state_ = state; }
+
+int GameHud::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
   // Update the speedrun time str on Game Over or at an interval.
-  if(state.speedrun_time != last_speedrun_time_ &&
-     (state.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
+  if(state_.speedrun_time != last_speedrun_time_ &&
+     (state_.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
     last_updated_speedrun_time_.set_to_zero();
-    last_speedrun_time_ = state.speedrun_time;
+    last_speedrun_time_ = state_.speedrun_time;
     update_speedrun_time_str();
   }
+
+  return SceneAction::kNil;
 }
 
 void GameHud::update_speedrun_time_str() {
   // Round to a precision of 2.
-  const auto total_secs = std::round(state.speedrun_time.secs() * 100.0) / 100.0;
+  const auto total_secs = std::round(state_.speedrun_time.secs() * 100.0) / 100.0;
   const auto total_whole_secs = static_cast<int>(total_secs);
 
   const auto whole_millis = static_cast<int>((total_secs - total_whole_secs) * 100.0);
@@ -59,17 +65,17 @@ void GameHud::update_speedrun_time_str() {
   speedrun_time_str_ = buffer.str();
 }
 
-void GameHud::draw(Renderer& ren,const ViewDimens& dimens) {
+void GameHud::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   draw_map_mod(ren,dimens);
 
   // Always show the speedrun time on Game Over.
-  if(state.show_speedrun || state.is_game_over) { draw_speedrun_mod(ren,dimens); }
+  if(state_.show_speedrun || state_.is_game_over) { draw_speedrun_mod(ren,dimens); }
 }
 
 void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_auto_anchor_scale(Pos2f{0.0f,1.0f}); // Anchor to bottom left.
 
-  const int total_h = kMiniMapBlockSize.h + (state.show_mini_map ? kMiniMapSize.h : 0);
+  const int total_h = kMiniMapBlockSize.h + (state_.show_mini_map ? kMiniMapSize.h : 0);
   const Pos3i pos{0,dimens.target_size.h - total_h,0};
 
   ren.wrap_color(mini_map_walkable_color_,[&] {
@@ -79,17 +85,17 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     const Color4f font_color = font.font_color;
 
     font.print();
-    font.font_color = (state.map.total_rescues() < state.map.total_cells())
+    font.font_color = (map_.total_rescues() < map_.total_cells())
                       ? mini_map_eko_color_ : mini_map_end_color_;
-    font.print(std::to_string(state.map.total_rescues()));
+    font.print(std::to_string(map_.total_rescues()));
     font.font_color = font_color;
-    font.print(Util::build_str('/',state.map.total_cells()," ekos"));
+    font.print(Util::build_str('/',map_.total_cells()," ekos"));
   });
-  if(state.player_fruit_time > Duration::kZero) {
+  if(state_.player_fruit_time > Duration::kZero) {
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w,pos.y,pos.z};
 
     ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
-      const auto fruit_text = std::to_string(state.player_fruit_time.round_secs());
+      const auto fruit_text = std::to_string(state_.player_fruit_time.round_secs());
 
       font.set_bg_padding(Size2i{5,0});
       font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1});
@@ -98,7 +104,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     });
   }
 
-  if(state.show_mini_map) { draw_mini_map(ren,pos); }
+  if(state_.show_mini_map) { draw_mini_map(ren,pos); }
 
   ren.end_scale();
 }
@@ -106,7 +112,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
 void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
   pos.y += kMiniMapBlockSize.h;
 
-  const Pos3i player_pos = state.map.player_pos();
+  const Pos3i player_pos = map_.player_pos();
   Pos3i block_pos = pos;
 
   for(int y = -kMiniMapHoodRadius.h; y <= kMiniMapHoodRadius.h; ++y,block_pos.y += kMiniMapBlockSize.h) {
@@ -115,7 +121,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
 
       // "Rotate" the mini map according to the direction the player is facing.
       // - Remember that the grid is flipped vertically in Map for the Y calculations.
-      switch(state.map.player_facing()) {
+      switch(map_.player_facing()) {
         case Facing::kNorth:
           map_pos.x += x;
           map_pos.y -= y;
@@ -137,7 +143,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
           break;
       }
 
-      const Space* space = state.map.space(map_pos);
+      const Space* space = map_.space(map_pos);
       const SpaceType type = (space != nullptr) ? space->type() : SpaceType::kNil;
       const Color4f* color = &mini_map_walkable_color_;
 
@@ -168,7 +174,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
       ren.begin_color(*color);
       ren.draw_quad(block_pos,kMiniMapBlockSize);
 
-      if(!state.player_hit_end && (x == 0 && y == 0)) { // Player block?
+      if(!state_.player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
         ren.wrap_font_atlas(
           ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0},
