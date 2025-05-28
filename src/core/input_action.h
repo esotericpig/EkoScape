@@ -38,6 +38,7 @@ namespace InputAction {
     kRefresh,
     kMakeWeird,
     kToggleFps,
+    kToggleFrozen,
 
     kMax
   };

@@ -503,13 +503,15 @@ int GameScene::update_mods(const FrameStep& step,const ViewDimens& dimens) {
 void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_3d_scene();
 
+  const bool move_player = ctx_.cybel_engine.is_logic_running();
+
   if(player_hit_end_) {
     // Even if fully transparent, continue to draw so that the Player can turn the mini map (just for fun).
     ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_->game_over_age()),[&] {
-      dantares_->Draw(kDantaresDist);
+      dantares_->Draw(kDantaresDist,move_player);
     });
   } else {
-    dantares_->Draw(kDantaresDist);
+    dantares_->Draw(kDantaresDist,move_player);
   }
 
   ren.begin_2d_scene();

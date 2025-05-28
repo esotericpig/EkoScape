@@ -115,11 +115,13 @@ public:
   void set_fullscreen(bool fullscreen,bool windowed = true);
   void set_cursor_visible(bool visible);
   void set_vsync(bool enable);
+  void set_logic_running(bool running);
 
   const std::string& title() const;
   bool is_fullscreen() const;
   bool is_cursor_visible() const;
   bool is_vsync() const;
+  bool is_logic_running() const;
 
   Renderer& renderer() const;
   const ViewDimens& dimens() const;
@@ -152,6 +154,7 @@ private:
   InputMan::OnInputEvent on_input_event_ = [&](input_id_t id) { handle_input_event(id); };
 
   bool is_running_ = false;
+  bool is_logic_running_ = true;
   Timer frame_timer_{};
   FrameStep frame_step_{};
 

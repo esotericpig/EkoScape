@@ -225,9 +225,10 @@ cmake --build --preset default --config Release --target package
 
 ### Miscellaneous ###
 
-While playing the game, press `F3` to see the FPS in the top left corner. The game is capped at 60 FPS.
-
-There are various scripts in the [scripts/](scripts/) folder for development, but not necessary, just for convenience.
+- Press the `R` key to refresh the graphics/maps. It also un-weirds the graphics.
+- Press the `F3` key to toggle the FPS in the top left corner. The game is capped at 60 FPS.
+- Press `Ctrl+F6` to toggle freezing the screen for screenshots.
+- There are various optional scripts in the [scripts/](scripts/) folder for development.
 
 ## Hacking for Web ##
 

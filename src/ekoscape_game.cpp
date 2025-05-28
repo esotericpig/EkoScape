@@ -137,6 +137,9 @@ void EkoScapeGame::init_input_map() {
   im.map_input(InputAction::kToggleFps,[](auto& i) {
     i.raw_key({SDL_SCANCODE_F3});
   });
+  im.map_input(InputAction::kToggleFrozen,[](auto& i) {
+    i.raw_key({RawKeyInput{SDL_SCANCODE_F6,KMOD_CTRL}});
+  });
 }
 
 SceneBag EkoScapeGame::build_scene(int type) {
@@ -285,6 +288,10 @@ void EkoScapeGame::on_scene_input_event(input_id_t input_id,const ViewDimens& /*
       } else {
         avg_fps_age_ = -1.0f;
       }
+      break;
+
+    case InputAction::kToggleFrozen:
+      cybel_engine_->set_logic_running(!cybel_engine_->is_logic_running());
       break;
   }
 }

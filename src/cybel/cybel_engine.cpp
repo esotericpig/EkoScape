@@ -338,11 +338,13 @@ bool CybelEngine::run_frame() {
   // Event/Input requested to stop.
   if(!is_running_) { return false; }
 
-  main_scene_.update_scene_logic(frame_step_,renderer_->dimens());
-  const int scene_result = scene_man_->curr_scene().update_scene_logic(frame_step_,renderer_->dimens());
+  if(is_logic_running_) {
+    main_scene_.update_scene_logic(frame_step_,renderer_->dimens());
+    const int scene_result = scene_man_->curr_scene().update_scene_logic(frame_step_,renderer_->dimens());
 
-  if(scene_result != Scene::kNilType) {
-    scene_man_->push_scene(scene_result);
+    if(scene_result != Scene::kNilType) {
+      scene_man_->push_scene(scene_result);
+    }
   }
 
   renderer_->clear_view();
@@ -553,6 +555,8 @@ void CybelEngine::set_vsync(bool enable) {
   is_vsync_ = (SDL_GL_GetSwapInterval() != 0);
 }
 
+void CybelEngine::set_logic_running(bool running) { is_logic_running_ = running; }
+
 const std::string& CybelEngine::title() const { return title_; }
 
 bool CybelEngine::is_fullscreen() const {
@@ -564,6 +568,8 @@ bool CybelEngine::is_fullscreen() const {
 bool CybelEngine::is_cursor_visible() const { return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE; }
 
 bool CybelEngine::is_vsync() const { return is_vsync_; }
+
+bool CybelEngine::is_logic_running() const { return is_logic_running_; }
 
 Renderer& CybelEngine::renderer() const { return *renderer_; }
 
