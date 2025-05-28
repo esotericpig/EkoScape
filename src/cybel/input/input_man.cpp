@@ -152,20 +152,30 @@ void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_
 }
 
 void InputMan::handle_key_down_event(const SDL_KeyboardEvent& key) {
-  const RawKeyInput raw_key{key.keysym.scancode,key.keysym.mod};
-  const SymKeyInput sym_key{static_cast<SymKey>(key.keysym.sym),key.keysym.mod};
+  RawKeyInput raw_key{key.keysym.scancode,key.keysym.mod};
+  SymKeyInput sym_key{static_cast<SymKey>(key.keysym.sym),key.keysym.mod};
 
-  for(auto id : fetch_ids(raw_key)) {
-    // Not inserted? (already processed)
-    if(!processed_ids_.insert(id).second) { continue; }
+  for(int i = 0; i < 2; ++i) {
+    for(auto id : fetch_ids(raw_key)) {
+      // Inserted? (not already processed)
+      if(processed_ids_.insert(id).second) {
+        on_input_event_(id);
+      }
+    }
+    for(auto id : fetch_ids(sym_key)) {
+      // Inserted? (not already processed)
+      if(processed_ids_.insert(id).second) {
+        on_input_event_(id);
+      }
+    }
 
-    on_input_event_(id);
-  }
-  for(auto id : fetch_ids(sym_key)) {
-    // Not inserted? (already processed)
-    if(!processed_ids_.insert(id).second) { continue; }
+    const auto norm_dup_mods = KeyMods::norm_dup_mods(raw_key.mods());
 
-    on_input_event_(id);
+    // No duplicate modifier keys?
+    if(raw_key.mods() == norm_dup_mods) { break; }
+
+    raw_key = RawKeyInput{raw_key.key(),norm_dup_mods};
+    sym_key = SymKeyInput{sym_key.key(),norm_dup_mods};
   }
 }
 
@@ -498,7 +508,9 @@ void InputMan::update_states() {
 
   int num_keys = 0;
   const auto* raw_keys = SDL_GetKeyboardState(&num_keys);
-  const key_mods_t mods = SDL_GetModState();
+  const auto mods = KeyMods::norm_mods(SDL_GetModState());
+  const auto norm_dup_mods = KeyMods::norm_dup_mods(mods);
+  const bool has_dup_mods = (mods != norm_dup_mods);
 
   for(int i = 0; i < num_keys; ++i) {
     if(raw_keys[i] == 1) {
@@ -507,6 +519,11 @@ void InputMan::update_states() {
 
       set_state(RawKeyInput{raw_key,mods},true);
       set_state(SymKeyInput{sym_key,mods},true);
+
+      if(has_dup_mods) {
+        set_state(RawKeyInput{raw_key,norm_dup_mods},true);
+        set_state(SymKeyInput{sym_key,norm_dup_mods},true);
+      }
     }
   }
 }
