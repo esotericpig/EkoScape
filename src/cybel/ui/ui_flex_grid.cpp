@@ -86,10 +86,10 @@ void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_d
   const auto rows = static_cast<std::size_t>(grid_style_.rows);
   std::size_t free_cell_i = 0;
 
-  for(std::size_t row = 0; row < rows && free_cell_i < cells_.size(); ++row) {
+  for(std::size_t row = 0; row < rows; ++row) {
     auto& row_data = row_data_bag[row];
 
-    for(std::size_t col = 0; col < cols; ++col) {
+    for(std::size_t col = 0; col < cols && free_cell_i < cells_.size(); ++col) {
       auto* cell = grid[col + (row * cols)];
 
       // Owner cell? (not part of a subregion)
@@ -142,30 +142,32 @@ void UiFlexGrid::resize_cell(Cell& cell,const Pos3i& cell_pos,const Size2i& cell
   const int vpadding = std::min(cell.style.padding,
                                 static_cast<int>(static_cast<float>(cell.size.h) * kMinPaddingRatio));
 
-  auto node_pos = cell.pos;
-  auto node_size = cell.size;
-
-  node_pos.x += hpadding;
-  node_pos.y += vpadding;
-  node_size.w -= (hpadding * 2);
-  node_size.h -= (vpadding * 2);
+  Pos3i node_pos{
+    cell.pos.x + hpadding,
+    cell.pos.y + vpadding,
+    cell.pos.z
+  };
+  Size2i node_size{
+    std::max(cell.size.w - (hpadding << 1),1),
+    std::max(cell.size.h - (vpadding << 1),1)
+  };
+  const auto inner_cell_size = node_size;
 
   if(cell.style.aspect_ratio != 1.0f) {
     if(node_size.aspect_ratio() <= cell.style.aspect_ratio) {
       node_size.h = static_cast<int>(std::round(static_cast<float>(node_size.w) / cell.style.aspect_ratio));
+      if(node_size.h < 1) { node_size.h = 1; }
     } else {
       node_size.w = static_cast<int>(std::round(static_cast<float>(node_size.h) * cell.style.aspect_ratio));
+      if(node_size.w < 1) { node_size.w = 1; }
     }
   }
 
-  if(node_size.w < 1) { node_size.w = 1; }
-  if(node_size.h < 1) { node_size.h = 1; }
-
   node_pos.x += static_cast<int>(
-    std::round(static_cast<float>(cell.size.w - node_size.w) * cell.style.halign)
+    std::round(static_cast<float>(inner_cell_size.w - node_size.w) * cell.style.halign)
   );
   node_pos.y += static_cast<int>(
-    std::round(static_cast<float>(cell.size.h - node_size.h) * cell.style.valign)
+    std::round(static_cast<float>(inner_cell_size.h - node_size.h) * cell.style.valign)
   );
 
   cell.node->resize(node_pos,node_size);
