@@ -8,7 +8,7 @@ path = "@PKG_ITCH_RES_PATH@/assets/maps/"
 
 [[actions]]
 name = "Open Online Maps Guide"
-path = "https://github.com/esotericpig/EkoScape/blob/main/assets/maps"
+path = "https://github.com/esotericpig/EkoScape/blob/main/assets/maps/README.md"
 
 [[actions]]
 name = "Open Offline Maps Guide"
