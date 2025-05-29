@@ -79,7 +79,7 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
 
 ### Setup ###
 
-This project uses **CMake**, [Ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages), and [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started). Please install these for your system.
+This project uses [CMake](https://cmake.org/download/), [Ninja](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages), and [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started). Please install these for your system.
 
 - For quickly getting started, see the [GitHub Workflows](.github/workflows/) or the top of [CMakeLists.txt](CMakeLists.txt).
 - If you have Ruby installed, there is also a script -- [scripts/dev.rb](scripts/dev.rb) -- for rapid development.
