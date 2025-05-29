@@ -70,8 +70,8 @@ void Renderer::resize(const Size2i& size) {
   // - If decide to change this logic, need to allow force resize so can resize on init.
 
   // Avoid divides by 0 [e.g., in begin_3d_scene()].
-  dimens_.size.w = (size.w > 0) ? size.w : 1;
-  dimens_.size.h = (size.h > 0) ? size.h : 1;
+  dimens_.size.w = std::max(size.w,1);
+  dimens_.size.h = std::max(size.h,1);
   // `target_size.w/h` should never be 0 (checked in ctor).
   dimens_.scale.x = static_cast<float>(dimens_.size.w) / static_cast<float>(dimens_.target_size.w);
   dimens_.scale.y = static_cast<float>(dimens_.size.h) / static_cast<float>(dimens_.target_size.h);
@@ -416,7 +416,7 @@ Renderer::FontAtlasWrapper& Renderer::FontAtlasWrapper::print_fmt(
       Color4f color = Color4f::kWhite; // Fallback color.
 
       // RGB `0x112233` or RGBA `0x11223344`.
-      if(color_str.length() >= 2 && color_str[0] == '0' && (color_str[1] == 'x' || color_str[1] == 'X')) {
+      if(color_str.length() >= 8 && color_str[0] == '0' && (color_str[1] == 'x' || color_str[1] == 'X')) {
         color = Color4f::hex(color_str,color);
       } else {
         const auto* color_ptr = ren.font_color(std::string{color_str});
