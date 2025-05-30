@@ -84,12 +84,14 @@ void UiFlexGrid::resize(const Pos3i& pos,const Size2i& size) {
 void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_data_bag) {
   const auto cols = static_cast<std::size_t>(grid_style_.cols);
   const auto rows = static_cast<std::size_t>(grid_style_.rows);
+
+  std::size_t row = 0;
   std::size_t free_cell_i = 0;
 
-  for(std::size_t row = 0; row < rows; ++row) {
+  for(; row < rows && free_cell_i < cells_.size(); ++row) {
     auto& row_data = row_data_bag[row];
 
-    for(std::size_t col = 0; col < cols && free_cell_i < cells_.size(); ++col) {
+    for(std::size_t col = 0; col < cols; ++col) {
       auto* cell = grid[col + (row * cols)];
 
       // Owner cell? (not part of a subregion)
@@ -127,6 +129,10 @@ void UiFlexGrid::build_grid(std::vector<Cell*>& grid,std::vector<RowData>& row_d
     }
 
     if(row_data.total_width_slices < kMinFloat) { row_data.total_width_slices = kMinFloat; }
+  }
+
+  for(; row < rows; ++row) {
+    row_data_bag[row].total_width_slices = kMinFloat;
   }
 }
 
