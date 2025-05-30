@@ -11,37 +11,6 @@
 
 namespace ekoscape {
 
-MenuScene::Option MenuScene::Option::cycle(const CycleConfig& config) {
-  Option opt{};
-  opt.is_cycle_ = true;
-  opt.on_select_ = config.on_select;
-  opt.on_select_alt_ = config.on_select_alt;
-  opt.on_update_ = config.on_update;
-
-  if(opt.on_update_) { opt.on_update_(opt); } // Init.
-
-  return opt;
-}
-
-MenuScene::Option::Option(std::string_view text,const OnSelect& on_select)
-  : text(text),on_select_(on_select) {}
-
-void MenuScene::Option::select() {
-  if(on_select_) { on_select_(); }
-  if(on_update_) { on_update_(*this); }
-}
-
-void MenuScene::Option::select_alt() {
-  if(on_select_alt_) {
-    on_select_alt_();
-  } else if(on_select_) {
-    on_select_();
-  }
-  if(on_update_) { on_update_(*this); }
-}
-
-bool MenuScene::Option::is_cycle() const { return is_cycle_; }
-
 MenuScene::MenuScene(GameContext& ctx)
   : ctx_(ctx) {
   auto gfx_opt = Option::cycle({
@@ -157,5 +126,36 @@ void MenuScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   ren.end_blend()
      .end_scale();
 }
+
+MenuScene::Option MenuScene::Option::cycle(const CycleConfig& config) {
+  Option opt{};
+  opt.is_cycle_ = true;
+  opt.on_update_ = config.on_update;
+  opt.on_select_ = config.on_select;
+  opt.on_select_alt_ = config.on_select_alt;
+
+  if(opt.on_update_) { opt.on_update_(opt); } // Init.
+
+  return opt;
+}
+
+MenuScene::Option::Option(std::string_view text,const OnSelect& on_select)
+  : text(text),on_select_(on_select) {}
+
+void MenuScene::Option::select() {
+  if(on_select_) { on_select_(); }
+  if(on_update_) { on_update_(*this); }
+}
+
+void MenuScene::Option::select_alt() {
+  if(on_select_alt_) {
+    on_select_alt_();
+  } else if(on_select_) {
+    on_select_();
+  }
+  if(on_update_) { on_update_(*this); }
+}
+
+bool MenuScene::Option::is_cycle() const { return is_cycle_; }
 
 } // namespace ekoscape

@@ -31,8 +31,8 @@ public:
 private:
   class Option {
   public:
-    using OnSelect = std::function<void()>;
     using OnUpdate = std::function<void(Option&)>;
+    using OnSelect = std::function<void()>;
 
     struct CycleConfig {
       OnUpdate on_update{};
@@ -52,9 +52,9 @@ private:
 
   private:
     bool is_cycle_ = false;
+    OnUpdate on_update_{};
     OnSelect on_select_{};
     OnSelect on_select_alt_{};
-    OnUpdate on_update_{};
 
     explicit Option() = default;
   };
