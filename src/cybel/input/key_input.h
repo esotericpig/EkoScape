@@ -55,7 +55,10 @@ public:
     }
   };
 
-  explicit KeyInput(T key,key_mods_t mods = KMOD_NONE) noexcept
+  explicit KeyInput(T key) noexcept
+    : key_(key),mods_(KMOD_NONE) {}
+
+  explicit KeyInput(key_mods_t mods,T key) noexcept
     : key_(key),mods_(KeyMods::norm_mods(mods)) {}
 
   bool operator==(const KeyInput& other) const {

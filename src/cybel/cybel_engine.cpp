@@ -482,8 +482,6 @@ void CybelEngine::handle_input_event(input_id_t input_id) {
 }
 
 void CybelEngine::handle_input_states() {
-  input_man_->update_states();
-
   main_scene_.handle_scene_input_states(input_man_->states(),renderer_->dimens());
   scene_man_->curr_scene().handle_scene_input_states(input_man_->states(),renderer_->dimens());
 }

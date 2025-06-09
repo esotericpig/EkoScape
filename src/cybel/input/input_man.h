@@ -33,11 +33,11 @@ public:
   public:
     explicit InputMapper(InputMan& input_man,input_id_t id);
 
-    void raw_key(std::initializer_list<RawKey> keys,key_mods_t mods = 0);
-    void raw_key(std::initializer_list<RawKeyInput> keys);
+    void raw_key(std::initializer_list<RawKey> keys,key_mods_t mods = KMOD_NONE);
+    void raw_key(std::initializer_list<std::pair<key_mods_t,RawKey>> keys);
 
-    void sym_key(std::initializer_list<SymKey> keys,key_mods_t mods = 0);
-    void sym_key(std::initializer_list<SymKeyInput> keys);
+    void sym_key(std::initializer_list<SymKey> keys,key_mods_t mods = KMOD_NONE);
+    void sym_key(std::initializer_list<std::pair<key_mods_t,SymKey>> keys);
 
     void joypad(std::initializer_list<JoypadInput> inputs);
 
@@ -62,7 +62,6 @@ public:
 
   void begin_input();
   void handle_event(const SDL_Event& event,const OnInputEvent& on_input_event);
-  void update_states();
 
   void set_state(const RawKeyInput& key,bool state);
   void set_state(const SymKeyInput& key,bool state);
@@ -79,7 +78,6 @@ private:
 
   input_id_t max_id_ = 0;
   std::vector<bool> id_to_state_{};
-  std::vector<bool> id_to_event_state_{};
   std::unordered_set<input_id_t> processed_ids_{};
   OnInputEvent on_input_event_{};
 
@@ -100,7 +98,7 @@ private:
   void init_joypad();
   void load_joypads();
 
-  void handle_key_down_event(const SDL_KeyboardEvent& key);
+  void handle_key_event(const SDL_KeyboardEvent& key);
   void handle_joystick_device_event(const SDL_JoyDeviceEvent& jdevice);
   void handle_joystick_axis_event(const SDL_JoyAxisEvent& jaxis);
   void handle_joystick_hat_event(const SDL_JoyHatEvent& jhat);
@@ -114,7 +112,7 @@ private:
   void handle_finger_event(const SDL_TouchFingerEvent& tfinger);
   void handle_touch_event(JoypadInput input,bool state);
 
-  void reset_joypad_states();
+  void reset_states();
   void reset_touch_states();
 };
 

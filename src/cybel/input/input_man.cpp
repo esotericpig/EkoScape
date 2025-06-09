@@ -13,8 +13,7 @@ namespace cybel {
 
 InputMan::InputMan(input_id_t max_id)
   : max_id_(max_id),
-    id_to_state_((max_id > 0) ? (max_id + 1) : 25,false),
-    id_to_event_state_(id_to_state_.size(),false),
+    id_to_state_((max_id > 0) ? (max_id + 1) : 32,false),
     touch_input_to_state_(static_cast<std::size_t>(JoypadInput::kMax),false) {
   init_joypad();
 }
@@ -51,11 +50,11 @@ void InputMan::map_input(input_id_t id,const MapInputCallback& callback) {
   if(id >= id_to_state_.size()) {
     // Growable?
     if(max_id_ <= 0) {
-      const auto new_size = std::max(id << 1,(id_to_state_.size() + 1) << 1);
-
+      const auto new_size = std::max<std::size_t>({id,id_to_state_.size(),1}) << 1;
       id_to_state_.resize(new_size,false);
-      id_to_event_state_.resize(new_size,false);
-    } else {
+    }
+
+    if(id >= id_to_state_.size()) {
       throw CybelError{"Invalid input ID [",id,"] is >= maximum ID count [",id_to_state_.size(),"]."};
     }
   }
@@ -111,7 +110,8 @@ void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_
 
   switch(event.type) {
     case SDL_KEYDOWN:
-      handle_key_down_event(event.key);
+    case SDL_KEYUP:
+      handle_key_event(event.key);
       break;
 
     case SDL_JOYDEVICEADDED:
@@ -151,21 +151,25 @@ void InputMan::handle_event(const SDL_Event& event,const OnInputEvent& on_input_
   }
 }
 
-void InputMan::handle_key_down_event(const SDL_KeyboardEvent& key) {
-  RawKeyInput raw_key{key.keysym.scancode,key.keysym.mod};
-  SymKeyInput sym_key{static_cast<SymKey>(key.keysym.sym),key.keysym.mod};
+void InputMan::handle_key_event(const SDL_KeyboardEvent& key) {
+  // Should be the same as `key.type == SDL_KEYDOWN`.
+  const bool is_pressed = (key.state == SDL_PRESSED);
+
+  RawKeyInput raw_key{key.keysym.mod,key.keysym.scancode};
+  SymKeyInput sym_key{key.keysym.mod,static_cast<SymKey>(key.keysym.sym)};
 
   for(int i = 0; i < 2; ++i) {
-    for(auto id : fetch_ids(raw_key)) {
-      // Inserted? (not already processed)
-      if(processed_ids_.insert(id).second) {
-        on_input_event_(id);
+    set_state(raw_key,is_pressed);
+    set_state(sym_key,is_pressed);
+
+    if(is_pressed) {
+      for(auto id : fetch_ids(raw_key)) {
+        // Inserted? (not already processed)
+        if(processed_ids_.insert(id).second) { on_input_event_(id); }
       }
-    }
-    for(auto id : fetch_ids(sym_key)) {
-      // Inserted? (not already processed)
-      if(processed_ids_.insert(id).second) {
-        on_input_event_(id);
+      for(auto id : fetch_ids(sym_key)) {
+        // Inserted? (not already processed)
+        if(processed_ids_.insert(id).second) { on_input_event_(id); }
       }
     }
 
@@ -174,8 +178,8 @@ void InputMan::handle_key_down_event(const SDL_KeyboardEvent& key) {
     // No duplicate modifier keys?
     if(raw_key.mods() == norm_dup_mods) { break; }
 
-    raw_key = RawKeyInput{raw_key.key(),norm_dup_mods};
-    sym_key = SymKeyInput{sym_key.key(),norm_dup_mods};
+    raw_key = RawKeyInput{norm_dup_mods,raw_key.key()};
+    sym_key = SymKeyInput{norm_dup_mods,sym_key.key()};
   }
 }
 
@@ -191,13 +195,13 @@ void InputMan::handle_joystick_device_event(const SDL_JoyDeviceEvent& jdevice) {
     if(main_joystick_) {
       std::cout << "[INFO] Added joystick: " << jdevice.which << '.' << std::endl;
       main_game_ctrl_.close();
-      reset_joypad_states();
+      reset_states();
     }
   } else if(jdevice.type == SDL_JOYDEVICEREMOVED) {
     if(!main_joystick_.matches(jdevice.which)) { return; }
 
     main_joystick_.close();
-    reset_joypad_states();
+    reset_states();
     std::cout << "[INFO] Removed joystick: " << jdevice.which << '.' << std::endl;
 
     if(!main_game_ctrl_) {
@@ -253,13 +257,13 @@ void InputMan::handle_game_ctrl_device_event(const SDL_ControllerDeviceEvent& cd
     if(main_game_ctrl_) {
       std::cout << "[INFO] Added game controller: " << cdevice.which << '.' << std::endl;
       main_joystick_.close();
-      reset_joypad_states();
+      reset_states();
     }
   } else if(cdevice.type == SDL_CONTROLLERDEVICEREMOVED) {
     if(!main_game_ctrl_.matches(cdevice.which)) { return; }
 
     main_game_ctrl_.close();
-    reset_joypad_states();
+    reset_states();
     std::cout << "[INFO] Removed game controller: " << cdevice.which << '.' << std::endl;
 
     if(!main_joystick_) {
@@ -503,38 +507,13 @@ void InputMan::handle_touch_event(JoypadInput input,bool state) {
   }
 }
 
-void InputMan::update_states() {
-  id_to_state_ = id_to_event_state_;
-
-  int num_keys = 0;
-  const auto* raw_keys = SDL_GetKeyboardState(&num_keys);
-  const auto mods = KeyMods::norm_mods(SDL_GetModState());
-  const auto norm_dup_mods = KeyMods::norm_dup_mods(mods);
-  const bool has_dup_mods = (mods != norm_dup_mods);
-
-  for(int i = 0; i < num_keys; ++i) {
-    if(raw_keys[i] == 1) {
-      const auto raw_key = static_cast<RawKey>(i);
-      const auto sym_key = static_cast<SymKey>(SDL_GetKeyFromScancode(raw_key));
-
-      set_state(RawKeyInput{raw_key,mods},true);
-      set_state(SymKeyInput{sym_key,mods},true);
-
-      if(has_dup_mods) {
-        set_state(RawKeyInput{raw_key,norm_dup_mods},true);
-        set_state(SymKeyInput{sym_key,norm_dup_mods},true);
-      }
-    }
-  }
-}
-
-void InputMan::reset_joypad_states() {
-  std::fill(id_to_event_state_.begin(),id_to_event_state_.end(),false);
+void InputMan::reset_states() {
+  std::fill(id_to_state_.begin(),id_to_state_.end(),false);
 }
 
 void InputMan::reset_touch_states() {
   std::fill(touch_input_to_state_.begin(),touch_input_to_state_.end(),false);
-  reset_joypad_states();
+  reset_states();
 }
 
 void InputMan::set_state(const RawKeyInput& key,bool state) {
@@ -560,7 +539,7 @@ void InputMan::set_state(JoypadInput input,bool state) {
   if(it == joypad_input_to_ids_.end()) { return; }
 
   for(const auto id : it->second) {
-    id_to_event_state_[id] = state;
+    id_to_state_[id] = state;
   }
 }
 
@@ -589,25 +568,25 @@ InputMan::InputMapper::InputMapper(InputMan& input_man,input_id_t id)
 
 void InputMan::InputMapper::raw_key(std::initializer_list<RawKey> keys,key_mods_t mods) {
   for(const auto& key : keys) {
-    input_man_.raw_key_to_ids_[RawKeyInput{key,mods}].insert(id_);
+    input_man_.raw_key_to_ids_[RawKeyInput{mods,key}].insert(id_);
   }
 }
 
-void InputMan::InputMapper::raw_key(std::initializer_list<RawKeyInput> keys) {
-  for(const auto& key : keys) {
-    input_man_.raw_key_to_ids_[key].insert(id_);
+void InputMan::InputMapper::raw_key(std::initializer_list<std::pair<key_mods_t,RawKey>> keys) {
+  for(const auto& [mods,key] : keys) {
+    input_man_.raw_key_to_ids_[RawKeyInput{mods,key}].insert(id_);
   }
 }
 
 void InputMan::InputMapper::sym_key(std::initializer_list<SymKey> keys,key_mods_t mods) {
   for(const auto& key : keys) {
-    input_man_.sym_key_to_ids_[SymKeyInput{key,mods}].insert(id_);
+    input_man_.sym_key_to_ids_[SymKeyInput{mods,key}].insert(id_);
   }
 }
 
-void InputMan::InputMapper::sym_key(std::initializer_list<SymKeyInput> keys) {
-  for(const auto& key : keys) {
-    input_man_.sym_key_to_ids_[key].insert(id_);
+void InputMan::InputMapper::sym_key(std::initializer_list<std::pair<key_mods_t,SymKey>> keys) {
+  for(const auto& [mods,key] : keys) {
+    input_man_.sym_key_to_ids_[SymKeyInput{mods,key}].insert(id_);
   }
 }
 

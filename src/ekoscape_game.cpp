@@ -138,7 +138,7 @@ void EkoScapeGame::init_input_map() {
     i.raw_key({SDL_SCANCODE_F3});
   });
   im.map_input(InputAction::kToggleFrozen,[](auto& i) {
-    i.raw_key({RawKeyInput{SDL_SCANCODE_F6,KMOD_CTRL}});
+    i.raw_key({{KMOD_CTRL,SDL_SCANCODE_F6}});
   });
 }
 
