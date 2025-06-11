@@ -11,6 +11,7 @@
 #include "cybel/common.h"
 
 #include "cybel/gfx/renderer.h"
+#include "cybel/input/input_man.h"
 #include "cybel/input/input_types.h"
 #include "cybel/types/frame_step.h"
 #include "cybel/types/view_dimens.h"
@@ -25,7 +26,7 @@ public:
    * Return this in update_scene_logic() to indicate no scene change (default).
    * Do not use this for your own scene types, else they'll be ignored.
    */
-  static inline const int kNilType = 0;
+  static constexpr int kNilType = 0;
 
   virtual ~Scene() noexcept = default;
 
@@ -56,8 +57,9 @@ public:
 
   virtual void on_scene_input_event([[maybe_unused]] input_id_t input_id,
                                     [[maybe_unused]] const ViewDimens& dimens) {}
-  virtual void handle_scene_input_states([[maybe_unused]] const std::vector<bool>& states,
-                                         [[maybe_unused]] const ViewDimens& dimens) {}
+  virtual void handle_scene_input([[maybe_unused]] const std::vector<bool>& states,
+                                  [[maybe_unused]] InputMan& input,
+                                  [[maybe_unused]] const ViewDimens& dimens) {}
 
   virtual int update_scene_logic([[maybe_unused]] const FrameStep& step,
                                  [[maybe_unused]] const ViewDimens& dimens) { return kNilType; }

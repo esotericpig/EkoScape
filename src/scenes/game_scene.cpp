@@ -222,7 +222,8 @@ void GameScene::on_scene_input_event(input_id_t input_id,const ViewDimens& dimen
   }
 }
 
-void GameScene::handle_scene_input_states(const std::vector<bool>& states,const ViewDimens& /*dimens*/) {
+void GameScene::handle_scene_input(const std::vector<bool>& states,InputMan& /*input*/,
+                                   const ViewDimens& /*dimens*/) {
   // Input states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.

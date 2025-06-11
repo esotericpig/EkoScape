@@ -30,7 +30,8 @@ public:
   explicit MenuCreditsScene(GameContext& ctx);
 
   void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  void handle_scene_input_states(const std::vector<bool>& states,const ViewDimens& dimens) override;
+  void handle_scene_input(const std::vector<bool>& states,InputMan& input,const ViewDimens& dimens) override;
+
   int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 

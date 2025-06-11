@@ -333,7 +333,7 @@ bool CybelEngine::run_frame() {
 
   input_man_->begin_input();
   handle_events();
-  handle_input_states();
+  handle_input();
 
   // Event/Input requested to stop.
   if(!is_running_) { return false; }
@@ -476,14 +476,14 @@ void CybelEngine::handle_non_context_events_only() {
   }
 }
 
-void CybelEngine::handle_input_event(input_id_t input_id) {
+void CybelEngine::on_input_event(input_id_t input_id) {
   main_scene_.on_scene_input_event(input_id,renderer_->dimens());
   scene_man_->curr_scene().on_scene_input_event(input_id,renderer_->dimens());
 }
 
-void CybelEngine::handle_input_states() {
-  main_scene_.handle_scene_input_states(input_man_->states(),renderer_->dimens());
-  scene_man_->curr_scene().handle_scene_input_states(input_man_->states(),renderer_->dimens());
+void CybelEngine::handle_input() {
+  main_scene_.handle_scene_input(input_man_->states(),*input_man_,renderer_->dimens());
+  scene_man_->curr_scene().handle_scene_input(input_man_->states(),*input_man_,renderer_->dimens());
 }
 
 void CybelEngine::show_error(const std::string& error) const {

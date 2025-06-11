@@ -30,7 +30,8 @@ void MenuCreditsScene::on_scene_input_event(input_id_t input_id,const ViewDimens
   }
 }
 
-void MenuCreditsScene::handle_scene_input_states(const std::vector<bool>& states,const ViewDimens& dimens) {
+void MenuCreditsScene::handle_scene_input(const std::vector<bool>& states,InputMan& /*input*/,
+                                          const ViewDimens& dimens) {
   // Shhh... Don't Tell.
   if(states[InputAction::kMakeWeird]) {
     if(!ctx_.assets.is_weird()) {

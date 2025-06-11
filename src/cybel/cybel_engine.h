@@ -139,7 +139,7 @@ public:
 private:
   static constexpr float kAvgFpsSmoothing = 0.3f; // Smoothing factor. Usually from 0.1 to 0.3.
 
-  void handle_input_event(input_id_t input_id);
+  void on_input_event(input_id_t input_id);
 
   std::string title_{};
   int target_fps_ = 0;
@@ -151,7 +151,7 @@ private:
   Scene& main_scene_;
   std::unique_ptr<SceneMan> scene_man_{}; // Must be defined after `renderer_`.
   std::unique_ptr<InputMan> input_man_{};
-  InputMan::OnInputEvent on_input_event_ = [&](input_id_t id) { handle_input_event(id); };
+  InputMan::OnInputEvent on_input_event_ = [&](input_id_t id) { on_input_event(id); };
 
   bool is_running_ = false;
   bool is_logic_running_ = true;
@@ -172,7 +172,7 @@ private:
   void stop_frame_timer();
   void handle_events();
   void handle_non_context_events_only();
-  void handle_input_states();
+  void handle_input();
 
   static void show_error_global(const std::string& title,const std::string& error,SDL_Window* window);
 };
