@@ -5,6 +5,10 @@ on:
 #  push:
 #    branches: [ 'test-gh-ci' ]
 
+permissions:
+  actions: write
+  contents: read
+
 env:
   VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
 
