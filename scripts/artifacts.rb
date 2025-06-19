@@ -45,7 +45,7 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.9'
+  VERSION = '0.1.10'
 
   DEST_DIR = File.join('pkgs')
   USER_GAME = 'esotericpig/ekoscape'
@@ -76,10 +76,10 @@ class ArtifactsMan
   SLEEP_SECS = 0.500
   CHECKSUM_BUFFER_SIZE = 16 * 1024
 
-  GH_CMD = %w[ gh ].freeze
-  TAR_CMD = %w[ tar ].freeze
-  UNZIP_CMD = %w[ unzip ].freeze
-  BUTLER_CMD = %w[ butler ].freeze
+  GH_CMD = %w[gh].freeze
+  TAR_CMD = %w[tar].freeze
+  UNZIP_CMD = %w[unzip].freeze
+  BUTLER_CMD = %w[butler].freeze
 
   # Order matters! Because user can specify all actions.
   ACTIONS = [
@@ -172,7 +172,7 @@ class ArtifactsMan
     end
   end
 
-  def parse_extra_args(args=ARGV)
+  def parse_extra_args(args = ARGV)
     dash_i = args.find_index('--')
 
     if dash_i.nil?
@@ -248,7 +248,7 @@ class ArtifactsMan
 
   def publish_to_itch
     each_artifact do |artifact|
-      cmd = [BUTLER_CMD,%w[ push --fix-permissions --dereference --if-changed ]]
+      cmd = [BUTLER_CMD,%w[push --fix-permissions --dereference --if-changed]]
       artifact.ignores.each { |ignore| cmd.push('--ignore',ignore) }
       cmd.push('--dry-run') if @dry_run
       cmd.push(artifact.dest_dir,"#{USER_GAME}:#{artifact.channel}")
@@ -330,9 +330,7 @@ class ArtifactsMan
         File.open(file,'rb') do |f|
           buffer = ''.dup
 
-          while f.read(CHECKSUM_BUFFER_SIZE,buffer)
-            dig.update(buffer)
-          end
+          dig.update(buffer) while f.read(CHECKSUM_BUFFER_SIZE,buffer)
         end
 
         actual_hex = dig.hexdigest
@@ -397,7 +395,7 @@ class ArtifactsMan
     cmd += @extra_args
     cmd = cmd.flatten.compact.map(&:to_s)
 
-    puts cmd.map(&Shellwords.method(:escape)).join(' ')
+    puts cmd.map { |a| Shellwords.escape(a) }.join(' ')
 
     return true if dry_run
     return system(*cmd)
@@ -432,9 +430,9 @@ class Artifact
       platforms = []
 
       # See: https://itch.io/docs/butler/pushing.html#channel-names
-      platforms << 'windows' if channel =~ /win|windows/i
-      platforms << 'linux' if channel =~ /linux/i
-      platforms << 'osx' if channel =~ /mac|osx/i
+      platforms << 'windows' if channel.match?(/win|windows/i)
+      platforms << 'linux' if channel.match?(/linux/i)
+      platforms << 'osx' if channel.match?(/mac|osx/i)
 
       platform = (platforms.size == 1) ? platforms[0] : nil
     end
@@ -442,8 +440,8 @@ class Artifact
       # Channel can have multiple architectures.
       arches = []
 
-      arches << '386' if channel =~ /386|686|x86[^_-]|32/i
-      arches << 'amd64' if channel =~ /amd64|x86[_-]64|64/i
+      arches << '386' if channel.match?(/386|686|x86[^_-]|32/i)
+      arches << 'amd64' if channel.match?(/amd64|x86[_-]64|64/i)
 
       arch = (arches.size == 1) ? arches[0] : nil
     end

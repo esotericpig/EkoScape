@@ -51,9 +51,9 @@ def main
 end
 
 class DevApp
-  VERSION = '0.1.7'
+  VERSION = '0.1.8'
 
-  CMAKE_CMD = %w[ cmake ].freeze
+  CMAKE_CMD = %w[cmake].freeze
 
   def initialize
     @dry_run = true
@@ -179,7 +179,7 @@ class DevApp
     cmd += @extra_args
     cmd = cmd.flatten.compact.map(&:to_s)
 
-    puts cmd.map(&Shellwords.method(:escape)).join(' ')
+    puts cmd.map { |a| Shellwords.escape(a) }.join(' ')
 
     return if @dry_run
 

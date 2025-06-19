@@ -21,7 +21,7 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.2.2'
+  VERSION = '0.2.3'
 
   TP_DIR = 'third_party'
   SRC_DIR = 'src'
@@ -31,7 +31,7 @@ class SrcGlobber
   CMAKE_FILE = 'CMakeLists.txt'
   CMAKE_FUNC = 'target_sources'
 
-  SRC_EXTS = %w[ .c .cc .cpp .cxx .c++ ].to_set(&:downcase).freeze
+  SRC_EXTS = %w[.c .cc .cpp .cxx .c++].to_set(&:downcase).freeze
 
   def run
     opt_parser = OptionParser.new do |op|
@@ -179,8 +179,14 @@ class SrcGlobber
 
     paths.each do |path|
       if path.directory?
-        sub_result = glob_src(path,macro,indent: indent,space_out_dirs: space_out_sub_dirs,
-            space_out_sub_dirs: space_out_sub_dirs,root_dir_str: root_dir_str,&block)
+        sub_result = glob_src(
+          path,macro,
+          indent: indent,
+          space_out_dirs: space_out_sub_dirs,
+          space_out_sub_dirs: space_out_sub_dirs,
+          root_dir_str: root_dir_str,
+          &block
+        )
 
         if !sub_result.empty?
           result << sub_result << "\n"

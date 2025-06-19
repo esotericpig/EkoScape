@@ -6,7 +6,7 @@
 # Simply run it (only reads files):
 #   ./scripts/check_header_guards.rb
 #
-# @version 0.2.2
+# @version 0.2.3
 # @author Bradley Whited
 ###
 
@@ -55,7 +55,7 @@ def check_header_guards(proj_name,src_dir,exc_dirs: [])
     guard = file.relative_path_from(src_path).descend
                 .map { |p| p.basename.to_s.strip.upcase }
                 .reject(&:empty?)
-                .join('_').gsub('.','_')
+                .join('_').tr('.','_')
     guard += '_'
 
     # In order of how it should appear in file.

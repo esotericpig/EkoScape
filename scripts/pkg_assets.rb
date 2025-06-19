@@ -24,17 +24,17 @@ def main
 end
 
 class AssetsPkger
-  VERSION = '0.1.3'
+  VERSION = '0.1.4'
 
   DEST_DIR = File.join('pkgs')
   ASSETS_NAME = 'assets'
   ASSETS_DIR = File.join(ASSETS_NAME)
   ASSETS_PKG = File.join(DEST_DIR,"#{ASSETS_NAME}.zip")
 
-  ZIP_CMD = %w[ zip -r -9 -v -y ].freeze
+  ZIP_CMD = %w[zip -r -9 -v -y].freeze
   # Excludes must be at end of full command.
   ZIP_CMD_SUFFIX = ['-x','maps/*'].freeze
-  GH_CMD = %w[ gh release upload --clobber v1.99 ].freeze
+  GH_CMD = %w[gh release upload --clobber v1.99].freeze
 
   def initialize
     @dry_run = true
@@ -56,9 +56,9 @@ class AssetsPkger
       op.separator 'Options'
       op.on('-C',nil,"[clean] delete '#{ASSETS_PKG}'")
       op.on('-p',nil,"[pkg] package up '#{ASSETS_DIR}/' into '#{ASSETS_PKG}'" \
-            "\n#{oi}       -- must have `#{ZIP_CMD[0]}` installed")
+                     "\n#{oi}       -- must have `#{ZIP_CMD[0]}` installed")
       op.on('-G',nil,'[gh] upload package to GitHub release (overwrites package)' \
-            "\n#{oi}      -- must have `#{GH_CMD[0]}` installed")
+                     "\n#{oi}      -- must have `#{GH_CMD[0]}` installed")
 
       op.separator ''
       op.separator 'Basic Options'
@@ -107,7 +107,7 @@ class AssetsPkger
   def run_cmd(*cmd)
     cmd = cmd.flatten.compact.map(&:to_s)
 
-    puts cmd.map(&Shellwords.method(:escape)).join(' ')
+    puts cmd.map { |a| Shellwords.escape(a) }.join(' ')
     system(*cmd) unless @dry_run
   end
 end
