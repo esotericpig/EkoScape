@@ -21,7 +21,7 @@ def main
 end
 
 class SrcGlobber
-  VERSION = '0.2.3'
+  VERSION = '0.2.4'
 
   TP_DIR = 'third_party'
   SRC_DIR = 'src'
@@ -106,7 +106,7 @@ class SrcGlobber
       # Check if the src file has been either added or removed.
       is_new_src_file = true
 
-      (i + 1...old_src.size).each do |k|
+      ((i + 1)...old_src.size).each do |k|
         if old_src[k] == new_line
           is_new_src_file = false
           break
@@ -163,7 +163,7 @@ class SrcGlobber
     # - Sort by basename ignoring case.
     paths = paths.sort do |path1,path2|
       if block
-        cmp = block.call(path1,path2)
+        cmp = block.call(path1,path2) # rubocop:disable Performance/RedundantBlockCall
         next cmp if cmp != 0
       end
 

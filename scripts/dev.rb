@@ -51,7 +51,7 @@ def main
 end
 
 class DevApp
-  VERSION = '0.1.8'
+  VERSION = '0.1.9'
 
   CMAKE_CMD = %w[cmake].freeze
 
@@ -109,7 +109,7 @@ class DevApp
     dash_i = args.find_index('--')
 
     if !dash_i.nil?
-      @extra_args = args[dash_i + 1..]
+      @extra_args = args[(dash_i + 1)..]
       args = args[0...dash_i]
     end
 
