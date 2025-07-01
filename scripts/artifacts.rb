@@ -45,7 +45,7 @@ def main
 end
 
 class ArtifactsMan
-  VERSION = '0.1.10'
+  VERSION = '0.1.11'
 
   DEST_DIR = File.join('pkgs')
   USER_GAME = 'esotericpig/ekoscape'
@@ -95,11 +95,23 @@ class ArtifactsMan
   end.freeze
 
   def initialize
-    @artifacts = ARTIFACTS.map do |artifact|
-      artifact[:file] = File.join(DEST_DIR,artifact[:file]) unless artifact[:file].nil?
-      artifact[:dest_dir] = File.join(DEST_DIR,artifact[:dest_dir]) unless artifact[:dest_dir].nil?
+    @max_prop_lens = {}
+    prop_keys = %i[channel file dest_dir platform arch]
 
-      Artifact.new(**artifact)
+    @artifacts = ARTIFACTS.map do |props|
+      props[:file] = File.join(DEST_DIR,props[:file]) unless props[:file].nil?
+      props[:dest_dir] = File.join(DEST_DIR,props[:dest_dir]) unless props[:dest_dir].nil?
+
+      artifact = Artifact.new(**props)
+
+      prop_keys.each do |key|
+        if artifact.respond_to?(key)
+          len = artifact.__send__(key).to_s.length
+          @max_prop_lens[key] = len if len > @max_prop_lens.fetch(key,0)
+        end
+      end
+
+      artifact
     end
 
     @dry_run = true
@@ -137,16 +149,25 @@ class ArtifactsMan
       op.program_name = File.basename($PROGRAM_NAME)
       op.version = VERSION
       op.summary_width = 16
-
       si = op.summary_indent
 
       op.separator ''
       op.separator "v#{op.version}"
 
+      max_chan = @max_prop_lens.fetch(:channel,0)
+      max_file = @max_prop_lens.fetch(:file,0)
+      max_dest = @max_prop_lens.fetch(:dest_dir,0)
+      max_plat = @max_prop_lens.fetch(:platform,0)
+      max_arch = @max_prop_lens.fetch(:arch,0)
+
       op.separator ''
       op.separator 'Channels'
       @artifacts.each do |artifact|
-        op.separator format('%s%-20s %-40p %p',si,artifact.channel,artifact.file,artifact.dest_dir)
+        op.separator format(
+          "%s%-#{max_chan}s %-#{max_file}s %-#{max_dest}s %-#{max_plat}s %-#{max_arch}s [%s]",
+          si,artifact.channel,artifact.file,artifact.dest_dir,artifact.platform,artifact.arch,
+          artifact.ignores.join(','),
+        )
       end
 
       op.separator ''
@@ -178,7 +199,7 @@ class ArtifactsMan
     if dash_i.nil?
       extra_args = []
     else
-      extra_args = args[dash_i + 1..]
+      extra_args = args[(dash_i + 1)..]
       args = args[0...dash_i]
     end
 
@@ -253,7 +274,7 @@ class ArtifactsMan
       cmd.push('--dry-run') if @dry_run
       cmd.push(artifact.dest_dir,"#{USER_GAME}:#{artifact.channel}")
 
-      run_cmd(cmd,dry_run: false) # Butler has own dry-run.
+      run_cmd(cmd,dry_run: false) # Butler has its own dry-run.
     end
   end
 
