@@ -106,7 +106,7 @@ void EkoScapeGame::init_input_map() {
   });
 #if !defined(__EMSCRIPTEN__)
   im.map_input(InputAction::kQuit,[](auto& i) {
-      i.raw_key({SDL_SCANCODE_ESCAPE});
+    i.raw_key({SDL_SCANCODE_ESCAPE});
   });
 #endif
 
