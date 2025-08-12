@@ -66,6 +66,11 @@ public:
   Color4f with_byte_g(std::uint8_t g) const;
   Color4f with_byte_b(std::uint8_t b) const;
   Color4f with_byte_a(std::uint8_t a) const;
+
+  std::uint8_t byte_r() const;
+  std::uint8_t byte_g() const;
+  std::uint8_t byte_b() const;
+  std::uint8_t byte_a() const;
 };
 
 } // namespace cybel

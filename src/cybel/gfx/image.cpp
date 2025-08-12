@@ -23,8 +23,8 @@ Image::Image(const std::filesystem::path& file,bool make_weird,const Color4f& we
     throw CybelError{"Failed to load image [",file_cstr,"]: ",Util::get_sdl_img_error(),'.'};
   }
 
-  size_.w = handle_->w;
-  size_.h = handle_->h;
+  size_.w = std::max(handle_->w,0);
+  size_.h = std::max(handle_->h,0);
 
   if(make_weird) {
     if(weird_color == Color4f::kBlack) {
@@ -96,8 +96,8 @@ void Image::edit_pixels(const EditPixel& edit_pixel) {
 
     destroy();
     handle_ = new_handle;
-    size_.w = handle_->w;
-    size_.h = handle_->h;
+    size_.w = std::max(handle_->w,0);
+    size_.h = std::max(handle_->h,0);
   }
 
   try {
@@ -122,13 +122,7 @@ void Image::edit_pixels(const EditPixel& edit_pixel) {
 
     edit_pixel(color);
 
-    pixels[i] = SDL_MapRGBA(
-      handle_->format,
-      static_cast<Uint8>(std::clamp(255.0f * color.r,0.0f,255.0f)),
-      static_cast<Uint8>(std::clamp(255.0f * color.g,0.0f,255.0f)),
-      static_cast<Uint8>(std::clamp(255.0f * color.b,0.0f,255.0f)),
-      static_cast<Uint8>(std::clamp(255.0f * color.a,0.0f,255.0f))
-    );
+    pixels[i] = SDL_MapRGBA(handle_->format,color.byte_r(),color.byte_g(),color.byte_b(),color.byte_a());
   }
 
   unlock();

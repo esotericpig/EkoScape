@@ -132,4 +132,20 @@ Color4f Color4f::with_byte_b(std::uint8_t b) const { return Color4f{r,g,static_c
 
 Color4f Color4f::with_byte_a(std::uint8_t a) const { return Color4f{r,g,b,static_cast<float>(a) / 255.0f}; }
 
+std::uint8_t Color4f::byte_r() const {
+  return static_cast<std::uint8_t>(std::clamp(std::round(r * 255.0f),0.0f,255.0f));
+}
+
+std::uint8_t Color4f::byte_g() const {
+  return static_cast<std::uint8_t>(std::clamp(std::round(g * 255.0f),0.0f,255.0f));
+}
+
+std::uint8_t Color4f::byte_b() const {
+  return static_cast<std::uint8_t>(std::clamp(std::round(b * 255.0f),0.0f,255.0f));
+}
+
+std::uint8_t Color4f::byte_a() const {
+  return static_cast<std::uint8_t>(std::clamp(std::round(a * 255.0f),0.0f,255.0f));
+}
+
 } // namespace cybel
