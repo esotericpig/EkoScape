@@ -20,8 +20,8 @@ SpriteAtlas::SpriteAtlas(const Builder& builder)
 
   const int p2 = builder.cell_padding_ * 2;
 
-  cell_size_.w = builder.cell_size_.w - p2;
-  cell_size_.h = builder.cell_size_.h - p2;
+  cell_size_.w = std::max(builder.cell_size_.w - p2,0);
+  cell_size_.h = std::max(builder.cell_size_.h - p2,0);
 
   const int x_offset = builder.offset_.x + builder.cell_padding_;
   const int y_offset = builder.offset_.y + builder.cell_padding_;
@@ -79,28 +79,28 @@ SpriteAtlas::Builder& SpriteAtlas::Builder::tex(std::shared_ptr<Texture> tex) {
 }
 
 SpriteAtlas::Builder& SpriteAtlas::Builder::offset(int x,int y) {
-  offset_.x = x;
-  offset_.y = y;
+  offset_.x = std::max(x,0);
+  offset_.y = std::max(y,0);
 
   return *this;
 }
 
 SpriteAtlas::Builder& SpriteAtlas::Builder::cell_size(int width,int height) {
-  cell_size_.w = width;
-  cell_size_.h = height;
+  cell_size_.w = std::max(width,0);
+  cell_size_.h = std::max(height,0);
 
   return *this;
 }
 
 SpriteAtlas::Builder& SpriteAtlas::Builder::cell_padding(int padding) {
-  cell_padding_ = padding;
+  cell_padding_ = std::max(padding,0);
 
   return *this;
 }
 
 SpriteAtlas::Builder& SpriteAtlas::Builder::grid_size(int cols,int rows) {
-  grid_size_.w = cols;
-  grid_size_.h = rows;
+  grid_size_.w = std::max(cols,0);
+  grid_size_.h = std::max(rows,0);
 
   return *this;
 }

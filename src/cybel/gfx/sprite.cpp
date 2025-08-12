@@ -12,27 +12,27 @@ namespace cybel {
 Pos4f Sprite::build_src(const Texture& tex,const Pos2i& offset,const Size2i& size,int padding) {
   Pos4f src{};
 
-  if(tex.size().w == 0) { // Avoid divides by 0.
+  if(tex.size().w <= 0) { // Avoid divides by 0.
     src.x1 = 0.0f;
     src.x2 = 0.0f;
   } else {
     const auto tex_w = static_cast<float>(tex.size().w);
     const auto src_x = static_cast<float>(offset.x + padding);
 
-    // Clamp between 0 & 1.
-    src.x1 = src_x / tex_w;
-    src.x2 = (src_x + static_cast<float>(size.w)) / tex_w;
+    // Convert to be between [0.0,1.0].
+    src.x1 = std::clamp(src_x / tex_w,0.0f,1.0f);
+    src.x2 = std::clamp((src_x + static_cast<float>(size.w)) / tex_w,0.0f,1.0f);
   }
-  if(tex.size().h == 0) { // Avoid divides by 0.
+  if(tex.size().h <= 0) { // Avoid divides by 0.
     src.y1 = 0.0f;
     src.y2 = 0.0f;
   } else {
     const auto tex_h = static_cast<float>(tex.size().h);
     const auto src_y = static_cast<float>(offset.y + padding);
 
-    // Clamp between 0 & 1.
-    src.y1 = src_y / tex_h;
-    src.y2 = (src_y + static_cast<float>(size.h)) / tex_h;
+    // Convert to be between [0.0,1.0].
+    src.y1 = std::clamp(src_y / tex_h,0.0f,1.0f);
+    src.y2 = std::clamp((src_y + static_cast<float>(size.h)) / tex_h,0.0f,1.0f);
   }
 
   return src;
@@ -57,8 +57,8 @@ Sprite::Sprite(std::shared_ptr<Texture> tex,const Pos2i& offset,const Size2i& si
   : tex_(std::move(tex)) {
   const int p2 = padding * 2;
 
-  size_.w = (size.w > 0) ? size.w : (tex_->size().w - p2 - offset.x);
-  size_.h = (size.h > 0) ? size.h : (tex_->size().h - p2 - offset.y);
+  size_.w = (size.w > 0) ? size.w : std::max(tex_->size().w - p2 - offset.x,0);
+  size_.h = (size.h > 0) ? size.h : std::max(tex_->size().h - p2 - offset.y,0);
   src_ = build_src(*tex_,offset,size_,padding);
 }
 
