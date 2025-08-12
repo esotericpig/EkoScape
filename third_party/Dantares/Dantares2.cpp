@@ -1249,7 +1249,7 @@ void Dantares2::PrintDebugInfo(std::ostream &Out) const
 
     const std::string Indl = '\n' + std::string(Indent, ' ');
 
-    std::cout << "\nMaps:";
+    Out << "\nMaps:";
 
     for (int i = 0; i < MAXMAPS; i++)
     {
