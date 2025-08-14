@@ -28,6 +28,7 @@ EKO_BIN_ARCH='x86_64' # Default if arch not recognized.
 
 EKO_BIN="./@BIN_NAME@-${EKO_BIN_ARCH}.AppImage"
 
+echo "Dir:      '${PWD}'"
 echo "Arch:     '${EKO_ARCH}'"
 echo "Bin arch: '${EKO_BIN_ARCH}'"
 echo "Bin:      '${EKO_BIN}'"
