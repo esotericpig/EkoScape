@@ -3,11 +3,15 @@ name: Linux AppImage x64
 on:
   workflow_dispatch:
 #  push:
-#    branches: [ 'test-gh-ci' ]
+#    branches: [ 'test/gh-ci' ]
 
 permissions:
   actions: write
   contents: read
+
+defaults:
+  run:
+    shell: bash
 
 env:
   VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
@@ -79,7 +83,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
 
       - name: Install CMake & Ninja
         uses: lukka/get-cmake@latest

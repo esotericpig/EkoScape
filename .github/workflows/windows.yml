@@ -3,16 +3,19 @@ name: Windows x64
 on:
   workflow_dispatch:
 #  push:
-#    branches: [ 'test-gh-ci' ]
+#    branches: [ 'test/gh-ci' ]
 
 permissions:
   actions: write
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 env:
   VCPKG_ROOT: "${{ github.workspace }}/vcpkg"
 
-# NOTE: Don't use `\` for continuation.
 jobs:
   build:
     runs-on: windows-latest
@@ -21,7 +24,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
 
       - name: Install MSVC CL
         uses: ilammy/msvc-dev-cmd@v1
