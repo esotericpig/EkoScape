@@ -1,0 +1,3 @@
+[submodule "CybelEngine"]
+	path = libs/CybelEngine
+	url = https://github.com/esotericpig/CybelEngine

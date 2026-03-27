@@ -1,35 +1,45 @@
+# Project files.
 /assets/*
 !/assets/maps/
-/.idea/*
-!/.idea/cmake.xml
-!/.idea/runConfigurations/
-/bin/
-/bin_web/
-/build/
-/build_web/
 /pkgs/
 /stock/
 
-CMakeUserPresets.json
-/vcpkg
+# IDE files.
+.idea/*
+!.idea/cmake.xml
+!.idea/runConfigurations/
+vcpkg_root
 
+# CMake files.
+CMakeUserPresets.json
+
+# Library files.
 *.a
-*.app
-*.AppImage
-*.d
 *.dll
 *.dylib
-*.exe
-*.gch
 *.la
 *.lai
 *.lib
+*.so
+
+# Build files.
+/bin/
+/build/
+*.d
+*.dwo
+*.gch
+*.ilk
 *.lo
 *.mod
 *.o
 *.obj
-*.out
 *.pch
+*.pdb
 *.slo
 *.smod
-*.so
+
+# Executable files.
+*.app
+*.AppImage
+*.exe
+*.out

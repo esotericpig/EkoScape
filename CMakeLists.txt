@@ -1,8 +1,10 @@
 # 'CMakePresets.json' v2 must at least have CMake v3.20.
 # - https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.22)
 
 ###
+# TODO: Fix this doc up after make all cmake changes.
+#
 # Configurable params w/ defaults:
 #   -DEKO_RENDERER=GL
 #   -DEKO_LINUXDEPLOY_ARCH=x86_64          # See: cmake/appimage.cmake.in
@@ -38,27 +40,45 @@ cmake_minimum_required(VERSION 3.20)
 #
 # @author Bradley Whited
 ###
-
-# Get rid of stupid warning on first run.
-message(STATUS "Using toolchain file: '${CMAKE_TOOLCHAIN_FILE}'.")
-
 project("EkoScape"
     VERSION "2.4"
-    HOMEPAGE_URL "https://github.com/esotericpig/EkoScape"
     LANGUAGES C CXX
+
+    HOMEPAGE_URL "https://github.com/esotericpig/EkoScape"
 )
 
+#===========================================
+# User Config
+#===========================================
+set(EKO_EXE_DIR_NAME "bin" CACHE STRING "Dir name to output the exe file to.")
+
+# TODO: Rename to APPIMAGE?
+set(EKO_LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for `appimage` target.")
+
+# TODO: Rename to CPACK?
+set(EKO_PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
+option(EKO_PKG_MACOS_USE_BUILD_UNI_DIR "For macOS, use `build_uni` dir for `package` target." OFF)
+
+message("
+[EkoScape::UserConfig]
+  EKO_EXE_DIR_NAME:                '${EKO_EXE_DIR_NAME}'
+
+  EKO_LINUXDEPLOY_ARCH:            '${EKO_LINUXDEPLOY_ARCH}'
+
+  EKO_PKG_SUFFIX:                  '${EKO_PKG_SUFFIX}'
+  EKO_PKG_MACOS_USE_BUILD_UNI_DIR? ${EKO_PKG_MACOS_USE_BUILD_UNI_DIR}
+")
+
+#===========================================
+# Project Config
+#===========================================
 string(TOLOWER "${PROJECT_NAME}" PROJ_ID)
 set(RDNS_NAME "io.github.esotericpig.${PROJ_ID}")
 
 set(BIN_NAME "${PROJECT_NAME}")
-set(EKO_BIN_DIRNAME "bin" CACHE STRING "Dirname to output the binary file to.")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${EKO_BIN_DIRNAME}/$<CONFIG>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/${EKO_EXE_DIR_NAME}/$<CONFIG>")
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
-set(TP_DIR "${CMAKE_SOURCE_DIR}/third_party")
-set(EKO_RENDERER "GL" CACHE STRING "Renderer to use: GL or GLES.")
-set_property(CACHE EKO_RENDERER PROPERTY STRINGS "GL" "GLES")
 
 set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(RES_DIR "${CMAKE_SOURCE_DIR}/res")
@@ -72,10 +92,7 @@ set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
 set(CONFIG_CMAKE_IN_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(CONFIG_OUT_DIR "${CMAKE_BINARY_DIR}/config")
 set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
-set(EKO_LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for 'appimage' target.")
 
-set(EKO_PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
-option(EKO_PKG_MACOS_USE_BUILD_UNI_DIR "For macOS, use 'build_uni' dir for 'package' target." OFF)
 set(PKG_BASE_FILES "${CONFIG_OUT_DIR}/.itch.toml")
 set(PKG_RES_DIRS "${ASSETS_DIR}")
 set(PKG_RES_FILES
@@ -97,7 +114,6 @@ set(CPACK_BUNDLE_PLIST "${CONFIG_OUT_DIR}/Info.plist")
 set(CPACK_BUNDLE_ICON "${ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
 
 set(FETCHCONTENT_QUIET OFF)
-#set(OpenGL_GL_PREFERENCE LEGACY) # Might need if get warnings.
 
 if(APPLE)
   set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.app")
@@ -110,43 +126,70 @@ else()
   set(PKG_ITCH_RES_PATH ".")
 endif()
 
-############################################
-# Compiler Config                          #
-############################################
+#===========================================
+# Download Assets
+#===========================================
+if(NOT EXISTS "${ASSETS_DIR}/images/EkoScape.png")
+  if(NOT EXISTS "${ASSETS_DOWN_FILE}")
+    message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DOWN_FILE}'...")
+    file(DOWNLOAD "${ASSETS_URL}" "${ASSETS_DOWN_FILE}"
+#        EXPECTED_HASH SHA256=
+        TLS_VERIFY ON
+        SHOW_PROGRESS
+    )
+  endif()
+
+  message(STATUS "Extracting '${ASSETS_DOWN_FILE}' to '${ASSETS_DIR}'...")
+  file(ARCHIVE_EXTRACT
+      INPUT "${ASSETS_DOWN_FILE}"
+      DESTINATION "${ASSETS_DIR}"
+      PATTERNS "icons" "images" "music" "textures"
+#      LIST_ONLY # TEST: Uncomment to list files only, no extraction.
+      VERBOSE
+  )
+endif()
+
+#===========================================
+# Project/Build Setup
+#===========================================
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if(WIN32)
   # Statically link system libs.
-  # NOTE: Must be before add_executable().
+  # NOTE: Must set before add_executable()/add_library().
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-add_executable("${BIN_NAME}")
+add_executable(EkoScape WIN32)
+add_library(EkoScapeBuildConfig INTERFACE)
+add_library(EkoScape::BuildConfig ALIAS EkoScapeBuildConfig)
 
 if(EMSCRIPTEN)
-  set_target_properties("${BIN_NAME}" PROPERTIES
+  set_target_properties(EkoScape PROPERTIES
       OUTPUT_NAME "${PROJ_ID}"
       SUFFIX ".html"
   )
 
   # itch.io requires `index.html`, but I want the other files to be named `ekoscape.*`.
   # - Copying (instead of renaming), else linking will always run due to `ekoscape.html' not existing.
-  add_custom_command(TARGET "${BIN_NAME}"
+  add_custom_command(TARGET EkoScape
       POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy
-              "$<TARGET_FILE:${BIN_NAME}>"
-              "$<TARGET_FILE_DIR:${BIN_NAME}>/index.html"
+        "$<TARGET_FILE:EkoScape>"
+        "$<TARGET_FILE_DIR:EkoScape>/index.html"
       COMMENT "Copying target file as `index.html`."
       VERBATIM
       USES_TERMINAL
   )
-  add_custom_command(TARGET "${BIN_NAME}"
+  add_custom_command(TARGET EkoScape
       POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy
-              "${ASSETS_DIR}/icons/${PROJECT_NAME}.ico"
-              "$<TARGET_FILE_DIR:${BIN_NAME}>/favicon.ico"
+        "${ASSETS_DIR}/icons/${PROJECT_NAME}.ico"
+        "$<TARGET_FILE_DIR:EkoScape>/favicon.ico"
       COMMENT "Copying favicon to target dir."
       VERBATIM
       USES_TERMINAL
@@ -159,16 +202,21 @@ if(EMSCRIPTEN)
 #      -sSTRICT=1
 #      -sSUPPORT_LONGJMP=0
 
-      # Uncomment to not minify JS.
-#      -g2
-#      --minify 0
+      # In Debug, don't minify JS.
+      $<$<CONFIG:Debug>:
+        -g2
+        --minify 0
+      >
 
-      # Code optimization.
+      # Code optimizations.
       # - https://emscripten.org/docs/optimizing/Optimizing-Code.html
       # - https://emscripten.org/docs/optimizing/Optimizing-WebGL.html
-      # - NOTE: There are optimizations that can increase compile/link time. If not desired, comment out.
-      -flto
-      -fno-rtti
+      #
+      # NOTE: Optimizations can increase compile/link time. If not desired, comment out.
+      $<$<CONFIG:Release>:
+        -flto
+        -fno-rtti
+      >
 
       # Libraries (ports).
       # - Show available ports:
@@ -181,15 +229,12 @@ if(EMSCRIPTEN)
   )
 
   # - https://emscripten.org/docs/tools_reference/emcc.html
-  target_compile_options("${BIN_NAME}" PRIVATE
+  target_compile_options(EkoScapeBuildConfig INTERFACE
       ${EMS_COMPILE_AND_LINK_OPTS}
-
-      -Wall -Wconversion -Wextra -Wpedantic
-#      -Wno-sign-conversion
   )
 
   # - https://emscripten.org/docs/tools_reference/emcc.html
-  target_link_options("${BIN_NAME}" PRIVATE
+  target_link_options(EkoScapeBuildConfig INTERFACE
       ${EMS_COMPILE_AND_LINK_OPTS}
 
 #      --check
@@ -200,12 +245,15 @@ if(EMSCRIPTEN)
       # Settings.
       # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
       -sALLOW_MEMORY_GROWTH=1
-#      -sEXCEPTION_DEBUG=1
-#      -sEXCEPTION_STACK_TRACES=1
       "-sEXPORTED_FUNCTIONS=_main,ccall,_SDL_ShowCursor"
-#      -sGL_ASSERTIONS=1
       -sMINIFY_HTML=0
-#      -sSAFE_HEAP=1
+
+      $<$<CONFIG:Debug>:
+        -sEXCEPTION_DEBUG=1
+        -sEXCEPTION_STACK_TRACES=1
+        -sGL_ASSERTIONS=1
+        -sSAFE_HEAP=1
+      >
 
       # - OpenGL ES 3.0.
       -sMIN_WEBGL_VERSION=2
@@ -223,181 +271,70 @@ if(EMSCRIPTEN)
       "--exclude-file=*/images/ekotiles.png"
       "--exclude-file=*/images/keys.png"
       "--exclude-file=*/maps/template_*.txt"
-#      --use-preload-plugins # Don't use; breaks star textures.
-  )
-elseif(APPLE)
-  target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_PLATFORM_MACOS
-      DANTARES_PLATFORM_MACOS
-  )
-elseif(WIN32)
-  set_target_properties("${BIN_NAME}" PROPERTIES
-      WIN32_EXECUTABLE ON
-  )
-  target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_PLATFORM_WINDOWS
-      DANTARES_PLATFORM_WINDOWS
-  )
-  target_sources("${BIN_NAME}" PRIVATE "${RES_DIR}/res.rc")
-else()
-  target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_PLATFORM_LINUX
-      DANTARES_PLATFORM_LINUX
+#      --use-preload-plugins # NOTE: Don't use; breaks star textures.
   )
 endif()
 
-if(EKO_RENDERER STREQUAL "GLES")
-  target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_RENDERER_GLES
-  )
-else() # GL.
-  target_compile_definitions("${BIN_NAME}" PRIVATE
-      CYBEL_RENDERER_GL
-      DANTARES_RENDERER_GL
-  )
+if(NOT EMSCRIPTEN AND CYBEL_RENDERER STREQUAL "GL")
+  target_compile_definitions(EkoScapeBuildConfig INTERFACE DANTARES_RENDERER_GL)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
-  set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG /utf-8")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 
-  #target_compile_options("${BIN_NAME}" PRIVATE
-  #    /W4 /permissive-
-  #)
-else() # elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+#  target_compile_options(EkoScapeBuildConfig INTERFACE
+#      /W4 /permissive-
+#  )
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -finput-charset=UTF-8")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 
-  if(NOT APPLE AND NOT EMSCRIPTEN)
-    target_compile_options("${BIN_NAME}" PRIVATE
-        -Wall -Wconversion -Wextra -Wpedantic
-        -Wsign-conversion
-    )
-  endif()
-endif()
-
-############################################
-# Download Assets & Extract                #
-############################################
-if(NOT EXISTS "${ASSETS_DIR}/images/EkoScape.png")
-  if(NOT EXISTS "${ASSETS_DOWN_FILE}")
-    message(STATUS "Downloading '${ASSETS_URL}' to '${ASSETS_DOWN_FILE}'...")
-    file(DOWNLOAD
-        "${ASSETS_URL}"
-        "${ASSETS_DOWN_FILE}"
-
-        #EXPECTED_HASH SHA256=
-        TLS_VERIFY ON
-        SHOW_PROGRESS
-    )
-  endif()
-
-  message(STATUS "Extracting '${ASSETS_DOWN_FILE}' to '${ASSETS_DIR}'...")
-  file(ARCHIVE_EXTRACT
-      INPUT "${ASSETS_DOWN_FILE}"
-      DESTINATION "${ASSETS_DIR}"
-
-      PATTERNS "icons" "images" "music" "textures"
-      #LIST_ONLY # For testing.
-      VERBOSE
+  target_compile_options(EkoScapeBuildConfig INTERFACE
+      $<$<OR:$<PLATFORM_ID:Linux>,$<PLATFORM_ID:Emscripten>>:
+        -Wall -Wconversion -Wextra -Wpedantic -Wsign-conversion -Wundef
+        -fno-common
+      >
   )
 endif()
 
-############################################
-# Libraries                                #
-############################################
-if(NOT EMSCRIPTEN)
-  # See 'vcpkg.json' & output of CMake for usage.
-  find_package(GLEW REQUIRED)
-  find_package(OpenGL REQUIRED) # GLU should be included.
-  find_package(SDL2 CONFIG REQUIRED)
-  find_package(SDL2_image CONFIG REQUIRED)
-  find_package(SDL2_mixer CONFIG REQUIRED)
+target_link_libraries(EkoScape PRIVATE EkoScape::BuildConfig)
 
-  target_link_libraries("${BIN_NAME}" PRIVATE
-      GLEW::GLEW
-      OpenGL::GL
-      OpenGL::GLU
-      $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-      $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-      $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
-      $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
-  )
-endif()
+#===========================================
+# Libraries
+#===========================================
+add_subdirectory("libs/CybelEngine")
+add_subdirectory("libs/Dantares")
 
-if(EKO_RENDERER STREQUAL "GLES")
-  find_package(glm CONFIG REQUIRED)
+target_link_libraries(CybelEngine PRIVATE EkoScape::BuildConfig)
+target_link_libraries(Dantares PRIVATE EkoScape::BuildConfig)
 
-  target_link_libraries("${BIN_NAME}" PRIVATE
-      glm::glm
-  )
-endif()
+target_link_libraries(EkoScape PRIVATE
+    CybelEngine::CybelEngine
+    Dantares::Dantares
+)
 
-############################################
-# Source Code                              #
-############################################
-target_include_directories("${BIN_NAME}" PRIVATE
-    "${TP_DIR}"
+#===========================================
+# Source Code
+#===========================================
+target_include_directories(EkoScape PRIVATE
     "${SRC_DIR}"
 )
 # Run `./scripts/glob_src.rb` to show source files to add/remove here.
-target_sources("${BIN_NAME}" PRIVATE
-#    "${TP_DIR}/Dantares/Dantares.cpp"
-    "${TP_DIR}/Dantares/Dantares2.cpp"
-    "${TP_DIR}/Dantares/Dantares2GL.cpp"
+target_sources(EkoScape PRIVATE
+    "$<$<BOOL:${WIN32}>:${RES_DIR}/res.rc>"
 
-    "${SRC_DIR}/cybel/asset/asset_man.cpp"
-    "${SRC_DIR}/cybel/asset/font_atlas_ref.cpp"
-    "${SRC_DIR}/cybel/asset/sprite_ref.cpp"
-    "${SRC_DIR}/cybel/asset/texture_ref.cpp"
-    "${SRC_DIR}/cybel/audio/audio.cpp"
-    "${SRC_DIR}/cybel/audio/audio_player.cpp"
-    "${SRC_DIR}/cybel/audio/music.cpp"
-    "${SRC_DIR}/cybel/gfx/font_atlas.cpp"
-    "${SRC_DIR}/cybel/gfx/image.cpp"
-    "${SRC_DIR}/cybel/gfx/renderer.cpp"
-    "${SRC_DIR}/cybel/gfx/renderer_gl.cpp"
-    "${SRC_DIR}/cybel/gfx/renderer_gles.cpp"
-    "${SRC_DIR}/cybel/gfx/sprite.cpp"
-    "${SRC_DIR}/cybel/gfx/sprite_atlas.cpp"
-    "${SRC_DIR}/cybel/gfx/texture.cpp"
-    "${SRC_DIR}/cybel/input/game_ctrl.cpp"
-    "${SRC_DIR}/cybel/input/input_man.cpp"
-    "${SRC_DIR}/cybel/input/joystick.cpp"
-    "${SRC_DIR}/cybel/io/text_reader.cpp"
-    "${SRC_DIR}/cybel/io/text_reader_buf.cpp"
-    "${SRC_DIR}/cybel/scene/scene_bag.cpp"
-    "${SRC_DIR}/cybel/scene/scene_man.cpp"
-    "${SRC_DIR}/cybel/str/utf8/rune_iterator.cpp"
-    "${SRC_DIR}/cybel/str/utf8/rune_range.cpp"
-    "${SRC_DIR}/cybel/str/utf8/rune_util.cpp"
-    "${SRC_DIR}/cybel/str/utf8/str_util.cpp"
-    "${SRC_DIR}/cybel/stubs/glew_stub.cpp"
-    "${SRC_DIR}/cybel/types/color.cpp"
-    "${SRC_DIR}/cybel/types/cybel_error.cpp"
-    "${SRC_DIR}/cybel/types/duration.cpp"
-    "${SRC_DIR}/cybel/types/range.cpp"
-    "${SRC_DIR}/cybel/ui/ui_box_node.cpp"
-    "${SRC_DIR}/cybel/ui/ui_flex_grid.cpp"
-    "${SRC_DIR}/cybel/ui/ui_quad.cpp"
-    "${SRC_DIR}/cybel/ui/ui_sprite.cpp"
-    "${SRC_DIR}/cybel/ui/ui_texture.cpp"
-    "${SRC_DIR}/cybel/util/rando.cpp"
-    "${SRC_DIR}/cybel/util/timer.cpp"
-    "${SRC_DIR}/cybel/util/util.cpp"
-    "${SRC_DIR}/cybel/vfx/particle.cpp"
-    "${SRC_DIR}/cybel/cybel_engine.cpp"
-
+    # @glob_src=src:${SRC_DIR}/
+    "${SRC_DIR}/ekoscape_game.cpp"
+    "${SRC_DIR}/main.cpp"
     "${SRC_DIR}/assets/assets.cpp"
     "${SRC_DIR}/assets/font_renderer.cpp"
-
     "${SRC_DIR}/map/dantares_map.cpp"
     "${SRC_DIR}/map/facing.cpp"
     "${SRC_DIR}/map/map.cpp"
     "${SRC_DIR}/map/map_grid.cpp"
     "${SRC_DIR}/map/space.cpp"
     "${SRC_DIR}/map/space_type.cpp"
-
     "${SRC_DIR}/scenes/boring_work_scene.cpp"
     "${SRC_DIR}/scenes/dantares_renderer.cpp"
     "${SRC_DIR}/scenes/game_hud.cpp"
@@ -407,59 +344,51 @@ target_sources("${BIN_NAME}" PRIVATE
     "${SRC_DIR}/scenes/menu_play_scene.cpp"
     "${SRC_DIR}/scenes/menu_scene.cpp"
     "${SRC_DIR}/scenes/scene_action.cpp"
-
     "${SRC_DIR}/world/robot.cpp"
     "${SRC_DIR}/world/star_sys.cpp"
-
-    "${SRC_DIR}/ekoscape_game.cpp"
-    "${SRC_DIR}/main.cpp"
+    # @glob_src
 )
 
-############################################
-# Custom Targets                           #
-############################################
+#===========================================
+# Custom Targets
+#===========================================
+include(cybel/CustomTargets)
+
 if(EMSCRIPTEN)
   add_custom_target(run
-      COMMAND emrun --no-browser "$<TARGET_FILE_DIR:${BIN_NAME}>"
-      DEPENDS "${BIN_NAME}"
+      COMMAND emrun --no-browser "$<TARGET_FILE_DIR:EkoScape>"
+      DEPENDS EkoScape
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       USES_TERMINAL
       VERBATIM
   )
 else()
   add_custom_target(run
-      COMMAND "$<TARGET_FILE:${BIN_NAME}>"
-      DEPENDS "${BIN_NAME}"
+      COMMAND "$<TARGET_FILE:EkoScape>"
+      DEPENDS EkoScape
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       USES_TERMINAL # For terminal output during testing.
       VERBATIM
   )
 endif()
 
-add_custom_target(check
-    COMMAND cppcheck --quiet --enable=all --check-level=exhaustive
-            --language=c++ "--std=c++${CMAKE_CXX_STANDARD}"
-            "--relative-paths=${CMAKE_SOURCE_DIR}"
-            "--checkers-report=${CMAKE_BINARY_DIR}/cppcheck_checkers_report.txt"
-
-            --suppress=missingInclude
-            --suppress=missingIncludeSystem
-            #"--suppress=noExplicitConstructor:src/cybel/types.h"
-            --suppress=shadowFunction
-            --suppress=unknownMacro # For Emscripten: EM_ASM(), etc.
-            --suppress=unmatchedSuppression
-            --suppress=unusedFunction
-            --suppress=unusedPrivateFunction
-
-            "${TP_DIR}"
-            "${SRC_DIR}"
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    USES_TERMINAL
-    VERBATIM
+cybel_add_cppcheck_target(
+    ARGS
+      --suppress=checkersReport
+      --suppress=functionConst
+      --suppress=functionStatic
+      --suppress=missingInclude
+      --suppress=missingIncludeSystem
+#      "--suppress=noExplicitConstructor:src/cybel/types/"
+      --suppress=shadowFunction
+      --suppress=unknownMacro # For Emscripten: EM_ASM(), etc.
+      --suppress=unmatchedSuppression
+      --suppress=unusedFunction
+#      --suppress=unusedPrivateFunction
 )
 add_custom_target(appimage
     COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/appimage.cmake"
-    DEPENDS "${BIN_NAME}"
+    DEPENDS EkoScape
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -471,10 +400,10 @@ add_custom_target(check_macos_bundle
     VERBATIM
 )
 
-############################################
-# AppImage                                 #
-############################################
-install(TARGETS "${BIN_NAME}"
+#===========================================
+# AppImage
+#===========================================
+install(TARGETS EkoScape
     # For AppImage, must use 'bin', cannot use 'games'.
     RUNTIME DESTINATION bin
     COMPONENT appimage
@@ -502,9 +431,9 @@ install(FILES "${CONFIG_OUT_DIR}/${RDNS_NAME}.metainfo.xml"
     EXCLUDE_FROM_ALL
 )
 
-############################################
-# Package (CPack)                          #
-############################################
+#===========================================
+# CPack
+#===========================================
 if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
   set(CPACK_GENERATOR "Bundle")
@@ -527,7 +456,7 @@ if(APPLE)
         COMPONENT cpack
     )
   else()
-    install(TARGETS "${BIN_NAME}"
+    install(TARGETS EkoScape
         BUNDLE DESTINATION "${PKG_MACOS_BIN_DIR}"
         COMPONENT cpack
 
@@ -552,7 +481,7 @@ elseif(WIN32)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-windows")
   set(CPACK_GENERATOR "ZIP")
 
-  install(TARGETS "${BIN_NAME}"
+  install(TARGETS EkoScape
       RUNTIME DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -606,9 +535,9 @@ endif()
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${EKO_PKG_SUFFIX}")
 
-############################################
-# Configure Template Files                 #
-############################################
+#===========================================
+# Configure Template Files
+#===========================================
 configure_file("${CONFIG_CMAKE_IN_DIR}/appimage.cmake.in" "${CONFIG_OUT_DIR}/appimage.cmake" @ONLY)
 # NOTE: Must be configured before including CPack.
 configure_file("${CONFIG_CMAKE_IN_DIR}/check_macos_bundle.cmake.in"

@@ -1,26 +1,14 @@
 {
-  "builtin-baseline": "8f54ef5453e7e76ff01e15988bf243e7247c5eb5",
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "builtin-baseline": "d3cb4912696aa2e4b0c80294f27433fceaf55e6a",
+
   "dependencies": [
-    {
-      "name": "glew",
-      "platform": "!emscripten"
-    },
-    "glm",
-    {
-      "name": "opengl",
-      "platform": "!emscripten"
-    },
-    {
-      "name": "sdl2",
-      "platform": "!emscripten"
-    },
-    {
-      "name": "sdl2-image",
-      "platform": "!emscripten"
-    },
-    {
-      "name": "sdl2-mixer",
-      "platform": "!emscripten"
-    }
+    { "name": "glew"      , "platform": "!emscripten" },
+    { "name": "opengl"    , "platform": "!emscripten" },
+    { "name": "sdl2"      , "platform": "!emscripten" },
+    { "name": "sdl2-image", "platform": "!emscripten" },
+    { "name": "sdl2-mixer", "platform": "!emscripten" },
+
+    { "name": "glm" }
   ]
 }

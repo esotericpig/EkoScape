@@ -52,6 +52,8 @@ The code is a bit over-engineered, but I designed it so that I could use parts o
 
 **Update 2025-02:** I updated the game to work on the Web using Emscripten. I had to add OpenGL ES 3.0 (WebGL 2.0) support to the Renderer class and to Dantares (made a new Dantares2 class to preserve the "original").
 
+**Update 2026-02:** The Cybel Engine was moved out into its own repo under a more permissive license.
+
 ## Contents ##
 
 - [Hacking](#hacking)
@@ -367,12 +369,12 @@ Example workflow:
 
 ## License ##
 
-Due to The Dantares Engine being licensed under GPL, I also had to license this game under GPL. However, I might extract my Cybel Engine out (doesn't depend on The Dantares Engine) and place it under a more permissive license (like LGPL or MIT), but probably no one cares to use it anyway.
+Due to The Dantares Engine being licensed under the GPL, I also had to license this game under the GPL.
 
 [GNU GPL v3+](LICENSE)
 
 > EkoScape (<https://github.com/esotericpig/EkoScape>)  
-> Copyright (c) 2004, 2024-2025 Bradley Whited  
+> Copyright (c) 2004, 2024-2026 Bradley Whited  
 > 
 > EkoScape is free software: you can redistribute it and/or modify  
 > it under the terms of the GNU General Public License as published by  

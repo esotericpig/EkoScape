@@ -1,32 +1,55 @@
 {
   "version": 2,
+
   "configurePresets": [
     {
-      "name": "default",
+      "name": "base",
+      "hidden": true,
+
       "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "EKO_RENDERER": "GL"
-      },
+      "binaryDir": "${sourceDir}/build/${presetName}",
+
       "warnings": {
         "dev": true,
         "deprecated": true,
         "uninitialized": false
+      },
+
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+
+        "CYBEL_OBJECT_LIB": true,
+        "CYBEL_USE_SANITIZE": false,
+        "CYBEL_USE_LIBS": true,
+        "CYBEL_USE_CONFIG_PKGS": true,
+
+        "CYBEL_RENDERER": "GL",
+
+        "EKO_EXE_DIR_NAME": "bin/${presetName}"
+      }
+    },
+
+    {
+      "name": "default",
+      "inherits": "base",
+
+      "cacheVariables": {
+        "CYBEL_USE_SANITIZE": false,
+
+        "CYBEL_RENDERER": "GL"
       }
     },
     {
       "name": "web",
-      "inherits": "default",
-      "binaryDir": "${sourceDir}/build_web",
+      "inherits": "base",
+
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten",
-        "EKO_BIN_DIRNAME": "bin_web",
-        "EKO_RENDERER": "GLES"
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten"
       }
     }
   ],
+
   "buildPresets": [
     {
       "name": "default",
