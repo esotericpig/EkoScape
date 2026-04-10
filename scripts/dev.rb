@@ -31,7 +31,7 @@
 #   ./scripts/dev.rb -b -w
 #   ./scripts/dev.rb -r -w
 #
-#   # Check code quality.
+#   # Check code quality (`cppcheck`).
 #   ./scripts/dev.rb -k
 #
 #   # Build Linux AppImage.
@@ -51,7 +51,7 @@ def main
 end
 
 class DevApp
-  VERSION = '0.1.9'
+  VERSION = '0.1.10'
 
   CMAKE_CMD = %w[cmake].freeze
 
@@ -145,7 +145,7 @@ class DevApp
   end
 
   def check_code
-    build(target: 'check')
+    build(target: 'cppcheck')
   end
 
   def clean_build
