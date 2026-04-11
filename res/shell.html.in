@@ -196,7 +196,7 @@
     document.addEventListener('fullscreenchange',() => {
       if(!document.fullscreenElement) {
         try {
-          Module.ccall('SDL_ShowCursor',null,['number'],[1]); // SDL_ENABLE.
+          Module.ccall('SDL_ShowCursor',null,['number'],[1]); // SDL_ENABLE = 1.
         } catch(e) {
           console.warn('Failed to re-show cursor after fullscreen (using fallback instead):',e);
           canvasElement.style.cursor = 'auto'; // Use fallback.

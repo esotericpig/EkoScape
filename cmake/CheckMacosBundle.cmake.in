@@ -16,7 +16,7 @@ set(MACOS_BUNDLE_DIR
 include(BundleUtilities)
 
 ############################################
-# Fixup the Bundle                         #
+# Fix Up the Bundle                        #
 ############################################
 message(STATUS "Using macOS bundle: '${MACOS_BUNDLE_DIR}'.")
 

@@ -6,7 +6,7 @@
 # TODO: Add custom target for running the AppImage?
 
 install(TARGETS EkoScape
-    # For AppImage, must use `bin`, cannot use `games`.
+    # NOTE: For AppImage, must use `bin`, cannot use `games`.
     RUNTIME DESTINATION bin
     COMPONENT appimage
     EXCLUDE_FROM_ALL
@@ -39,7 +39,7 @@ install(FILES "${CONFIG_OUT_DIR}/${RDNS_NAME}.metainfo.xml"
 # Custom Targets
 #===========================================
 add_custom_target(appimage
-    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/appimage.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/BuildAppImage.cmake"
     DEPENDS EkoScape
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
@@ -49,12 +49,12 @@ add_custom_target(appimage
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml" "${CONFIG_OUT_DIR}/${RDNS_NAME}.metainfo.xml"
+configure_file("${RES_DIR}/${RDNS_NAME}.metainfo.xml.in" "${CONFIG_OUT_DIR}/${RDNS_NAME}.metainfo.xml"
     @ONLY
     NEWLINE_STYLE LF
 )
-configure_file("${CONFIG_CMAKE_IN_DIR}/appimage.cmake.in" "${CONFIG_OUT_DIR}/appimage.cmake" @ONLY)
-configure_file("${RES_DIR}/launcher.sh" "${CONFIG_OUT_DIR}/${BIN_NAME}.sh"
+configure_file("${CONFIG_CMAKE_IN_DIR}/BuildAppImage.cmake.in" "${CONFIG_OUT_DIR}/BuildAppImage.cmake" @ONLY)
+configure_file("${RES_DIR}/${BIN_NAME}.sh.in" "${CONFIG_OUT_DIR}/${BIN_NAME}.sh"
     @ONLY
     NEWLINE_STYLE LF
 )

@@ -16,4 +16,4 @@ endif()
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/.itch.toml" "${CONFIG_OUT_DIR}/.itch.toml" @ONLY)
+configure_file("${RES_DIR}/.itch.toml.in" "${CONFIG_OUT_DIR}/.itch.toml" @ONLY)

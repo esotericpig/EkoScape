@@ -132,7 +132,7 @@ set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${EKO_PKG_SUFFIX}")
 # Custom Targets
 #===========================================
 add_custom_target(check_macos_bundle
-    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/check_macos_bundle.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/CheckMacosBundle.cmake"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -141,14 +141,14 @@ add_custom_target(check_macos_bundle
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/Info.plist" "${CONFIG_OUT_DIR}/Info.plist"
+configure_file("${RES_DIR}/Info.plist.in" "${CONFIG_OUT_DIR}/Info.plist"
     @ONLY
     NEWLINE_STYLE LF
 )
 # NOTE: Must be configured before including CPack.
 configure_file(
-    "${CONFIG_CMAKE_IN_DIR}/check_macos_bundle.cmake.in"
-    "${CONFIG_OUT_DIR}/check_macos_bundle.cmake"
+    "${CONFIG_CMAKE_IN_DIR}/CheckMacosBundle.cmake.in"
+    "${CONFIG_OUT_DIR}/CheckMacosBundle.cmake"
     @ONLY
 )
 

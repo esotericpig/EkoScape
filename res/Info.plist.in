@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <!-- https://developer.apple.com/documentation/bundleresources/bundle-configuration -->
+  <!--
+  - https://developer.apple.com/documentation/bundleresources/bundle-configuration
+  - https://wiki.libsdl.org/SDL2/README-ios
+  -->
   <dict>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
@@ -24,14 +27,23 @@
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2004, 2024-2025 Bradley Whited</string>
+    <string>Copyright © 2004, 2024–2026 Bradley Whited</string>
 
     <key>CFBundleIconFile</key>
     <string>@PROJECT_NAME@</string>
     <key>CFBundleExecutable</key>
     <string>@BIN_NAME@</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
 
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+    <key>UILaunchScreen</key>
+    <dict/>
   </dict>
 </plist>

@@ -113,7 +113,7 @@ add_custom_command(TARGET EkoScape
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/shell.html" "${CONFIG_OUT_DIR}/shell.html"
+configure_file("${RES_DIR}/shell.html.in" "${CONFIG_OUT_DIR}/shell.html"
     @ONLY
     NEWLINE_STYLE LF
 )
