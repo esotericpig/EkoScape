@@ -13,7 +13,6 @@ For making the Map Grids, it's recommended to use one of these visual/drawing ed
 To have your maps included in the next version of EkoScape (or to simply share them for others to try), submit them by either:
 - Posting a comment on the [EkoScape itch.io page](https://esotericpig.itch.io/ekoscape) (can use Markdown backticks).
 - Or by replying to [this GitHub Discussion](https://github.com/esotericpig/EkoScape/discussions/1).
-- Or by creating a [GitHub Issue](https://github.com/esotericpig/EkoScape/issues).
 
 ## Example Map Rundown ##
 
