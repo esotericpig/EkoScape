@@ -6,13 +6,15 @@
 [![Source Code](https://img.shields.io/badge/source-github-211f1f.svg)](https://github.com/esotericpig/EkoScape)
 [![License](https://img.shields.io/github/license/esotericpig/EkoScape.svg)](LICENSE)
 
-EkoScape is a simple 3D step-based game where you run through a maze rescuing your fellow alien *Ekos*, like a 3D Pac-Man, with robot enemies, fruit, and portals. The maps are simple text files that you can edit!
+EkoScape is a 3D step-based game where you run through a maze rescuing your fellow alien *Ekos*, like a 3D Pac-Man, with robot enemies, fruit, and portals. The maps are simple text files that you can edit!
+
+AI Notice: No AI was used for writing the code; it was all hand-coded. AI was only used for making the new graphics in `<assets/textures/realistic/>`.
 
 ## Playing ##
 
-You can play in your Web browser or download the game on [itch.io](https://esotericpig.itch.io/ekoscape).
+Play in your web browser or download the game on [itch.io](https://esotericpig.itch.io/ekoscape).
 
-If you choose to download, simply run it in the same folder containing the `assets` folder, or you can install & run the game from the official [itch app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
+You can also install & run the game from the official [itch.io app](https://itch.io/app) where the game has been tested to work in sandbox mode (if you're concerned about security).
 
 You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See [assets/maps/README.md](assets/maps/README.md) for more details, which also includes how to submit your Map files for the next version.
 
@@ -20,22 +22,23 @@ You can edit the Map files in [assets/maps/](assets/maps/) or make your own! See
 
 Web:
 - WebGL 2.0+ (OpenGL ES 3.0+)
-- It's recommended to turn on hardware/graphics acceleration in your browser's settings.
+  - It's recommended to turn on hardware/graphics acceleration in your browser's settings.
 
 Desktop:
 - OpenGL 2.1+
-  - Use Mesa if you have a lower version.
-- Linux x86_64 (AppImage)
-  - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
-- macOS arm64 or x86_64
-  - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning when running:
-    - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
-- Windows x64
+  - Use *Mesa* if you have a lower version.
+- OS:
+  - Linux x86_64 (AppImage)
+    - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
+  - macOS arm64 or x86_64
+    - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning when running:
+      - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
+  - Windows x64
 
 ### Additional System Notes ###
 
 - Linux:
-  - A Desktop Entry file is provided if you wish to integrate it with your DE (Desktop Environment). Open the provided file, `io.github.esotericpig.ekoscape.desktop`, in a text editor to read more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/io.github.esotericpig.ekoscape.desktop).
+  - An optional Desktop Entry file is provided if you wish to integrate it with your Desktop Environment (DE). Read the provided file `<io.github.esotericpig.ekoscape.desktop>` for more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/io.github.esotericpig.ekoscape.desktop).
 
 ## Code History ##
 
@@ -45,9 +48,7 @@ Back then, I made it for Windows only. In 2024, I re-wrote the code for it in SD
 
 In the beginning, I rewrote the original code for fun in a couple of days. Having enjoyed the process, I decided to flesh it out into multiple, generic files, while adding a menu and a lot of extra stuff (such as portals, fruit, and multiple grids), which took over a month.
 
-The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. I did make a simple ECS (Entity-Component-System) for it, but because the game is quite simple and the ECS code produced more files/lines of code, I decided to just stick with the original class-based structure.
-
-Initially, `src/cybel` was named `src/core`, but I decided to make it into its own Game Engine (kind of). I then put it in its own namespace, called `cybel`. Because of this, I simply use `using namespace cybel` inside of the `ekoscape` namespace, as I didn't like putting `cybel::` everywhere.
+The code is a bit over-engineered, but I designed it so that I could use parts of it in other projects. Initially, the Cybel Engine was in `src/core`, but I decided to make it into its own Game Engine.
 
 **Update 2025-02:** I updated the game to work on the Web using Emscripten. I had to add OpenGL ES 3.0 (WebGL 2.0) support to the Renderer class and to Dantares (made a new Dantares2 class to preserve the "original").
 
@@ -62,12 +63,12 @@ Initially, `src/cybel` was named `src/core`, but I decided to make it into its o
   - [Checking Code Quality](#checking-code-quality)
   - [Building Linux AppImage](#building-linux-appimage)
   - [Packaging Up](#packaging-up)
-  - [Miscellaneous](#miscellaneous)
-- [Hacking for Web](#hacking-for-web)
+  - [Keys & Scripts](#keys--scripts)
+- [Web Hacking](#web-hacking)
   - [OpenGL ES for Desktop](#opengl-es-for-desktop)
-  - [Setup for Web](#setup-for-web)
-  - [CMake for Web](#cmake-for-web)
-  - [Misc. for Web](#misc-for-web)
+  - [Web Setup](#web-setup)
+  - [Web CMake](#web-cmake)
+  - [Web Scripts](#web-scripts)
 - [Releasing](#releasing)
   - [Maps README](#maps-readme)
   - [New Release](#new-release)
@@ -203,7 +204,7 @@ If your platform is not `x86_64`, you'll need to change which `linuxdeploy` to u
 ```bash
 rm -r build
 
-# aarch64, armhf, i386, static-x86_64, x86_64
+# Arches: x86_64, i386, aarch64, armhf
 cmake --preset default -DEKO_LINUXDEPLOY_ARCH=aarch64
 
 cmake --build --preset default --config Release --target appimage
@@ -223,14 +224,16 @@ Now run the target `package`. It uses `--install` & **CPack** to package up the 
 cmake --build --preset default --config Release --target package
 ```
 
-### Miscellaneous ###
+### Keys & Scripts ###
 
-- Press the `R` key to refresh the graphics/maps. It also un-weirds the graphics.
-- Press the `F3` key to toggle the FPS in the top left corner. The game is capped at 60 FPS.
+Keys:
+- Press `R` to refresh the graphics/maps. It also un-weirds the graphics.
+- Press `F3` to toggle the FPS in the top left corner. The game is capped at 60 FPS.
 - Press `Ctrl+F6` to toggle freezing the screen for screenshots.
-- There are various optional scripts in the [scripts/](scripts/) folder for development.
 
-## Hacking for Web ##
+Optional scripts in the [scripts/](scripts/) folder for development.
+
+## Web Hacking ##
 
 ### OpenGL ES for Desktop ###
 
@@ -246,7 +249,7 @@ Or, pass it in when configuring CMake using `-DEKO_RENDERER=GLES`.
 
 Now you can test OpenGL ES in the Desktop version instead.
 
-### Setup for Web ###
+### Web Setup ###
 
 Install [Emscripten](https://emscripten.org/docs/getting_started/downloads.html).
 
@@ -264,7 +267,7 @@ You should now have an `EMSDK` env var, and the below file should exist, which i
 ls "$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
 ```
 
-### CMake for Web ###
+### Web CMake ###
 
 Now just use the CMake preset `web`, and everything should just work like normal. This preset uses separate `build_web` & `bin_web` folders than the `default` preset so that you can test both the Desktop & Web versions without having to rebuild everything when switching between them.
 
@@ -283,7 +286,7 @@ cmake --build --preset web --config Release --target run
 emrun --no-browser bin_web/Release
 ```
 
-### Misc. for Web ###
+### Web Scripts ###
 
 Both [scripts/dev.rb](scripts/dev.rb) and [scripts/artifacts.rb](scripts/artifacts.rb) have Web options, if you use those scripts.
 
