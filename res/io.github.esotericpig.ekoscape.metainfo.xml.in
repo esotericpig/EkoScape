@@ -5,13 +5,13 @@
 - https://www.freedesktop.org/software/appstream/docs/chap-Validation.html
 -->
 <component type="desktop-application">
-  <id>@RDNS_NAME@</id>
+  <id>@EKO_RDNS_NAME@</id>
   <metadata_license>FSFAP</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>@PROJECT_NAME@</name>
   <summary>Simple 3D step-based game, like a 3D Pac-Man</summary>
-  <icon type="stock">@RDNS_NAME@</icon>
-  <!-- <icon type="cached">@RDNS_NAME@.png</icon> -->
+  <icon type="stock">@EKO_RDNS_NAME@</icon>
+  <!-- <icon type="cached">@EKO_RDNS_NAME@.png</icon> -->
   <description>
     <p>
     Simple 3D step-based game, like a 3D Pac-Man. Made in C++, SDL2, and legacy OpenGL 2.1+.
@@ -35,7 +35,7 @@
   <url type="homepage">https://github.com/esotericpig/EkoScape</url>
   <url type="bugtracker">https://github.com/esotericpig/EkoScape/issues</url>
   <!-- <url type="vcs-browser">https://github.com/esotericpig/EkoScape</url> -->
-  <launchable type="desktop-id">@RDNS_NAME@.desktop</launchable>
+  <launchable type="desktop-id">@EKO_RDNS_NAME@.desktop</launchable>
   <releases>
     <release version="2.4" date="2025-05-27" urgency="medium" />
     <release version="2.3" date="2025-03-24" urgency="medium" />
@@ -44,7 +44,7 @@
     <release version="2.0" date="2024-10-24" urgency="medium" />
   </releases>
   <provides>
-    <id>@RDNS_NAME@.desktop</id>
+    <id>@EKO_RDNS_NAME@.desktop</id>
   </provides>
 
   <!--

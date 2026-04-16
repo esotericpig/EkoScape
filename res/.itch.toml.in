@@ -1,10 +1,10 @@
 [[actions]]
 name = "play"
-path = "@PKG_ITCH_PLAY_PATH@"
+path = "@EKO_ITCHIO_PLAY_PATH@"
 
 [[actions]]
 name = "Open Maps Folder"
-path = "@PKG_ITCH_RES_PATH@/assets/maps/"
+path = "@EKO_ITCHIO_RES_PATH@/assets/maps/"
 
 [[actions]]
 name = "Open Online Maps Guide"
@@ -12,4 +12,4 @@ path = "https://github.com/esotericpig/EkoScape/blob/main/assets/maps/README.md"
 
 [[actions]]
 name = "Open Offline Maps Guide"
-path = "@PKG_ITCH_RES_PATH@/assets/maps/README.html"
+path = "@EKO_ITCHIO_RES_PATH@/assets/maps/README.html"

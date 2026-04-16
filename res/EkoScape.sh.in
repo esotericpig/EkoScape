@@ -4,34 +4,39 @@ IFS=$'\n\t'
 
 cd "$(dirname "$0")"
 
-EKO_ARCH="$(uname -m)"
-EKO_BIN_ARCH='x86_64' # Default if arch not recognized.
+eko_exe_name='@EKO_EXE_NAME@'
+eko_exe_arch='x86_64' # Default if arch not recognized.
+
+sys_arch="$(uname -m)"
+sys_arch="$(printf '%s' "${sys_arch}" | tr '[:upper:]' '[:lower:]')" # Lower case.
 
 # TODO: If add another arch in the future, uncomment this.
-#case "$EKO_ARCH" in
-#'x86_64'|'x64')
-#  EKO_BIN_ARCH='x86_64'
+#case "${sys_arch}" in
+#*'x86_64'*|*'x64'*|*'amd64'*)
+#  eko_exe_arch='x86_64'
 #  ;;
-#'i386'|'i686'|'x86')
-#  EKO_BIN_ARCH='i386'
+#*'86'*) # x86|(i386|i486|i586|i686)
+#  eko_exe_arch='i386'
 #  ;;
-#'aarch64'|'arm64')
-#  EKO_BIN_ARCH='aarch64'
+#*'arm64'*|*'aarch64'*)
+#  eko_exe_arch='aarch64'
 #  ;;
-#'armhf'|'armv7l'|'arm')
-#  EKO_BIN_ARCH='armhf'
+#*'arm'*|*'aarch'*) # (arm|armhf|armv6l|armv7l)|aarch
+#  eko_exe_arch='armhf'
 #  ;;
 #*)
-#  echo "[WARN] Unknown arch [${EKO_ARCH}]; falling back to arch [${EKO_BIN_ARCH}]."
+#  echo "[WARN] Unknown arch [${sys_arch}]; falling back to arch [${eko_exe_arch}]."
+#  echo ''
 #  ;;
 #esac
 
-EKO_BIN="./@BIN_NAME@-${EKO_BIN_ARCH}.AppImage"
+eko_exe="./${eko_exe_name}-${eko_exe_arch}.AppImage"
 
 echo "Dir:      '${PWD}'"
-echo "Arch:     '${EKO_ARCH}'"
-echo "Bin arch: '${EKO_BIN_ARCH}'"
-echo "Bin:      '${EKO_BIN}'"
+echo "Sys arch: '${sys_arch}'"
+echo "Exe arch: '${eko_exe_arch}'"
+echo "Exe:      '${eko_exe}'"
 echo ''
 
-exec "$EKO_BIN" "$@"
+set -x
+exec "${eko_exe}" "$@"

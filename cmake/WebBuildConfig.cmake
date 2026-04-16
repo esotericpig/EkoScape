@@ -52,7 +52,7 @@ target_link_options(EkoScapeBuildConfig INTERFACE
 #    --check
     --emrun
     --output_eol linux
-    --shell-file "${CONFIG_OUT_DIR}/shell.html"
+    --shell-file "${EKO_GEN_DIR}/shell.html"
 
     # Settings.
     # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
@@ -75,7 +75,7 @@ target_link_options(EkoScapeBuildConfig INTERFACE
     # Using `--preload-file` (instead of `--embed-file`) because it produces a separate `.data` file,
     # which means if the the game is updated, but not the assets, the user won't have to re-download
     # the assets as they'll already be cached by the browser.
-    "--preload-file=${ASSETS_DIR}@/${ASSETS_NAME}"
+    "--preload-file=${EKO_ASSETS_DIR}@/${EKO_ASSETS_NAME}"
     "--exclude-file=*.icns"
     "--exclude-file=*.ico"
     "--exclude-file=*.md"
@@ -103,7 +103,7 @@ add_custom_command(TARGET EkoScape
 add_custom_command(TARGET EkoScape
     POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy
-      "${ASSETS_DIR}/icons/${PROJECT_NAME}.ico"
+      "${EKO_ASSETS_DIR}/icons/${PROJECT_NAME}.ico"
       "$<TARGET_FILE_DIR:EkoScape>/favicon.ico"
     COMMENT "Copying favicon to target dir."
     VERBATIM
@@ -113,7 +113,9 @@ add_custom_command(TARGET EkoScape
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/shell.html.in" "${CONFIG_OUT_DIR}/shell.html"
+configure_file(
+    "${EKO_RES_DIR}/shell.html.in"
+    "${EKO_GEN_DIR}/shell.html"
     @ONLY
     NEWLINE_STYLE LF
 )

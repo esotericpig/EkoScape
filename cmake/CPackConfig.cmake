@@ -2,12 +2,14 @@
 # @author Bradley Whited
 ###
 
-# TODO: Just loop over and check if a dir or a file? Or something else?
-set(pkg_base_files
-    "${CONFIG_OUT_DIR}/.itch.toml"
+# TODO: Remove use of pkg suffix?
+# TODO: Better way to find macOS dirs? `${CPACK_BUNDLE_NAME}.app` for root?
+
+set(pkg_root_files
+    "${EKO_GEN_DIR}/.itch.toml"
 )
 set(pkg_res_dirs
-    "${ASSETS_DIR}"
+    "${EKO_ASSETS_DIR}"
 )
 set(pkg_res_files
     "${CMAKE_SOURCE_DIR}/README.md"
@@ -23,16 +25,16 @@ set(CPACK_COMPONENTS_GROUPING "ALL_COMPONENTS_IN_ONE")
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_BUNDLE_COMPONENT_INSTALL ON)
 
-set(CPACK_BUNDLE_NAME "${BIN_NAME}")
-set(CPACK_BUNDLE_PLIST "${CONFIG_OUT_DIR}/Info.plist")
-set(CPACK_BUNDLE_ICON "${ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
-
 if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-macos")
   set(CPACK_GENERATOR "Bundle")
 
-  set(PKG_MACOS_BASE_DIR "../../..")
-  set(PKG_MACOS_BIN_DIR "../MacOS")
+  set(CPACK_BUNDLE_NAME "${EKO_EXE_NAME}")
+  set(CPACK_BUNDLE_PLIST "${EKO_GEN_DIR}/Info.plist")
+  set(CPACK_BUNDLE_ICON "${EKO_ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
+
+  set(pkg_macos_root_dir "../../..")
+  set(pkg_macos_bin_dir "../MacOS")
 
   # NOTE: Can't use EXCLUDE_FROM_ALL with Bundle generator.
 
@@ -42,24 +44,24 @@ if(APPLE)
     # - See: .github/workflows/macos.yml
 
     # NOTE: This also works, but doesn't appear in verbose output.
-#    set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/build_uni/${BIN_NAME}")
+#    set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_SOURCE_DIR}/build_uni/${EKO_EXE_NAME}")
 
-    install(PROGRAMS "${CMAKE_SOURCE_DIR}/build_uni/${BIN_NAME}"
-        DESTINATION "${PKG_MACOS_BIN_DIR}"
+    install(PROGRAMS "${CMAKE_SOURCE_DIR}/build_uni/${EKO_EXE_NAME}"
+        DESTINATION "${pkg_macos_bin_dir}"
         COMPONENT cpack
     )
   else()
     install(TARGETS EkoScape
-        BUNDLE DESTINATION "${PKG_MACOS_BIN_DIR}"
+        BUNDLE DESTINATION "${pkg_macos_bin_dir}"
         COMPONENT cpack
 
-        RUNTIME DESTINATION "${PKG_MACOS_BIN_DIR}"
+        RUNTIME DESTINATION "${pkg_macos_bin_dir}"
         COMPONENT cpack
     )
   endif()
 
-  install(FILES ${pkg_base_files}
-      DESTINATION "${PKG_MACOS_BASE_DIR}"
+  install(FILES ${pkg_root_files}
+      DESTINATION "${pkg_macos_root_dir}"
       COMPONENT cpack
   )
   install(DIRECTORY ${pkg_res_dirs}
@@ -85,8 +87,9 @@ elseif(WIN32)
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
-  install(FILES ${pkg_base_files}
-                ${pkg_res_files}
+  install(FILES
+      ${pkg_root_files}
+      ${pkg_res_files}
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -96,18 +99,20 @@ else() # Linux.
   set(CPACK_GENERATOR "TGZ")
 
   # NOTE: Must have a trailing slash! So that the dir is not created in the package.
-  install(DIRECTORY "${APPIMG_DIR}/"
+  install(DIRECTORY "${EKO_APPIMAGE_DIR}/"
       DESTINATION "."
-      FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                       GROUP_READ GROUP_EXECUTE
-                       WORLD_READ WORLD_EXECUTE
+      FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
       COMPONENT cpack
       EXCLUDE_FROM_ALL
       FILES_MATCHING PATTERN "*.AppImage"
   )
   # Desktop Entry files should also be executable.
-  install(PROGRAMS "${CONFIG_OUT_DIR}/${BIN_NAME}.sh"
-                   "${RES_DIR}/${RDNS_NAME}.desktop"
+  install(PROGRAMS
+      "${EKO_GEN_DIR}/${EKO_EXE_NAME}.sh"
+      "${EKO_RES_DIR}/${EKO_RDNS_NAME}.desktop"
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -118,21 +123,22 @@ else() # Linux.
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
-  install(FILES ${pkg_base_files}
-                ${pkg_res_files}
+  install(FILES
+      ${pkg_root_files}
+      ${pkg_res_files}
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
   )
 endif()
 
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${EKO_PKG_SUFFIX}")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${EKO_PKG_NAME_SUFFIX}")
 
 #===========================================
 # Custom Targets
 #===========================================
 add_custom_target(check_macos_bundle
-    COMMAND "${CMAKE_COMMAND}" -P "${CONFIG_OUT_DIR}/CheckMacosBundle.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${EKO_GEN_DIR}/CheckMacosBundle.cmake"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -141,14 +147,16 @@ add_custom_target(check_macos_bundle
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/Info.plist.in" "${CONFIG_OUT_DIR}/Info.plist"
+configure_file(
+    "${EKO_RES_DIR}/Info.plist.in"
+    "${EKO_GEN_DIR}/Info.plist"
     @ONLY
     NEWLINE_STYLE LF
 )
 # NOTE: Must be configured before including CPack.
 configure_file(
-    "${CONFIG_CMAKE_IN_DIR}/CheckMacosBundle.cmake.in"
-    "${CONFIG_OUT_DIR}/CheckMacosBundle.cmake"
+    "${EKO_CMAKE_DIR}/CheckMacosBundle.cmake.in"
+    "${EKO_GEN_DIR}/CheckMacosBundle.cmake"
     @ONLY
 )
 

@@ -31,7 +31,7 @@ Desktop:
   - Linux x86_64 (AppImage)
     - Might need [FUSE](https://github.com/AppImage/AppImageKit/wiki/FUSE) for running the AppImage -- usually already installed.
   - macOS arm64 or x86_64
-    - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning when running:
+    - Because this game is free and signing costs money, it's currently unsigned, so you'll need to manually override the security warning to run:
       - https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac
   - Windows x64
 
@@ -120,8 +120,8 @@ Examples:
 cmake --preset default \
       -DVCPKG_TARGET_TRIPLET="x64-linux" \
       -DVCPKG_BUILD_TYPE=release \
-      -DEKO_LINUXDEPLOY_ARCH="x86_64" \
-      -DEKO_PKG_SUFFIX="-x86_64"
+      -DEKO_APPIMAGE_ARCH="x86_64" \
+      -DEKO_PKG_NAME_SUFFIX="-x86_64"
 
 # macOS
 cmake --preset default \
@@ -132,7 +132,7 @@ cmake --preset default \
       -DVCPKG_CRT_LINKAGE=static \
       -DVCPKG_LIBRARY_LINKAGE=static \
       -DVCPKG_BUILD_TYPE=release \
-      -DEKO_PKG_SUFFIX="-arm64"
+      -DEKO_PKG_NAME_SUFFIX="-arm64"
 
 # Windows (PowerShell)
 cmake --preset default `
@@ -141,7 +141,7 @@ cmake --preset default `
       -DVCPKG_CRT_LINKAGE=static `
       -DVCPKG_LIBRARY_LINKAGE=static `
       -DVCPKG_BUILD_TYPE=release `
-      -DEKO_PKG_SUFFIX="-x64"
+      -DEKO_PKG_NAME_SUFFIX="-x64"
 ```
 
 To see the list of `vcpkg` Triplets, you can use the unofficial-official hack:
@@ -207,7 +207,7 @@ If your platform is not `x86_64`, you'll need to change which `linuxdeploy` to u
 rm -r build
 
 # Arches: x86_64, i386, aarch64, armhf
-cmake --preset default -DEKO_LINUXDEPLOY_ARCH=aarch64
+cmake --preset default -DEKO_APPIMAGE_ARCH=aarch64
 
 cmake --build --preset default --config Release --target appimage
 ```
@@ -217,7 +217,7 @@ cmake --build --preset default --config Release --target appimage
 When configuring, optionally add a suffix for the filename:
 
 ```bash
-cmake --preset default -DEKO_PKG_SUFFIX="-x64"
+cmake --preset default -DEKO_PKG_NAME_SUFFIX="-x64"
 ```
 
 Now run the target `package`. It uses `--install` & **CPack** to package up the files.
@@ -271,7 +271,7 @@ ls "$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
 
 ### Web CMake ###
 
-Now just use the CMake preset `web`, and everything should just work like normal. This preset uses separate `build_web` & `bin_web` folders than the `default` preset so that you can test both the Desktop & Web versions without having to rebuild everything when switching between them.
+Now just use the CMake preset `web`, and everything should just work like normal. This preset uses separate `build` & `bin` folders than the `default` preset so that you can test both the Desktop & Web versions without having to rebuild everything when switching between them.
 
 ```bash
 # Configure for Web.

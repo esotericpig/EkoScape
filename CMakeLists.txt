@@ -7,9 +7,7 @@ cmake_minimum_required(VERSION 3.22)
 #
 # Configurable params w/ defaults:
 #   -DEKO_RENDERER=GL
-#   -DEKO_LINUXDEPLOY_ARCH=x86_64          # See: cmake/appimage.cmake.in
-#   -DEKO_PKG_SUFFIX=""
-#   -DEKO_PKG_MACOS_USE_BUILD_UNI_DIR=OFF  # See: .github/workflows/macos.yml
+#   -DEKO_APPIMAGE_ARCH=x86_64
 #
 # Configuring build:
 #   # Super slow the first time as vcpkg downloads deps.
@@ -51,46 +49,63 @@ project("EkoScape"
 #===========================================
 set(EKO_EXE_DIR_NAME "bin" CACHE STRING "Dir name to output the exe file to.")
 
-# TODO: Rename to APPIMAGE?
 # - https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous
-set(EKO_LINUXDEPLOY_ARCH "x86_64" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for target 'appimage'.")
-set_property(CACHE EKO_LINUXDEPLOY_ARCH PROPERTY STRINGS
-    "aarch64" "armhf" "i386" "x86_64"
+set(EKO_APPIMAGE_ARCH "" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for target 'appimage'.")
+set_property(CACHE EKO_APPIMAGE_ARCH PROPERTY STRINGS
+    "x86_64" "i386" "aarch64" "armhf"
 )
 
-# TODO: Rename to CPACK?
-set(EKO_PKG_SUFFIX "" CACHE STRING "Suffix of package name for CPack.")
-option(EKO_PKG_MACOS_USE_BUILD_UNI_DIR "For macOS, use dir 'build_uni' for target 'package'." OFF)
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" EKO_SYS_ARCH)
+
+if(EKO_SYS_ARCH MATCHES "x86_64|x64|amd64")
+  set(EKO_SYS_ARCH "x86_64")
+elseif(EKO_SYS_ARCH MATCHES "86") # x86|(i386|i486|i586|i686)
+  set(EKO_SYS_ARCH "x86")
+elseif(EKO_SYS_ARCH MATCHES "arm64|aarch64")
+  set(EKO_SYS_ARCH "arm64")
+elseif(EKO_SYS_ARCH MATCHES "arm|aarch") # (arm|armhf|armv6l|armv7l)|aarch
+  set(EKO_SYS_ARCH "arm")
+else()
+  set(EKO_SYS_ARCH "x86_64")
+endif()
+
+if(NOT EKO_APPIMAGE_ARCH)
+  if(EKO_SYS_ARCH STREQUAL "x86_64")
+    set(EKO_APPIMAGE_ARCH "x86_64")
+  elseif(EKO_SYS_ARCH STREQUAL "x86")
+    set(EKO_APPIMAGE_ARCH "i386")
+  elseif(EKO_SYS_ARCH STREQUAL "arm64")
+    set(EKO_APPIMAGE_ARCH "aarch64")
+  elseif(EKO_SYS_ARCH STREQUAL "arm")
+    set(EKO_APPIMAGE_ARCH "armhf")
+  endif()
+endif()
 
 message("
 [EkoScape::UserConfig]
-  EKO_EXE_DIR_NAME:                '${EKO_EXE_DIR_NAME}'
-
-  EKO_LINUXDEPLOY_ARCH:            '${EKO_LINUXDEPLOY_ARCH}'
-
-  EKO_PKG_SUFFIX:                  '${EKO_PKG_SUFFIX}'
-  EKO_PKG_MACOS_USE_BUILD_UNI_DIR? ${EKO_PKG_MACOS_USE_BUILD_UNI_DIR}
+  EKO_EXE_DIR_NAME:  '${EKO_EXE_DIR_NAME}'
+  EKO_APPIMAGE_ARCH: '${EKO_APPIMAGE_ARCH}'
 ")
 
 #===========================================
 # Project Config
 #===========================================
-set(RDNS_NAME "io.github.esotericpig.ekoscape")
-set(BIN_NAME "${PROJECT_NAME}")
+set(EKO_RDNS_NAME "io.github.esotericpig.ekoscape")
+set(EKO_EXE_NAME "${PROJECT_NAME}")
 
-set(DOWNLOADS_DIR "${CMAKE_BINARY_DIR}/downloads")
-set(ASSETS_NAME "assets")
-set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/${ASSETS_NAME}")
-set(RES_DIR "${CMAKE_SOURCE_DIR}/res")
+set(EKO_ASSETS_NAME "assets")
+set(EKO_ASSETS_DIR "${CMAKE_SOURCE_DIR}/${EKO_ASSETS_NAME}")
+set(EKO_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(EKO_RES_DIR "${CMAKE_SOURCE_DIR}/res")
 
-set(CONFIG_CMAKE_IN_DIR "${CMAKE_SOURCE_DIR}/cmake")
-set(CONFIG_OUT_DIR "${CMAKE_BINARY_DIR}/config")
-set(APPIMG_DIR "${CMAKE_BINARY_DIR}/AppImage")
+set(EKO_DOWN_DIR "${CMAKE_BINARY_DIR}/downloads")
+set(EKO_GEN_DIR "${CMAKE_BINARY_DIR}/generated")
+set(EKO_APPIMAGE_DIR "${CMAKE_BINARY_DIR}/appimage")
 
 #===========================================
 # Download Assets
 #===========================================
-include("${CONFIG_CMAKE_IN_DIR}/DownloadAssets.cmake")
+include("${EKO_CMAKE_DIR}/DownloadAssets.cmake")
 
 #===========================================
 # Project Setup
@@ -140,7 +155,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(EMSCRIPTEN)
-  include("${CONFIG_CMAKE_IN_DIR}/WebBuildConfig.cmake")
+  include("${EKO_CMAKE_DIR}/WebBuildConfig.cmake")
 else()
   if(CYBEL_RENDERER STREQUAL "GL")
     target_compile_definitions(EkoScapeBuildConfig INTERFACE DANTARES_RENDERER_GL)
@@ -171,7 +186,7 @@ target_include_directories(EkoScape PRIVATE
 )
 # Run `./scripts/glob_src.rb` to show source files to add/remove here.
 target_sources(EkoScape PRIVATE
-    "$<$<BOOL:${WIN32}>:${RES_DIR}/res.rc>"
+    "$<$<BOOL:${WIN32}>:${EKO_RES_DIR}/res.rc>"
 
     # @glob_src=src:src/
     "src/ekoscape_game.cpp"
@@ -201,11 +216,11 @@ target_sources(EkoScape PRIVATE
 #===========================================
 # Custom Targets
 #===========================================
-include("${CONFIG_CMAKE_IN_DIR}/WorkflowTargets.cmake")
+include("${EKO_CMAKE_DIR}/WorkflowTargets.cmake")
 
 #===========================================
-# Dist. Setup
+# Packaging Setup
 #===========================================
-include("${CONFIG_CMAKE_IN_DIR}/AppImageConfig.cmake")
-include("${CONFIG_CMAKE_IN_DIR}/ItchioConfig.cmake")
-include("${CONFIG_CMAKE_IN_DIR}/CPackConfig.cmake")
+include("${EKO_CMAKE_DIR}/AppImageConfig.cmake")
+include("${EKO_CMAKE_DIR}/ItchioConfig.cmake")
+include("${EKO_CMAKE_DIR}/CPackConfig.cmake")

@@ -10,8 +10,12 @@
 # @author Bradley Whited
 ###
 
+# TODO: Use `$<TARGET_BUNDLE_DIR:EkoScape>` for bundle dir?
+message(FATAL_ERROR "TODO: macOS script needs to be updated.")
+
 set(MACOS_BUNDLE_DIR
-    "@CMAKE_BINARY_DIR@/_CPack_Packages/Darwin/Bundle/@CPACK_PACKAGE_FILE_NAME@/@CPACK_BUNDLE_NAME@.app")
+    "@CMAKE_BINARY_DIR@/_CPack_Packages/Darwin/Bundle/@CPACK_PACKAGE_FILE_NAME@/@CPACK_BUNDLE_NAME@.app"
+)
 
 include(BundleUtilities)
 

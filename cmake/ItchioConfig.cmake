@@ -3,17 +3,21 @@
 ###
 
 if(APPLE)
-  set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.app")
-  set(PKG_ITCH_RES_PATH "./${BIN_NAME}.app/Contents/Resources")
+  set(EKO_ITCHIO_PLAY_PATH "${EKO_EXE_NAME}.app")
+  set(EKO_ITCHIO_RES_PATH "./${EKO_EXE_NAME}.app/Contents/Resources")
 elseif(WIN32)
-  set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.exe")
-  set(PKG_ITCH_RES_PATH ".")
-else()
-  set(PKG_ITCH_PLAY_PATH "${BIN_NAME}.sh")
-  set(PKG_ITCH_RES_PATH ".")
+  set(EKO_ITCHIO_PLAY_PATH "${EKO_EXE_NAME}.exe")
+  set(EKO_ITCHIO_RES_PATH ".")
+else() # Linux.
+  set(EKO_ITCHIO_PLAY_PATH "${EKO_EXE_NAME}.sh")
+  set(EKO_ITCHIO_RES_PATH ".")
 endif()
 
 #===========================================
 # Configure Template Files
 #===========================================
-configure_file("${RES_DIR}/.itch.toml.in" "${CONFIG_OUT_DIR}/.itch.toml" @ONLY)
+configure_file(
+    "${EKO_RES_DIR}/.itch.toml.in"
+    "${EKO_GEN_DIR}/.itch.toml"
+    @ONLY
+)
