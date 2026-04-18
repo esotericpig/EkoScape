@@ -38,7 +38,7 @@ Desktop:
 ### Additional System Notes ###
 
 - Linux:
-  - An optional Desktop Entry file is provided if you wish to integrate it with your Desktop Environment (DE). Read the provided file `<io.github.esotericpig.ekoscape.desktop>` for more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/res/io.github.esotericpig.ekoscape.desktop).
+  - An optional Desktop Entry file is provided if you wish to integrate it with your Desktop Environment (DE). Read the provided file `<io.github.esotericpig.ekoscape.desktop>` for more details or [read online here](https://github.com/esotericpig/EkoScape/blob/main/buns/linux/io.github.esotericpig.ekoscape.desktop).
 
 ## Code History ##
 
@@ -318,7 +318,7 @@ Optional: To update dependencies, update your `vcpkg` clone and then run `vcpkg 
 Bump the version in the following places:
 - [CMakeLists.txt](CMakeLists.txt)
 - [src/ekoscape_game.h](src/ekoscape_game.h)
-- [res/io.github.esotericpig.ekoscape.metainfo.xml](res/io.github.esotericpig.ekoscape.metainfo.xml)
+- [buns/linux/io.github.esotericpig.ekoscape.metainfo.xml.in](buns/linux/io.github.esotericpig.ekoscape.metainfo.xml.in)
 
 With the [GitHub CLI](https://cli.github.com) (`gh`), create a new release. Make sure to change the versions appropriately (at the end):
 

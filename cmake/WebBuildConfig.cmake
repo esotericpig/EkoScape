@@ -52,7 +52,7 @@ target_link_options(EkoScapeBuildConfig INTERFACE
 #    --check
     --emrun
     --output_eol linux
-    --shell-file "${EKO_GEN_DIR}/shell.html"
+    --shell-file "${EKO_GEN_BUNS_DIR}/web/shell.html"
 
     # Settings.
     # - https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
@@ -114,8 +114,8 @@ add_custom_command(TARGET EkoScape
 # Configure Template Files
 #===========================================
 configure_file(
-    "${EKO_RES_DIR}/shell.html.in"
-    "${EKO_GEN_DIR}/shell.html"
+    "${EKO_BUNS_DIR}/web/shell.html.in"
+    "${EKO_GEN_BUNS_DIR}/web/shell.html"
     @ONLY
     NEWLINE_STYLE LF
 )

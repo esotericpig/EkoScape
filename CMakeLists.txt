@@ -96,10 +96,12 @@ set(EKO_EXE_NAME "${PROJECT_NAME}")
 set(EKO_ASSETS_NAME "assets")
 set(EKO_ASSETS_DIR "${CMAKE_SOURCE_DIR}/${EKO_ASSETS_NAME}")
 set(EKO_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
-set(EKO_RES_DIR "${CMAKE_SOURCE_DIR}/res")
+set(EKO_BUNS_DIR "${CMAKE_SOURCE_DIR}/buns")
 
 set(EKO_DOWN_DIR "${CMAKE_BINARY_DIR}/downloads")
 set(EKO_GEN_DIR "${CMAKE_BINARY_DIR}/generated")
+set(EKO_GEN_CMAKE_DIR "${EKO_GEN_DIR}/cmake")
+set(EKO_GEN_BUNS_DIR "${EKO_GEN_DIR}/buns")
 set(EKO_APPIMAGE_DIR "${CMAKE_BINARY_DIR}/appimage")
 
 #===========================================
@@ -186,7 +188,7 @@ target_include_directories(EkoScape PRIVATE
 )
 # Run `./scripts/glob_src.rb` to show source files to add/remove here.
 target_sources(EkoScape PRIVATE
-    "$<$<BOOL:${WIN32}>:${EKO_RES_DIR}/res.rc>"
+    "$<$<BOOL:${WIN32}>:${EKO_BUNS_DIR}/windows/res.rc>"
 
     # @glob_src=src:src/
     "src/ekoscape_game.cpp"

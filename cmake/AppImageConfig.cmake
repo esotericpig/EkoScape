@@ -21,12 +21,12 @@ install(TARGETS EkoScape
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
-install(FILES "${EKO_RES_DIR}/${EKO_RDNS_NAME}.desktop"
+install(FILES "${EKO_BUNS_DIR}/linux/${EKO_RDNS_NAME}.desktop"
     DESTINATION "share/applications"
     COMPONENT appimage
     EXCLUDE_FROM_ALL
 )
-install(FILES "${EKO_GEN_DIR}/${EKO_RDNS_NAME}.metainfo.xml"
+install(FILES "${EKO_GEN_BUNS_DIR}/linux/${EKO_RDNS_NAME}.metainfo.xml"
     DESTINATION "share/metainfo"
     # TODO: The official AppStream docs recommend `.metainfo.xml` now, but AppImage still only supports
     #       the older `.appdata.xml`. If AppImage possibly fixes this in the future, remove this.
@@ -39,7 +39,7 @@ install(FILES "${EKO_GEN_DIR}/${EKO_RDNS_NAME}.metainfo.xml"
 # Custom Targets
 #===========================================
 add_custom_target(appimage
-    COMMAND "${CMAKE_COMMAND}" -P "${EKO_GEN_DIR}/BuildAppImage.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${EKO_GEN_CMAKE_DIR}/BuildAppImage.cmake"
     DEPENDS EkoScape
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
@@ -50,19 +50,19 @@ add_custom_target(appimage
 # Configure Template Files
 #===========================================
 configure_file(
-    "${EKO_RES_DIR}/${EKO_RDNS_NAME}.metainfo.xml.in"
-    "${EKO_GEN_DIR}/${EKO_RDNS_NAME}.metainfo.xml"
+    "${EKO_BUNS_DIR}/linux/${EKO_RDNS_NAME}.metainfo.xml.in"
+    "${EKO_GEN_BUNS_DIR}/linux/${EKO_RDNS_NAME}.metainfo.xml"
     @ONLY
     NEWLINE_STYLE LF
 )
 configure_file(
     "${EKO_CMAKE_DIR}/BuildAppImage.cmake.in"
-    "${EKO_GEN_DIR}/BuildAppImage.cmake"
+    "${EKO_GEN_CMAKE_DIR}/BuildAppImage.cmake"
     @ONLY
 )
 configure_file(
-    "${EKO_RES_DIR}/${EKO_EXE_NAME}.sh.in"
-    "${EKO_GEN_DIR}/${EKO_EXE_NAME}.sh"
+    "${EKO_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh.in"
+    "${EKO_GEN_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh"
     @ONLY
     NEWLINE_STYLE LF
 )

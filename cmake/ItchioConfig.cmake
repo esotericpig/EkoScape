@@ -17,7 +17,7 @@ endif()
 # Configure Template Files
 #===========================================
 configure_file(
-    "${EKO_RES_DIR}/.itch.toml.in"
-    "${EKO_GEN_DIR}/.itch.toml"
+    "${EKO_BUNS_DIR}/.itch.toml.in"
+    "${EKO_GEN_BUNS_DIR}/.itch.toml"
     @ONLY
 )

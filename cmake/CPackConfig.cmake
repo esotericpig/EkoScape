@@ -6,7 +6,7 @@
 # TODO: Better way to find macOS dirs? `${CPACK_BUNDLE_NAME}.app` for root?
 
 set(pkg_root_files
-    "${EKO_GEN_DIR}/.itch.toml"
+    "${EKO_GEN_BUNS_DIR}/.itch.toml"
 )
 set(pkg_res_dirs
     "${EKO_ASSETS_DIR}"
@@ -30,7 +30,7 @@ if(APPLE)
   set(CPACK_GENERATOR "Bundle")
 
   set(CPACK_BUNDLE_NAME "${EKO_EXE_NAME}")
-  set(CPACK_BUNDLE_PLIST "${EKO_GEN_DIR}/Info.plist")
+  set(CPACK_BUNDLE_PLIST "${EKO_GEN_BUNS_DIR}/macos/Info.plist")
   set(CPACK_BUNDLE_ICON "${EKO_ASSETS_DIR}/icons/${PROJECT_NAME}.icns")
 
   set(pkg_macos_root_dir "../../..")
@@ -111,8 +111,8 @@ else() # Linux.
   )
   # Desktop Entry files should also be executable.
   install(PROGRAMS
-      "${EKO_GEN_DIR}/${EKO_EXE_NAME}.sh"
-      "${EKO_RES_DIR}/${EKO_RDNS_NAME}.desktop"
+      "${EKO_GEN_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh"
+      "${EKO_BUNS_DIR}/linux/${EKO_RDNS_NAME}.desktop"
       DESTINATION "."
       COMPONENT cpack
       EXCLUDE_FROM_ALL
@@ -138,7 +138,7 @@ set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}${EKO_PKG_NAME_SUFFIX}")
 # Custom Targets
 #===========================================
 add_custom_target(check_macos_bundle
-    COMMAND "${CMAKE_COMMAND}" -P "${EKO_GEN_DIR}/CheckMacosBundle.cmake"
+    COMMAND "${CMAKE_COMMAND}" -P "${EKO_GEN_CMAKE_DIR}/CheckMacosBundle.cmake"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     USES_TERMINAL
     VERBATIM
@@ -148,15 +148,15 @@ add_custom_target(check_macos_bundle
 # Configure Template Files
 #===========================================
 configure_file(
-    "${EKO_RES_DIR}/Info.plist.in"
-    "${EKO_GEN_DIR}/Info.plist"
+    "${EKO_BUNS_DIR}/macos/Info.plist.in"
+    "${EKO_GEN_BUNS_DIR}/macos/Info.plist"
     @ONLY
     NEWLINE_STYLE LF
 )
 # NOTE: Must be configured before including CPack.
 configure_file(
     "${EKO_CMAKE_DIR}/CheckMacosBundle.cmake.in"
-    "${EKO_GEN_DIR}/CheckMacosBundle.cmake"
+    "${EKO_GEN_CMAKE_DIR}/CheckMacosBundle.cmake"
     @ONLY
 )
 
