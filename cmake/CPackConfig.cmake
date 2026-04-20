@@ -2,8 +2,9 @@
 # @author Bradley Whited
 ###
 
-# TODO: Remove use of pkg suffix?
+# TODO: Remove use of pkg name suffix?
 # TODO: Better way to find macOS dirs? `${CPACK_BUNDLE_NAME}.app` for root?
+# TODO: Instead of pkg_*_dirs/files, can just have each if-statement set a pkg_root_dir/pkg_res_dir.
 
 set(pkg_root_files
     "${EKO_GEN_BUNS_DIR}/.itch.toml"
@@ -111,7 +112,7 @@ else() # Linux.
   )
   # Desktop Entry files should also be executable.
   install(PROGRAMS
-      "${EKO_GEN_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh"
+      "${EKO_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh"
       "${EKO_BUNS_DIR}/linux/${EKO_RDNS_NAME}.desktop"
       DESTINATION "."
       COMPONENT cpack

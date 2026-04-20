@@ -60,9 +60,3 @@ configure_file(
     "${EKO_GEN_CMAKE_DIR}/BuildAppImage.cmake"
     @ONLY
 )
-configure_file(
-    "${EKO_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh.in"
-    "${EKO_GEN_BUNS_DIR}/linux/${EKO_EXE_NAME}.sh"
-    @ONLY
-    NEWLINE_STYLE LF
-)
