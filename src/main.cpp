@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include "cybel/cybel_engine.h"
 #include "cybel/types/cybel_error.h"
 
 #include "ekoscape_game.h"
@@ -22,16 +23,11 @@ int main(int argc,char** argv) {
   }
 
   try {
-#if defined(__EMSCRIPTEN__)
-    EkoScapeGame::run_on_web();
-#else
-    EkoScapeGame eko_game{};
-    eko_game.run_loop();
+    auto& cybel_engine = CybelEngine::init(EkoScapeGame::build_config());
 
-    std::cout << "[INFO] Stopping gracefully." << std::endl;
-#endif
+    cybel_engine.run(std::make_unique<EkoScapeGame>(cybel_engine));
   } catch(const CybelError& e) {
-    EkoScapeGame::show_error_global(e.what());
+    CybelEngine::show_error_global(EkoScapeGame::kTitle,e.what());
     return 1;
   }
 

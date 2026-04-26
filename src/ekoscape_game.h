@@ -10,10 +10,11 @@
 
 #include "common.h"
 
+#include "cybel/cybel_engine.h"
+#include "cybel/game.h"
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_bag.h"
 #include "cybel/scene/scene_man.h"
-#include "cybel/cybel_engine.h"
 
 #include "assets/assets.h"
 #include "core/game_context.h"
@@ -23,17 +24,16 @@
 
 namespace ekoscape {
 
-class EkoScapeGame final : public Scene {
-  // NOTE: This must be defined first so that its dtor is called last.
-  std::shared_ptr<CybelEngine> cybel_engine_{};
-
+class EkoScapeGame final : public Game {
 public:
   static inline const std::string kTitle = "EkoScape v2.4";
 
-  explicit EkoScapeGame();
+  static CybelEngine::Config build_config();
 
-  void run_loop();
-  static void run_on_web();
+  explicit EkoScapeGame(CybelEngine& cybel_engine);
+
+  void on_game_start() override;
+  SceneBag build_scene(int type) override;
 
   void on_scene_context_lost() override;
   void on_scene_context_restored() override;
@@ -43,14 +43,14 @@ public:
   void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
 
   void show_error(const std::string& error);
-  static void show_error_global(const std::string& error);
 
 private:
-  SceneMan* scene_man_ = nullptr;
-  bool was_music_playing_ = false;
-  std::unique_ptr<Assets> assets_{};
-  std::unique_ptr<GameContext> ctx_{};
+  CybelEngine& cybel_engine_;
+  SceneMan& scene_man_;
+  Assets assets_;
+  GameContext ctx_;
 
+  bool was_music_playing_ = false;
   StarSys star_sys_{};
   float avg_fps_age_ = -1.0f;
   std::string avg_fps_str_{};
@@ -59,7 +59,6 @@ private:
   GameScene::State game_scene_state_{};
 
   void init_input_map();
-  SceneBag build_scene(int type);
   void pop_scene();
 
   void play_music(bool rand_pos = false);
