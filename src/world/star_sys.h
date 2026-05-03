@@ -21,18 +21,15 @@
 
 namespace ekoscape {
 
-class StarSys {
+class StarSys final {
 public:
   static Color4f rand_color();
 
-  void init(const ViewDimens& view_dimens,bool is_flying = false);
-
-  /**
-   * Free up memory for scenes that don't need stars.
-   */
+  void init(const ViewDimens& dimens,bool is_flying = false);
+  /// Free up memory for scenes that don't need stars.
   void clear();
 
-  void update(const FrameStep& step);
+  void update(const FrameStep& step,const ViewDimens& dimens);
   void draw(Renderer& ren,const Texture& tex);
 
   bool is_empty() const;
@@ -48,11 +45,10 @@ private:
     Color4f::kYellow,
   };
 
-  ViewDimens view_dimens_{};
   bool is_flying_ = false;
   std::vector<Particle> stars_{};
 
-  void birth_star(Particle& star);
+  void birth_star(Particle& star,const ViewDimens& dimens);
 };
 
 } // namespace ekoscape

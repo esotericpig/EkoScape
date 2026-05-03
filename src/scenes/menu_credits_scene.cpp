@@ -110,27 +110,27 @@ void MenuCreditsScene::birth_wtfs(const ViewDimens& dimens) {
   for(std::size_t i = active_wtf_count_; i < wtfs_.size(); ++i,++active_wtf_count_) {
     auto& wtf = wtfs_[i];
 
-    wtf.lifespan = 3.0f;
-    wtf.age = 0.0f;
-    wtf.past_lives = 0;
+    wtf.p.lifespan = 3.0f;
+    wtf.p.age = 0.0f;
+    wtf.p.past_lives = 0;
 
-    wtf.pos.x = init_x;
-    wtf.pos.y = init_y;
-    wtf.pos_vel.x = r.rand_float_vel(75.0f) * 4.0f;
-    wtf.pos_vel.y = r.rand_float_vel(75.0f) * 3.0f;
-    wtf.spin_angle = r.rand_float_vel(30.0f);
-    wtf.spin_vel = r.rand_float_vel(30.0f);
+    wtf.p.pos.x = init_x;
+    wtf.p.pos.y = init_y;
+    wtf.p.pos_vel.x = r.rand_float_vel(75.0f) * 4.0f;
+    wtf.p.pos_vel.y = r.rand_float_vel(75.0f) * 3.0f;
+    wtf.p.spin_angle = r.rand_float_vel(30.0f);
+    wtf.p.spin_vel = r.rand_float_vel(30.0f);
 
     const float size_scale = r.rand_float(0.1f,2.5f);
 
-    wtf.baby_size.w = init_w * size_scale;
-    wtf.baby_size.h = init_h * size_scale;
-    wtf.elder_size.w = wtf.baby_size.w * 1.2f;
-    wtf.elder_size.h = wtf.baby_size.h * 1.2f;
-    wtf.baby_color = rand_color();
-    wtf.elder_color = rand_color();
+    wtf.p.baby_size.w = init_w * size_scale;
+    wtf.p.baby_size.h = init_h * size_scale;
+    wtf.p.elder_size.w = wtf.p.baby_size.w * 1.2f;
+    wtf.p.elder_size.h = wtf.p.baby_size.h * 1.2f;
+    wtf.p.baby_color = rand_color();
+    wtf.p.elder_color = rand_color();
 
-    wtf.birth();
+    wtf.p.birth();
     if((--max_births) <= 0) { break; }
   }
 }
@@ -152,7 +152,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
   for(int i = 0; i < static_cast<int>(active_wtf_count_); ++i) {
     WtfParticle& wtf = wtfs_.at(static_cast<std::size_t>(i));
 
-    if(wtf.is_dead() && wtf.past_lives >= 1) {
+    if(wtf.p.is_dead() && wtf.p.past_lives >= 1) {
       // Set this index to the last active element.
       if(active_wtf_count_ > 0) { --active_wtf_count_; }
       wtfs_[static_cast<std::size_t>(i)] = wtfs_.at(active_wtf_count_);
@@ -160,26 +160,26 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
       continue;
     }
 
-    wtf.age_by(static_cast<float>(step.delta_time));
+    wtf.p.age_by(static_cast<float>(step.delta_time));
 
-    if(wtf.is_dead()) {
-      wtf.fade();
-      wtf.elder_color.a = 0.0f;
-      wtf.rebirth();
+    if(wtf.p.is_dead()) {
+      wtf.p.fade();
+      wtf.p.elder_color.a = 0.0f;
+      wtf.p.rebirth();
     }
 
     // Adjust pos & size for number of runes in text,
     //     since wtf.size is just for a single rune [see birth_wtfs()].
-    wtf.true_size.w = (wtf.size.w * text_len) + total_spacing_w;
-    wtf.true_size.h = wtf.size.h;
-    wtf.true_pos.x = wtf.pos.x - (wtf.true_size.w / 2.0f);
-    wtf.true_pos.y = wtf.render_pos.y;
+    wtf.true_size.w = (wtf.p.size.w * text_len) + total_spacing_w;
+    wtf.true_size.h = wtf.p.size.h;
+    wtf.true_pos.x = wtf.p.pos.x - (wtf.true_size.w / 2.0f);
+    wtf.true_pos.y = wtf.p.render_pos.y;
 
     // Because of rotation, use max for both width & height for in_bounds().
     const auto s = static_cast<int>(std::max(wtf.true_size.w,wtf.true_size.h));
 
     if(!dimens.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),Size2i{s,s})) {
-      wtf.die().past_lives = 1;
+      wtf.p.die().past_lives = 1;
       --i; // Reprocess this index to actually remove it from active count.
     }
   }
@@ -193,10 +193,10 @@ void MenuCreditsScene::draw_wtfs(Renderer& ren) {
       WtfParticle& wtf = wtfs_[i];
 
       font.font.pos = wtf.true_pos.to_pos3<int>();
-      font.font.rune_size = wtf.size.to_size2<int>();
-      font.font_color = wtf.color;
+      font.font.rune_size = wtf.p.size.to_size2<int>();
+      font.font_color = wtf.p.color;
 
-      ren.wrap_rotate(wtf.pos.to_pos3<int>(),wtf.spin_angle,[&] {
+      ren.wrap_rotate(wtf.p.pos.to_pos3<int>(),wtf.p.spin_angle,[&] {
         font.print(kWtfText);
       });
     }

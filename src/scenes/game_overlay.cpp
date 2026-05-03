@@ -121,7 +121,7 @@ void GameOverlay::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
       if(star_sys_.is_empty()) {
         star_sys_.init(ctx.dimens,true);
       } else {
-        star_sys_.update(step);
+        star_sys_.update(step,ctx.dimens);
       }
     }
   }

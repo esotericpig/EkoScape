@@ -33,8 +33,8 @@ public:
   void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
-  class WtfParticle final : public Particle {
-  public:
+  struct WtfParticle final {
+    Particle p{};
     Pos3f true_pos{};
     Size2f true_size{};
   };

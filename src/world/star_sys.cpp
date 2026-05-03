@@ -18,14 +18,12 @@ Color4f StarSys::rand_color() {
   return kColors[Rando::it().rand_size_t(kColors.size())];
 }
 
-void StarSys::init(const ViewDimens& view_dimens,bool is_flying) {
-  view_dimens_ = view_dimens;
+void StarSys::init(const ViewDimens& dimens,bool is_flying) {
   is_flying_ = is_flying;
-
   stars_.resize(100);
 
   for(auto& star : stars_) {
-    birth_star(star);
+    birth_star(star,dimens);
 
     // The following logic is only on init, not birth, else stars appear "popping" in & out.
     star.age = Rando::it().rand_float();
@@ -33,19 +31,19 @@ void StarSys::init(const ViewDimens& view_dimens,bool is_flying) {
   }
 }
 
-void StarSys::birth_star(Particle& star) {
+void StarSys::birth_star(Particle& star,const ViewDimens& dimens) {
   auto& r = Rando::it();
 
   if(is_flying_) {
     star.lifespan = r.rand_float(0.0f,2.0f);
-    star.pos.x = static_cast<float>(view_dimens_.target_size.w) / 2.0f;
-    star.pos.y = static_cast<float>(view_dimens_.target_size.h) / 2.0f;
+    star.pos.x = static_cast<float>(dimens.target_size.w) / 2.0f;
+    star.pos.y = static_cast<float>(dimens.target_size.h) / 2.0f;
     star.pos_vel.x = r.rand_float_vel(1.0f,10.0f) * 60.0f;
     star.pos_vel.y = r.rand_float_vel(1.0f,10.0f) * 50.0f;
   } else {
     star.lifespan = r.rand_float(5.0f,10.0f);
-    star.pos.x = static_cast<float>(r.rand_int(view_dimens_.target_size.w));
-    star.pos.y = static_cast<float>(r.rand_int(view_dimens_.target_size.h));
+    star.pos.x = static_cast<float>(r.rand_int(dimens.target_size.w));
+    star.pos.y = static_cast<float>(r.rand_int(dimens.target_size.h));
     star.pos_vel.x = (r.rand_float() < 0.40f) ? r.rand_float_vel(30.0f) : 0.0f;
     star.pos_vel.y = (r.rand_float() < 0.40f) ? r.rand_float_vel(20.0f) : 0.0f;
   }
@@ -72,7 +70,7 @@ void StarSys::clear() {
   stars_.shrink_to_fit();
 }
 
-void StarSys::update(const FrameStep& step) {
+void StarSys::update(const FrameStep& step,const ViewDimens& dimens) {
   for(auto& star : stars_) {
     if(star.is_alive()) {
       star.age_by(static_cast<float>(step.delta_time));
@@ -87,7 +85,7 @@ void StarSys::update(const FrameStep& step) {
 
       star.rebirth();
     } else {
-      birth_star(star.recreate());
+      birth_star(star.recreate(),dimens);
     }
   }
 }

@@ -42,6 +42,7 @@ CybelEngine::Config EkoScapeGame::build_config() {
 #endif
 
     .max_input_id = InputAction::kMax,
+
     .image_types = IMG_INIT_PNG,
     .music_types = MIX_INIT_OGG,
   };
@@ -276,7 +277,7 @@ void EkoScapeGame::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
 }
 
 void EkoScapeGame::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
-  star_sys_.update(step);
+  star_sys_.update(step,ctx.dimens);
 
   // Only update the shown FPS at an interval, else the digits change too fast to read.
   if(avg_fps_age_ >= 0.0f && (avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
