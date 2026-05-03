@@ -38,12 +38,19 @@ MenuScene::MenuScene(GameSession& sesh,SceneContext& ctx)
     Option{"quit",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kQuit); }},
 #endif
   };
+
+  if(sesh_.menu_scene_state.opt_index >= opts_.size()) {
+    sesh_.menu_scene_state.opt_index = 0;
+  }
 }
 
 void MenuScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   if(opts_.empty()) { return; }
 
-  Option& sel_opt = opts_.at(opt_index_);
+  std::size_t& opt_index = sesh_.menu_scene_state.opt_index;
+  if(opt_index >= opts_.size()) { opt_index = 0; }
+
+  Option& sel_opt = opts_[opt_index];
 
   switch(input_id) {
     case InputAction::kSelect:
@@ -51,19 +58,13 @@ void MenuScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
       break;
 
     case InputAction::kUp:
-      if(opt_index_ >= 1) {
-        --opt_index_;
-      } else {
-        opt_index_ = opts_.size() - 1; // Wrap to bottom.
-      }
+      // Wraps around to bottom.
+      opt_index = (opt_index >= 1) ? (opt_index - 1) : (opts_.size() - 1);
       break;
 
     case InputAction::kDown:
-      if((opt_index_ + 1) < opts_.size()) {
-        ++opt_index_;
-      } else {
-        opt_index_ = 0; // Wrap to top.
-      }
+      // Wraps around to top.
+      opt_index = (opt_index + 1) % opts_.size();
       break;
 
     case InputAction::kLeft:
@@ -90,7 +91,7 @@ void MenuScene::draw_scene(Renderer& ren,SceneContext& ctx) {
       const Option& opt = opts_[i];
       int styles = 0;
 
-      if(i == opt_index_) {
+      if(i == sesh_.menu_scene_state.opt_index) {
         if(opt.is_cycle()) {
           styles |= FontRenderer::kMenuStyleCycle;
         } else {

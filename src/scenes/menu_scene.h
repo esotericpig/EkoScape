@@ -62,7 +62,6 @@ private:
   GameSession& sesh_;
 
   std::vector<Option> opts_{};
-  std::size_t opt_index_ = 0;
 };
 
 } // namespace ekoscape

@@ -19,6 +19,10 @@ namespace ekoscape {
 struct GameSession final {
   Assets& assets;
 
+  struct MenuSceneState {
+    std::size_t opt_index = 0;
+  } menu_scene_state{};
+
   struct MenuPlaySceneState {
     std::filesystem::path map_file{};
     bool is_rand_map = true;
