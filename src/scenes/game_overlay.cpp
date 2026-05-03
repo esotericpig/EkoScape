@@ -7,18 +7,15 @@
 
 #include "game_overlay.h"
 
+#include "cybel/scene/scene_context.h"
 #include "cybel/str/utf8/str_util.h"
 
 #include "core/input_action.h"
-#include "scenes/scene_action.h"
 
 namespace ekoscape {
 
-GameOverlay::Option::Option(OptionType type,std::string_view text)
-  : type(type),text(text) {}
-
-GameOverlay::GameOverlay(GameContext& ctx,const Map& map)
-  : ctx_(ctx),map_(map) {
+GameOverlay::GameOverlay(GameSession& sesh,const Map& map)
+  : sesh_{sesh},map_{map} {
   const std::string& title = map_.title();
   const std::string author = "  by " + map_.author();
 
@@ -58,9 +55,11 @@ void GameOverlay::game_over(bool player_hit_end) {
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
 }
 
-void GameOverlay::update_state(const State& state) { state_ = state; }
+void GameOverlay::update_state(const State& state) {
+  state_ = state;
+}
 
-void GameOverlay::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
+void GameOverlay::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   if(game_over_opts_.empty()) { return; }
 
   const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
@@ -69,10 +68,10 @@ void GameOverlay::on_scene_input_event(input_id_t input_id,const ViewDimens& /*d
     case InputAction::kSelect:
       switch(sel_opt.type) {
         case OptionType::kPlayAgain:
-          scene_action_ = SceneAction::kRestart;
+          ctx.scene_man.restart_scene();
           break;
         case OptionType::kGoBack:
-          scene_action_ = SceneAction::kGoBack;
+          ctx.scene_man.pop_scene();
           break;
       }
       break;
@@ -95,11 +94,7 @@ void GameOverlay::on_scene_input_event(input_id_t input_id,const ViewDimens& /*d
   }
 }
 
-int GameOverlay::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
-  if(scene_action_ != SceneAction::kNil) {
-    return std::exchange(scene_action_,SceneAction::kNil);
-  }
-
+void GameOverlay::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
   if(flash_age_ >= 0.0f) {
     flash_age_ += (static_cast<float>(step.delta_time / kFlashDuration.secs()) * flash_age_dir_);
 
@@ -124,29 +119,27 @@ int GameOverlay::update_scene_logic(const FrameStep& step,const ViewDimens& dime
 
     if(state_.player_hit_end) {
       if(star_sys_.is_empty()) {
-        star_sys_.init(dimens,true);
+        star_sys_.init(ctx.dimens,true);
       } else {
         star_sys_.update(step);
       }
     }
   }
-
-  return SceneAction::kNil;
 }
 
-void GameOverlay::draw_scene(Renderer& ren,const ViewDimens& dimens) {
+void GameOverlay::draw_scene(Renderer& ren,SceneContext& ctx) {
   if(flash_age_ >= 0.0f) {
     flash_color_.a = kAlpha * flash_age_;
 
     ren.wrap_color(flash_color_,[&] {
-      ren.draw_quad(Pos3i{0,0,0},dimens.size);
+      ren.draw_quad(Pos3i{0,0,0},ctx.dimens.size);
     });
   }
   if(fade_age_ >= 0.0f) {
     fade_color_.a = kAlpha * fade_age_;
 
     ren.wrap_color(fade_color_,[&] {
-      ren.draw_quad(Pos3i{0,0,0},dimens.size);
+      ren.draw_quad(Pos3i{0,0,0},ctx.dimens.size);
     });
   }
 
@@ -159,7 +152,7 @@ void GameOverlay::draw_map_info(Renderer& ren) {
 
   ren.begin_auto_center_scale();
 
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
 
     const auto true_size = font.font.calc_total_size(map_info_str_size_);
@@ -189,7 +182,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   const int total_cells = map_.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
   const bool perfect = freed_all && state_.player_hit_end;
-  const auto* game_over_sprite = ctx_.assets.sprite(
+  const auto* game_over_sprite = sesh_.assets.sprite(
     state_.player_hit_end ? SpriteId::kCorngrits : SpriteId::kGoodnight
   );
 
@@ -198,13 +191,13 @@ void GameOverlay::draw_game_over(Renderer& ren) {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
   });
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{445,450,0},0.60f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,Pos3i{445,450,0},0.60f,[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.font_color.a *= game_over_age_;
 
     const auto font_color = font.font_color;
-    const auto miss_color = ctx_.assets.font_renderer().cycle_arrow_color().with_a(font_color.a);
-    const auto goal_color = ctx_.assets.font_renderer().arrow_color().with_a(font_color.a);
+    const auto miss_color = sesh_.assets.font_renderer().cycle_arrow_color().with_a(font_color.a);
+    const auto goal_color = sesh_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
     font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2});
     font.puts(state_.player_hit_end ? "Congrats!" : "You're dead!");
@@ -234,7 +227,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     }
   });
 
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{565,perfect ? 780 : 680,0},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,Pos3i{565,perfect ? 780 : 680,0},[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())});
     font.font_color.a *= game_over_age_;
@@ -252,11 +245,14 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   ren.end_scale()
      .begin_auto_scale()
      .begin_add_blend();
-  star_sys_.draw(ren,ctx_.assets.star_tex());
+  star_sys_.draw(ren,sesh_.assets.star_tex());
   ren.end_blend()
      .end_scale();
 }
 
 float GameOverlay::game_over_age() const { return game_over_age_; }
+
+GameOverlay::Option::Option(OptionType type,std::string_view text)
+  : type{type},text{text} {}
 
 } // namespace ekoscape

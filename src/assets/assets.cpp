@@ -76,26 +76,30 @@ std::vector<std::filesystem::path> Assets::fetch_base_dirs() {
 }
 
 Assets::Assets(std::string_view tex_style,bool has_audio_player,bool make_weird)
-  : has_audio_player_(has_audio_player) {
+  : has_audio_player_{has_audio_player} {
   reload_gfx(tex_style,make_weird);
   reload_audio();
 }
 
-void Assets::on_context_lost() {
+void Assets::on_context_loss() {
   for(auto& st : styled_texs_bag_) { st.zombify(); }
   for(auto& tex : texs_) { tex->zombify(); }
   for(auto& sprite : sprites_) { sprite->zombify(); }
   for(auto& font : font_atlases_) { font->zombify(); }
 }
 
-void Assets::on_context_restored() {
+void Assets::on_context_restore() {
   Util::clear_gl_errors();
   reload_gfx();
 }
 
-void Assets::reload_gfx() { reload_gfx(is_weird_); }
+void Assets::reload_gfx() {
+  reload_gfx(is_weird_);
+}
 
-void Assets::reload_gfx(bool make_weird) { reload_gfx(styled_texs_bag_it_->dirname,make_weird); }
+void Assets::reload_gfx(bool make_weird) {
+  reload_gfx(styled_texs_bag_it_->dirname,make_weird);
+}
 
 void Assets::reload_gfx(std::string_view tex_style,bool make_weird) {
   is_weird_ = make_weird;
@@ -458,8 +462,8 @@ Music* Assets::music(asset_id_t id) {
 }
 
 Assets::StyledTextures::StyledTextures(const std::filesystem::path& dir,bool make_weird)
-  : dirname(dir.filename().string()),
-    name(utf8::StrUtil::ellipsize(dirname,18)) {
+  : dirname{dir.filename().string()},
+    name{utf8::StrUtil::ellipsize(dirname,18)} {
   load_tex(StyledTexId::kCeiling,dir / "ceiling.png",make_weird);
   load_tex(StyledTexId::kCell,dir / "cell.png",make_weird);
   load_tex(StyledTexId::kDeadSpace,dir / "dead_space.png",make_weird,kWeirdBlackColor);

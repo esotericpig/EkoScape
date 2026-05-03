@@ -15,9 +15,8 @@
 #include "cybel/types/duration.h"
 #include "cybel/types/size.h"
 
-#include "core/game_context.h"
+#include "core/game_session.h"
 #include "map/map.h"
-#include "scenes/scene_action.h"
 #include "world/star_sys.h"
 
 #include <vector>
@@ -31,7 +30,7 @@ public:
     bool player_hit_end = false;
   };
 
-  explicit GameOverlay(GameContext& ctx,const Map& map);
+  explicit GameOverlay(GameSession& sesh,const Map& map);
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
@@ -39,9 +38,10 @@ public:
 
   void update_state(const State& state);
 
-  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
+
+  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
   float game_over_age() const;
 
@@ -67,10 +67,9 @@ private:
   static inline const Duration kFadeDuration = Duration::from_millis(3'000);
   static inline const Duration kGameOverDuration = Duration::from_millis(3'000);
 
-  GameContext& ctx_;
+  GameSession& sesh_;
   const Map& map_;
   State state_{};
-  int scene_action_ = SceneAction::kNil;
 
   std::string map_info_{};
   Size2i map_info_str_size_{};

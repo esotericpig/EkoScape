@@ -8,13 +8,17 @@
 #include "ekoscape_game.h"
 
 #include "cybel/input/joypad_input.h"
+#include "cybel/scene/scene_context.h"
 #include "cybel/types/cybel_error.h"
 #include "cybel/util/rando.h"
 
 #include "core/input_action.h"
 #include "scenes/boring_work_scene.h"
+#include "scenes/game_scene.h"
 #include "scenes/menu_credits_scene.h"
+#include "scenes/menu_play_scene.h"
 #include "scenes/menu_scene.h"
+#include "scenes/scene_action.h"
 
 namespace ekoscape {
 
@@ -43,32 +47,28 @@ CybelEngine::Config EkoScapeGame::build_config() {
   };
 }
 
-EkoScapeGame::EkoScapeGame(CybelEngine& cybel_engine)
-  : cybel_engine_{cybel_engine},
-    scene_man_{cybel_engine_.scene_man()},
-    assets_{"realistic",cybel_engine_.audio_player().is_alive()},
-    ctx_{cybel_engine_,assets_} {}
+EkoScapeGame::EkoScapeGame(CybelEngine& engine)
+  : assets_{"realistic",engine.audio_player().is_alive()},
+    sesh_{assets_} {}
 
-void EkoScapeGame::on_game_start() {
-  cybel_engine_.set_icon(*assets_.image(ImageId::kEkoScapeIcon));
+void EkoScapeGame::on_game_start(CybelEngine& engine) {
+  engine.set_icon(*assets_.image(ImageId::kEkoScapeIcon));
 
   // TEST: Uncomment to test joypad input.
-  //cybel_engine_.input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
+  //engine.input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
   // TEST: Uncomment to test touch input.
-  //cybel_engine_.input_man().use_mouse_as_finger();
+  //engine.input_man().use_mouse_as_finger();
 
-  init_input_map();
+  init_input_map(engine.input_man());
 
-  if(!scene_man_.push_scene(SceneAction::kGoToMenu)) {
+  if(!engine.scene_man().push_scene(SceneAction::kGoToMenu)) {
     throw CybelError{"Failed to push the Menu Scene onto the stack."};
   }
 
-  play_music(true); // When the game first starts, play from a random position.
+  play_music(engine.audio_player(),true); // When the game first starts, play from a random position.
 }
 
-void EkoScapeGame::init_input_map() {
-  auto& im = cybel_engine_.input_man();
-
+void EkoScapeGame::init_input_map(InputMan& im) {
   // Movement.
   im.map_input(InputAction::kUp,[](auto& i) {
     i.raw_key({SDL_SCANCODE_UP,SDL_SCANCODE_W});
@@ -140,68 +140,63 @@ void EkoScapeGame::init_input_map() {
   });
 }
 
-SceneBag EkoScapeGame::build_scene(int type) {
+SceneBag EkoScapeGame::build_scene(int type,SceneContext& ctx) {
   SceneBag result{type};
 
   switch(type) {
     case SceneAction::kQuit:
-      cybel_engine_.request_stop();
-      break;
-
-    case SceneAction::kGoBack:
-      pop_scene();
-      break;
-
-    case SceneAction::kRestart:
-      if(!scene_man_.restart_scene()) {
-        show_error(Util::build_str("Failed to restart scene [",scene_man_.curr_scene_type(),
-                                   "]. Going back to the previous scene instead."));
-        pop_scene();
-      }
+      ctx.engine.request_stop();
       break;
 
     case SceneAction::kGoToMenu:
-      result.scene = std::make_shared<MenuScene>(ctx_);
+      result.scene = std::make_shared<MenuScene>(sesh_,ctx);
       break;
 
     case SceneAction::kGoToMenuPlay:
-      result.scene = std::make_shared<MenuPlayScene>(ctx_,menu_play_scene_state_);
+      result.scene = std::make_shared<MenuPlayScene>(sesh_,ctx.engine);
       break;
 
     case SceneAction::kGoToMenuCredits:
-      result.scene = std::make_shared<MenuCreditsScene>(ctx_);
+      result.scene = std::make_shared<MenuCreditsScene>(sesh_);
       break;
 
     case SceneAction::kGoToGame: {
-      const auto& map_file = menu_play_scene_state_.map_file;
+      const auto& map_file = sesh_.menu_play_scene_state.map_file;
 
       if(map_file.empty()) {
-        show_error("No map was selected.");
+        ctx.engine.show_error("No map was selected.");
       } else {
         try {
-          result.scene = std::make_shared<GameScene>(ctx_,game_scene_state_,map_file);
+          result.scene = std::make_shared<GameScene>(sesh_,ctx.engine.renderer(),map_file);
           result.persist = true; // Preserve GameScene when pausing (e.g., for BoringWorkScene).
         } catch(const CybelError& e) {
-          show_error(e.what());
+          ctx.engine.show_error(e.what());
           result.scene = nullptr;
         }
       }
     } break;
 
     case SceneAction::kGoToBoringWork:
-      result.scene = std::make_shared<BoringWorkScene>(ctx_);
-      stop_music(true);
+      result.scene = std::make_shared<BoringWorkScene>(sesh_);
+      stop_music(ctx.audio_player,true);
       break;
 
-    case SceneAction::kNil:
+    case SceneAction::kNone:
     default:
       break;
   }
 
   if(!result.scene) { return result; }
 
+  // If leaving BOMA & was playing music before BOMA, turn the music back on.
+  if(ctx.scene_man.curr_scene_type() == SceneAction::kGoToBoringWork &&
+     type != SceneAction::kGoToBoringWork &&
+     was_music_playing_) {
+    play_music(ctx.audio_player);
+  }
+
   if(SceneActions::is_menu(type)) {
-    if(star_sys_.is_empty()) { star_sys_.init(cybel_engine_.dimens()); }
+    if(star_sys_.is_empty()) { star_sys_.init(ctx.dimens); }
   } else if(type != SceneAction::kGoToBoringWork) {
     star_sys_.clear(); // Free memory, for GameScene in particular.
   }
@@ -209,69 +204,61 @@ SceneBag EkoScapeGame::build_scene(int type) {
   return result;
 }
 
-void EkoScapeGame::pop_scene() {
-  // If on BoringWorkScene, turn music back on, if it was playing before.
-  if(scene_man_.curr_scene_type() == SceneAction::kGoToBoringWork) {
-    if(was_music_playing_) { play_music(); }
-  }
-
-  if(!scene_man_.pop_scene()) {
-#if defined(__EMSCRIPTEN__)
-    std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
-    EM_ASM( window.history.back(); );
-#endif
-
-    // No scene to go back to, just ignore pop.
-  }
+void EkoScapeGame::on_scene_context_loss([[maybe_unused]] SceneContext& ctx) {
+  assets_.on_context_loss();
 }
 
-void EkoScapeGame::on_scene_context_lost() {
-  assets_.on_context_lost();
+void EkoScapeGame::on_scene_context_restore([[maybe_unused]] SceneContext& ctx) {
+  assets_.on_context_restore();
 }
 
-void EkoScapeGame::on_scene_context_restored() {
-  assets_.on_context_restored();
-}
-
-void EkoScapeGame::on_scene_input_event(input_id_t input_id,[[maybe_unused]] const ViewDimens& dimens) {
+void EkoScapeGame::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   switch(input_id) {
     // Go back a scene.
     case InputAction::kGoBack:
-      pop_scene();
+      if(!ctx.scene_man.pop_scene()) {
+#if defined(__EMSCRIPTEN__)
+        std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
+        EM_ASM( window.history.back(); );
+#endif
+        // No scene to go back to, just ignore pop.
+      }
       break;
 
     case InputAction::kQuit:
-      cybel_engine_.request_stop();
+      ctx.engine.request_stop();
       break;
 
     case InputAction::kToggleMusic:
-      if(ctx_.audio_player.is_music_playing()) {
-        stop_music();
+      if(ctx.audio_player.is_music_playing()) {
+        stop_music(ctx.audio_player);
       } else {
-        play_music();
+        play_music(ctx.audio_player);
       }
       break;
 
     case InputAction::kToggleFullscreen: {
-      const bool fullscreen = !cybel_engine_.is_fullscreen();
+      const bool fullscreen = !ctx.engine.is_fullscreen();
 
-      cybel_engine_.set_fullscreen(fullscreen,true);
-      cybel_engine_.set_cursor_visible(!fullscreen);
+      ctx.engine.set_fullscreen(fullscreen,true);
+      ctx.engine.set_cursor_visible(!fullscreen);
     } break;
 
     // Toggle BoringWorkScene.
     case InputAction::kToggleBossOma:
-      if(scene_man_.curr_scene_type() == SceneAction::kGoToBoringWork) {
-        pop_scene();
+      if(ctx.scene_man.curr_scene_type() == SceneAction::kGoToBoringWork) {
+        ctx.scene_man.pop_scene();
       } else {
-        scene_man_.push_scene(SceneAction::kGoToBoringWork);
+        ctx.scene_man.push_scene(SceneAction::kGoToBoringWork);
       }
       break;
 
     case InputAction::kRefresh:
       // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
       // else it'll be all white due to not re-generating the map.
-      if(SceneActions::is_menu(scene_man_.curr_scene_type())) { assets_.reload_gfx(false); }
+      if(SceneActions::is_menu(ctx.scene_man.curr_scene_type())) {
+        assets_.reload_gfx(false);
+      }
       break;
 
     case InputAction::kToggleFps:
@@ -283,25 +270,23 @@ void EkoScapeGame::on_scene_input_event(input_id_t input_id,[[maybe_unused]] con
       break;
 
     case InputAction::kToggleFrozen:
-      cybel_engine_.set_logic_running(!cybel_engine_.is_logic_running());
+      ctx.engine.set_logic_running(!ctx.engine.is_logic_running());
       break;
   }
 }
 
-int EkoScapeGame::update_scene_logic(const FrameStep& step,[[maybe_unused]] const ViewDimens& dimens) {
+void EkoScapeGame::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
   star_sys_.update(step);
 
   // Only update the shown FPS at an interval, else the digits change too fast to read.
   if(avg_fps_age_ >= 0.0f && (avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
-    avg_fps_str_ = std::to_string(static_cast<int>(std::round(cybel_engine_.avg_fps())));
+    avg_fps_str_ = std::to_string(static_cast<int>(std::round(ctx.engine.avg_fps())));
     avg_fps_age_ = 0.0f;
   }
-
-  return SceneAction::kNil;
 }
 
-void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
-  if(!star_sys_.is_empty() && SceneActions::is_menu(scene_man_.curr_scene_type())) {
+void EkoScapeGame::draw_scene(Renderer& ren,SceneContext& ctx) {
+  if(!star_sys_.is_empty() && SceneActions::is_menu(ctx.scene_man.curr_scene_type())) {
     ren.begin_2d_scene()
        .begin_auto_scale()
        .begin_add_blend();
@@ -326,35 +311,27 @@ void EkoScapeGame::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
   }
 }
 
-void EkoScapeGame::play_music(bool rand_pos) {
-  if(!ctx_.audio_player.is_alive()) { return; }
+void EkoScapeGame::play_music(AudioPlayer& audio_player,bool rand_pos) {
+  if(!audio_player.is_alive()) { return; }
 
   const auto* music = assets_.music(MusicId::kEkoScape);
+  if(!music) { return; }
 
-  if(music == nullptr) {
-    was_music_playing_ = false;
-    return;
-  }
-
-  ctx_.audio_player.play_or_resume_music(music);
+  audio_player.play_or_resume_music(music);
   was_music_playing_ = true;
 
   if(rand_pos) {
-    const auto dur_secs = ctx_.audio_player.fetch_duration(music).secs();
+    const auto dur_secs = audio_player.fetch_duration(music).secs();
 
     if(dur_secs > 1.0) {
-      ctx_.audio_player.set_music_pos(Duration::from_secs(Rando::it().rand_double(0.0,dur_secs - 1.0)));
+      audio_player.set_music_pos(Duration::from_secs(Rando::it().rand_double(0.0,dur_secs - 1.0)));
     }
   }
 }
 
-void EkoScapeGame::stop_music(bool going_to_boring_work) {
-  ctx_.audio_player.pause_music();
+void EkoScapeGame::stop_music(AudioPlayer& audio_player,bool going_to_boring_work) {
+  audio_player.pause_music();
   if(!going_to_boring_work) { was_music_playing_ = false; }
-}
-
-void EkoScapeGame::show_error(const std::string& error) {
-  cybel_engine_.show_error(error);
 }
 
 } // namespace ekoscape

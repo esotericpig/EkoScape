@@ -12,57 +12,47 @@
 
 #include "cybel/cybel_engine.h"
 #include "cybel/game.h"
-#include "cybel/scene/scene.h"
-#include "cybel/scene/scene_bag.h"
-#include "cybel/scene/scene_man.h"
+#include "cybel/audio/audio_player.h"
+#include "cybel/input/input_man.h"
 
 #include "assets/assets.h"
-#include "core/game_context.h"
-#include "scenes/game_scene.h"
-#include "scenes/menu_play_scene.h"
+#include "core/game_session.h"
 #include "world/star_sys.h"
 
 namespace ekoscape {
 
 class EkoScapeGame final : public Game {
 public:
-  static inline const std::string kTitle = "EkoScape v2.4";
+  static inline const auto* kTitle = "EkoScape v2.4";
 
   static CybelEngine::Config build_config();
 
-  explicit EkoScapeGame(CybelEngine& cybel_engine);
+  explicit EkoScapeGame(CybelEngine& engine);
 
-  void on_game_start() override;
-  SceneBag build_scene(int type) override;
+  void on_game_start(CybelEngine& engine) override;
+  SceneBag build_scene(int type,SceneContext& ctx) override;
 
-  void on_scene_context_lost() override;
-  void on_scene_context_restored() override;
+  void on_scene_context_loss(SceneContext& ctx) override;
+  void on_scene_context_restore(SceneContext& ctx) override;
 
-  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
 
-  void show_error(const std::string& error);
+  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
-  CybelEngine& cybel_engine_;
-  SceneMan& scene_man_;
   Assets assets_;
-  GameContext ctx_;
+  GameSession sesh_;
 
   bool was_music_playing_ = false;
   StarSys star_sys_{};
   float avg_fps_age_ = -1.0f;
   std::string avg_fps_str_{};
 
-  MenuPlayScene::State menu_play_scene_state_{};
-  GameScene::State game_scene_state_{};
+  void init_input_map(InputMan& im);
 
-  void init_input_map();
-  void pop_scene();
-
-  void play_music(bool rand_pos = false);
-  void stop_music(bool going_to_boring_work = false);
+  void play_music(AudioPlayer& audio_player,bool rand_pos = false);
+  void stop_music(AudioPlayer& audio_player,bool going_to_boring_work = false);
 };
 
 } // namespace ekoscape

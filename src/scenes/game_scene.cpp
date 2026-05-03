@@ -18,9 +18,9 @@
 
 namespace ekoscape {
 
-GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file)
-  : ctx_(ctx),state_(state) {
-  dantares_renderer_ = std::make_unique<DantaresRenderer>(ctx.cybel_engine.renderer());
+GameScene::GameScene(GameSession& sesh,Renderer& ren,const std::filesystem::path& map_file)
+  : sesh_{sesh} {
+  dantares_renderer_ = std::make_unique<DantaresRenderer>(ren);
 
   // Dantares2(...,SquareSize,FloorHeight,CeilingHeight).
   // - Classic values: (0.125f,-0.04f,0.04f).
@@ -37,8 +37,8 @@ GameScene::GameScene(GameContext& ctx,State& state,const std::filesystem::path& 
   // Extra delay to give some time for the Player to initially orient/adjust.
   robot_move_time_ = map_->robot_delay() + kInitExtraRobotDelay;
 
-  hud_ = std::make_unique<GameHud>(ctx,*map_);
-  overlay_ = std::make_unique<GameOverlay>(ctx,*map_);
+  hud_ = std::make_unique<GameHud>(sesh_,*map_);
+  overlay_ = std::make_unique<GameOverlay>(sesh_,*map_);
 }
 
 void GameScene::init_map(const std::filesystem::path& map_file) {
@@ -49,7 +49,7 @@ void GameScene::init_map(const std::filesystem::path& map_file) {
     [&](const auto& pos,SpaceType type) { return init_map_space(pos,type,cells); },
     [&](const auto& pos,SpaceType type) { init_map_default_empty(pos,type); }
   );
-  if(ctx_.assets.is_weird()) { make_map_weird(cells); }
+  if(sesh_.assets.is_weird()) { make_map_weird(cells); }
 
   std::cout << "[INFO] Map file ['" << map_file.string() << "'] w/ grids [" << map_->grid_count() << "]:\n"
             << *map_ << std::endl;
@@ -117,7 +117,7 @@ void GameScene::make_map_weird(std::vector<Pos3i>& cells) {
 }
 
 void GameScene::init_map_texs() {
-  auto& a = ctx_.assets;
+  auto& a = sesh_.assets;
   const auto* ceiling_tex = a.styled_tex(StyledTexId::kCeiling);
   const auto* cell_tex = a.styled_tex(StyledTexId::kCell);
   const auto* dead_space_tex = a.styled_tex(StyledTexId::kDeadSpace);
@@ -164,7 +164,7 @@ void GameScene::init_map_texs() {
   set_space_texs(SpaceType::kWhiteGhost,white_ghost_tex);
 }
 
-void GameScene::init_scene(const ViewDimens& /*dimens*/) {
+void GameScene::on_scene_enter([[maybe_unused]] SceneContext& ctx) {
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
       map_info_timer_.resume();
@@ -179,7 +179,7 @@ void GameScene::init_scene(const ViewDimens& /*dimens*/) {
   }
 }
 
-void GameScene::on_scene_exit() {
+void GameScene::on_scene_exit([[maybe_unused]] SceneContext& ctx) {
   switch(game_phase_) {
     case GamePhase::kShowMapInfo:
       map_info_timer_.pause();
@@ -194,36 +194,32 @@ void GameScene::on_scene_exit() {
   }
 }
 
-void GameScene::on_scene_context_restored() {
-  try {
-    map_->on_context_restored();
-  } catch(const CybelError& e) {
-    std::cerr << "[WARN] Error on context restored: " << e.what() << std::endl;
-    scene_action_ = SceneAction::kGoBack;
-  }
+void GameScene::on_scene_context_restore([[maybe_unused]] SceneContext& ctx) {
+  // Can throw CybelError.
+  map_->on_context_restore();
 }
 
-void GameScene::on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) {
+void GameScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   switch(input_id) {
     case InputAction::kToggleMiniMap:
-      state_.show_mini_map = !state_.show_mini_map;
+      sesh_.game_scene_state.show_mini_map = !sesh_.game_scene_state.show_mini_map;
       break;
 
     case InputAction::kToggleSpeedrun:
       // The speedrun time is always shown on Game Over, so don't toggle.
       if(game_phase_ != GamePhase::kGameOver) {
-        state_.show_speedrun = !state_.show_speedrun;
+        sesh_.game_scene_state.show_speedrun = !sesh_.game_scene_state.show_speedrun;
       }
       break;
 
     default:
-      overlay_->on_scene_input_event(input_id,dimens);
+      overlay_->on_scene_input_event(input_id,ctx);
       break;
   }
 }
 
-void GameScene::handle_scene_input(const std::vector<bool>& states,InputMan& /*input*/,
-                                   const ViewDimens& /*dimens*/) {
+void GameScene::handle_scene_input(const InputStates& states,[[maybe_unused]] InputMan& input,
+                                   [[maybe_unused]] SceneContext& ctx) {
   // Input states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.
@@ -274,11 +270,7 @@ void GameScene::handle_scene_input(const std::vector<bool>& states,InputMan& /*i
   }
 }
 
-int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens) {
-  if(scene_action_ != SceneAction::kNil) {
-    return std::exchange(scene_action_,SceneAction::kNil);
-  }
-
+void GameScene::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
   dantares_->UpdateDeltaTime(static_cast<float>(step.delta_time));
 
   if(game_phase_ == GamePhase::kShowMapInfo && map_info_timer_.peek() >= kMapInfoDuration) {
@@ -291,7 +283,7 @@ int GameScene::update_scene_logic(const FrameStep& step,const ViewDimens& dimens
     update_robots(step);
   }
 
-  return update_mods(step,dimens);
+  update_mods(step,ctx);
 }
 
 void GameScene::update_player(const FrameStep& step) {
@@ -312,7 +304,7 @@ void GameScene::update_player(const FrameStep& step) {
       const auto fruit_secs = player_fruit_time_.round_secs();
 
       if(fruit_secs != prev_fruit_secs && fruit_secs <= kFruitWarnSecs) {
-        overlay_->flash(ctx_.assets.fruit_color());
+        overlay_->flash(sesh_.assets.fruit_color());
       }
     }
   }
@@ -333,7 +325,7 @@ void GameScene::update_player(const FrameStep& step) {
     // Check for Fruit before Robots.
     case SpaceType::kFruit:
       map_->remove_thing(player_pos);
-      overlay_->flash(ctx_.assets.fruit_color());
+      overlay_->flash(sesh_.assets.fruit_color());
       player_fruit_time_ = kFruitDuration;
       break;
 
@@ -362,7 +354,7 @@ void GameScene::update_player(const FrameStep& step) {
 
       if(portal_bro) {
         map_->move_player(*portal_bro);
-        overlay_->flash(ctx_.assets.portal_color());
+        overlay_->flash(sesh_.assets.portal_color());
         player_warped_ = true;
         player_warp_time_ = kWarpDuration;
       }
@@ -392,7 +384,7 @@ void GameScene::game_over(bool player_hit_end) {
   map_->sync_player_pos();
 
   // Fade to death?
-  if(!player_hit_end_) { overlay_->fade_to(ctx_.assets.eko_color()); }
+  if(!player_hit_end_) { overlay_->fade_to(sesh_.assets.eko_color()); }
   overlay_->game_over(player_hit_end_);
 }
 
@@ -476,39 +468,33 @@ std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType port
   return std::nullopt;
 }
 
-int GameScene::update_mods(const FrameStep& step,const ViewDimens& dimens) {
+void GameScene::update_mods(const FrameStep& step,SceneContext& ctx) {
   hud_->update_state(GameHud::State{
-    .show_mini_map = state_.show_mini_map,
+    .show_mini_map = sesh_.game_scene_state.show_mini_map,
     .player_fruit_time = player_fruit_time_,
     .player_hit_end = player_hit_end_,
 
     .is_game_over = (game_phase_ == GamePhase::kGameOver),
     .speedrun_time = speedrun_timer_.peek(),
-    .show_speedrun = state_.show_speedrun,
+    .show_speedrun = sesh_.game_scene_state.show_speedrun,
   });
   overlay_->update_state(GameOverlay::State{
     .is_map_info = (game_phase_ == GamePhase::kShowMapInfo),
     .player_hit_end = player_hit_end_,
   });
 
-  if((scene_action_ = hud_->update_scene_logic(step,dimens)) != SceneAction::kNil) {
-    return std::exchange(scene_action_,SceneAction::kNil);
-  }
-  if((scene_action_ = overlay_->update_scene_logic(step,dimens)) != SceneAction::kNil) {
-    return std::exchange(scene_action_,SceneAction::kNil);
-  }
-
-  return SceneAction::kNil;
+  hud_->update_scene_logic(step,ctx);
+  overlay_->update_scene_logic(step,ctx);
 }
 
-void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
+void GameScene::draw_scene(Renderer& ren,SceneContext& ctx) {
   ren.begin_3d_scene();
 
-  const bool move_player = ctx_.cybel_engine.is_logic_running();
+  const bool move_player = ctx.engine.is_logic_running();
 
   if(player_hit_end_) {
     // Even if fully transparent, continue to draw so that the Player can turn the mini map (just for fun).
-    ren.wrap_color(ctx_.assets.end_color().with_a(1.0f - overlay_->game_over_age()),[&] {
+    ren.wrap_color(sesh_.assets.end_color().with_a(1.0f - overlay_->game_over_age()),[&] {
       dantares_->Draw(kDantaresDist,move_player);
     });
   } else {
@@ -516,8 +502,8 @@ void GameScene::draw_scene(Renderer& ren,const ViewDimens& dimens) {
   }
 
   ren.begin_2d_scene();
-  hud_->draw_scene(ren,dimens);
-  overlay_->draw_scene(ren,dimens);
+  hud_->draw_scene(ren,ctx);
+  overlay_->draw_scene(ren,ctx);
 }
 
 // ReSharper disable once CppDFAUnreachableFunctionCall

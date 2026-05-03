@@ -10,10 +10,10 @@
 
 #include "common.h"
 
+#include "cybel/cybel_engine.h"
 #include "cybel/scene/scene.h"
 
-#include "core/game_context.h"
-#include "scenes/scene_action.h"
+#include "core/game_session.h"
 
 #include <filesystem>
 #include <unordered_map>
@@ -23,16 +23,11 @@ namespace ekoscape {
 
 class MenuPlayScene final : public Scene {
 public:
-  struct State {
-    std::filesystem::path map_file{};
-    bool is_rand_map = true;
-  };
+  explicit MenuPlayScene(GameSession& sesh,const CybelEngine& engine);
 
-  explicit MenuPlayScene(GameContext& ctx,State& state);
+  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
 
-  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
   class MapOption {
@@ -46,9 +41,7 @@ private:
     explicit MapOption(std::string_view text);
   };
 
-  /**
-   * Order of core groups.
-   */
+  /// Order of core groups.
   static inline std::unordered_map<std::string,int> kCoreGroupToPriority{
     {"user",1},
     {"fanmade",2},
@@ -61,20 +54,18 @@ private:
   static constexpr std::uint8_t kMaxMapOpts = 10;
   static constexpr std::uint8_t kMapOptsHalf2 = kMaxMapOpts >> 1;
   // If even number of options, no exact middle, so bias drawing of selected option towards top half,
-  //     since this is easier on the eyes.
+  // since this is easier on the eyes.
   static constexpr std::uint8_t kMapOptsHalf1 = ((kMaxMapOpts % 2) == 0)
                                                 ? (std::max<std::uint8_t>(kMapOptsHalf2,1) - 1)
                                                 : kMapOptsHalf2;
   static constexpr std::uint8_t kMinMapOptsHalf = std::min(kMapOptsHalf1,kMapOptsHalf2);
 
-  GameContext& ctx_;
-  State& state_;
-  int scene_action_ = SceneAction::kNil;
+  GameSession& sesh_;
 
   int map_opt_index_ = 0;
   std::vector<MapOption> map_opts_{};
 
-  void glob_maps();
+  void glob_maps(const CybelEngine& engine);
   void prev_map_opt_group();
   void next_map_opt_group();
   void select_map_opt(int index,bool wrap);

@@ -16,7 +16,7 @@
 #include "cybel/types/pos.h"
 #include "cybel/types/size.h"
 
-#include "core/game_context.h"
+#include "core/game_session.h"
 #include "map/map.h"
 
 namespace ekoscape {
@@ -33,12 +33,12 @@ public:
     bool show_speedrun = false;
   };
 
-  explicit GameHud(GameContext& ctx,const Map& map);
+  explicit GameHud(GameSession& sesh,const Map& map);
 
   void update_state(const State& state);
 
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
   static constexpr float kTextScale = 0.33f;
@@ -52,7 +52,7 @@ private:
     ((kMiniMapHoodRadius.h << 1) + 1) * kMiniMapBlockSize.h
   };
 
-  GameContext& ctx_;
+  GameSession& sesh_;
   const Map& map_;
   State state_{};
 

@@ -12,7 +12,7 @@
 namespace ekoscape {
 
 DantaresMap::DantaresMap(Dantares2& dantares,const TexturesSetter& set_texs)
-  : dantares_(dantares),set_texs_(set_texs) {}
+  : dantares_{dantares},set_texs_{set_texs} {}
 
 Map& DantaresMap::clear_grids() {
   Map::clear_grids();
@@ -93,7 +93,7 @@ void DantaresMap::add_to_bridge() {
   }
 }
 
-void DantaresMap::on_context_restored() {
+void DantaresMap::on_context_restore() {
   if(grid_ids_.empty()) { throw CybelError{"No grid IDs in map [",title_,"]."}; }
 
   // Store this before switching maps.

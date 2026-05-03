@@ -7,32 +7,31 @@
 
 #include "menu_play_scene.h"
 
+#include "cybel/scene/scene_context.h"
 #include "cybel/str/utf8/str_util.h"
 #include "cybel/util/rando.h"
 
 #include "core/input_action.h"
+#include "scenes/scene_action.h"
 
 namespace ekoscape {
 
-MenuPlayScene::MapOption::MapOption(std::string_view text)
-  : text(text) {}
-
-MenuPlayScene::MenuPlayScene(GameContext& ctx,State& state)
-  : ctx_(ctx),state_(state) {
-  glob_maps();
+MenuPlayScene::MenuPlayScene(GameSession& sesh,const CybelEngine& engine)
+  : sesh_{sesh} {
+  glob_maps(engine);
 }
 
-void MenuPlayScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /*dimens*/) {
+void MenuPlayScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   switch(input_id) {
     case InputAction::kSelect:
       if(map_opt_index_ == 1) {
-        scene_action_ = SceneAction::kGoBack;
+        ctx.scene_man.pop_scene();
       } else {
         if(map_opts_.size() <= kNonMapOptCount) {
-          ctx_.cybel_engine.show_error("No map to select.");
+          ctx.engine.show_error("No map to select.");
         } else {
           select_map();
-          scene_action_ = SceneAction::kGoToGame;
+          ctx.scene_man.push_scene(SceneAction::kGoToGame);
         }
       }
       break;
@@ -62,23 +61,19 @@ void MenuPlayScene::on_scene_input_event(input_id_t input_id,const ViewDimens& /
       break;
 
     case InputAction::kRefresh:
-      glob_maps();
+      glob_maps(ctx.engine);
       break;
   }
 }
 
-int MenuPlayScene::update_scene_logic(const FrameStep& /*step*/,const ViewDimens& /*dimens*/) {
-  return std::exchange(scene_action_,SceneAction::kNil);
-}
-
-void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
+void MenuPlayScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& ctx) {
   if(map_opts_.empty()) { return; }
 
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{25,10,0},0.75f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,Pos3i{25,10,0},0.75f,[&](auto& font) {
     const int opts_len = static_cast<int>(map_opts_.size());
     const int half1_or_blanks = map_opt_index_ - kMapOptsHalf1;
     const int max_len = std::min(map_opt_index_ + 1 + kMapOptsHalf2,opts_len);
@@ -113,7 +108,7 @@ void MenuPlayScene::draw_scene(Renderer& ren,const ViewDimens& /*dimens*/) {
      .end_scale();
 }
 
-void MenuPlayScene::glob_maps() {
+void MenuPlayScene::glob_maps(const CybelEngine& engine) {
   static constexpr int kMaxTitleLen = 25;
   static constexpr int kMaxGroupLen = 17;
 
@@ -122,7 +117,7 @@ void MenuPlayScene::glob_maps() {
   map_opts_.emplace_back("< go back >");
   map_opt_index_ = 0;
 
-  ctx_.assets.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
+  sesh_.assets.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
     MapOption opt{};
 
     opt.group = group;
@@ -135,8 +130,8 @@ void MenuPlayScene::glob_maps() {
   });
 
   if(map_opts_.size() <= kNonMapOptCount) {
-    ctx_.cybel_engine.show_error("No maps were found/loaded in the sub folders of the maps folder [" +
-                                 Assets::kMapsSubdir.string() + "].");
+    engine.show_error("No maps were found/loaded in the sub folders of the maps folder [" +
+                      Assets::kMapsSubdir.string() + "].");
     return;
   }
 
@@ -167,9 +162,9 @@ void MenuPlayScene::glob_maps() {
   );
 
   // Select the correct map from the previous/current state.
-  if(!state_.is_rand_map) {
+  if(!sesh_.menu_play_scene_state.is_rand_map) {
     for(std::size_t i = 0; i < map_opts_.size(); ++i) {
-      if(map_opts_[i].file == state_.map_file) {
+      if(map_opts_[i].file == sesh_.menu_play_scene_state.map_file) {
         map_opt_index_ = static_cast<int>(i);
         break;
       }
@@ -226,22 +221,26 @@ void MenuPlayScene::select_map() {
   // No maps?
   if(map_opts_.size() <= kNonMapOptCount) { return; }
 
-  state_.is_rand_map = (map_opt_index_ == 0);
+  auto& state = sesh_.menu_play_scene_state;
+  state.is_rand_map = (map_opt_index_ == 0);
 
-  if(state_.is_rand_map) {
+  if(state.is_rand_map) {
     std::filesystem::path new_map_file{};
 
     // Try not to grab the same map as last time.
     for(int i = 0; i < 10; ++i) {
       new_map_file = map_opts_.at(Rando::it().rand_size_t(kNonMapOptCount,map_opts_.size())).file;
 
-      if(new_map_file != state_.map_file) { break; }
+      if(new_map_file != state.map_file) { break; }
     }
 
-    state_.map_file = new_map_file;
+    state.map_file = new_map_file;
   } else {
-    state_.map_file = map_opts_.at(static_cast<std::size_t>(map_opt_index_)).file;
+    state.map_file = map_opts_.at(static_cast<std::size_t>(map_opt_index_)).file;
   }
 }
+
+MenuPlayScene::MapOption::MapOption(std::string_view text)
+  : text{text} {}
 
 } // namespace ekoscape

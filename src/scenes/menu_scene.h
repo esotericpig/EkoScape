@@ -11,9 +11,9 @@
 #include "common.h"
 
 #include "cybel/scene/scene.h"
+#include "cybel/scene/scene_context.h"
 
-#include "core/game_context.h"
-#include "scenes/scene_action.h"
+#include "core/game_session.h"
 
 #include <functional>
 #include <vector>
@@ -22,17 +22,17 @@ namespace ekoscape {
 
 class MenuScene final : public Scene {
 public:
-  explicit MenuScene(GameContext& ctx);
+  explicit MenuScene(GameSession& sesh,SceneContext& ctx);
 
-  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
+
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
   class Option {
   public:
-    using OnUpdate = std::function<void(Option&)>;
-    using OnSelect = std::function<void()>;
+    using OnUpdate = std::function<void(Option&,SceneContext&)>;
+    using OnSelect = std::function<void(SceneContext&)>;
 
     struct CycleConfig {
       OnUpdate on_update{};
@@ -42,11 +42,11 @@ private:
 
     std::string text{};
 
-    static Option cycle(const CycleConfig& config);
+    static Option cycle(SceneContext&,const CycleConfig& config);
     explicit Option(std::string_view text,const OnSelect& on_select);
 
-    void select();
-    void select_alt();
+    void select(SceneContext& ctx);
+    void select_alt(SceneContext& ctx);
 
     bool is_cycle() const;
 
@@ -59,8 +59,7 @@ private:
     explicit Option() = default;
   };
 
-  GameContext& ctx_;
-  int scene_action_ = SceneAction::kNil;
+  GameSession& sesh_;
 
   std::vector<Option> opts_{};
   std::size_t opt_index_ = 0;

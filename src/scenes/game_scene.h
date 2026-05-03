@@ -10,18 +10,19 @@
 
 #include "common.h"
 
+#include "cybel/gfx/renderer.h"
 #include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
+#include "cybel/scene/scene_context.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/pos.h"
 #include "cybel/util/timer.h"
 
-#include "core/game_context.h"
+#include "core/game_session.h"
 #include "map/map.h"
 #include "map/space_type.h"
 #include "scenes/game_hud.h"
 #include "scenes/game_overlay.h"
-#include "scenes/scene_action.h"
 #include "world/robot.h"
 
 #include <filesystem>
@@ -33,22 +34,18 @@ namespace ekoscape {
 
 class GameScene final : public Scene {
 public:
-  struct State {
-    bool show_mini_map = true;
-    bool show_speedrun = true;
-  };
+  explicit GameScene(GameSession& sesh,Renderer& ren,const std::filesystem::path& map_file);
 
-  explicit GameScene(GameContext& ctx,State& state,const std::filesystem::path& map_file);
+  void on_scene_enter(SceneContext& ctx) override;
+  void on_scene_exit(SceneContext& ctx) override;
 
-  void init_scene(const ViewDimens& dimens) override;
-  void on_scene_exit() override;
-  void on_scene_context_restored() override;
+  void on_scene_context_restore(SceneContext& ctx) override;
 
-  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  void handle_scene_input(const std::vector<bool>& states,InputMan& input,const ViewDimens& dimens) override;
+  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
+  void handle_scene_input(const InputStates& states,InputMan& input,SceneContext& ctx) override;
 
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
   enum class GamePhase {
@@ -72,9 +69,7 @@ private:
   static inline const Duration kFruitDuration = Duration::from_millis(7'000);
   static constexpr int kFruitWarnSecs = 2;
 
-  GameContext& ctx_;
-  State& state_;
-  int scene_action_ = SceneAction::kNil;
+  GameSession& sesh_;
 
   std::unique_ptr<Dantares2::RendererClass> dantares_renderer_{};
   std::unique_ptr<Dantares2> dantares_{};
@@ -112,7 +107,7 @@ private:
   void remove_robots_at(const Pos3i& pos);
   std::optional<Pos3i> fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
-  int update_mods(const FrameStep& step,const ViewDimens& dimens);
+  void update_mods(const FrameStep& step,SceneContext& ctx);
 
   void set_space_texs(SpaceType type,const Texture* tex);
   void set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);

@@ -16,8 +16,7 @@
 #include "cybel/types/size.h"
 #include "cybel/vfx/particle.h"
 
-#include "core/game_context.h"
-#include "scenes/scene_action.h"
+#include "core/game_session.h"
 
 #include <vector>
 
@@ -25,15 +24,13 @@ namespace ekoscape {
 
 class MenuCreditsScene final : public Scene {
 public:
-  static Color4f rand_color();
+  explicit MenuCreditsScene(GameSession& sesh);
 
-  explicit MenuCreditsScene(GameContext& ctx);
+  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
+  void handle_scene_input(const InputStates& states,InputMan& input,SceneContext& ctx) override;
 
-  void on_scene_input_event(input_id_t input_id,const ViewDimens& dimens) override;
-  void handle_scene_input(const std::vector<bool>& states,InputMan& input,const ViewDimens& dimens) override;
-
-  int update_scene_logic(const FrameStep& step,const ViewDimens& dimens) override;
-  void draw_scene(Renderer& ren,const ViewDimens& dimens) override;
+  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
+  void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
   class WtfParticle final : public Particle {
@@ -44,14 +41,14 @@ private:
 
   static inline const std::string kWtfText = "wtf!?";
 
-  GameContext& ctx_;
-  int scene_action_ = SceneAction::kNil;
+  GameSession& sesh_;
 
   std::vector<WtfParticle> wtfs_{};
   std::size_t active_wtf_count_ = 0;
   Duration wtf_cooldown_time_{};
 
   void birth_wtfs(const ViewDimens& dimens);
+  static Color4f rand_color();
   void update_wtfs(const FrameStep& step,const ViewDimens& dimens);
   void draw_wtfs(Renderer& ren);
 };

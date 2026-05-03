@@ -83,6 +83,7 @@ public:
 
   static bool is_map_file(const std::filesystem::path& file);
 
+  explicit Map() = default;
   virtual ~Map() noexcept = default;
 
   virtual Map& clear_grids();
@@ -97,7 +98,7 @@ public:
   Map& shrink_grids_to_fit();
 
   virtual void add_to_bridge();
-  virtual void on_context_restored();
+  virtual void on_context_restore();
 
   bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
   bool remove_thing(const Pos3i& pos);
@@ -188,6 +189,12 @@ protected:
   int total_rescues_ = 0;
   Pos3i player_init_pos_{};
   Facing player_init_facing_ = Facings::kFallback;
+
+  Map(const Map& other) = default;
+  Map(Map&& other) noexcept = default;
+
+  Map& operator=(const Map& other) = default;
+  Map& operator=(Map&& other) noexcept = default;
 
   static bool parse_header(const std::string& line,int& version,bool warn = true);
 

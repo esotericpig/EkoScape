@@ -7,20 +7,22 @@
 
 #include "game_hud.h"
 
+#include "cybel/scene/scene_context.h"
+
 #include "scenes/scene_action.h"
 
 #include <sstream>
 
 namespace ekoscape {
 
-GameHud::GameHud(GameContext& ctx,const Map& map)
-  : ctx_(ctx),map_(map) {
-  mini_map_eko_color_ = ctx_.assets.eko_color().with_a(kAlpha);
-  mini_map_end_color_ = ctx_.assets.end_color().with_a(kAlpha);
-  mini_map_fruit_color_ = ctx_.assets.fruit_color().with_a(kAlpha);
-  mini_map_non_walkable_color_ = ctx_.assets.wall_color().with_a(kAlpha);
-  mini_map_portal_color_ = ctx_.assets.portal_color().with_a(kAlpha);
-  mini_map_robot_color_ = ctx_.assets.robot_color().with_a(kAlpha);
+GameHud::GameHud(GameSession& sesh,const Map& map)
+  : sesh_{sesh},map_{map} {
+  mini_map_eko_color_ = sesh_.assets.eko_color().with_a(kAlpha);
+  mini_map_end_color_ = sesh_.assets.end_color().with_a(kAlpha);
+  mini_map_fruit_color_ = sesh_.assets.fruit_color().with_a(kAlpha);
+  mini_map_non_walkable_color_ = sesh_.assets.wall_color().with_a(kAlpha);
+  mini_map_portal_color_ = sesh_.assets.portal_color().with_a(kAlpha);
+  mini_map_robot_color_ = sesh_.assets.robot_color().with_a(kAlpha);
   mini_map_walkable_color_.set(0.0f,kAlpha);
 
   update_speedrun_time_str();
@@ -28,7 +30,7 @@ GameHud::GameHud(GameContext& ctx,const Map& map)
 
 void GameHud::update_state(const State& state) { state_ = state; }
 
-int GameHud::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens*/) {
+void GameHud::update_scene_logic(const FrameStep& step,[[maybe_unused]] SceneContext& ctx) {
   // Update the speedrun time str on Game Over or at an interval.
   if(state_.speedrun_time != last_speedrun_time_ &&
      (state_.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
@@ -36,8 +38,6 @@ int GameHud::update_scene_logic(const FrameStep& step,const ViewDimens& /*dimens
     last_speedrun_time_ = state_.speedrun_time;
     update_speedrun_time_str();
   }
-
-  return SceneAction::kNil;
 }
 
 void GameHud::update_speedrun_time_str() {
@@ -65,11 +65,11 @@ void GameHud::update_speedrun_time_str() {
   speedrun_time_str_ = buffer.str();
 }
 
-void GameHud::draw_scene(Renderer& ren,const ViewDimens& dimens) {
-  draw_map_mod(ren,dimens);
+void GameHud::draw_scene(Renderer& ren,SceneContext& ctx) {
+  draw_map_mod(ren,ctx.dimens);
 
   // Always show the speedrun time on Game Over.
-  if(state_.show_speedrun || state_.is_game_over) { draw_speedrun_mod(ren,dimens); }
+  if(state_.show_speedrun || state_.is_game_over) { draw_speedrun_mod(ren,ctx.dimens); }
 }
 
 void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
@@ -81,7 +81,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.wrap_color(mini_map_walkable_color_,[&] {
     ren.draw_quad(pos,Size2i{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
-  ctx_.assets.font_renderer().wrap(ren,pos,kTextScale,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,pos,kTextScale,[&](auto& font) {
     const Color4f font_color = font.font_color;
 
     font.print();
@@ -94,7 +94,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   if(state_.player_fruit_time > Duration::kZero) {
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w,pos.y,pos.z};
 
-    ctx_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
+    sesh_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
       const auto fruit_text = std::to_string(state_.player_fruit_time.round_secs());
 
       font.set_bg_padding(Size2i{5,0});
@@ -177,7 +177,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
       if(!state_.player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
         ren.wrap_font_atlas(
-          ctx_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0},
+          sesh_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0},
           [&](auto& font) { font.print("↑"); }
         );
       }
@@ -191,7 +191,7 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
 void GameHud::draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens) {
   ren.begin_auto_anchor_scale(Pos2f{1.0f,1.0f}); // Anchor to bottom right.
 
-  ctx_.assets.font_renderer().wrap(ren,Pos3i{},kTextScale,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,Pos3i{},kTextScale,[&](auto& font) {
     font.set_bg_padding(Size2i{10,5});
 
     const Size2i str_size{static_cast<int>(speedrun_time_str_.length()),1};

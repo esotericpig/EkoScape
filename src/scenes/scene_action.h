@@ -10,14 +10,14 @@
 
 #include "common.h"
 
+#include "cybel/scene/scene_bag.h"
+
 namespace ekoscape {
 
 namespace SceneAction {
   enum : int {
-    kNil = 0,
+    kNone = SceneBag::kTypeNone,
     kQuit,
-    kGoBack,
-    kRestart,
     kGoToMenu,
     kGoToMenuPlay,
     kGoToMenuCredits,

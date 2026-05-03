@@ -23,11 +23,11 @@ int main(int argc,char** argv) {
   }
 
   try {
-    auto& cybel_engine = CybelEngine::init(EkoScapeGame::build_config());
+    auto& engine = CybelEngine::init(EkoScapeGame::build_config());
 
-    cybel_engine.run(std::make_unique<EkoScapeGame>(cybel_engine));
+    engine.run(std::make_unique<EkoScapeGame>(engine));
   } catch(const CybelError& e) {
-    CybelEngine::show_error_global(EkoScapeGame::kTitle,e.what());
+    CybelEngine::show_error_no_window(EkoScapeGame::kTitle,e.what());
     return 1;
   }
 

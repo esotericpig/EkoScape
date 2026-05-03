@@ -43,8 +43,8 @@ public:
 
   explicit Assets(std::string_view tex_style,bool has_audio_player,bool make_weird = false);
 
-  void on_context_lost();
-  void on_context_restored();
+  void on_context_loss();
+  void on_context_restore();
 
   void reload_gfx();
   void reload_gfx(bool make_weird);

@@ -10,7 +10,7 @@
 namespace ekoscape {
 
 DantaresRenderer::DantaresRenderer(Renderer& renderer) noexcept
-  : renderer_(renderer) {}
+  : renderer_{renderer} {}
 
 void DantaresRenderer::BeginDraw() {}
 
