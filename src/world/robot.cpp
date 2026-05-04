@@ -139,7 +139,6 @@ bool Robot::move_smart(MoveData& data) {
 }
 
 bool Robot::move_rand(MoveData& data) {
-  // ReSharper disable once CppDFAUnreachableCode
   if constexpr(rand_move_vels_.empty()) { return false; }
 
   // Try once without shuffling.
@@ -179,7 +178,6 @@ bool Robot::try_move(MoveData& data,int x_vel,int y_vel) {
   return true;
 }
 
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
 bool Robot::warp_to(MoveData& data,const Pos3i& to_pos) {
   if(pos_ != to_pos) {
     if(!can_move_to(data.map.space(to_pos))) { return false; }

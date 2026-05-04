@@ -506,12 +506,10 @@ void GameScene::draw_scene(Renderer& ren,SceneContext& ctx) {
   overlay_->draw_scene(ren,ctx);
 }
 
-// ReSharper disable once CppDFAUnreachableFunctionCall
 void GameScene::set_space_texs(SpaceType type,const Texture* tex) {
   set_space_texs(type,tex,tex,tex);
 }
 
-// ReSharper disable once CppDFAUnreachableFunctionCall
 void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,
                                const Texture* floor) {
   const int space_id = SpaceTypes::value_of(type);
