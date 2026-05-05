@@ -32,11 +32,12 @@ MenuScene::MenuScene(GameSession& sesh,SceneContext& ctx)
   opts_ = {
     Option{"play",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kGoToMenuPlay); }},
     gfx_opt,
-    vsync_opt,
-    Option{"credits",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kGoToMenuCredits); }},
+    // In Web, always enable VSync [i.e., use requestAnimationFrame()].
 #if !defined(__EMSCRIPTEN__)
-    Option{"quit",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kQuit); }},
+    vsync_opt,
 #endif
+    Option{"credits",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kGoToMenuCredits); }},
+    Option{"quit",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kQuit); }},
   };
 
   if(sesh_.menu_scene_state.opt_index >= opts_.size()) {

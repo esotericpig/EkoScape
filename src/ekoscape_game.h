@@ -51,6 +51,8 @@ private:
 
   void init_input_map(InputMan& im);
 
+  void quit(SceneContext& ctx);
+
   void play_music(AudioPlayer& audio_player,bool rand_pos = false);
   void stop_music(AudioPlayer& audio_player,bool going_to_boring_work = false);
 };

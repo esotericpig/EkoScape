@@ -33,13 +33,7 @@ CybelEngine::Config EkoScapeGame::build_config() {
     .target_size = Size2i{1600,900},
 
     .fps = 60,
-
-#if defined(__EMSCRIPTEN__)
-    // In Emscripten, VSync is emulated, so it's slower. Therefore, turn it off by default.
-    .vsync = false,
-#else
-    .vsync = true,
-#endif
+    .vsync = true, // In Web, always enable VSync [i.e., use requestAnimationFrame()].
 
     .max_input_id = InputAction::kMax,
 
@@ -103,6 +97,7 @@ void EkoScapeGame::init_input_map(InputMan& im) {
     i.raw_key({SDL_SCANCODE_BACKSPACE});
     i.joypad({JoypadInput::kB});
   });
+  // In Web, don't have a quit hotkey.
 #if !defined(__EMSCRIPTEN__)
   im.map_input(InputAction::kQuit,[](auto& i) {
     i.raw_key({SDL_SCANCODE_ESCAPE});
@@ -146,7 +141,7 @@ SceneBag EkoScapeGame::build_scene(int type,SceneContext& ctx) {
 
   switch(type) {
     case SceneAction::kQuit:
-      ctx.engine.request_stop();
+      quit(ctx);
       break;
 
     case SceneAction::kGoToMenu:
@@ -205,6 +200,14 @@ SceneBag EkoScapeGame::build_scene(int type,SceneContext& ctx) {
   return result;
 }
 
+void EkoScapeGame::quit(SceneContext& ctx) {
+#if defined(__EMSCRIPTEN__)
+  ctx.engine.nav_back_in_web(); // In Web, just go back a page.
+#else // Desktop.
+  ctx.engine.request_stop();
+#endif
+}
+
 void EkoScapeGame::on_scene_context_loss([[maybe_unused]] SceneContext& ctx) {
   assets_.on_context_loss();
 }
@@ -218,16 +221,13 @@ void EkoScapeGame::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
     // Go back a scene.
     case InputAction::kGoBack:
       if(!ctx.scene_man.pop_scene()) {
-#if defined(__EMSCRIPTEN__)
-        std::cerr << "[WARN] No scene to go back to; going back a page in Web browser instead." << std::endl;
-        EM_ASM( window.history.back(); );
-#endif
-        // No scene to go back to, just ignore pop.
+        // In Web, go back a page, else just ignore.
+        ctx.engine.nav_back_in_web();
       }
       break;
 
     case InputAction::kQuit:
-      ctx.engine.request_stop();
+      quit(ctx);
       break;
 
     case InputAction::kToggleMusic:
