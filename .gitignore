@@ -4,6 +4,8 @@
 /pkgs/
 /stock/
 
+TODO.cpp
+
 # IDE files.
 .idea/*
 !.idea/cmake.xml
@@ -25,6 +27,7 @@ CMakeUserPresets.json
 # Build files.
 /bin/
 /build/
+
 *.d
 *.dwo
 *.gch
