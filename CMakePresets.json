@@ -19,9 +19,11 @@
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
 
         "CYBEL_OBJECT_LIB": true,
-        "CYBEL_USE_SANITIZE": false,
         "CYBEL_USE_LIBS": true,
         "CYBEL_USE_CONFIG_PKGS": true,
+
+        "CYBEL_USE_SANITIZE": false,
+        "CYBEL_USE_METRICS": false,
         "CYBEL_RENDERER": "GL",
 
         "EKO_EXE_DIR_NAME": "bin/${presetName}",
@@ -34,7 +36,6 @@
       "inherits": "base",
 
       "cacheVariables": {
-        "CYBEL_USE_SANITIZE": false,
         "CYBEL_RENDERER": "GL"
       }
     },

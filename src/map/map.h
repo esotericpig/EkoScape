@@ -171,7 +171,7 @@ public:
   friend std::ostream& operator<<(std::ostream& out,const Map& map);
 
 protected:
-  static inline const std::string kHeaderFmt = "[EkoScape/v{}]";
+  static constexpr auto* kHeaderFmt = "[EkoScape/v{}]";
   static inline const std::regex kHeaderRegex{R"(^\s*\[EkoScape/v(\d+)\]\s*$)",std::regex::icase};
 
   int version_ = kSupportedVersions.max;

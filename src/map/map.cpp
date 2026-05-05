@@ -10,6 +10,8 @@
 #include "cybel/str/utf8/str_util.h"
 #include "cybel/types/cybel_error.h"
 
+#include <format>
+
 namespace ekoscape {
 
 bool Map::is_map_file(const std::filesystem::path& file) {
@@ -469,16 +471,7 @@ void Map::on_raw_thing_updated(SpaceType old_thing,SpaceType new_thing) {
 void Map::update_bridge_space(const Pos3i& /*pos*/,SpaceType /*type*/) {}
 
 std::string Map::build_header() const {
-  // FIXME: Temporary solution, because my compiler doesn't have <format>.
-  const std::string placeholder = "{}";
-  std::string header = kHeaderFmt;
-  const std::size_t i = header.find(placeholder);
-
-  if(i == std::string::npos) {
-    throw CybelError{"Invalid kHeaderFmt: " + kHeaderFmt + "."};
-  }
-
-  return header.replace(i,placeholder.length(),std::to_string(version_));
+  return std::format(kHeaderFmt,version_);
 }
 
 int Map::version() const { return version_; }

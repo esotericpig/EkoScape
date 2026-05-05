@@ -23,7 +23,7 @@ namespace ekoscape {
 
 class EkoScapeGame final : public Game {
 public:
-  static inline const auto* kTitle = "EkoScape v2.4";
+  static constexpr auto* kTitle = "EkoScape v2.4";
 
   static CybelEngine::Config build_config();
 

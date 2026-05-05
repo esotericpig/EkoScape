@@ -276,7 +276,7 @@ void GameScene::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
   if(game_phase_ == GamePhase::kShowMapInfo && map_info_timer_.peek() >= kMapInfoDuration) {
     game_phase_ = GamePhase::kPlay;
     robot_move_time_ += step.dpf;
-    speedrun_timer_.start();
+    speedrun_timer_.restart();
   }
   if(game_phase_ != GamePhase::kShowMapInfo) {
     update_player(step);
