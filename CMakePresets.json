@@ -36,7 +36,6 @@
       "inherits": "base",
 
       "cacheVariables": {
-        "CYBEL_RENDERER": "GL"
       }
     },
     {

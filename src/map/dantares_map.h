@@ -40,7 +40,7 @@ public:
 
   Map& clear_grids() override;
   void add_to_bridge() override;
-  void on_context_restore() override;
+  void on_gpu_context_restore() override;
 
   bool move_player(const Pos3i& pos) override;
   bool sync_player_pos() override;

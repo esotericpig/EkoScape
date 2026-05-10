@@ -208,12 +208,12 @@ void EkoScapeGame::quit(SceneContext& ctx) {
 #endif
 }
 
-void EkoScapeGame::on_scene_context_loss([[maybe_unused]] SceneContext& ctx) {
-  assets_.on_context_loss();
+void EkoScapeGame::on_scene_gpu_context_loss([[maybe_unused]] SceneContext& ctx) {
+  assets_.on_gpu_context_loss();
 }
 
-void EkoScapeGame::on_scene_context_restore([[maybe_unused]] SceneContext& ctx) {
-  assets_.on_context_restore();
+void EkoScapeGame::on_scene_gpu_context_restore([[maybe_unused]] SceneContext& ctx) {
+  assets_.on_gpu_context_restore();
 }
 
 void EkoScapeGame::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {

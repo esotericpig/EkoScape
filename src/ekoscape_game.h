@@ -32,8 +32,8 @@ public:
   void on_game_start(CybelEngine& engine) override;
   SceneBag build_scene(int type,SceneContext& ctx) override;
 
-  void on_scene_context_loss(SceneContext& ctx) override;
-  void on_scene_context_restore(SceneContext& ctx) override;
+  void on_scene_gpu_context_loss(SceneContext& ctx) override;
+  void on_scene_gpu_context_restore(SceneContext& ctx) override;
 
   void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
 

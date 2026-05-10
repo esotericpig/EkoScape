@@ -194,9 +194,9 @@ void GameScene::on_scene_exit([[maybe_unused]] SceneContext& ctx) {
   }
 }
 
-void GameScene::on_scene_context_restore([[maybe_unused]] SceneContext& ctx) {
+void GameScene::on_scene_gpu_context_restore([[maybe_unused]] SceneContext& ctx) {
   // Can throw CybelError.
-  map_->on_context_restore();
+  map_->on_gpu_context_restore();
 }
 
 void GameScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {

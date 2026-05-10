@@ -98,7 +98,7 @@ public:
   Map& shrink_grids_to_fit();
 
   virtual void add_to_bridge();
-  virtual void on_context_restore();
+  virtual void on_gpu_context_restore();
 
   bool move_thing(const Pos3i& from_pos,const Pos3i& to_pos);
   bool remove_thing(const Pos3i& pos);

@@ -93,7 +93,7 @@ void DantaresMap::add_to_bridge() {
   }
 }
 
-void DantaresMap::on_context_restore() {
+void DantaresMap::on_gpu_context_restore() {
   if(grid_ids_.empty()) { throw CybelError{"No grid IDs in map [",title_,"]."}; }
 
   // Store this before switching maps.

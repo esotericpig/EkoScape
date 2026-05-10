@@ -39,7 +39,7 @@ public:
   void on_scene_enter(SceneContext& ctx) override;
   void on_scene_exit(SceneContext& ctx) override;
 
-  void on_scene_context_restore(SceneContext& ctx) override;
+  void on_scene_gpu_context_restore(SceneContext& ctx) override;
 
   void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
   void handle_scene_input(const InputStates& states,InputMan& input,SceneContext& ctx) override;
