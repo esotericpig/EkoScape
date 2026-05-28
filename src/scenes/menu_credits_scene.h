@@ -27,7 +27,7 @@ public:
   explicit MenuCreditsScene(GameSession& sesh);
 
   void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
-  void handle_scene_input(const InputStates& states,InputMan& input,SceneContext& ctx) override;
+  void handle_scene_input(InputMan& input,SceneContext& ctx) override;
 
   void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
   void draw_scene(Renderer& ren,SceneContext& ctx) override;
@@ -49,8 +49,8 @@ private:
 
   void birth_wtfs(const ViewDimens& dimens);
   static Color4f rand_color();
-  void update_wtfs(const FrameStep& step,const ViewDimens& dimens);
-  void draw_wtfs(Renderer& ren);
+  void update_wtfs(const FrameStep& step,SceneContext& ctx);
+  void draw_wtfs(Renderer& ren,SceneContext& ctx);
 };
 
 } // namespace ekoscape

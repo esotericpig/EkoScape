@@ -150,8 +150,11 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
       "-finput-charset=UTF-8"
 
       $<$<OR:$<PLATFORM_ID:Linux>,$<PLATFORM_ID:Emscripten>>:
-        -Wall -Wconversion -Wextra -Wpedantic -Wsign-conversion -Wundef
+        -Wall -Wconversion -Wextra -Wpedantic -Wundef
         -fno-common
+
+        # Options added for GCC to match Clang.
+        -Wmismatched-tags -Wsign-conversion
       >
   )
 endif()
@@ -193,6 +196,7 @@ target_sources(EkoScape PRIVATE
     # @glob_src=src:src/
     "src/ekoscape_game.cpp"
     "src/main.cpp"
+    "src/assets/art_styles.cpp"
     "src/assets/assets.cpp"
     "src/assets/font_renderer.cpp"
     "src/map/dantares_map.cpp"
@@ -209,7 +213,6 @@ target_sources(EkoScape PRIVATE
     "src/scenes/menu_credits_scene.cpp"
     "src/scenes/menu_play_scene.cpp"
     "src/scenes/menu_scene.cpp"
-    "src/scenes/scene_action.cpp"
     "src/world/robot.cpp"
     "src/world/star_sys.cpp"
     # @glob_src

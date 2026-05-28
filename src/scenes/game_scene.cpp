@@ -7,28 +7,26 @@
 
 #include "game_scene.h"
 
-#include "cybel/types/cybel_error.h"
 #include "cybel/util/rando.h"
 
 #include "core/input_action.h"
 #include "map/dantares_map.h"
 #include "scenes/dantares_renderer.h"
 
-#include <ranges>
+#include <algorithm>
 
 namespace ekoscape {
 
-GameScene::GameScene(GameSession& sesh,Renderer& ren,const std::filesystem::path& map_file)
-  : sesh_{sesh} {
-  dantares_renderer_ = std::make_unique<DantaresRenderer>(ren);
-
+GameScene::GameScene(GameSession& sesh,Renderer& ren,AssetMan& assets,const std::filesystem::path& map_file)
+  : sesh_{sesh},
+    dantares_renderer_{std::make_unique<DantaresRenderer>(ren)} {
   // Dantares2(...,SquareSize,FloorHeight,CeilingHeight).
   // - Classic values: (0.125f,-0.04f,0.04f).
   // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
   //   - See set_space_texs(), which relies on this logic.
   dantares_ = std::make_unique<Dantares2>(*dantares_renderer_,0.125f,0.04f,-0.04f);
   map_ = std::make_unique<DantaresMap>(*dantares_,[&](auto& /*dan*/,int /*z*/,int /*grid_id*/) {
-    init_map_texs();
+    init_map_textures(assets);
   });
   robot_move_data_ = std::make_unique<Robot::MoveData>(*map_);
 
@@ -116,52 +114,39 @@ void GameScene::make_map_weird(std::vector<Pos3i>& cells) {
   robots_ = std::move(new_robots);
 }
 
-void GameScene::init_map_texs() {
-  auto& a = sesh_.assets;
-  const auto* ceiling_tex = a.styled_tex(StyledTexId::kCeiling);
-  const auto* cell_tex = a.styled_tex(StyledTexId::kCell);
-  const auto* dead_space_tex = a.styled_tex(StyledTexId::kDeadSpace);
-  const auto* dead_space_ghost_tex = a.styled_tex(StyledTexId::kDeadSpaceGhost);
-  const auto* end_tex = a.styled_tex(StyledTexId::kEnd);
-  const auto* end_wall_tex = a.styled_tex(StyledTexId::kEndWall);
-  const auto* floor_tex = a.styled_tex(StyledTexId::kFloor);
-  const auto* fruit_tex = a.styled_tex(StyledTexId::kFruit);
-  const auto* portal_tex = a.styled_tex(StyledTexId::kPortal);
-  const auto* robot_tex = a.styled_tex(StyledTexId::kRobot);
-  const auto* wall_tex = a.styled_tex(StyledTexId::kWall);
-  const auto* wall_ghost_tex = a.styled_tex(StyledTexId::kWallGhost);
-  const auto* white_tex = a.styled_tex(StyledTexId::kWhite);
-  const auto* white_ghost_tex = a.styled_tex(StyledTexId::kWhiteGhost);
+void GameScene::init_map_textures(AssetMan& assets) {
+  const auto& ids = sesh_.assets.styled_texture_ids();
+  constexpr auto no_id = std::nullopt;
 
-  set_space_texs(SpaceType::kCell,ceiling_tex,cell_tex,floor_tex);
-  set_space_texs(SpaceType::kDeadSpace,dead_space_tex,nullptr,dead_space_tex);
-  set_space_texs(SpaceType::kDeadSpaceGhost,dead_space_ghost_tex,nullptr,dead_space_ghost_tex);
-  set_space_texs(SpaceType::kEmpty,ceiling_tex,nullptr,floor_tex);
-  set_space_texs(SpaceType::kEnd,end_tex);
-  set_space_texs(SpaceType::kEndWall,end_wall_tex);
-  set_space_texs(SpaceType::kFruit,fruit_tex);
+  set_space_textures(assets,SpaceType::kCell,ids.ceiling,ids.cell,ids.floor);
+  set_space_textures(assets,SpaceType::kDeadSpace,ids.dead_space,no_id,ids.dead_space);
+  set_space_textures(assets,SpaceType::kDeadSpaceGhost,ids.dead_space_ghost,no_id,ids.dead_space_ghost);
+  set_space_textures(assets,SpaceType::kEmpty,ids.ceiling,no_id,ids.floor);
+  set_space_textures(assets,SpaceType::kEnd,ids.end);
+  set_space_textures(assets,SpaceType::kEndWall,ids.end_wall);
+  set_space_textures(assets,SpaceType::kFruit,ids.fruit);
   // SpaceType::kPlayer* - No textures.
-  set_space_texs(SpaceType::kPortal0,portal_tex);
-  set_space_texs(SpaceType::kPortal1,portal_tex);
-  set_space_texs(SpaceType::kPortal2,portal_tex);
-  set_space_texs(SpaceType::kPortal3,portal_tex);
-  set_space_texs(SpaceType::kPortal4,portal_tex);
-  set_space_texs(SpaceType::kPortal5,portal_tex);
-  set_space_texs(SpaceType::kPortal6,portal_tex);
-  set_space_texs(SpaceType::kPortal7,portal_tex);
-  set_space_texs(SpaceType::kPortal8,portal_tex);
-  set_space_texs(SpaceType::kPortal9,portal_tex);
-  set_space_texs(SpaceType::kRobot,robot_tex);
-  set_space_texs(SpaceType::kRobotGhost,robot_tex);
-  set_space_texs(SpaceType::kRobotSnake,robot_tex);
-  set_space_texs(SpaceType::kRobotStatue,robot_tex);
-  set_space_texs(SpaceType::kRobotWorm,robot_tex);
+  set_space_textures(assets,SpaceType::kPortal0,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal1,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal2,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal3,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal4,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal5,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal6,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal7,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal8,ids.portal);
+  set_space_textures(assets,SpaceType::kPortal9,ids.portal);
+  set_space_textures(assets,SpaceType::kRobot,ids.robot);
+  set_space_textures(assets,SpaceType::kRobotGhost,ids.robot);
+  set_space_textures(assets,SpaceType::kRobotSnake,ids.robot);
+  set_space_textures(assets,SpaceType::kRobotStatue,ids.robot);
+  set_space_textures(assets,SpaceType::kRobotWorm,ids.robot);
   // SpaceType::kVoid - No textures.
-  set_space_texs(SpaceType::kWall,ceiling_tex,wall_tex,floor_tex);
-  set_space_texs(SpaceType::kWallGhost,ceiling_tex,wall_ghost_tex,floor_tex);
-  set_space_texs(SpaceType::kWhite,white_tex);
-  set_space_texs(SpaceType::kWhiteFloor,white_tex,nullptr,white_tex);
-  set_space_texs(SpaceType::kWhiteGhost,white_ghost_tex);
+  set_space_textures(assets,SpaceType::kWall,ids.ceiling,ids.wall,ids.floor);
+  set_space_textures(assets,SpaceType::kWallGhost,ids.ceiling,ids.wall_ghost,ids.floor);
+  set_space_textures(assets,SpaceType::kWhite,ids.white);
+  set_space_textures(assets,SpaceType::kWhiteFloor,ids.white,no_id,ids.white);
+  set_space_textures(assets,SpaceType::kWhiteGhost,ids.white_ghost);
 }
 
 void GameScene::on_scene_enter([[maybe_unused]] SceneContext& ctx) {
@@ -200,7 +185,7 @@ void GameScene::on_scene_gpu_context_restore([[maybe_unused]] SceneContext& ctx)
 }
 
 void GameScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
-  switch(input_id) {
+  switch(static_cast<InputAction>(input_id)) {
     case InputAction::kToggleMiniMap:
       sesh_.game_scene_state.show_mini_map = !sesh_.game_scene_state.show_mini_map;
       break;
@@ -218,15 +203,14 @@ void GameScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   }
 }
 
-void GameScene::handle_scene_input(const InputStates& states,[[maybe_unused]] InputMan& input,
-                                   [[maybe_unused]] SceneContext& ctx) {
+void GameScene::handle_scene_input(InputMan& input,[[maybe_unused]] SceneContext& ctx) {
   // Input states are stored because in Dantares you can't turn/walk while turning/walking,
   //     and without storing the states and trying again on the next frame,
   //     it feels unresponsive and frustrating.
-  const bool is_up = states[InputAction::kUp];
-  stored_inputs_.is_down = (stored_inputs_.is_down || states[InputAction::kDown]);
-  stored_inputs_.is_left = (stored_inputs_.is_left || states[InputAction::kLeft]);
-  stored_inputs_.is_right = (stored_inputs_.is_right || states[InputAction::kRight]);
+  const bool is_up = input[InputAction::kUp];
+  stored_inputs_.is_down = (stored_inputs_.is_down || input[InputAction::kDown]);
+  stored_inputs_.is_left = (stored_inputs_.is_left || input[InputAction::kLeft]);
+  stored_inputs_.is_right = (stored_inputs_.is_right || input[InputAction::kRight]);
 
   const bool is_walking = dantares_->IsWalking();
 
@@ -390,7 +374,7 @@ void GameScene::game_over(bool player_hit_end) {
 
 void GameScene::update_robots(const FrameStep& step) {
   // Remove dead Robots and age living Robots (only if lifespan was set).
-  auto dead_robots = std::ranges::remove_if(robots_,[&](auto& robot) {
+  std::erase_if(robots_,[&](auto& robot) {
     if(robot.is_dead()) {
       map_->remove_thing(robot.pos());
       return true;
@@ -399,7 +383,6 @@ void GameScene::update_robots(const FrameStep& step) {
     robot.age(step.delta_time);
     return false;
   });
-  robots_.erase(dead_robots.begin(),dead_robots.end());
 
   move_robots(step);
 }
@@ -438,10 +421,9 @@ void GameScene::move_robots(const FrameStep& step) {
 void GameScene::remove_robots_at(const Pos3i& pos) {
   map_->remove_thing(pos);
 
-  auto dead_robots = std::ranges::remove_if(robots_,[&](const auto& robot) {
+  std::erase_if(robots_,[&](const auto& robot) {
     return robot.pos() == pos;
   });
-  robots_.erase(dead_robots.begin(),dead_robots.end());
 }
 
 std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType portal,
@@ -453,16 +435,20 @@ std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType port
   if(bros.size() <= 1) { return std::nullopt; } // No bros. :(
 
   if(bros.size() > 2) { // More than 1 bro?
-    // Try once without shuffling.
+    // Try once without shuffling for speed.
     const auto& rand_bro_pos = bros[Rando::it().rand_size_t(bros.size())];
 
-    if(rand_bro_pos != pos && can_move_to(rand_bro_pos)) { return rand_bro_pos; }
+    if(rand_bro_pos != pos && can_move_to(rand_bro_pos)) {
+      return std::optional{rand_bro_pos};
+    }
 
     Rando::it().shuffle(bros.begin(),bros.end());
   }
 
   for(const auto& bro_pos : bros) { // Find Luigi.
-    if(bro_pos != pos && can_move_to(bro_pos)) { return bro_pos; }
+    if(bro_pos != pos && can_move_to(bro_pos)) {
+      return std::optional{bro_pos};
+    }
   }
 
   return std::nullopt;
@@ -506,18 +492,18 @@ void GameScene::draw_scene(Renderer& ren,SceneContext& ctx) {
   overlay_->draw_scene(ren,ctx);
 }
 
-void GameScene::set_space_texs(SpaceType type,const Texture* tex) {
-  set_space_texs(type,tex,tex,tex);
+void GameScene::set_space_textures(AssetMan& assets,SpaceType type,asset_id_t id) {
+  set_space_textures(assets,type,id,id,id);
 }
 
-void GameScene::set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,
-                               const Texture* floor) {
+void GameScene::set_space_textures(AssetMan& assets,SpaceType type,std::optional<asset_id_t> ceiling_id,
+                                   std::optional<asset_id_t> wall_id,std::optional<asset_id_t> floor_id) {
   const int space_id = SpaceTypes::value_of(type);
 
-  // Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
-  if(ceiling != nullptr) { dantares_->SetFloorTexture(space_id,ceiling->handle()); }
-  if(wall != nullptr) { dantares_->SetWallTexture(space_id,wall->handle()); }
-  if(floor != nullptr) { dantares_->SetCeilingTexture(space_id,floor->handle()); }
+  // NOTE: Ceiling & Floor textures are flipped due to using opposite values in Dantares ctor.
+  if(ceiling_id) { dantares_->SetFloorTexture(space_id,assets.texture(*ceiling_id).handle()); }
+  if(wall_id) { dantares_->SetWallTexture(space_id,assets.texture(*wall_id).handle()); }
+  if(floor_id) { dantares_->SetCeilingTexture(space_id,assets.texture(*floor_id).handle()); }
 }
 
 } // namespace ekoscape

@@ -35,4 +35,6 @@ cybel_add_cppcheck_target(
       --suppress=unmatchedSuppression
       --suppress=unusedFunction
 #      --suppress=unusedPrivateFunction
+#      --suppress=useStlAlgorithm
+#      --suppress=variableScope
 )

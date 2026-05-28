@@ -10,6 +10,7 @@
 #include "cybel/scene/scene_context.h"
 #include "cybel/str/utf8/str_util.h"
 
+#include "assets/asset_ids.h"
 #include "core/input_action.h"
 
 namespace ekoscape {
@@ -64,14 +65,14 @@ void GameOverlay::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
 
   const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
 
-  switch(input_id) {
+  switch(static_cast<InputAction>(input_id)) {
     case InputAction::kSelect:
       switch(sel_opt.type) {
         case OptionType::kPlayAgain:
-          ctx.scene_man.restart_scene();
+          ctx.scenes.restart_scene();
           break;
         case OptionType::kGoBack:
-          ctx.scene_man.pop_scene();
+          ctx.scenes.pop_scene();
           break;
       }
       break;
@@ -91,6 +92,8 @@ void GameOverlay::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
         game_over_opt_index_ = 0; // Wrap to top.
       }
       break;
+
+    default: break;
   }
 }
 
@@ -143,16 +146,16 @@ void GameOverlay::draw_scene(Renderer& ren,SceneContext& ctx) {
     });
   }
 
-  draw_map_info(ren);
-  draw_game_over(ren);
+  draw_map_info(ren,ctx);
+  draw_game_over(ren,ctx);
 }
 
-void GameOverlay::draw_map_info(Renderer& ren) {
+void GameOverlay::draw_map_info(Renderer& ren,const SceneContext& ctx) {
   if(!state_.is_map_info) { return; }
 
   ren.begin_auto_center_scale();
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{},[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
 
     const auto true_size = font.font.calc_total_size(map_info_str_size_);
@@ -172,7 +175,7 @@ void GameOverlay::draw_map_info(Renderer& ren) {
   ren.end_scale();
 }
 
-void GameOverlay::draw_game_over(Renderer& ren) {
+void GameOverlay::draw_game_over(Renderer& ren,const SceneContext& ctx) {
   if(game_over_age_ < 0.0f) { return; }
 
   ren.begin_auto_center_scale();
@@ -182,16 +185,16 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   const int total_cells = map_.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
   const bool perfect = freed_all && state_.player_hit_end;
-  const auto* game_over_sprite = sesh_.assets.sprite(
+  const auto& game_over_sprite = ctx.assets.sprite(
     state_.player_hit_end ? SpriteId::kCorngrits : SpriteId::kGoodnight
   );
 
-  ren.wrap_sprite(*game_over_sprite,[&](auto& s) {
+  ren.wrap_sprite(game_over_sprite,[&](auto& s) {
     ren.wrap_color(Color4f{1.0f,game_over_age_},[&] {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
   });
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{445,450,0},0.60f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{445,450,0},0.60f,[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.font_color.a *= game_over_age_;
 
@@ -227,7 +230,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
     }
   });
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{565,perfect ? 780 : 680,0},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{565,perfect ? 780 : 680,0},[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())});
     font.font_color.a *= game_over_age_;
@@ -245,7 +248,7 @@ void GameOverlay::draw_game_over(Renderer& ren) {
   ren.end_scale()
      .begin_auto_scale()
      .begin_add_blend();
-  star_sys_.draw(ren,sesh_.assets.star_tex());
+  star_sys_.draw(ren,ctx.assets.texture(TextureId::kStar));
   ren.end_blend()
      .end_scale();
 }

@@ -9,9 +9,13 @@
 
 namespace ekoscape {
 
-FontRenderer::FontRenderer(const FontAtlas& font_atlas,bool make_weird)
-  : font_atlas_(font_atlas) {
-  if(make_weird) {
+FontRenderer::FontRenderer(FontAtlasId font_atlas_id)
+  : font_atlas_id_{font_atlas_id} {
+  make_weird(false);
+}
+
+void FontRenderer::make_weird(bool is_weird) {
+  if(is_weird) {
     font_color_ = Color4f::kPink;
     arrow_color_.set_bytes(0,252,252);
     cycle_arrow_color_.set_bytes(0,0,254);
@@ -22,12 +26,14 @@ FontRenderer::FontRenderer(const FontAtlas& font_atlas,bool make_weird)
   }
 }
 
-void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback) {
-  wrap(ren,pos,1.0f,callback);
+void FontRenderer::wrap(Renderer& ren,const SceneContext& ctx,const Pos3i& pos,
+                        const WrapCallback& callback) {
+  wrap(ren,ctx,pos,1.0f,callback);
 }
 
-void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback) {
-  ren.wrap_font_atlas(font_atlas_,pos,scale_size(scale),[&](auto& font) {
+void FontRenderer::wrap(Renderer& ren,const SceneContext& ctx,const Pos3i& pos,float scale,
+                        const WrapCallback& callback) {
+  ren.wrap_font_atlas(ctx.assets.font_atlas(font_atlas_id_),pos,scale_size(scale),[&](auto& font) {
     Wrapper wrapper{*this,font,font_color_};
     callback(wrapper);
   });
@@ -35,7 +41,9 @@ void FontRenderer::wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCal
 
 const Size2i& FontRenderer::font_size() const { return kFontSize; }
 
-const Size2i& FontRenderer::font_spacing() const { return font_atlas_.spacing(); }
+const Size2i& FontRenderer::font_spacing(const SceneContext& ctx) const {
+  return ctx.assets.font_atlas(font_atlas_id_).spacing();
+}
 
 const Color4f& FontRenderer::arrow_color() const { return arrow_color_; }
 

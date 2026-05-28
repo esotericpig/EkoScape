@@ -10,24 +10,44 @@
 
 #include "common.h"
 
-#include "cybel/scene/scene_bag.h"
+#include "cybel/scene/scene_types.h"
 
 namespace ekoscape {
 
-namespace SceneAction {
-  enum : int {
-    kNone = SceneBag::kTypeNone,
-    kQuit,
-    kGoToMenu,
-    kGoToMenuPlay,
-    kGoToMenuCredits,
-    kGoToGame,
-    kGoToBoringWork,
-  };
-}
+enum class SceneAction : scene_id_t {
+  kNone,
+  kQuit,
+
+  kGoToMenu,
+  kGoToMenuPlay,
+  kGoToMenuCredits,
+
+  kGoToGame,
+  kGoToBoringWork,
+};
 
 namespace SceneActions {
-  bool is_menu(int action);
+  template <typename T>
+  bool is_menu(T action);
+}
+
+template <typename T>
+bool SceneActions::is_menu(T action) {
+  switch(static_cast<SceneAction>(action)) {
+    // This should not include kGoToBoringWork.
+    case SceneAction::kGoToMenu:
+    case SceneAction::kGoToMenuPlay:
+    case SceneAction::kGoToMenuCredits:
+      return true;
+
+    case SceneAction::kNone:
+    case SceneAction::kQuit:
+    case SceneAction::kGoToGame:
+    case SceneAction::kGoToBoringWork:
+      break;
+  }
+
+  return false;
 }
 
 } // namespace ekoscape

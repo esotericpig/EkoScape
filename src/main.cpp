@@ -22,12 +22,19 @@ int main(int argc,char** argv) {
     }
   }
 
-  try {
-    auto& engine = CybelEngine::init(EkoScapeGame::build_config());
+  CybelEngine* engine = nullptr;
 
-    engine.run(std::make_unique<EkoScapeGame>(engine));
+  try {
+    engine = &CybelEngine::init(EkoScapeGame::build_config());
+
+    engine->run(std::make_unique<EkoScapeGame>(*engine));
   } catch(const CybelError& e) {
-    CybelEngine::show_error_no_window(EkoScapeGame::kTitle,e.what());
+    if(engine) {
+      engine->show_error(e.what());
+    } else {
+      CybelEngine::show_error_no_window(EkoScapeGame::kTitle,e.what());
+    }
+
     return 1;
   }
 

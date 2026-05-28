@@ -10,68 +10,58 @@
 
 #include "common.h"
 
-#include "cybel/asset/asset_man.h"
+#include "cybel/asset/asset_loader.h"
+#include "cybel/scene/scene_context.h"
 #include "cybel/types/color.h"
+#include "cybel/util/file_sys.h"
 
-#include "assets/font_atlas_id.h"
+#include "assets/art_styles.h"
+#include "assets/asset_ids.h"
 #include "assets/font_renderer.h"
-#include "assets/image_id.h"
-#include "assets/music_id.h"
-#include "assets/sprite_id.h"
-#include "assets/styled_tex_id.h"
-#include "assets/texture_id.h"
 #include "map/map.h"
 
 #include <filesystem>
 #include <functional>
+#include <string>
+#include <string_view>
 #include <vector>
 
 namespace ekoscape {
 
-class Assets final : AssetMan {
+class Assets final : public AssetLoader {
 public:
-  using MapCallback = std::function<
-    void(const std::string& group,const std::filesystem::path& map_file,Map&)
+  using OnMapFile = std::function<
+    void(const std::string& group,const std::filesystem::path& map_file,Map& map)
   >;
 
-  static inline const std::filesystem::path kAssetsSubdir{"assets"};
-  static inline const std::filesystem::path kIconsSubdir{kAssetsSubdir / "icons"};
-  static inline const std::filesystem::path kImagesSubdir{kAssetsSubdir / "images"};
-  static inline const std::filesystem::path kMapsSubdir{kAssetsSubdir / "maps"};
-  static inline const std::filesystem::path kMusicSubdir{kAssetsSubdir / "music"};
-  static inline const std::filesystem::path kTexsSubdir{kAssetsSubdir / "textures"};
+  static inline const std::filesystem::path kAssetsSubDir{"assets"};
+  static inline const std::filesystem::path kIconsSubDir{kAssetsSubDir / "icons"};
+  static inline const std::filesystem::path kImagesSubDir{kAssetsSubDir / "images"};
+  static inline const std::filesystem::path kMapsSubDir{kAssetsSubDir / "maps"};
+  static inline const std::filesystem::path kMusicSubDir{kAssetsSubDir / "music"};
+  static inline const std::filesystem::path kTexturesSubDir{kAssetsSubDir / "textures"};
 
-  explicit Assets(std::string_view tex_style,bool has_audio_player,bool make_weird = false);
+  // For images that don't really work well with make_weird().
+  // - The names mean "for mostly black images," etc.
+  // - The black & white colors were chosen as throwbacks to the original code in `relics/` (v1.0).
+  static inline const Color4f kWeirdBlackColor{0.01f,1.0f};
+  static inline const Color4f kWeirdGrayColor = Color4f::kHotPink;
+  static inline const Color4f kWeirdWhiteColor = Color4f::kWhite;
 
-  void on_gpu_context_loss();
-  void on_gpu_context_restore();
+  explicit Assets(const FileSys& file_sys,bool is_audio_alive,std::string_view art_style);
 
-  void reload_gfx();
-  void reload_gfx(bool make_weird);
-  void reload_audio();
-  void make_weird();
+  void make_weird(const SceneContext& ctx,bool is_weird);
 
-  void glob_maps_meta(const MapCallback& on_map) const;
+  void glob_maps_meta(const OnMapFile& on_map) const;
 
-  const std::string& prev_tex_style();
-  const std::string& next_tex_style();
+  void load_cpu_gfx(AssetMan& assets,CpuGfxLoader& gfx) override;
+  void load_gpu_gfx(AssetMan& assets,GpuGfxLoader& gfx) override;
+  void load_audio(AssetMan& assets,AudioLoader& audio) override;
+
+  void prev_art_style();
+  void next_art_style();
 
   bool is_weird() const;
-  const std::string& tex_style() const;
-
-  const Texture& star_tex() const;
-  Texture* styled_tex(StyledTexId id);
-  TextureRef styled_tex_ref(StyledTexId id);
-  FontRenderer& font_renderer() const;
-
-  Image* image(ImageId id);
-  Texture* tex(TextureId id);
-  Sprite* sprite(SpriteId id);
-  SpriteRef sprite_ref(SpriteId id);
-  FontAtlas& font_atlas();
-  FontAtlas* font_atlas(FontAtlasId id);
-  FontAtlasRef font_atlas_ref();
-  FontAtlasRef font_atlas_ref(FontAtlasId id);
 
   const Color4f& eko_color() const;
   const Color4f& end_color() const;
@@ -80,58 +70,18 @@ public:
   const Color4f& robot_color() const;
   const Color4f& wall_color() const;
 
-  Music* music(MusicId id);
+  const std::string& art_style() const;
+  const StyledTextureIds& styled_texture_ids() const;
+
+  FontAtlasId font_atlas_id() const;
+  FontRenderer& font_renderer();
 
 private:
-  class StyledTextures final : public AssetMan {
-  public:
-    std::string dirname{};
-    std::string name{};
+  using LoadAssetFile = std::function<void(const std::filesystem::path& file)>;
 
-    explicit StyledTextures(const std::filesystem::path& dir,bool make_weird);
-
-    void check_texs();
-    void zombify();
-
-    Texture* tex(asset_id_t id) override;
-
-  private:
-    std::array<std::unique_ptr<Texture>,static_cast<std::size_t>(StyledTexId::kMax)> texs_{};
-
-    void load_tex(StyledTexId id,const std::filesystem::path& file,bool make_weird,
-                  const Color4f& weird_color = Color4f::kBlack);
-  };
-
-  using AssetLoader = std::function<void(const std::filesystem::path& base_dir)>;
-
-  /**
-   * NOTE: This should only ever be called once, since it uses SDL_GetBasePath(),
-   *       which is an expensive operation.
-   */
-  static std::vector<std::filesystem::path> fetch_base_dirs();
-  static inline const auto kBaseDirs = fetch_base_dirs();
-
-  static constexpr auto kDefaultFontAtlasId = FontAtlasId::kMonogram;
-
-  // For images that don't really work well with make_weird().
-  // - The names mean "for mostly black images," etc.
-  // - The black & white colors were chosen as throwbacks to the original code in relics (v1.0).
-  static inline const Color4f kWeirdBlackColor{0.01f,1.0f};
-  static inline const Color4f kWeirdGrayColor = Color4f::kHotPink;
-  static inline const Color4f kWeirdWhiteColor{1.0f,1.0f};
-
-  bool has_audio_player_ = false;
+  std::vector<std::filesystem::path> base_dirs_{};
+  bool is_audio_alive_ = false;
   bool is_weird_ = false;
-
-  Texture* star_tex_ = nullptr;
-  std::vector<StyledTextures> styled_texs_bag_{};
-  std::vector<StyledTextures>::iterator styled_texs_bag_it_ = styled_texs_bag_.begin();
-  std::unique_ptr<FontRenderer> font_renderer_{};
-
-  std::array<std::unique_ptr<Image>,static_cast<std::size_t>(ImageId::kMax)> images_{};
-  std::array<std::unique_ptr<Texture>,static_cast<std::size_t>(TextureId::kMax)> texs_{};
-  std::array<std::unique_ptr<Sprite>,static_cast<std::size_t>(SpriteId::kMax)> sprites_{};
-  std::array<std::unique_ptr<FontAtlas>,static_cast<std::size_t>(FontAtlasId::kMax)> font_atlases_{};
 
   Color4f eko_color_{}; // Cell & Player.
   Color4f end_color_{};
@@ -140,29 +90,22 @@ private:
   Color4f robot_color_{};
   Color4f wall_color_{};
 
-  std::array<std::unique_ptr<Music>,static_cast<std::size_t>(MusicId::kMax)> music_bag_{};
+  ArtStyles art_styles_;
+  FontRenderer font_renderer_{font_atlas_id()};
 
-  using AssetMan::tex_ref;
-  using AssetMan::sprite_ref;
-  using AssetMan::font_atlas_ref;
+  void init_base_dirs(const FileSys& file_sys);
+  void update_colors();
 
-  void reload_gfx(std::string_view tex_style,bool make_weird);
-  void reload_styled_texs_bag(std::string_view tex_style);
-  void check_gfx();
+  void load_image(CpuGfxLoader& gfx,ImageId id,const std::filesystem::path& sub_file);
+  void load_texture(GpuGfxLoader& gfx,TextureId id,const std::filesystem::path& sub_file);
+  void load_sprite(GpuGfxLoader& gfx,SpriteId id,const std::filesystem::path& sub_file,
+                   const Color4f& weird_color = Color4f::kNone);
+  void load_font_atlas(GpuGfxLoader& gfx,FontAtlasId id,const std::filesystem::path& sub_file,
+                       const FontAtlas::Config& config);
 
-  void load_asset(const AssetLoader& load_from,bool fail_on_error = true) const;
-  void load_image(ImageId id,const std::filesystem::path& subfile);
-  void load_tex(TextureId id,const std::filesystem::path& subfile);
-  void load_sprite(SpriteId id,const std::filesystem::path& subfile,
-                   const Color4f& weird_color = Color4f::kBlack);
-  void load_font_atlas(FontAtlasId id,const std::filesystem::path& subfile,FontAtlas::Builder& builder);
-  void load_music(MusicId id,const std::filesystem::path& subfile);
+  void load_music(AudioLoader& audio,MusicId id,const std::filesystem::path& sub_file);
 
-  Image* image(asset_id_t id) override;
-  Texture* tex(asset_id_t id) override;
-  Sprite* sprite(asset_id_t id) override;
-  FontAtlas* font_atlas(asset_id_t id) override;
-  Music* music(asset_id_t id) override;
+  void load_asset(const std::filesystem::path& sub_file,bool fail_on_error,const LoadAssetFile& load_file);
 };
 
 } // namespace ekoscape

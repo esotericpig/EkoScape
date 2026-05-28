@@ -10,6 +10,7 @@
 #include "cybel/scene/scene_context.h"
 #include "cybel/util/rando.h"
 
+#include "assets/asset_ids.h"
 #include "core/input_action.h"
 
 namespace ekoscape {
@@ -18,31 +19,28 @@ MenuCreditsScene::MenuCreditsScene(GameSession& sesh)
   : sesh_{sesh},wtfs_(150,WtfParticle{}) {}
 
 void MenuCreditsScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
-  switch(input_id) {
+  switch(static_cast<InputAction>(input_id)) {
     case InputAction::kSelect:
-      ctx.scene_man.pop_scene();
+      ctx.scenes.pop_scene();
       break;
+
+    default: break;
   }
 }
 
-void MenuCreditsScene::handle_scene_input(const InputStates& states,[[maybe_unused]] InputMan& input,
-                                          SceneContext& ctx) {
+void MenuCreditsScene::handle_scene_input(InputMan& input,SceneContext& ctx) {
   // Shhh... Don't Tell.
-  if(states[InputAction::kMakeWeird]) {
-    if(!sesh_.assets.is_weird()) {
-      sesh_.assets.make_weird();
-      ctx.engine.set_icon(*sesh_.assets.image(ImageId::kEkoScapeIcon));
-    }
-
+  if(input[InputAction::kMakeWeird]) {
+    sesh_.assets.make_weird(ctx,true);
     birth_wtfs(ctx.dimens);
   }
 }
 
 void MenuCreditsScene::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
-  update_wtfs(step,ctx.dimens);
+  update_wtfs(step,ctx);
 }
 
-void MenuCreditsScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& ctx) {
+void MenuCreditsScene::draw_scene(Renderer& ren,SceneContext& ctx) {
   ren.begin_2d_scene()
      .begin_auto_center_scale()
      .begin_add_blend();
@@ -51,16 +49,16 @@ void MenuCreditsScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& c
   int y = 10;
   int right_x = x + 800;
 
-  ren.wrap_sprite(*sesh_.assets.sprite(SpriteId::kEkoScapeLogo),[&](auto& s) {
+  ren.wrap_sprite(ctx.assets.sprite(SpriteId::kEkoScapeLogo),[&](auto& s) {
     s.draw_quad(Pos3i{x,y,0},Size2i{780,180}); // 1300x300.
   });
-  ren.wrap_sprite(*sesh_.assets.sprite(SpriteId::kDantaresLogo),[&](auto& s) {
+  ren.wrap_sprite(ctx.assets.sprite(SpriteId::kDantaresLogo),[&](auto& s) {
     s.draw_quad(Pos3i{right_x,y,0},Size2i{780,156}); // 600x120.
   });
   x += 35;
   y += 190;
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.75f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{x,y,0},0.75f,[&](auto& font) {
     font.print("by Bradley Whited");
     font.font.pos.x = right_x;
     font.print("by Ryan Witmer");
@@ -68,7 +66,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& c
     font.puts();
     y = font.font.pos.y;
   });
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.45f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{x,y,0},0.45f,[&](auto& font) {
     font.print("github.com/esotericpig/EkoScape");
     font.font.pos.x = right_x;
     font.print("https://phasercat.com");
@@ -77,13 +75,13 @@ void MenuCreditsScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& c
     y = font.font.pos.y;
   });
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{x,y,0},0.60f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{x,y,0},0.60f,[&](auto& font) {
     font.puts("Coding, music, & game gfx by Bradley Whited");
     font.puts("Monogram font by datagoblin.itch.io");
     font.puts("Star textures by Kronbits.itch.io");
   });
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{395,615,0},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{395,615,0},[&](auto& font) {
     font.draw_menu_opt("go back",FontRenderer::kMenuStyleSelected);
   });
 
@@ -91,7 +89,7 @@ void MenuCreditsScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& c
      .end_scale();
 
   ren.begin_auto_scale();
-  draw_wtfs(ren);
+  draw_wtfs(ren,ctx);
   ren.end_scale();
 }
 
@@ -140,13 +138,13 @@ Color4f MenuCreditsScene::rand_color() {
   return Color4f{r.rand_float(),r.rand_float(),r.rand_float()};
 }
 
-void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimens) {
+void MenuCreditsScene::update_wtfs(const FrameStep& step,SceneContext& ctx) {
   if(active_wtf_count_ == 0) { return; }
 
   wtf_cooldown_time_ += step.dpf;
 
   const auto text_len = static_cast<float>(kWtfText.length());
-  const Size2f font_spacing = sesh_.assets.font_renderer().font_spacing().to_size2<float>();
+  const Size2f font_spacing = sesh_.assets.font_renderer().font_spacing(ctx).to_size2<float>();
   const float total_spacing_w = font_spacing.w * (text_len - 1);
 
   for(int i = 0; i < static_cast<int>(active_wtf_count_); ++i) {
@@ -178,17 +176,17 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,const ViewDimens& dimen
     // Because of rotation, use max for both width & height for in_bounds().
     const auto s = static_cast<int>(std::max(wtf.true_size.w,wtf.true_size.h));
 
-    if(!dimens.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),Size2i{s,s})) {
+    if(!ctx.dimens.target_size.in_bounds(wtf.true_pos.to_pos2<int>(),Size2i{s,s})) {
       wtf.p.die().past_lives = 1;
       --i; // Reprocess this index to actually remove it from active count.
     }
   }
 }
 
-void MenuCreditsScene::draw_wtfs(Renderer& ren) {
+void MenuCreditsScene::draw_wtfs(Renderer& ren,SceneContext& ctx) {
   if(active_wtf_count_ == 0) { return; }
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{},[&](auto& font) {
     for(std::size_t i = 0; i < active_wtf_count_; ++i) {
       WtfParticle& wtf = wtfs_[i];
 

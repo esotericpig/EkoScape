@@ -22,16 +22,16 @@ MenuPlayScene::MenuPlayScene(GameSession& sesh,const CybelEngine& engine)
 }
 
 void MenuPlayScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
-  switch(input_id) {
+  switch(static_cast<InputAction>(input_id)) {
     case InputAction::kSelect:
       if(map_opt_index_ == 1) {
-        ctx.scene_man.pop_scene();
+        ctx.scenes.pop_scene();
       } else {
         if(map_opts_.size() <= kNonMapOptCount) {
           ctx.engine.show_error("No map to select.");
         } else {
           select_map();
-          ctx.scene_man.push_scene(SceneAction::kGoToGame);
+          ctx.scenes.push_scene(SceneAction::kGoToGame);
         }
       }
       break;
@@ -63,6 +63,8 @@ void MenuPlayScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) 
     case InputAction::kRefresh:
       glob_maps(ctx.engine);
       break;
+
+    default: break;
   }
 }
 
@@ -73,7 +75,7 @@ void MenuPlayScene::draw_scene(Renderer& ren,[[maybe_unused]] SceneContext& ctx)
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{25,10,0},0.75f,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{25,10,0},0.75f,[&](auto& font) {
     const int opts_len = static_cast<int>(map_opts_.size());
     const int half1_or_blanks = map_opt_index_ - kMapOptsHalf1;
     const int max_len = std::min(map_opt_index_ + 1 + kMapOptsHalf2,opts_len);
@@ -130,8 +132,8 @@ void MenuPlayScene::glob_maps(const CybelEngine& engine) {
   });
 
   if(map_opts_.size() <= kNonMapOptCount) {
-    engine.show_error("No maps were found/loaded in the sub folders of the maps folder [" +
-                      Assets::kMapsSubdir.string() + "].");
+    engine.show_error("No Maps were found/loaded in the sub folders of the Maps folder `" +
+                      Assets::kMapsSubDir.string() + "`.");
     return;
   }
 

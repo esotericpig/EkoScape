@@ -9,8 +9,6 @@
 
 #include "cybel/scene/scene_context.h"
 
-#include "scenes/scene_action.h"
-
 #include <sstream>
 
 namespace ekoscape {
@@ -66,22 +64,22 @@ void GameHud::update_speedrun_time_str() {
 }
 
 void GameHud::draw_scene(Renderer& ren,SceneContext& ctx) {
-  draw_map_mod(ren,ctx.dimens);
+  draw_map_mod(ren,ctx);
 
   // Always show the speedrun time on Game Over.
-  if(state_.show_speedrun || state_.is_game_over) { draw_speedrun_mod(ren,ctx.dimens); }
+  if(state_.show_speedrun || state_.is_game_over) { draw_speedrun_mod(ren,ctx); }
 }
 
-void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
+void GameHud::draw_map_mod(Renderer& ren,const SceneContext& ctx) {
   ren.begin_auto_anchor_scale(Pos2f{0.0f,1.0f}); // Anchor to bottom left.
 
   const int total_h = kMiniMapBlockSize.h + (state_.show_mini_map ? kMiniMapSize.h : 0);
-  const Pos3i pos{0,dimens.target_size.h - total_h,0};
+  const Pos3i pos{0,ctx.dimens.target_size.h - total_h,0};
 
   ren.wrap_color(mini_map_walkable_color_,[&] {
     ren.draw_quad(pos,Size2i{kMiniMapSize.w,kMiniMapBlockSize.h});
   });
-  sesh_.assets.font_renderer().wrap(ren,pos,kTextScale,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,pos,kTextScale,[&](auto& font) {
     const Color4f font_color = font.font_color;
 
     font.print();
@@ -94,7 +92,7 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
   if(state_.player_fruit_time > Duration::kZero) {
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w,pos.y,pos.z};
 
-    sesh_.assets.font_renderer().wrap(ren,fruit_pos,kTextScale,[&](auto& font) {
+    sesh_.assets.font_renderer().wrap(ren,ctx,fruit_pos,kTextScale,[&](auto& font) {
       const auto fruit_text = std::to_string(state_.player_fruit_time.round_secs());
 
       font.set_bg_padding(Size2i{5,0});
@@ -104,12 +102,12 @@ void GameHud::draw_map_mod(Renderer& ren,const ViewDimens& dimens) {
     });
   }
 
-  if(state_.show_mini_map) { draw_mini_map(ren,pos); }
+  if(state_.show_mini_map) { draw_mini_map(ren,ctx,pos); }
 
   ren.end_scale();
 }
 
-void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
+void GameHud::draw_mini_map(Renderer& ren,const SceneContext& ctx,Pos3i pos) {
   pos.y += kMiniMapBlockSize.h;
 
   const Pos3i player_pos = map_.player_pos();
@@ -176,8 +174,8 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
 
       if(!state_.player_hit_end && (x == 0 && y == 0)) { // Player block?
         ren.begin_color(mini_map_eko_color_);
-        ren.wrap_font_atlas(
-          sesh_.assets.font_atlas(),block_pos,kMiniMapBlockSize,Size2i{0,0},
+        ren.wrap_font_atlas(ctx.assets.font_atlas(sesh_.assets.font_atlas_id()),
+          block_pos,kMiniMapBlockSize,Size2i{0,0},
           [&](auto& font) { font.print("↑"); }
         );
       }
@@ -188,17 +186,17 @@ void GameHud::draw_mini_map(Renderer& ren,Pos3i pos) {
   ren.end_color();
 }
 
-void GameHud::draw_speedrun_mod(Renderer& ren,const ViewDimens& dimens) {
+void GameHud::draw_speedrun_mod(Renderer& ren,const SceneContext& ctx) {
   ren.begin_auto_anchor_scale(Pos2f{1.0f,1.0f}); // Anchor to bottom right.
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{},kTextScale,[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{},kTextScale,[&](auto& font) {
     font.set_bg_padding(Size2i{10,5});
 
     const Size2i str_size{static_cast<int>(speedrun_time_str_.length()),1};
     const auto total_size = font.font.calc_total_size(str_size);
 
-    font.font.pos.x += (dimens.target_size.w - total_size.w);
-    font.font.pos.y += (dimens.target_size.h - total_size.h);
+    font.font.pos.x += (ctx.dimens.target_size.w - total_size.w);
+    font.font.pos.y += (ctx.dimens.target_size.h - total_size.h);
 
     font.draw_bg(mini_map_walkable_color_,str_size);
     font.print(speedrun_time_str_);

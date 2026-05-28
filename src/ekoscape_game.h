@@ -12,8 +12,8 @@
 
 #include "cybel/cybel_engine.h"
 #include "cybel/game.h"
-#include "cybel/audio/audio_player.h"
 #include "cybel/input/input_man.h"
+#include "cybel/scene/scene_context.h"
 
 #include "assets/assets.h"
 #include "core/game_session.h"
@@ -29,11 +29,8 @@ public:
 
   explicit EkoScapeGame(CybelEngine& engine);
 
-  void on_game_start(CybelEngine& engine) override;
-  SceneBag build_scene(int type,SceneContext& ctx) override;
-
-  void on_scene_gpu_context_loss(SceneContext& ctx) override;
-  void on_scene_gpu_context_restore(SceneContext& ctx) override;
+  void on_game_start(CybelEngine& engine,SceneContext& ctx) override;
+  SceneBag build_scene(scene_id_t id,SceneContext& ctx) override;
 
   void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
 
@@ -41,7 +38,7 @@ public:
   void draw_scene(Renderer& ren,SceneContext& ctx) override;
 
 private:
-  Assets assets_;
+  std::shared_ptr<Assets> assets_{};
   GameSession sesh_;
 
   bool was_music_playing_ = false;
@@ -51,10 +48,10 @@ private:
 
   void init_input_map(InputMan& im);
 
-  void quit(SceneContext& ctx);
+  void quit(const SceneContext& ctx);
 
-  void play_music(AudioPlayer& audio_player,bool rand_pos = false);
-  void stop_music(AudioPlayer& audio_player,bool going_to_boring_work = false);
+  void play_music(const SceneContext& ctx,bool rand_pos = false);
+  void stop_music(const SceneContext& ctx,bool going_to_boring_work = false);
 };
 
 } // namespace ekoscape

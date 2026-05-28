@@ -10,11 +10,13 @@
 
 #include "common.h"
 
-#include "cybel/gfx/font_atlas.h"
 #include "cybel/gfx/renderer.h"
+#include "cybel/scene/scene_context.h"
 #include "cybel/types/color.h"
 #include "cybel/types/pos.h"
 #include "cybel/types/size.h"
+
+#include "assets/asset_ids.h"
 
 #include <functional>
 
@@ -52,13 +54,15 @@ public:
   static inline const int kMenuStyleSelected = 1 << 0;
   static inline const int kMenuStyleCycle = 1 << 1;
 
-  explicit FontRenderer(const FontAtlas& font_atlas,bool make_weird = false);
+  explicit FontRenderer(FontAtlasId font_atlas_id);
 
-  void wrap(Renderer& ren,const Pos3i& pos,const WrapCallback& callback);
-  void wrap(Renderer& ren,const Pos3i& pos,float scale,const WrapCallback& callback);
+  void make_weird(bool is_weird);
+
+  void wrap(Renderer& ren,const SceneContext& ctx,const Pos3i& pos,const WrapCallback& callback);
+  void wrap(Renderer& ren,const SceneContext& ctx,const Pos3i& pos,float scale,const WrapCallback& callback);
 
   const Size2i& font_size() const;
-  const Size2i& font_spacing() const;
+  const Size2i& font_spacing(const SceneContext& ctx) const;
   const Color4f& arrow_color() const;
   const Color4f& cycle_arrow_color() const;
 
@@ -70,7 +74,7 @@ private:
   static inline const std::string kRightArrowText = "→";
   static inline const int kSmallSpaceSize = 24;
 
-  const FontAtlas& font_atlas_;
+  FontAtlasId font_atlas_id_{};
   Color4f font_color_{};
   Color4f arrow_color_{};
   Color4f cycle_arrow_color_{};

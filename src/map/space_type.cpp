@@ -10,11 +10,8 @@
 namespace ekoscape {
 
 bool SpaceTypes::is_valid(SpaceType type) {
-  // NOTE: Don't use `default:` so that the compiler/IDE can catch new enum types.
+  // Don't use `default:` so that the compiler/IDE can catch new enum types.
   switch(type) {
-    case SpaceType::kNil:
-      return false;
-
     case SpaceType::kCell:
     case SpaceType::kDeadSpace:
     case SpaceType::kDeadSpaceGhost:
@@ -48,6 +45,9 @@ bool SpaceTypes::is_valid(SpaceType type) {
     case SpaceType::kWhiteFloor:
     case SpaceType::kWhiteGhost:
       return true;
+
+    case SpaceType::kNil:
+      break;
   }
 
   return false;

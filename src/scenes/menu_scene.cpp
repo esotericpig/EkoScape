@@ -7,6 +7,7 @@
 
 #include "menu_scene.h"
 
+#include "assets/asset_ids.h"
 #include "core/input_action.h"
 #include "scenes/scene_action.h"
 
@@ -15,9 +16,9 @@ namespace ekoscape {
 MenuScene::MenuScene(GameSession& sesh,SceneContext& ctx)
   : sesh_{sesh} {
   auto gfx_opt = Option::cycle(ctx,{
-    .on_update = [this](auto& opt,auto&) { opt.text = "gfx: " + sesh_.assets.tex_style(); },
-    .on_select = [this](auto&) { sesh_.assets.next_tex_style(); },
-    .on_select_alt = [this](auto&) { sesh_.assets.prev_tex_style(); },
+    .on_update = [this](auto& opt,auto&) { opt.text = "gfx: " + sesh_.assets.art_style(); },
+    .on_select = [this](auto&) { sesh_.assets.next_art_style(); },
+    .on_select_alt = [this](auto&) { sesh_.assets.prev_art_style(); },
   });
   auto vsync_opt = Option::cycle(ctx,{
     .on_update = [](auto& opt,auto& opt_ctx) {
@@ -30,14 +31,14 @@ MenuScene::MenuScene(GameSession& sesh,SceneContext& ctx)
   });
 
   opts_ = {
-    Option{"play",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kGoToMenuPlay); }},
+    Option{"play",[](auto& opt_ctx) { opt_ctx.scenes.push_scene(SceneAction::kGoToMenuPlay); }},
     gfx_opt,
     // In Web, always enable VSync [i.e., use requestAnimationFrame()].
 #if !defined(__EMSCRIPTEN__)
     vsync_opt,
 #endif
-    Option{"credits",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kGoToMenuCredits); }},
-    Option{"quit",[](auto& opt_ctx) { opt_ctx.scene_man.push_scene(SceneAction::kQuit); }},
+    Option{"credits",[](auto& opt_ctx) { opt_ctx.scenes.push_scene(SceneAction::kGoToMenuCredits); }},
+    Option{"quit",[](auto& opt_ctx) { opt_ctx.scenes.push_scene(SceneAction::kQuit); }},
   };
 
   if(sesh_.menu_scene_state.opt_index >= opts_.size()) {
@@ -53,14 +54,14 @@ void MenuScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
 
   Option& sel_opt = opts_[opt_index];
 
-  switch(input_id) {
+  switch(static_cast<InputAction>(input_id)) {
     case InputAction::kSelect:
       sel_opt.select(ctx);
       break;
 
     case InputAction::kUp:
       // Wraps around to bottom.
-      opt_index = (opt_index >= 1) ? (opt_index - 1) : (opts_.size() - 1);
+      opt_index = ((opt_index >= 1) ? opt_index : opts_.size()) - 1;
       break;
 
     case InputAction::kDown:
@@ -75,6 +76,8 @@ void MenuScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
     case InputAction::kRight:
       if(sel_opt.is_cycle()) { sel_opt.select(ctx); }
       break;
+
+    default: break;
   }
 }
 
@@ -83,11 +86,11 @@ void MenuScene::draw_scene(Renderer& ren,SceneContext& ctx) {
      .begin_auto_center_scale()
      .begin_add_blend();
 
-  ren.wrap_sprite(*sesh_.assets.sprite(SpriteId::kEkoScapeLogo),[&](auto& s) {
+  ren.wrap_sprite(ctx.assets.sprite(SpriteId::kEkoScapeLogo),[&](auto& s) {
     s.draw_quad(Pos3i{150,10,0},Size2i{1300,300});
   });
 
-  sesh_.assets.font_renderer().wrap(ren,Pos3i{395,330,0},[&](auto& font) {
+  sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{395,330,0},[&](auto& font) {
     for(std::size_t i = 0; i < opts_.size(); ++i) {
       const Option& opt = opts_[i];
       int styles = 0;
@@ -104,13 +107,15 @@ void MenuScene::draw_scene(Renderer& ren,SceneContext& ctx) {
     }
   });
 
-  ren.wrap_tex(*sesh_.assets.styled_tex(StyledTexId::kRobot),[&](auto& tex) {
+  const auto& styled_ids = sesh_.assets.styled_texture_ids();
+
+  ren.wrap_tex(ctx.assets.texture(styled_ids.robot),[&](auto& tex) {
     tex.draw_quad(Pos3i{10,368,0},Size2i{300,256});
   });
-  ren.wrap_tex(*sesh_.assets.styled_tex(StyledTexId::kCell),[&](auto& tex) {
+  ren.wrap_tex(ctx.assets.texture(styled_ids.cell),[&](auto& tex) {
     tex.draw_quad(Pos3i{10,634,0},Size2i{300,256});
   });
-  ren.wrap_sprite(*sesh_.assets.sprite(SpriteId::kKeys),[&](auto& s) {
+  ren.wrap_sprite(ctx.assets.sprite(SpriteId::kKeys),[&](auto& s) {
     constexpr int padding = 10;
     const Size2i size{s.sprite.size().w / 2,s.sprite.size().h / 2};
     const Pos3i pos{

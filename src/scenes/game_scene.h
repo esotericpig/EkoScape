@@ -10,8 +10,9 @@
 
 #include "common.h"
 
+#include "cybel/asset/asset_man.h"
+#include "cybel/asset/asset_types.h"
 #include "cybel/gfx/renderer.h"
-#include "cybel/gfx/texture.h"
 #include "cybel/scene/scene.h"
 #include "cybel/scene/scene_context.h"
 #include "cybel/types/duration.h"
@@ -27,6 +28,7 @@
 
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -34,7 +36,7 @@ namespace ekoscape {
 
 class GameScene final : public Scene {
 public:
-  explicit GameScene(GameSession& sesh,Renderer& ren,const std::filesystem::path& map_file);
+  explicit GameScene(GameSession& sesh,Renderer& ren,AssetMan& assets,const std::filesystem::path& map_file);
 
   void on_scene_enter(SceneContext& ctx) override;
   void on_scene_exit(SceneContext& ctx) override;
@@ -42,7 +44,7 @@ public:
   void on_scene_gpu_context_restore(SceneContext& ctx) override;
 
   void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
-  void handle_scene_input(const InputStates& states,InputMan& input,SceneContext& ctx) override;
+  void handle_scene_input(InputMan& input,SceneContext& ctx) override;
 
   void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
   void draw_scene(Renderer& ren,SceneContext& ctx) override;
@@ -97,7 +99,7 @@ private:
   SpaceType init_map_space(const Pos3i& pos,SpaceType type,std::vector<Pos3i>& cells);
   void init_map_default_empty(const Pos3i& pos,SpaceType type);
   void make_map_weird(std::vector<Pos3i>& cells);
-  void init_map_texs();
+  void init_map_textures(AssetMan& assets);
 
   void update_player(const FrameStep& step);
   void game_over(bool player_hit_end);
@@ -109,8 +111,9 @@ private:
 
   void update_mods(const FrameStep& step,SceneContext& ctx);
 
-  void set_space_texs(SpaceType type,const Texture* tex);
-  void set_space_texs(SpaceType type,const Texture* ceiling,const Texture* wall,const Texture* floor);
+  void set_space_textures(AssetMan& assets,SpaceType type,asset_id_t id);
+  void set_space_textures(AssetMan& assets,SpaceType type,std::optional<asset_id_t> ceiling_id,
+                          std::optional<asset_id_t> wall_id,std::optional<asset_id_t> floor_id);
 };
 
 } // namespace ekoscape

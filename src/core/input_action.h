@@ -14,35 +14,35 @@
 
 namespace ekoscape {
 
-namespace InputAction {
-  enum : input_id_t {
-    kUp = 1,
-    kDown,
-    kLeft,
-    kRight,
+enum class InputAction : input_id_t {
+  // Movement.
+  kUp,
+  kDown,
+  kLeft,
+  kRight,
 
-    kPageUp,
-    kPageDown,
-    kSelect,
-    kGoBack,
-    kQuit,
+  // Menu Navigation.
+  kPageUp,
+  kPageDown,
+  kSelect,
+  kGoBack,
+  kQuit,
 
-    kToggleMusic,
-    //kPlayMusic, // SDL_SCANCODE_AUDIOPLAY.
-    //kStopMusic, // SDL_SCANCODE_AUDIOSTOP.
-    kToggleFullscreen,
-    kToggleMiniMap,
-    kToggleSpeedrun,
-    kToggleBossOma,
+  // Options/Features.
+  kToggleMusic,
+  //kPlayMusic, // SDL_SCANCODE_AUDIOPLAY
+  //kStopMusic, // SDL_SCANCODE_AUDIOSTOP
+  kToggleFullscreen,
+  kToggleMiniMap,
+  kToggleSpeedrun,
+  kToggleBossOma,
 
-    kRefresh,
-    kMakeWeird,
-    kToggleFps,
-    kToggleFrozen,
-
-    kMax
-  };
-}
+  // Dev/Secrets.
+  kRefresh,
+  kMakeWeird,
+  kToggleFps,
+  kToggleFrozen,
+};
 
 } // namespace ekoscape
 #endif

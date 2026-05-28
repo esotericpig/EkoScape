@@ -9,6 +9,7 @@
 
 #include "cybel/scene/scene_context.h"
 
+#include "assets/asset_ids.h"
 #include "core/input_action.h"
 
 namespace ekoscape {
@@ -33,26 +34,28 @@ void BoringWorkScene::on_scene_exit(SceneContext& ctx) {
 }
 
 void BoringWorkScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
-  switch(input_id) {
+  switch(static_cast<InputAction>(input_id)) {
     case InputAction::kSelect:
-      ctx.scene_man.pop_scene();
+      ctx.scenes.pop_scene();
       break;
+
+    default: break;
   }
 }
 
 void BoringWorkScene::draw_scene(Renderer& ren,SceneContext& ctx) {
   ren.begin_2d_scene();
 
-  const auto* boring_work = sesh_.assets.sprite(SpriteId::kBoringWork);
+  const auto& boring_work = ctx.assets.sprite(SpriteId::kBoringWork);
 
 #if defined(__EMSCRIPTEN__)
   ren.begin_auto_center_scale();
-  ren.wrap_sprite(*boring_work,[&](auto& s) {
+  ren.wrap_sprite(boring_work,[&](auto& s) {
     s.draw_quad(Pos3i{0,0,0},ctx.dimens.target_size);
   });
   ren.end_scale();
 #else
-  ren.wrap_sprite(*boring_work,[&](auto& s) {
+  ren.wrap_sprite(boring_work,[&](auto& s) {
     s.draw_quad(Pos3i{0,0,0},ctx.dimens.size);
   });
 #endif

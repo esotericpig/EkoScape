@@ -5,14 +5,25 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef EKOSCAPE_ASSETS_SPRITE_ID_H_
-#define EKOSCAPE_ASSETS_SPRITE_ID_H_
+#ifndef EKOSCAPE_ASSETS_ASSET_IDS_H_
+#define EKOSCAPE_ASSETS_ASSET_IDS_H_
 
 #include "common.h"
 
 #include "cybel/asset/asset_types.h"
 
 namespace ekoscape {
+
+enum class ImageId : asset_id_t {
+  kEkoScapeIcon,
+};
+
+enum class TextureId : asset_id_t {
+  kStar,
+  kStarWeird,
+
+  kStyleBegin,
+};
 
 enum class SpriteId : asset_id_t {
   kEkoScapeLogo,
@@ -21,8 +32,14 @@ enum class SpriteId : asset_id_t {
   kBoringWork,
   kGoodnight,
   kCorngrits,
+};
 
-  kMax
+enum class FontAtlasId : asset_id_t {
+  kMonogram,
+};
+
+enum class MusicId : asset_id_t {
+  kEkoScape,
 };
 
 } // namespace ekoscape

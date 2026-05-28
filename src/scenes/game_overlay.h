@@ -83,8 +83,8 @@ private:
   std::size_t game_over_opt_index_ = 0;
   StarSys star_sys_{};
 
-  void draw_map_info(Renderer& ren);
-  void draw_game_over(Renderer& ren);
+  void draw_map_info(Renderer& ren,const SceneContext& ctx);
+  void draw_game_over(Renderer& ren,const SceneContext& ctx);
 };
 
 } // namespace ekoscape
