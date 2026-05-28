@@ -17,7 +17,7 @@ namespace ekoscape {
 // If add a new type, need to update:
 // - assets/maps/README.md
 // - SpaceTypes::is_valid()
-// - GameScene.init_map_texs()
+// - GameScene.init_map_textures()
 // - [maybe] SpaceTypes::is_walkable()
 // - [maybe] SpaceTypes::is_non_walkable()
 // - [maybe] Map.parse_grid()
@@ -74,10 +74,8 @@ namespace SpaceTypes {
 
   SpaceType to_space_type(char value);
 
-  /**
-   * Convenience function for converting from Dantares' values to ours.
-   * For example: Dantares.GetCurrentSpace()
-   */
+  /// Convenience function for converting from Dantares' values to ours.
+  /// For example: Dantares.GetCurrentSpace()
   SpaceType to_space_type(int value);
 
   char value_of(SpaceType type);

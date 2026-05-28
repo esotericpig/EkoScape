@@ -23,7 +23,7 @@ GameScene::GameScene(GameSession& sesh,Renderer& ren,AssetMan& assets,const std:
   // Dantares2(...,SquareSize,FloorHeight,CeilingHeight).
   // - Classic values: (0.125f,-0.04f,0.04f).
   // - The floor & ceiling heights' signs are swapped, so that the images aren't flipped vertically.
-  //   - See set_space_texs(), which relies on this logic.
+  //   - See set_space_textures(), which relies on this logic.
   dantares_ = std::make_unique<Dantares2>(*dantares_renderer_,0.125f,0.04f,-0.04f);
   map_ = std::make_unique<DantaresMap>(*dantares_,[&](auto& /*dan*/,int /*z*/,int /*grid_id*/) {
     init_map_textures(assets);

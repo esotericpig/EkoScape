@@ -73,7 +73,7 @@ void Assets::make_weird(const SceneContext& ctx,bool is_weird) {
   ctx.engine.set_icon(ctx.assets.image(ImageId::kEkoScapeIcon));
 }
 
-void Assets::glob_maps_meta(const OnMapFile& on_map) const {
+void Assets::glob_maps_meta(const OnMapFile& on_map_file) const {
   std::unordered_set<std::string> loaded_maps{};
 
   for(const auto& base_dir : base_dirs_) {
@@ -104,7 +104,7 @@ void Assets::glob_maps_meta(const OnMapFile& on_map) const {
             continue;
           }
 
-          on_map(group,map_file,map);
+          on_map_file(group,map_file,map);
           loaded_maps.insert(map_key); // Success.
         }
       }
@@ -215,12 +215,12 @@ void Assets::load_music(AudioLoader& audio,MusicId id,const std::filesystem::pat
 }
 
 void Assets::load_asset(const std::filesystem::path& sub_file,bool fail_on_error,
-                        const LoadAssetFile& load_file) {
+                        const LoadAssetFile& load_asset_file) {
   std::optional<CybelError> first_error{};
 
   for(const auto& base_dir : base_dirs_) {
     try {
-      load_file(base_dir / sub_file);
+      load_asset_file(base_dir / sub_file);
       return; // Success.
     } catch(const CybelError& e) {
       if(!first_error) { first_error.emplace(e); }

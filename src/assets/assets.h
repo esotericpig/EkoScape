@@ -52,7 +52,7 @@ public:
 
   void make_weird(const SceneContext& ctx,bool is_weird);
 
-  void glob_maps_meta(const OnMapFile& on_map) const;
+  void glob_maps_meta(const OnMapFile& on_map_file) const;
 
   void load_cpu_gfx(AssetMan& assets,CpuGfxLoader& gfx) override;
   void load_gpu_gfx(AssetMan& assets,GpuGfxLoader& gfx) override;
@@ -105,7 +105,8 @@ private:
 
   void load_music(AudioLoader& audio,MusicId id,const std::filesystem::path& sub_file);
 
-  void load_asset(const std::filesystem::path& sub_file,bool fail_on_error,const LoadAssetFile& load_file);
+  void load_asset(const std::filesystem::path& sub_file,bool fail_on_error,
+                  const LoadAssetFile& load_asset_file);
 };
 
 } // namespace ekoscape
