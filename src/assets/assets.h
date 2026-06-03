@@ -10,10 +10,11 @@
 
 #include "common.h"
 
+#include "cybel/cybel_engine.h"
 #include "cybel/asset/asset_loader.h"
+#include "cybel/asset/asset_man.h"
 #include "cybel/scene/scene_context.h"
 #include "cybel/types/color.h"
-#include "cybel/util/file_sys.h"
 
 #include "assets/art_styles.h"
 #include "assets/asset_ids.h"
@@ -24,7 +25,6 @@
 #include <functional>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace ekoscape {
 
@@ -35,11 +35,11 @@ public:
   >;
 
   static inline const std::filesystem::path kAssetsSubDir{"assets"};
-  static inline const std::filesystem::path kIconsSubDir{kAssetsSubDir / "icons"};
-  static inline const std::filesystem::path kImagesSubDir{kAssetsSubDir / "images"};
-  static inline const std::filesystem::path kMapsSubDir{kAssetsSubDir / "maps"};
-  static inline const std::filesystem::path kMusicSubDir{kAssetsSubDir / "music"};
-  static inline const std::filesystem::path kTexturesSubDir{kAssetsSubDir / "textures"};
+  static inline const std::filesystem::path kIconsSubDir{"icons"};
+  static inline const std::filesystem::path kImagesSubDir{"images"};
+  static inline const std::filesystem::path kMapsSubDir{"maps"};
+  static inline const std::filesystem::path kMusicSubDir{"music"};
+  static inline const std::filesystem::path kTexturesSubDir{"textures"};
 
   // For images that don't really work well with make_weird().
   // - The names mean "for mostly black images," etc.
@@ -48,11 +48,11 @@ public:
   static inline const Color4f kWeirdGrayColor = Color4f::kHotPink;
   static inline const Color4f kWeirdWhiteColor = Color4f::kWhite;
 
-  explicit Assets(const FileSys& file_sys,bool is_audio_alive,std::string_view art_style);
+  explicit Assets(CybelEngine& engine,std::string_view art_style);
 
-  void make_weird(const SceneContext& ctx,bool is_weird);
+  void make_weird(const SceneContext& ctx,bool weird);
 
-  void glob_maps_meta(const OnMapFile& on_map_file) const;
+  void glob_maps_meta(const AssetMan& assets,const OnMapFile& on_map_file) const;
 
   void load_cpu_gfx(AssetMan& assets,CpuGfxLoader& gfx) override;
   void load_gpu_gfx(AssetMan& assets,GpuGfxLoader& gfx) override;
@@ -77,10 +77,6 @@ public:
   FontRenderer& font_renderer();
 
 private:
-  using LoadAssetFile = std::function<void(const std::filesystem::path& file)>;
-
-  std::vector<std::filesystem::path> base_dirs_{};
-  bool is_audio_alive_ = false;
   bool is_weird_ = false;
 
   Color4f eko_color_{}; // Cell & Player.
@@ -93,7 +89,6 @@ private:
   ArtStyles art_styles_;
   FontRenderer font_renderer_{font_atlas_id()};
 
-  void init_base_dirs(const FileSys& file_sys);
   void update_colors();
 
   void load_image(CpuGfxLoader& gfx,ImageId id,const std::filesystem::path& sub_file);
@@ -102,11 +97,6 @@ private:
                    const Color4f& weird_color = Color4f::kNone);
   void load_font_atlas(GpuGfxLoader& gfx,FontAtlasId id,const std::filesystem::path& sub_file,
                        const FontAtlas::Config& config);
-
-  void load_music(AudioLoader& audio,MusicId id,const std::filesystem::path& sub_file);
-
-  void load_asset(const std::filesystem::path& sub_file,bool fail_on_error,
-                  const LoadAssetFile& load_asset_file);
 };
 
 } // namespace ekoscape

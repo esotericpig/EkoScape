@@ -84,7 +84,7 @@ void GameScene::make_map_weird(std::vector<Pos3i>& cells) {
   // If we run out of Robots, then just use normal ones.
 
   // First, flip all Robots to Cells in Map, because we might have more Robots than Cells.
-  for(auto& robot : robots_) {
+  for(const auto& robot : robots_) {
     map_->set_raw_thing(robot.pos(),SpaceType::kCell);
   }
 

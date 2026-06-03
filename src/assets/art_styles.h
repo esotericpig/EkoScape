@@ -11,6 +11,7 @@
 #include "common.h"
 
 #include "cybel/asset/asset_loaders.h"
+#include "cybel/asset/asset_man.h"
 #include "cybel/asset/asset_types.h"
 #include "cybel/types/color.h"
 
@@ -42,7 +43,7 @@ class ArtStyles final {
 public:
   explicit ArtStyles(std::string_view style);
 
-  void load(GpuGfxLoader& gfx,const std::vector<std::filesystem::path>& base_dirs,bool is_weird);
+  void load_gpu_gfx(const AssetMan& assets,GpuGfxLoader& gfx,bool is_weird);
 
   void prev_style();
   void next_style();

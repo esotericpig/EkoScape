@@ -42,7 +42,7 @@ CybelEngine::Config EkoScapeGame::build_config() {
 }
 
 EkoScapeGame::EkoScapeGame(CybelEngine& engine)
-  : assets_{std::make_shared<Assets>(engine.file_sys(),engine.audio().is_alive(),"realistic")},
+  : assets_{std::make_shared<Assets>(engine,"realistic")},
     sesh_{*assets_} {}
 
 void EkoScapeGame::on_game_start(CybelEngine& engine,SceneContext& ctx) {
@@ -51,14 +51,14 @@ void EkoScapeGame::on_game_start(CybelEngine& engine,SceneContext& ctx) {
   engine.set_icon(engine.assets().image(ImageId::kEkoScapeIcon));
 
   // TEST: Uncomment to test joypad input.
-  //engine.input_man().use_fake_joypad(false,FakeJoypadInputType::kAxis);
+  //engine.input().use_fake_joypad(false,FakeJoypadInputType::kAxis);
   // TEST: Uncomment to test touch input.
-  //engine.input_man().use_mouse_as_finger();
+  //engine.input().use_mouse_as_finger();
 
   init_input_map(engine.input());
 
   if(!engine.scenes().push_scene(SceneAction::kGoToMenu)) {
-    throw CybelError{"Failed to push the Menu Scene onto the stack."};
+    throw CybelError{"Failed to push the Menu Scene."};
   }
 
   // When the game first starts, play from a random position.

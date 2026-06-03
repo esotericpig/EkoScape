@@ -8,6 +8,7 @@
 #include "art_styles.h"
 
 #include "cybel/str/utf8/str_util.h"
+#include "cybel/util/util.h"
 
 #include "assets/assets.h"
 
@@ -22,7 +23,7 @@ ArtStyles::ArtStyles(std::string_view style)
   : style_dir_name_{style},
     style_name_{style} {}
 
-void ArtStyles::load(GpuGfxLoader& gfx,const std::vector<std::filesystem::path>& base_dirs,bool is_weird) {
+void ArtStyles::load_gpu_gfx(const AssetMan& assets,GpuGfxLoader& gfx,bool is_weird) {
   texture_styles_.clear();
   texture_styles_index_ = 0;
 
@@ -30,8 +31,8 @@ void ArtStyles::load(GpuGfxLoader& gfx,const std::vector<std::filesystem::path>&
   std::string errors{};
 
   // Crawl textures dir and load valid style dirs that have all textures.
-  for(const auto& base_dir : base_dirs) {
-    const auto tex_dir = base_dir / Assets::kTexturesSubDir;
+  for(const auto& asset_dir : assets.asset_dirs()) {
+    const auto tex_dir = asset_dir / Assets::kTexturesSubDir;
     std::error_code ec{};
 
     if(!is_directory(tex_dir,ec)) { continue; } // ADL (Argument-Dependent Lookup).
@@ -49,18 +50,23 @@ void ArtStyles::load(GpuGfxLoader& gfx,const std::vector<std::filesystem::path>&
         loaded_dir_names.insert(style_dir_name); // Success.
       }
     } catch(const CybelError& e) {
-      std::cerr << "[WARN] " << e.what() << std::endl;
-      errors += std::string{"\n\n- "} + e.what();
+      std::cerr << "[WARN] " << e.what() << '\n';
+
+      errors += "\n- ";
+      errors += e.what();
     } catch(const std::filesystem::filesystem_error& e) {
-      std::string msg = "Failed to crawl Textures folder `" + tex_dir.string() + "`: " + e.what() + '.';
-      std::cerr << "[WARN] " << msg << std::endl;
-      errors += "\n\n- " + msg;
+      const auto err_msg = Util::build_str("Failed to crawl Textures folder `",tex_dir,"`: ",e.what(),'.');
+
+      std::cerr << "[WARN] " << err_msg << '\n';
+
+      errors += "\n- ";
+      errors += err_msg;
     }
   }
 
   if(texture_styles_.empty()) {
     throw CybelError{"Failed to find/load any Styled Textures in Textures folder `",Assets::kTexturesSubDir,
-                     "`.",errors};
+                     "`.\n",errors};
   }
 
   texture_styles_.shrink_to_fit();
@@ -80,9 +86,9 @@ void ArtStyles::load(GpuGfxLoader& gfx,const std::vector<std::filesystem::path>&
   }
 
   if(texture_styles_index_ >= texture_styles_.size()) {
-    std::cerr << "[WARN] Failed to find/load Styled Textures for Art Style `" << style_dir_name_ << "`."
-              << std::endl;
     texture_styles_index_ = 0;
+
+    std::cerr << "[WARN] Failed to find/load Styled Textures for Art Style `" << style_dir_name_ << "`.\n";
   }
 
   update_style();
@@ -162,8 +168,7 @@ ArtStyles::TextureStyle::TextureStyle(GpuGfxLoader& gfx,bool is_weird,std::size_
 
 void ArtStyles::TextureStyle::load_texture(GpuGfxLoader& gfx,bool is_weird,StyledTextureId id,
                                            const std::filesystem::path& file,const Color4f& weird_color) {
-  const auto tex_id = id_begin + static_cast<asset_id_t>(id);
-  Image image{file};
+  Image image = gfx.load_image(file);
 
   if(is_weird) {
     if(weird_color == Color4f::kNone) {
@@ -173,7 +178,7 @@ void ArtStyles::TextureStyle::load_texture(GpuGfxLoader& gfx,bool is_weird,Style
     }
   }
 
-  gfx.load_texture(tex_id,image);
+  gfx.load_texture(id_begin + static_cast<asset_id_t>(id),image);
 }
 
 } // namespace ekoscape

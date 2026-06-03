@@ -119,7 +119,7 @@ void MenuPlayScene::glob_maps(const CybelEngine& engine) {
   map_opts_.emplace_back("< go back >");
   map_opt_index_ = 0;
 
-  sesh_.assets.glob_maps_meta([&](const auto& group,const auto& map_file,const auto& map) {
+  sesh_.assets.glob_maps_meta(engine.assets(),[&](const auto& group,const auto& map_file,const auto& map) {
     MapOption opt{};
 
     opt.group = group;
