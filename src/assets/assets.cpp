@@ -17,7 +17,7 @@ namespace ekoscape {
 
 Assets::Assets(CybelEngine& engine,std::string_view art_style)
   : art_styles_{art_style} {
-  auto& file_sys = engine.file_sys();
+  const auto& file_sys = engine.file_sys();
 
   engine.assets().add_asset_dirs({
     // First, try current dir, so that the user can easily overwrite the assets.
