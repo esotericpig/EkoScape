@@ -320,11 +320,7 @@ void EkoScapeGame::play_music(const SceneContext& ctx,bool rand_pos) {
   was_music_playing_ = true;
 
   if(rand_pos) {
-    const auto dur_secs = ctx.audio.fetch_duration(music).secs();
-
-    if(dur_secs > 1.0) {
-      ctx.audio.set_music_pos(Duration::from_secs(Rando::it().rand_double(0.0,dur_secs - 1.0)));
-    }
+    ctx.audio.set_music_pos_to_rand();
   }
 }
 

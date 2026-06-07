@@ -19,15 +19,18 @@ Assets::Assets(CybelEngine& engine,std::string_view art_style)
   : art_styles_{art_style} {
   const auto& file_sys = engine.file_sys();
 
-  engine.assets().add_asset_dirs({
-    // First, try current dir, so that the user can easily overwrite the assets.
-    "." / kAssetsSubDir,
-    // Try our Linux AppImage's path.
-    file_sys.app_image_dir() / kAssetsSubDir,
-    // Try our game's base dir.
-    // - On macOS, this is `Contents/Resources`.
-    file_sys.base_dir() / kAssetsSubDir,
-  });
+  engine.assets().add_asset_dirs(
+    {
+      // First, try current dir, so that the user can easily overwrite the assets.
+      ".",
+      // Try our Linux AppImage's path.
+      file_sys.app_image_dir(),
+      // Try our Game's base dir.
+      // - On macOS, this is `Contents/Resources`.
+      file_sys.base_dir(),
+    },
+    kAssetsSubDir
+  );
   engine.assets().set_fail_on_audio_error(false);
 
   update_colors();

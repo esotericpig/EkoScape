@@ -23,18 +23,6 @@ else()
 endif()
 
 cybel_add_cppcheck_target(
+    ADD_CYBEL_DEFAULTS
     ARGS
-      --suppress=checkersReport
-      --suppress=functionConst
-      --suppress=functionStatic
-      --suppress=missingInclude
-      --suppress=missingIncludeSystem
-#      "--suppress=noExplicitConstructor:src/cybel/types/"
-      --suppress=shadowFunction
-      --suppress=unknownMacro # For Emscripten: EM_ASM(), etc.
-      --suppress=unmatchedSuppression
-      --suppress=unusedFunction
-#      --suppress=unusedPrivateFunction
-#      --suppress=useStlAlgorithm
-#      --suppress=variableScope
 )
