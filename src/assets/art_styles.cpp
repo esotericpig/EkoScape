@@ -7,7 +7,7 @@
 
 #include "art_styles.h"
 
-#include "cybel/str/utf8/str_util.h"
+#include "cybel/text/text_util.h"
 #include "cybel/util/util.h"
 
 #include "assets/assets.h"
@@ -73,14 +73,14 @@ void ArtStyles::load_gpu_gfx(const AssetMan& assets,GpuGfxLoader& gfx,bool is_we
 
   // Sort the styles alphabetically, ignoring case.
   std::ranges::sort(texture_styles_,[](const auto& style1,const auto& style2) {
-    return utf8::StrUtil::casecmp_ascii(style1.dir_name,style2.dir_name) < 0;
+    return TextUtil::casecmp_ascii(style1.dir_name,style2.dir_name) < 0;
   });
 
   // Auto-select the preferred style, ignoring case.
   for(; texture_styles_index_ < texture_styles_.size(); ++texture_styles_index_) {
     const auto& tex_style = texture_styles_[texture_styles_index_];
 
-    if(utf8::StrUtil::casecmp_ascii(tex_style.dir_name,style_dir_name_) == 0) {
+    if(TextUtil::casecmp_ascii(tex_style.dir_name,style_dir_name_) == 0) {
       break;
     }
   }
@@ -145,7 +145,7 @@ const StyledTextureIds& ArtStyles::styled_texture_ids() const { return styled_te
 ArtStyles::TextureStyle::TextureStyle(GpuGfxLoader& gfx,bool is_weird,std::size_t style_count,
                                       const std::filesystem::path& dir)
   : dir_name{dir.filename()},
-    name{utf8::StrUtil::ellipsize(dir_name,18)} {
+    name{TextUtil::ellipsize(dir_name,18)} {
   constexpr auto tex_count = static_cast<asset_id_t>(StyledTextureId::kMax);
   id_begin = static_cast<asset_id_t>(TextureId::kStyleBegin) + (style_count * tex_count);
 

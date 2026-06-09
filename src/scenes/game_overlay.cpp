@@ -8,7 +8,7 @@
 #include "game_overlay.h"
 
 #include "cybel/scene/scene_context.h"
-#include "cybel/str/utf8/str_util.h"
+#include "cybel/text/text_util.h"
 
 #include "assets/asset_ids.h"
 #include "core/input_action.h"
@@ -22,7 +22,7 @@ GameOverlay::GameOverlay(GameSession& sesh,const Map& map)
 
   map_info_ = title + "\n" + author;
   map_info_str_size_.w = static_cast<int>(
-    std::max(utf8::StrUtil::count_runes(title),utf8::StrUtil::count_runes(author))
+    std::max(TextUtil::count_runes(title),TextUtil::count_runes(author))
   );
   map_info_str_size_.h = 2;
 }

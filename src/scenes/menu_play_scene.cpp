@@ -8,7 +8,7 @@
 #include "menu_play_scene.h"
 
 #include "cybel/scene/scene_context.h"
-#include "cybel/str/utf8/str_util.h"
+#include "cybel/text/text_util.h"
 #include "cybel/util/rando.h"
 
 #include "core/input_action.h"
@@ -125,8 +125,10 @@ void MenuPlayScene::glob_maps(const CybelEngine& engine) {
     opt.group = group;
     opt.file = map_file;
     opt.title = map.title();
-    opt.text = utf8::StrUtil::ljust(utf8::StrUtil::ellipsize(opt.title,kMaxTitleLen),kMaxTitleLen) +
-               ' ' + utf8::StrUtil::ellipsize(opt.group,kMaxGroupLen);
+
+    opt.text = TextUtil::ljust(TextUtil::ellipsize(opt.title,kMaxTitleLen),kMaxTitleLen);
+    opt.text += ' ';
+    opt.text += TextUtil::ellipsize(opt.group,kMaxGroupLen);
 
     map_opts_.push_back(opt);
   });
@@ -155,11 +157,11 @@ void MenuPlayScene::glob_maps(const CybelEngine& engine) {
       if(is_core_group1 && is_core_group2) {
         group_cmp = kCoreGroupToPriority[opt1.group] - kCoreGroupToPriority[opt2.group];
       } else {
-        group_cmp = utf8::StrUtil::casecmp_ascii(opt1.group,opt2.group);
+        group_cmp = TextUtil::casecmp_ascii(opt1.group,opt2.group);
       }
 
       if(group_cmp != 0) { return group_cmp < 0; }
-      return utf8::StrUtil::casecmp_ascii(opt1.title,opt2.title) < 0;
+      return TextUtil::casecmp_ascii(opt1.title,opt2.title) < 0;
     }
   );
 

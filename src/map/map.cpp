@@ -7,7 +7,7 @@
 
 #include "map.h"
 
-#include "cybel/str/utf8/str_util.h"
+#include "cybel/text/text_util.h"
 #include "cybel/types/cybel_error.h"
 
 #include <format>
@@ -360,13 +360,13 @@ bool Map::change_grid(int z) {
 }
 
 Map& Map::set_title(std::string_view title) {
-  title_ = utf8::StrUtil::strip(title);
+  title_ = TextUtil::strip(title);
 
   return *this;
 }
 
 Map& Map::set_author(std::string_view author) {
-  author_ = utf8::StrUtil::strip(author);
+  author_ = TextUtil::strip(author);
 
   return *this;
 }
