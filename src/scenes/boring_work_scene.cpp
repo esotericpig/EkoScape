@@ -14,9 +14,6 @@
 
 namespace ekoscape {
 
-BoringWorkScene::BoringWorkScene(GameSession& sesh) noexcept
-  : sesh_{sesh} {}
-
 void BoringWorkScene::on_scene_enter(SceneContext& ctx) {
   ctx.engine.set_title("robots.xlsx - EkoOffice Calc");
 

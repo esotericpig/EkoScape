@@ -12,23 +12,16 @@
 
 #include "cybel/scene/scene.h"
 
-#include "core/game_session.h"
-
 namespace ekoscape {
 
 class BoringWorkScene final : public Scene {
 public:
-  explicit BoringWorkScene(GameSession& sesh) noexcept;
-
   void on_scene_enter(SceneContext& ctx) override;
   void on_scene_exit(SceneContext& ctx) override;
 
   void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
 
   void draw_scene(Renderer& ren,SceneContext& ctx) override;
-
-private:
-  GameSession& sesh_;
 };
 
 } // namespace ekoscape

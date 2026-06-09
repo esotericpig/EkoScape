@@ -176,7 +176,7 @@ SceneBag EkoScapeGame::build_scene(scene_id_t id,SceneContext& ctx) {
     } break;
 
     case SceneAction::kGoToBoringWork:
-      result.scene = std::make_shared<BoringWorkScene>(sesh_);
+      result.scene = std::make_shared<BoringWorkScene>();
       stop_music(ctx,true);
       break;
 
