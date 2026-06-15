@@ -198,15 +198,15 @@ void GameScene::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
       break;
 
     default:
-      overlay_->on_scene_input_event(input_id,ctx);
+      overlay_->on_input_event(input_id,ctx);
       break;
   }
 }
 
 void GameScene::handle_scene_input(InputMan& input,[[maybe_unused]] SceneContext& ctx) {
   // Input states are stored because in Dantares you can't turn/walk while turning/walking,
-  //     and without storing the states and trying again on the next frame,
-  //     it feels unresponsive and frustrating.
+  // and without storing the states and trying again on the next frame,
+  // it feels unresponsive and frustrating.
   const bool is_up = input[InputAction::kUp];
   stored_inputs_.is_down = (stored_inputs_.is_down || input[InputAction::kDown]);
   stored_inputs_.is_left = (stored_inputs_.is_left || input[InputAction::kLeft]);
@@ -215,7 +215,7 @@ void GameScene::handle_scene_input(InputMan& input,[[maybe_unused]] SceneContext
   const bool is_walking = dantares_->IsWalking();
 
   // Must check Left/Right first, so that the Player can turn while walking forward/backward,
-  //     which is an important mechanic for the game.
+  // which is an important mechanic for the game.
   if(stored_inputs_.is_left) {
     if(!stored_inputs_.is_right) {
       if(!is_walking) {
@@ -235,7 +235,7 @@ void GameScene::handle_scene_input(InputMan& input,[[maybe_unused]] SceneContext
     } // Else, try again on next frame.
 
     stored_inputs_.is_down = false;
-  } else if(game_phase_ == GamePhase::kPlay && player_warp_time_ <= Duration::kZero) {
+  } else if(game_phase_ == GamePhase::kPlay && !player_warp_ticker_.is_ticking) {
     // Check Down first so that it can override continuously moving forward.
     if(stored_inputs_.is_down) {
       if(!is_up) {
@@ -260,36 +260,30 @@ void GameScene::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
   if(game_phase_ == GamePhase::kShowMapInfo && map_info_timer_.peek() >= kMapInfoDuration) {
     game_phase_ = GamePhase::kPlay;
     robot_move_time_ += step.dpf;
-    speedrun_timer_.restart();
+
+    speedrun_timer_.start();
   }
   if(game_phase_ != GamePhase::kShowMapInfo) {
-    update_player(step);
+    update_player(step,ctx);
     update_robots(step);
   }
 
   update_mods(step,ctx);
 }
 
-void GameScene::update_player(const FrameStep& step) {
+void GameScene::update_player(const FrameStep& step,const SceneContext& ctx) {
   if(game_phase_ == GamePhase::kGameOver) { return; }
 
-  if(player_warp_time_ > Duration::kZero) {
-    player_warp_time_ -= step.dpf;
-    if(player_warp_time_ < Duration::kZero) { player_warp_time_.set_to_zero(); }
-  }
-  if(player_fruit_time_ > Duration::kZero) {
-    const auto prev_fruit_secs = player_fruit_time_.round_secs();
+  player_warp_ticker_.tick(step);
 
-    player_fruit_time_ -= step.dpf;
+  if(player_fruit_ticker_.tick(step)) {
+    last_player_fruit_warn_secs_ = 0; // Reset.
+  } else if(player_fruit_ticker_.is_ticking) {
+    const auto secs_left = player_fruit_ticker_.time_left().round_secs();
 
-    if(player_fruit_time_ < Duration::kZero) {
-      player_fruit_time_.set_to_zero();
-    } else {
-      const auto fruit_secs = player_fruit_time_.round_secs();
-
-      if(fruit_secs != prev_fruit_secs && fruit_secs <= kFruitWarnSecs) {
-        overlay_->flash(sesh_.assets.fruit_color());
-      }
+    if(secs_left != last_player_fruit_warn_secs_ && secs_left <= kFruitWarnSecs) {
+      last_player_fruit_warn_secs_ = secs_left;
+      overlay_->flash(sesh_.assets.fruit_color());
     }
   }
 
@@ -303,14 +297,15 @@ void GameScene::update_player(const FrameStep& step) {
 
     // Check for End before Robots & Portals.
     case SpaceType::kEnd:
-      game_over(true);
+      game_over(true,ctx);
       return;
 
     // Check for Fruit before Robots.
     case SpaceType::kFruit:
       map_->remove_thing(player_pos);
       overlay_->flash(sesh_.assets.fruit_color());
-      player_fruit_time_ = kFruitDuration;
+
+      player_fruit_ticker_.start();
       break;
 
     default: break;
@@ -328,9 +323,9 @@ void GameScene::update_player(const FrameStep& step) {
   }
 
   // Portals are like safe zones, so if the Player & a Robot are on a Portal, the Player shouldn't die.
-  //     Therefore, we check for Portals first.
+  // Therefore, we check for Portals first.
   if(SpaceTypes::is_portal(player_empty_type)) {
-    if(!player_warped_) {
+    if(!player_already_warped_) {
       const auto portal_bro = fetch_portal_bro(player_pos,player_empty_type,[&](const auto& pos) {
         // Allow the Player to warp even if there's a Robot/Thing on the Portal.
         return map_->space(pos) != nullptr;
@@ -339,37 +334,39 @@ void GameScene::update_player(const FrameStep& step) {
       if(portal_bro) {
         map_->move_player(*portal_bro);
         overlay_->flash(sesh_.assets.portal_color());
-        player_warped_ = true;
-        player_warp_time_ = kWarpDuration;
+
+        player_already_warped_ = true;
+        player_warp_ticker_.start();
       }
     }
 
     return;
   }
 
-  player_warped_ = false;
+  player_already_warped_ = false;
 
   if(SpaceTypes::is_robot(player_space_type)) {
-    if(player_fruit_time_ > Duration::kZero) {
+    if(player_fruit_ticker_.is_ticking) {
       remove_robots_at(player_pos);
     } else {
-      game_over(false);
+      game_over(false,ctx);
     }
   }
 }
 
-void GameScene::game_over(bool player_hit_end) {
+void GameScene::game_over(bool player_hit_end,const SceneContext& ctx) {
   speedrun_timer_.pause();
+
   game_phase_ = GamePhase::kGameOver;
   player_hit_end_ = player_hit_end;
 
   // Because of how high speeds are handled, we need to manually sync the correct Player pos,
-  //     since the pos might be beyond End, etc. after fully moving.
+  // since the pos might be beyond End, etc. after fully moving.
   map_->sync_player_pos();
 
   // Fade to death?
   if(!player_hit_end_) { overlay_->fade_to(sesh_.assets.eko_color()); }
-  overlay_->game_over(player_hit_end_);
+  overlay_->game_over(player_hit_end_,ctx);
 }
 
 void GameScene::update_robots(const FrameStep& step) {
@@ -395,7 +392,7 @@ void GameScene::move_robots(const FrameStep& step) {
   }
 
   // Move Robots.
-  robot_move_data_->refresh(player_fruit_time_ > Duration::kZero);
+  robot_move_data_->refresh(player_fruit_ticker_.is_ticking);
 
   for(auto& robot : robots_) {
     robot.move(*robot_move_data_);
@@ -454,10 +451,10 @@ std::optional<Pos3i> GameScene::fetch_portal_bro(const Pos3i& pos,SpaceType port
   return std::nullopt;
 }
 
-void GameScene::update_mods(const FrameStep& step,SceneContext& ctx) {
+void GameScene::update_mods(const FrameStep& step,const SceneContext& ctx) {
   hud_->update_state(GameHud::State{
     .show_mini_map = sesh_.game_scene_state.show_mini_map,
-    .player_fruit_time = player_fruit_time_,
+    .player_fruit_time_left = player_fruit_ticker_.time_left(),
     .player_hit_end = player_hit_end_,
 
     .is_game_over = (game_phase_ == GamePhase::kGameOver),
@@ -465,12 +462,12 @@ void GameScene::update_mods(const FrameStep& step,SceneContext& ctx) {
     .show_speedrun = sesh_.game_scene_state.show_speedrun,
   });
   overlay_->update_state(GameOverlay::State{
-    .is_map_info = (game_phase_ == GamePhase::kShowMapInfo),
+    .show_map_info = (game_phase_ == GamePhase::kShowMapInfo),
     .player_hit_end = player_hit_end_,
   });
 
-  hud_->update_scene_logic(step,ctx);
-  overlay_->update_scene_logic(step,ctx);
+  hud_->update_logic(step);
+  overlay_->update_logic(step,ctx);
 }
 
 void GameScene::draw_scene(Renderer& ren,SceneContext& ctx) {
@@ -488,8 +485,8 @@ void GameScene::draw_scene(Renderer& ren,SceneContext& ctx) {
   }
 
   ren.begin_2d_scene();
-  hud_->draw_scene(ren,ctx);
-  overlay_->draw_scene(ren,ctx);
+  hud_->draw(ren,ctx);
+  overlay_->draw(ren,ctx);
 }
 
 void GameScene::set_space_textures(AssetMan& assets,SpaceType type,asset_id_t id) {

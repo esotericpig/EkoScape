@@ -10,22 +10,27 @@
 
 #include "common.h"
 
-#include "cybel/scene/scene.h"
+#include "cybel/gfx/renderer.h"
+#include "cybel/scene/scene_context.h"
 #include "cybel/types/color.h"
 #include "cybel/types/duration.h"
+#include "cybel/types/frame_step.h"
 #include "cybel/types/pos.h"
 #include "cybel/types/size.h"
+#include "cybel/util/ticker.h"
 
 #include "core/game_session.h"
 #include "map/map.h"
 
+#include <string>
+
 namespace ekoscape {
 
-class GameHud : public Scene {
+class GameHud final {
 public:
-  struct State {
+  struct State final {
     bool show_mini_map = false;
-    Duration player_fruit_time{};
+    Duration player_fruit_time_left{};
     bool player_hit_end = false;
 
     bool is_game_over = false;
@@ -37,12 +42,12 @@ public:
 
   void update_state(const State& state);
 
-  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
-  void draw_scene(Renderer& ren,SceneContext& ctx) override;
+  void update_logic(const FrameStep& step);
+  void draw(Renderer& ren,const SceneContext& ctx);
 
 private:
   static constexpr float kTextScale = 0.33f;
-  static constexpr float kAlpha = 0.50f;
+  static constexpr float kHudAlpha = 0.50f;
 
   static inline const Size2i kMiniMapHoodRadius{4,3};
   static inline const Size2i kMiniMapBlockSize{30,30};
@@ -64,7 +69,7 @@ private:
   Color4f mini_map_robot_color_{};
   Color4f mini_map_walkable_color_{};
 
-  Duration last_updated_speedrun_time_{};
+  ChronoTicker speedrun_time_ticker_{Duration::from_millis(100.0),ChronoTicker::kLoop | ChronoTicker::kStart};
   Duration last_speedrun_time_{};
   std::string speedrun_time_str_{};
 

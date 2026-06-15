@@ -10,23 +10,27 @@
 
 #include "common.h"
 
-#include "cybel/scene/scene.h"
+#include "cybel/gfx/renderer.h"
+#include "cybel/input/input_types.h"
+#include "cybel/scene/scene_context.h"
 #include "cybel/types/color.h"
-#include "cybel/types/duration.h"
+#include "cybel/types/frame_step.h"
 #include "cybel/types/size.h"
+#include "cybel/util/tween.h"
 
 #include "core/game_session.h"
 #include "map/map.h"
 #include "world/star_sys.h"
 
+#include <string>
 #include <vector>
 
 namespace ekoscape {
 
-class GameOverlay : public Scene {
+class GameOverlay final {
 public:
-  struct State {
-    bool is_map_info = true;
+  struct State final {
+    bool show_map_info = true;
     bool player_hit_end = false;
   };
 
@@ -34,14 +38,14 @@ public:
 
   void flash(const Color4f& color);
   void fade_to(const Color4f& color);
-  void game_over(bool player_hit_end);
+  void game_over(bool player_hit_end,const SceneContext& ctx);
 
   void update_state(const State& state);
 
-  void on_scene_input_event(input_id_t input_id,SceneContext& ctx) override;
+  void on_input_event(input_id_t input_id,const SceneContext& ctx);
 
-  void update_scene_logic(const FrameStep& step,SceneContext& ctx) override;
-  void draw_scene(Renderer& ren,SceneContext& ctx) override;
+  void update_logic(const FrameStep& step,const SceneContext& ctx);
+  void draw(Renderer& ren,const SceneContext& ctx);
 
   float game_over_age() const;
 
@@ -51,21 +55,14 @@ private:
     kGoBack,
   };
 
-  class Option {
-  public:
+  struct Option final {
     OptionType type{};
     std::string text{};
-
-    explicit Option() = default;
-    explicit Option(OptionType type,std::string_view text);
   };
 
   static inline const Color4f kTextBgColor{0.0f,0.5f};
   static inline const Size2i kTextBgPadding{15,10};
-  static constexpr float kAlpha = 0.33f;
-  static inline const Duration kFlashDuration = Duration::from_millis(500);
-  static inline const Duration kFadeDuration = Duration::from_millis(3'000);
-  static inline const Duration kGameOverDuration = Duration::from_millis(3'000);
+  static constexpr float kEffectAlpha = 0.33f;
 
   GameSession& sesh_;
   const Map& map_;
@@ -73,12 +70,13 @@ private:
 
   std::string map_info_{};
   Size2i map_info_str_size_{};
+
   Color4f flash_color_{};
-  float flash_age_ = -1.0f;
-  float flash_age_dir_ = 0.0f;
+  Tween0f flash_tween_{1.0f};
   Color4f fade_color_{};
-  float fade_age_ = -1.0f;
-  float game_over_age_ = -1.0f;
+  Tween0f fade_tween_{3.0f};
+
+  Tween0f game_over_tween_{3.0f};
   std::vector<Option> game_over_opts_{};
   std::size_t game_over_opt_index_ = 0;
   StarSys star_sys_{};

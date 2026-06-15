@@ -7,67 +7,60 @@
 
 #include "game_hud.h"
 
-#include "cybel/scene/scene_context.h"
-
-#include <sstream>
+#include <format>
 
 namespace ekoscape {
 
 GameHud::GameHud(GameSession& sesh,const Map& map)
   : sesh_{sesh},map_{map} {
-  mini_map_eko_color_ = sesh_.assets.eko_color().with_a(kAlpha);
-  mini_map_end_color_ = sesh_.assets.end_color().with_a(kAlpha);
-  mini_map_fruit_color_ = sesh_.assets.fruit_color().with_a(kAlpha);
-  mini_map_non_walkable_color_ = sesh_.assets.wall_color().with_a(kAlpha);
-  mini_map_portal_color_ = sesh_.assets.portal_color().with_a(kAlpha);
-  mini_map_robot_color_ = sesh_.assets.robot_color().with_a(kAlpha);
-  mini_map_walkable_color_.set(0.0f,kAlpha);
+  mini_map_eko_color_ = sesh_.assets.eko_color().with_a(kHudAlpha);
+  mini_map_end_color_ = sesh_.assets.end_color().with_a(kHudAlpha);
+  mini_map_fruit_color_ = sesh_.assets.fruit_color().with_a(kHudAlpha);
+  mini_map_non_walkable_color_ = sesh_.assets.wall_color().with_a(kHudAlpha);
+  mini_map_portal_color_ = sesh_.assets.portal_color().with_a(kHudAlpha);
+  mini_map_robot_color_ = sesh_.assets.robot_color().with_a(kHudAlpha);
+  mini_map_walkable_color_.set(0.0f,kHudAlpha);
 
   update_speedrun_time_str();
 }
 
-void GameHud::update_state(const State& state) { state_ = state; }
+void GameHud::update_state(const State& state) {
+  state_ = state;
+}
 
-void GameHud::update_scene_logic(const FrameStep& step,[[maybe_unused]] SceneContext& ctx) {
+void GameHud::update_logic(const FrameStep& step) {
   // Update the speedrun time str on Game Over or at an interval.
   if(state_.speedrun_time != last_speedrun_time_ &&
-     (state_.is_game_over || (last_updated_speedrun_time_ += step.dpf).millis() >= 100.0)) {
-    last_updated_speedrun_time_.set_to_zero();
+     (state_.is_game_over || speedrun_time_ticker_.tick(step))) {
     last_speedrun_time_ = state_.speedrun_time;
     update_speedrun_time_str();
   }
 }
 
 void GameHud::update_speedrun_time_str() {
-  // Round to a precision of 2.
-  const auto total_secs = std::round(state_.speedrun_time.secs() * 100.0) / 100.0;
-  const auto total_whole_secs = static_cast<int>(total_secs);
+  // For Game Over, show milliseconds.
+  // For In-Game, show centiseconds.
+  const double scale_factor = state_.is_game_over ? 1'000.0 : 100.0;
 
-  const auto whole_millis = static_cast<int>((total_secs - total_whole_secs) * 100.0);
-  const auto whole_secs = total_whole_secs % 60;
-  const auto whole_mins = total_whole_secs / 60;
+  const auto total_secs = std::round(state_.speedrun_time.secs() * scale_factor) / scale_factor;
 
-  std::ostringstream buffer{};
+  const auto whole_mins = static_cast<int>(total_secs) / 60;
+  const auto secs = total_secs - (whole_mins * 60);
 
-  if(whole_mins > 0) {
-    if(whole_mins < 10) { buffer << '0'; }
-    buffer << whole_mins << ':';
+  if(state_.is_game_over) {
+    speedrun_time_str_ = std::format("{:02}:{:06.3f}",whole_mins,secs);
+  } else {
+    speedrun_time_str_ = std::format("{:02}:{:05.2f}",whole_mins,secs);
   }
-
-  if(whole_secs < 10) { buffer << '0'; }
-  buffer << whole_secs << '.';
-
-  if(whole_millis < 10) { buffer << '0'; }
-  buffer << whole_millis;
-
-  speedrun_time_str_ = buffer.str();
 }
 
-void GameHud::draw_scene(Renderer& ren,SceneContext& ctx) {
+void GameHud::draw(Renderer& ren,const SceneContext& ctx) {
   draw_map_mod(ren,ctx);
 
   // Always show the speedrun time on Game Over.
-  if(state_.show_speedrun || state_.is_game_over) { draw_speedrun_mod(ren,ctx); }
+  if(state_.show_speedrun || state_.is_game_over) {
+    draw_speedrun_mod(ren,ctx);
+  }
 }
 
 void GameHud::draw_map_mod(Renderer& ren,const SceneContext& ctx) {
@@ -89,11 +82,11 @@ void GameHud::draw_map_mod(Renderer& ren,const SceneContext& ctx) {
     font.font_color = font_color;
     font.print(Util::build_str('/',map_.total_cells()," ekos"));
   });
-  if(state_.player_fruit_time > Duration::kZero) {
+  if(state_.player_fruit_time_left > Duration::kZero) {
     const Pos3i fruit_pos{pos.x + kMiniMapSize.w,pos.y,pos.z};
 
     sesh_.assets.font_renderer().wrap(ren,ctx,fruit_pos,kTextScale,[&](auto& font) {
-      const auto fruit_text = std::to_string(state_.player_fruit_time.round_secs());
+      const auto fruit_text = std::to_string(state_.player_fruit_time_left.round_secs());
 
       font.set_bg_padding(Size2i{5,0});
       font.draw_bg(mini_map_walkable_color_,Size2i{static_cast<int>(fruit_text.length()),1});

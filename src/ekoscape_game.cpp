@@ -259,11 +259,7 @@ void EkoScapeGame::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
       break;
 
     case InputAction::kToggleFps:
-      if(avg_fps_age_ < 0.0f) {
-        avg_fps_age_ = 1.0f; // Show immediately.
-      } else {
-        avg_fps_age_ = -1.0f;
-      }
+      avg_fps_ticker_.toggle(Ticker0f::kFireAsap);
       break;
 
     case InputAction::kToggleFrozen:
@@ -278,9 +274,8 @@ void EkoScapeGame::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
   star_sys_.update(step,ctx.dimens);
 
   // Only update the shown FPS at an interval, else the digits change too fast to read.
-  if(avg_fps_age_ >= 0.0f && (avg_fps_age_ += static_cast<float>(step.delta_time)) >= 1.0f) {
+  if(avg_fps_ticker_.tick(step)) {
     avg_fps_str_ = std::to_string(static_cast<int>(std::round(ctx.engine.avg_fps())));
-    avg_fps_age_ = 0.0f;
   }
 }
 
@@ -296,7 +291,7 @@ void EkoScapeGame::draw_scene(Renderer& ren,SceneContext& ctx) {
        .end_scale();
   }
 
-  if(avg_fps_age_ >= 0.0f) {
+  if(avg_fps_ticker_.is_ticking) {
     ren.begin_2d_scene()
        .begin_auto_anchor_scale(Pos2f{0.0f,0.0f}); // Top left.
 

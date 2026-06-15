@@ -7,7 +7,6 @@
 
 #include "game_overlay.h"
 
-#include "cybel/scene/scene_context.h"
 #include "cybel/text/text_util.h"
 
 #include "assets/asset_ids.h"
@@ -29,38 +28,41 @@ GameOverlay::GameOverlay(GameSession& sesh,const Map& map)
 
 void GameOverlay::flash(const Color4f& color) {
   flash_color_ = color;
-  flash_age_ = 0.0f;
-  flash_age_dir_ = 1.0f;
+  flash_tween_.play();
 }
 
 void GameOverlay::fade_to(const Color4f& color) {
   fade_color_ = color;
-  fade_age_ = 0.0f;
+  fade_tween_.play();
 }
 
-void GameOverlay::game_over(bool player_hit_end) {
+void GameOverlay::game_over(bool player_hit_end,const SceneContext& ctx) {
   state_.player_hit_end = player_hit_end;
 
-  if(game_over_age_ >= 0.0f) { return; }
+  if(game_over_tween_.was_activated()) { return; }
+
+  game_over_tween_.play();
 
   const bool perfect = (map_.total_rescues() >= map_.total_cells()) && state_.player_hit_end;
-
-  game_over_age_ = 0.0f;
   game_over_opt_index_ = 0;
 
   if(!perfect) {
     game_over_opts_.emplace_back(OptionType::kPlayAgain,"play again");
-    if(state_.player_hit_end) { game_over_opt_index_ = 1; } // Auto-select 'go back'.
+    if(state_.player_hit_end) { game_over_opt_index_ = 1; } // Auto-select `go back`.
   }
 
   game_over_opts_.emplace_back(OptionType::kGoBack,"go back");
+
+  if(state_.player_hit_end && star_sys_.is_empty()) {
+    star_sys_.init(ctx.dimens,true);
+  }
 }
 
 void GameOverlay::update_state(const State& state) {
   state_ = state;
 }
 
-void GameOverlay::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
+void GameOverlay::on_input_event(input_id_t input_id,const SceneContext& ctx) {
   if(game_over_opts_.empty()) { return; }
 
   const Option& sel_opt = game_over_opts_.at(game_over_opt_index_);
@@ -97,49 +99,26 @@ void GameOverlay::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
   }
 }
 
-void GameOverlay::update_scene_logic(const FrameStep& step,SceneContext& ctx) {
-  if(flash_age_ >= 0.0f) {
-    flash_age_ += (static_cast<float>(step.delta_time / kFlashDuration.secs()) * flash_age_dir_);
+void GameOverlay::update_logic(const FrameStep& step,const SceneContext& ctx) {
+  flash_tween_.flash(step);
+  fade_tween_.fade(step);
+  game_over_tween_.fade(step);
 
-    if(flash_age_ > 1.0f) {
-      flash_age_ = 1.0f;
-      flash_age_dir_ = -flash_age_dir_;
-    } else if(flash_age_ < 0.0f) {
-      flash_age_ = -1.0f;
-      flash_age_dir_ = 0.0f;
-    }
-  }
-  if(fade_age_ >= 0.0f && fade_age_ < 1.0f) {
-    fade_age_ += static_cast<float>(step.delta_time / kFadeDuration.secs());
-    if(fade_age_ > 1.0f) { fade_age_ = 1.0f; }
-  }
-
-  if(game_over_age_ >= 0.0f) {
-    if(game_over_age_ < 1.0f) {
-      game_over_age_ += static_cast<float>(step.delta_time / kGameOverDuration.secs());
-      if(game_over_age_ > 1.0f) { game_over_age_ = 1.0f; }
-    }
-
-    if(state_.player_hit_end) {
-      if(star_sys_.is_empty()) {
-        star_sys_.init(ctx.dimens,true);
-      } else {
-        star_sys_.update(step,ctx.dimens);
-      }
-    }
+  if(state_.player_hit_end) {
+    star_sys_.update(step,ctx.dimens);
   }
 }
 
-void GameOverlay::draw_scene(Renderer& ren,SceneContext& ctx) {
-  if(flash_age_ >= 0.0f) {
-    flash_color_.a = kAlpha * flash_age_;
+void GameOverlay::draw(Renderer& ren,const SceneContext& ctx) {
+  if(flash_tween_.is_playing) {
+    flash_color_.a = kEffectAlpha * flash_tween_.value;
 
     ren.wrap_color(flash_color_,[&] {
       ren.draw_quad(Pos3i{0,0,0},ctx.dimens.size);
     });
   }
-  if(fade_age_ >= 0.0f) {
-    fade_color_.a = kAlpha * fade_age_;
+  if(fade_tween_.was_activated()) {
+    fade_color_.a = kEffectAlpha * fade_tween_.value;
 
     ren.wrap_color(fade_color_,[&] {
       ren.draw_quad(Pos3i{0,0,0},ctx.dimens.size);
@@ -151,7 +130,7 @@ void GameOverlay::draw_scene(Renderer& ren,SceneContext& ctx) {
 }
 
 void GameOverlay::draw_map_info(Renderer& ren,const SceneContext& ctx) {
-  if(!state_.is_map_info) { return; }
+  if(!state_.show_map_info) { return; }
 
   ren.begin_auto_center_scale();
 
@@ -176,11 +155,11 @@ void GameOverlay::draw_map_info(Renderer& ren,const SceneContext& ctx) {
 }
 
 void GameOverlay::draw_game_over(Renderer& ren,const SceneContext& ctx) {
-  if(game_over_age_ < 0.0f) { return; }
+  if(!game_over_tween_.was_activated()) { return; }
 
   ren.begin_auto_center_scale();
 
-  const auto bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_age_);
+  const auto bg_color = kTextBgColor.with_a(kTextBgColor.a * game_over_tween_.value);
   const int total_rescues = map_.total_rescues();
   const int total_cells = map_.total_cells();
   const bool freed_all = (total_rescues >= total_cells);
@@ -190,20 +169,20 @@ void GameOverlay::draw_game_over(Renderer& ren,const SceneContext& ctx) {
   );
 
   ren.wrap_sprite(game_over_sprite,[&](auto& s) {
-    ren.wrap_color(Color4f{1.0f,game_over_age_},[&] {
+    ren.wrap_color(Color4f{1.0f,game_over_tween_.value},[&] {
       s.draw_quad(Pos3i{10,10,0},Size2i{1200,450});
     });
   });
   sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{445,450,0},0.60f,[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
-    font.font_color.a *= game_over_age_;
+    font.font_color.a *= game_over_tween_.value;
 
     const auto font_color = font.font_color;
     const auto miss_color = sesh_.assets.font_renderer().cycle_arrow_color().with_a(font_color.a);
     const auto goal_color = sesh_.assets.font_renderer().arrow_color().with_a(font_color.a);
 
     font.draw_bg(bg_color,Size2i{37,perfect ? 5 : 2});
-    font.puts(state_.player_hit_end ? "Congrats!" : "You're dead!");
+    font.puts(state_.player_hit_end ? "Corngrits!" : "You're dead!");
 
     font.print("You freed ");
     font.font_color = freed_all ? goal_color : miss_color;
@@ -233,7 +212,7 @@ void GameOverlay::draw_game_over(Renderer& ren,const SceneContext& ctx) {
   sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{565,perfect ? 780 : 680,0},[&](auto& font) {
     font.set_bg_padding(kTextBgPadding);
     font.draw_bg(bg_color,Size2i{12,static_cast<int>(game_over_opts_.size())});
-    font.font_color.a *= game_over_age_;
+    font.font_color.a *= game_over_tween_.value;
 
     for(std::size_t i = 0; i < game_over_opts_.size(); ++i) {
       Option& opt = game_over_opts_[i];
@@ -253,9 +232,6 @@ void GameOverlay::draw_game_over(Renderer& ren,const SceneContext& ctx) {
      .end_scale();
 }
 
-float GameOverlay::game_over_age() const { return game_over_age_; }
-
-GameOverlay::Option::Option(OptionType type,std::string_view text)
-  : type{type},text{text} {}
+float GameOverlay::game_over_age() const { return game_over_tween_.value; }
 
 } // namespace ekoscape

@@ -17,6 +17,7 @@
 #include "cybel/scene/scene_context.h"
 #include "cybel/types/duration.h"
 #include "cybel/types/pos.h"
+#include "cybel/util/ticker.h"
 #include "cybel/util/timer.h"
 
 #include "core/game_session.h"
@@ -64,15 +65,12 @@ private:
 
   using MoveChecker = std::function<bool(const Pos3i&)>;
 
+  static constexpr int kDantaresDist = 24; // Must be 2+.
   static inline const Duration kMapInfoDuration = Duration::from_millis(2'500);
   static inline const Duration kInitExtraRobotDelay = Duration::from_millis(1'000);
-  static constexpr int kDantaresDist = 24; // Must be 2+.
-  static inline const Duration kWarpDuration = Duration::from_millis(750);
-  static inline const Duration kFruitDuration = Duration::from_millis(7'000);
-  static constexpr int kFruitWarnSecs = 2;
+  static constexpr std::uint32_t kFruitWarnSecs = 2;
 
   GameSession& sesh_;
-
   std::unique_ptr<Dantares2::RendererClass> dantares_renderer_{};
   std::unique_ptr<Dantares2> dantares_{};
   std::unique_ptr<Map> map_{};
@@ -82,9 +80,11 @@ private:
 
   StoredInputs stored_inputs_{};
   bool player_hit_end_ = false;
-  bool player_warped_ = false;
-  Duration player_warp_time_{};
-  Duration player_fruit_time_{};
+  bool player_already_warped_ = false; /// Prevents infinite warping.
+  ChronoTicker player_warp_ticker_{Duration::from_millis(750),ChronoTicker::kFireAsap};
+  /// Starts at end so that time left is 0.
+  ChronoTicker player_fruit_ticker_{Duration::from_secs(7.0f),ChronoTicker::kFireAsap};
+  std::uint32_t last_player_fruit_warn_secs_{};
   Timer speedrun_timer_{};
 
   std::vector<Robot> robots_{};
@@ -101,15 +101,15 @@ private:
   void make_map_weird(std::vector<Pos3i>& cells);
   void init_map_textures(AssetMan& assets);
 
-  void update_player(const FrameStep& step);
-  void game_over(bool player_hit_end);
+  void update_player(const FrameStep& step,const SceneContext& ctx);
+  void game_over(bool player_hit_end,const SceneContext& ctx);
 
   void update_robots(const FrameStep& step);
   void move_robots(const FrameStep& step);
   void remove_robots_at(const Pos3i& pos);
   std::optional<Pos3i> fetch_portal_bro(const Pos3i& pos,SpaceType portal,const MoveChecker& can_move_to);
 
-  void update_mods(const FrameStep& step,SceneContext& ctx);
+  void update_mods(const FrameStep& step,const SceneContext& ctx);
 
   void set_space_textures(AssetMan& assets,SpaceType type,asset_id_t id);
   void set_space_textures(AssetMan& assets,SpaceType type,std::optional<asset_id_t> ceiling_id,

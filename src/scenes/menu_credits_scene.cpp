@@ -94,9 +94,9 @@ void MenuCreditsScene::draw_scene(Renderer& ren,SceneContext& ctx) {
 }
 
 void MenuCreditsScene::birth_wtfs(const ViewDimens& dimens) {
-  if(active_wtf_count_ > 0 && wtf_cooldown_time_.secs() < 0.110f) { return; }
+  if(active_wtf_count_ > 0 && wtf_cooldown_.is_ticking) { return; }
 
-  wtf_cooldown_time_.set_to_zero();
+  wtf_cooldown_.start();
 
   auto& r = Rando::it();
   int max_births = (active_wtf_count_ <= 20) ? 25 : 8;
@@ -138,10 +138,10 @@ Color4f MenuCreditsScene::rand_color() {
   return Color4f{r.rand_float(),r.rand_float(),r.rand_float()};
 }
 
-void MenuCreditsScene::update_wtfs(const FrameStep& step,SceneContext& ctx) {
+void MenuCreditsScene::update_wtfs(const FrameStep& step,const SceneContext& ctx) {
   if(active_wtf_count_ == 0) { return; }
 
-  wtf_cooldown_time_ += step.dpf;
+  wtf_cooldown_.tick(step);
 
   const auto text_len = static_cast<float>(kWtfText.length());
   const Size2f font_spacing = sesh_.assets.font_renderer().font_spacing(ctx).to_size2<float>();
@@ -167,7 +167,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,SceneContext& ctx) {
     }
 
     // Adjust pos & size for number of runes in text,
-    //     since wtf.size is just for a single rune [see birth_wtfs()].
+    // since wtf.size is just for a single rune [see birth_wtfs()].
     wtf.true_size.w = (wtf.p.size.w * text_len) + total_spacing_w;
     wtf.true_size.h = wtf.p.size.h;
     wtf.true_pos.x = wtf.p.pos.x - (wtf.true_size.w / 2.0f);
@@ -183,7 +183,7 @@ void MenuCreditsScene::update_wtfs(const FrameStep& step,SceneContext& ctx) {
   }
 }
 
-void MenuCreditsScene::draw_wtfs(Renderer& ren,SceneContext& ctx) {
+void MenuCreditsScene::draw_wtfs(Renderer& ren,const SceneContext& ctx) {
   if(active_wtf_count_ == 0) { return; }
 
   sesh_.assets.font_renderer().wrap(ren,ctx,Pos3i{},[&](auto& font) {

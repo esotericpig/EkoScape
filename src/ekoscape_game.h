@@ -14,6 +14,7 @@
 #include "cybel/game.h"
 #include "cybel/input/input_man.h"
 #include "cybel/scene/scene_context.h"
+#include "cybel/util/ticker.h"
 
 #include "assets/assets.h"
 #include "core/game_session.h"
@@ -43,7 +44,7 @@ private:
 
   bool was_music_playing_ = false;
   StarSys star_sys_{};
-  float avg_fps_age_ = -1.0f;
+  Ticker0f avg_fps_ticker_{1.0f,Ticker0f::kLoop};
   std::string avg_fps_str_{};
 
   void init_input_map(InputMan& im);

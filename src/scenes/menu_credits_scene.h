@@ -14,6 +14,7 @@
 #include "cybel/types/color.h"
 #include "cybel/types/pos.h"
 #include "cybel/types/size.h"
+#include "cybel/util/ticker.h"
 #include "cybel/vfx/particle.h"
 
 #include "core/game_session.h"
@@ -45,12 +46,12 @@ private:
 
   std::vector<WtfParticle> wtfs_{};
   std::size_t active_wtf_count_ = 0;
-  Duration wtf_cooldown_time_{};
+  Ticker0f wtf_cooldown_{0.110f};
 
   void birth_wtfs(const ViewDimens& dimens);
   static Color4f rand_color();
-  void update_wtfs(const FrameStep& step,SceneContext& ctx);
-  void draw_wtfs(Renderer& ren,SceneContext& ctx);
+  void update_wtfs(const FrameStep& step,const SceneContext& ctx);
+  void draw_wtfs(Renderer& ren,const SceneContext& ctx);
 };
 
 } // namespace ekoscape
