@@ -27,6 +27,7 @@
 #include "Dantares.h"
 
 #include<iomanip>
+#include<string>
 #include<utility>
 
 Dantares::Dantares(float SquareSize, float FloorHeight, float CeilingHeight)

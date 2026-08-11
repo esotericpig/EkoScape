@@ -2,7 +2,7 @@
 /assets/*
 !/assets/maps/
 /pkgs/
-/stock/
+stock/
 
 TODO.cpp
 
@@ -25,8 +25,7 @@ CMakeUserPresets.json
 *.so
 
 # Build files.
-/bin/
-/build/
+build/
 
 *.d
 *.dwo
@@ -41,7 +40,9 @@ CMakeUserPresets.json
 *.slo
 *.smod
 
-# Executable files.
+# Executables.
+bin/
+
 *.app
 *.AppImage
 *.exe

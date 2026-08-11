@@ -3,8 +3,8 @@
 
   "configurePresets": [
     {
-      "name": "base",
       "hidden": true,
+      "name": "base",
 
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/build/${presetName}",
@@ -18,13 +18,15 @@
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
 
-        "CYBEL_OBJECT_LIB": true,
-        "CYBEL_USE_LIBS": true,
-        "CYBEL_USE_CONFIG_PKGS": true,
+        "CYBEL_BUILD_AS_OBJECT_LIB": true,
+        "CYBEL_ENABLE_LIBS": true,
+        "CYBEL_USE_SYSTEM_LIBS": false,
 
-        "CYBEL_USE_SANITIZE": false,
-        "CYBEL_USE_METRICS": false,
         "CYBEL_RENDERER": "GL",
+        "CYBEL_BUILD_EXAMPLES": false,
+        "CYBEL_ENABLE_METRICS": false,
+        "CYBEL_USE_SANITIZERS": false,
+        "CYBEL_USE_PCH": true,
 
         "EKO_EXE_DIR_NAME": "bin/${presetName}",
         "EKO_APPIMAGE_ARCH": ""
@@ -32,15 +34,15 @@
     },
 
     {
-      "name": "default",
       "inherits": "base",
+      "name": "default",
 
       "cacheVariables": {
       }
     },
     {
-      "name": "web",
       "inherits": "base",
+      "name": "web",
 
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
@@ -51,13 +53,26 @@
 
   "buildPresets": [
     {
+      "hidden": true,
+      "name": "base",
+
+      "environment": {
+        "NINJA_STATUS": "[%f/%t %es] "
+      }
+    },
+
+    {
+      "inherits": "base",
       "name": "default",
       "configurePreset": "default",
+
       "nativeToolOptions": []
     },
     {
+      "inherits": "base",
       "name": "web",
       "configurePreset": "web",
+
       "nativeToolOptions": []
     }
   ]

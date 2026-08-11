@@ -10,15 +10,21 @@ add_library(Dantares::Dantares ALIAS Dantares)
 
 target_compile_features(Dantares PUBLIC cxx_std_20)
 
+set(dan_compile_defs "")
+
 if(EMSCRIPTEN)
-    target_compile_definitions(Dantares PUBLIC DANTARES_PLATFORM_WEB)
+    list(APPEND dan_compile_defs DANTARES_PLATFORM_WEB)
 elseif(APPLE)
-    target_compile_definitions(Dantares PUBLIC DANTARES_PLATFORM_MACOS)
+    list(APPEND dan_compile_defs DANTARES_PLATFORM_MACOS)
 elseif(WIN32)
-    target_compile_definitions(Dantares PUBLIC DANTARES_PLATFORM_WINDOWS)
-else() # Linux.
-    target_compile_definitions(Dantares PUBLIC DANTARES_PLATFORM_LINUX)
+    list(APPEND dan_compile_defs DANTARES_PLATFORM_WINDOWS)
+else() # Linux
+    list(APPEND dan_compile_defs DANTARES_PLATFORM_LINUX)
 endif()
+
+target_compile_definitions(Dantares PUBLIC
+    ${dan_compile_defs}
+)
 
 target_include_directories(Dantares PUBLIC
     "src"

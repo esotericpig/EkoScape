@@ -6,6 +6,7 @@
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="VCPKG_ROOT" value="tools/vcpkg_root" />
+            <env name="NINJA_STATUS" value="[%f/%t %es] &gt;" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
@@ -13,6 +14,7 @@
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="VCPKG_ROOT" value="tools/vcpkg_root" />
+            <env name="NINJA_STATUS" value="[%f/%t %es] &gt;" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>

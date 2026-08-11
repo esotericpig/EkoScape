@@ -2,6 +2,9 @@
 # - https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html
 cmake_minimum_required(VERSION 3.22)
 
+# NOTE: Must set before project().
+set(VCPKG_MANIFEST_INSTALL ${CYBEL_ENABLE_LIBS} CACHE BOOL "" FORCE)
+
 ###
 # TODO: Fix this doc up after make all cmake changes.
 #
@@ -48,7 +51,6 @@ project("EkoScape"
 # User Config
 #===========================================
 set(EKO_EXE_DIR_NAME "bin" CACHE STRING "Dir name to output the exe file to.")
-
 # - https://github.com/linuxdeploy/linuxdeploy/releases/tag/continuous
 set(EKO_APPIMAGE_ARCH "" CACHE STRING "Arch of `linuxdeploy-<arch>.AppImage` for target 'appimage'.")
 set_property(CACHE EKO_APPIMAGE_ARCH PROPERTY STRINGS
@@ -186,35 +188,41 @@ target_link_libraries(EkoScape PRIVATE
 #===========================================
 # Source Code
 #===========================================
+if(CYBEL_USE_PCH)
+  target_precompile_headers(EkoScape PRIVATE
+      "libs/CybelEngine/src/cybel/pch.h"
+      "src/ekoscape/global.h"
+  )
+endif()
+
 target_include_directories(EkoScape PRIVATE
     "${CMAKE_SOURCE_DIR}/src"
 )
-# Run `./scripts/glob_src.rb` to show source files to add/remove here.
 target_sources(EkoScape PRIVATE
     "$<$<BOOL:${WIN32}>:${EKO_BUNS_DIR}/windows/res.rc>"
 
     # @glob_src=src:src/
-    "src/ekoscape_game.cpp"
-    "src/main.cpp"
-    "src/assets/art_styles.cpp"
-    "src/assets/assets.cpp"
-    "src/assets/font_renderer.cpp"
-    "src/map/dantares_map.cpp"
-    "src/map/facing.cpp"
-    "src/map/map.cpp"
-    "src/map/map_grid.cpp"
-    "src/map/space.cpp"
-    "src/map/space_type.cpp"
-    "src/scenes/boring_work_scene.cpp"
-    "src/scenes/dantares_renderer.cpp"
-    "src/scenes/game_hud.cpp"
-    "src/scenes/game_overlay.cpp"
-    "src/scenes/game_scene.cpp"
-    "src/scenes/menu_credits_scene.cpp"
-    "src/scenes/menu_play_scene.cpp"
-    "src/scenes/menu_scene.cpp"
-    "src/world/robot.cpp"
-    "src/world/star_sys.cpp"
+    "src/ekoscape/ekoscape.cpp"
+    "src/ekoscape/main.cpp"
+    "src/ekoscape/assets/art_styles.cpp"
+    "src/ekoscape/assets/assets.cpp"
+    "src/ekoscape/assets/font_renderer.cpp"
+    "src/ekoscape/game_scene/dantares_renderer.cpp"
+    "src/ekoscape/game_scene/game_hud.cpp"
+    "src/ekoscape/game_scene/game_overlay.cpp"
+    "src/ekoscape/game_scene/game_scene.cpp"
+    "src/ekoscape/maps/dantares_map.cpp"
+    "src/ekoscape/maps/facing.cpp"
+    "src/ekoscape/maps/map.cpp"
+    "src/ekoscape/maps/map_grid.cpp"
+    "src/ekoscape/maps/space.cpp"
+    "src/ekoscape/maps/space_type.cpp"
+    "src/ekoscape/menu_scenes/boring_work_scene.cpp"
+    "src/ekoscape/menu_scenes/credits_scene.cpp"
+    "src/ekoscape/menu_scenes/main_menu_scene.cpp"
+    "src/ekoscape/menu_scenes/play_menu_scene.cpp"
+    "src/ekoscape/world/robot.cpp"
+    "src/ekoscape/world/star_sys.cpp"
     # @glob_src
 )
 

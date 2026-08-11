@@ -19,8 +19,10 @@
 
 #include "Dantares2.h"
 
+#include<cstddef>
 #include<iomanip>
 #include<ranges>
+#include<string>
 #include<utility>
 
 Dantares2::Dantares2(RendererClass &Renderer, float SquareSize, float FloorHeight, float CeilingHeight)

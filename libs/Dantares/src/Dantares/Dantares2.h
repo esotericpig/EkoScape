@@ -33,6 +33,8 @@ public:
     class RendererClass
     {
     public:
+        using GLuint = Dantares2::GLuint;
+
         struct Vector3f
         {
             float X{}, Y{}, Z{};

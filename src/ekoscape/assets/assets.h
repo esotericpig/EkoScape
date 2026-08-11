@@ -1,0 +1,102 @@
+/*
+ * This file is part of EkoScape.
+ * Copyright (c) 2024 Bradley Whited
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+#ifndef EKOSCAPE_ASSETS_ASSETS_H_
+#define EKOSCAPE_ASSETS_ASSETS_H_
+
+#include "ekoscape/global.h"
+
+#include "ekoscape/assets/art_styles.h"
+#include "ekoscape/assets/asset_ids.h"
+#include "ekoscape/assets/font_renderer.h"
+#include "ekoscape/maps/map.h"
+
+#include <cybel/assets/asset_loader.h>
+#include <cybel/gfx/color.h>
+#include <cybel/gfx/font_atlas.h>
+#include <cybel/scenes/scene_context.h>
+
+#include <filesystem>
+#include <functional>
+#include <string>
+#include <string_view>
+
+namespace ekoscape {
+
+class Assets final : public AssetLoader {
+public:
+  using OnMapFile = std::function<
+    void(const std::string& group,const std::filesystem::path& map_file,Map& map)
+  >;
+
+  static inline const std::filesystem::path kAssetsSubDir{"assets"};
+  static inline const std::filesystem::path kIconsSubDir{"icons"};
+  static inline const std::filesystem::path kImagesSubDir{"images"};
+  static inline const std::filesystem::path kMapsSubDir{"maps"};
+  static inline const std::filesystem::path kMusicSubDir{"music"};
+  static inline const std::filesystem::path kTexturesSubDir{"textures"};
+
+  // For images that don't really work well with make_weird().
+  // - The names mean "for mostly black images," etc.
+  // - The black & white colors were chosen as throwbacks to the original code in `relics/` (v1.0).
+  static constexpr Color4f kWeirdBlackColor{0.01f,1.0f};
+  static constexpr Color4f kWeirdGrayColor = Color4f::kHotPink;
+  static constexpr Color4f kWeirdWhiteColor = Color4f::kWhite;
+
+  explicit Assets(CybelEngine& engine,std::string_view art_style);
+
+  void make_weird(const SceneContext& ctx,bool weird);
+
+  void glob_maps_meta(const AssetMan& assets,const OnMapFile& on_map_file) const;
+
+  void load_cpu_gfx(AssetMan& assets,CpuGfxLoader& gfx) override;
+  void load_gpu_gfx(AssetMan& assets,GpuGfxLoader& gfx) override;
+  void load_audio(AssetMan& assets,AudioLoader& audio) override;
+
+  void prev_art_style();
+  void next_art_style();
+
+  bool is_weird() const;
+
+  const Color4f& eko_color() const;
+  const Color4f& end_color() const;
+  const Color4f& fruit_color() const;
+  const Color4f& portal_color() const;
+  const Color4f& robot_color() const;
+  const Color4f& wall_color() const;
+
+  const std::string& art_style() const;
+  const StyledTextureIds& styled_texture_ids() const;
+
+  FontAtlasId font_atlas_id() const;
+  FontRenderer& font_renderer();
+
+private:
+  bool is_weird_ = false;
+
+  Color4f eko_color_{}; // Cell & Player.
+  Color4f end_color_{};
+  Color4f fruit_color_{};
+  Color4f portal_color_{};
+  Color4f robot_color_{};
+  Color4f wall_color_{};
+
+  ArtStyles art_styles_;
+  FontRenderer font_renderer_{font_atlas_id()};
+
+  void update_colors();
+
+  void load_image(CpuGfxLoader& gfx,ImageId id,const std::filesystem::path& sub_file);
+  void load_texture(GpuGfxLoader& gfx,TextureId id,const std::filesystem::path& sub_file);
+  void load_sprite(GpuGfxLoader& gfx,SpriteId id,const std::filesystem::path& sub_file,
+                   const Color4f& weird_color = Color4f::kNone);
+  void load_font_atlas(GpuGfxLoader& gfx,FontAtlasId id,const std::filesystem::path& sub_file,
+                       const FontAtlas::Config& config);
+};
+
+} // namespace ekoscape
+#endif
