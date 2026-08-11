@@ -11,7 +11,7 @@
 #include "ekoscape/global.h"
 
 #include <cybel/renderer/renderer.h>
-#include <cybel/wraps/opengl.h>
+#include <cybel/wraps/opengl.h> // IWYU pragma: keep
 #include <Dantares/Dantares2.h>
 
 namespace ekoscape {
