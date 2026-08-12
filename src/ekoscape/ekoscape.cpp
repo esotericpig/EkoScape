@@ -260,7 +260,7 @@ void EkoScape::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
 
       // Do not reload the graphics during GameScene or BoringWorkScene (which affects GameScene),
       // else it'll be all white due to not re-generating the map.
-      if(curr_scene_id == SceneAction::kGoToGame || curr_scene_id == SceneAction::kGoToBoringWork) {
+      if(!(curr_scene_id == SceneAction::kGoToGame || curr_scene_id == SceneAction::kGoToBoringWork)) {
         assets_->make_weird(ctx,false);
       }
     } break;
@@ -278,7 +278,9 @@ void EkoScape::on_scene_input_event(input_id_t input_id,SceneContext& ctx) {
 }
 
 void EkoScape::update_scene_logic(const FrameDelta& delta,SceneContext& ctx) {
-  star_sys_.update(delta,ctx.view);
+  if(!star_sys_.is_empty() && SceneActions::has_stars(ctx.scenes.curr_scene_id())) {
+    star_sys_.update(delta,ctx.view);
+  }
 
   // Only update the shown FPS at an interval, else the digits change too fast to read.
   if(avg_fps_ticker_.tick(delta)) {
