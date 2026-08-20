@@ -10,9 +10,9 @@
 
 #include "ekoscape/global.h"
 
+#include <Dantares/Dantares2.h>
 #include <cybel/renderer/renderer.h>
 #include <cybel/wraps/opengl.h> // IWYU pragma: keep
-#include <Dantares/Dantares2.h>
 
 namespace ekoscape {
 
@@ -25,14 +25,14 @@ public:
   void EndDraw() override;
 
   void TranslateModelMatrix(float x,float y,float z) override;
-  void RotateModelMatrix(float angle,float x,float y,float z) override;
+  void RotateModelMatrix(float angle_degrees,float x,float y,float z) override;
   void UpdateModelMatrix() override;
   void PushModelMatrix() override;
   void PopModelMatrix() override;
 
   GLuint GenerateQuadLists(int count) override;
   void DeleteQuadLists(GLuint id,int count) override;
-  void CompileQuadList(GLuint id,int index,const QuadListData& data) override;
+  void CompileQuadList(GLuint id,int index,const QuadListData& quad) override;
   void DrawQuadList(GLuint id,int index) override;
 
 private:

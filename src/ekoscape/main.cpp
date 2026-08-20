@@ -9,8 +9,8 @@
 
 #include "ekoscape/ekoscape.h"
 
-#include <cybel/cybel_engine.h>
 #include <cybel/core/cybel_error.h>
+#include <cybel/cybel_engine.h>
 
 #include <iostream>
 #include <string_view>

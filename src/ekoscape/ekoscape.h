@@ -14,8 +14,8 @@
 #include "ekoscape/core/game_session.h"
 #include "ekoscape/world/star_sys.h"
 
-#include <cybel/game.h>
 #include <cybel/chrono/ticker.h>
+#include <cybel/game.h>
 #include <cybel/scenes/scene_context.h>
 
 #include <memory>

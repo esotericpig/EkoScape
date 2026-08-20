@@ -118,10 +118,10 @@ void MainMenuScene::draw_scene(Renderer& ren,SceneContext& ctx) {
 
   const auto& styled_ids = sesh_.assets.styled_texture_ids();
 
-  ren.wrap_tex(ctx.assets.texture(styled_ids.robot),[&](auto& tex) {
+  ren.wrap_texture(ctx.assets.texture(styled_ids.robot),[&](auto& tex) {
     tex.draw_quad(Pos3i{10,368,0},Size2i{300,256});
   });
-  ren.wrap_tex(ctx.assets.texture(styled_ids.cell),[&](auto& tex) {
+  ren.wrap_texture(ctx.assets.texture(styled_ids.cell),[&](auto& tex) {
     tex.draw_quad(Pos3i{10,634,0},Size2i{300,256});
   });
   ren.wrap_sprite(ctx.assets.sprite(SpriteId::kKeys),[&](auto& s) {

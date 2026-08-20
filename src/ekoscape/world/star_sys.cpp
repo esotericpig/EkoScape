@@ -92,7 +92,7 @@ void StarSys::update(const FrameDelta& delta,const Viewport& view) {
 void StarSys::draw(Renderer& ren,const Texture& tex) {
   if(stars_.empty()) { return; }
 
-  ren.wrap_tex(tex,[&](auto& t) {
+  ren.wrap_texture(tex,[&](auto& t) {
     for(auto& star : stars_) {
       ren.wrap_rotate(star.pos.to_pos3<int>(),star.spin_angle,[&] {
         ren.begin_color(star.color);

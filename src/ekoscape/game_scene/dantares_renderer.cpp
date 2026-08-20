@@ -9,6 +9,9 @@
 
 #include <cybel/math/pos.h>
 
+#include <cassert>
+#include <iterator>
+
 namespace ekoscape {
 
 DantaresRenderer::DantaresRenderer(Renderer& renderer) noexcept
@@ -22,8 +25,8 @@ void DantaresRenderer::TranslateModelMatrix(float x,float y,float z) {
   renderer_.translate_model_matrix(Pos3f{x,y,z});
 }
 
-void DantaresRenderer::RotateModelMatrix(float angle,float x,float y,float z) {
-  renderer_.rotate_model_matrix(angle,Pos3f{x,y,z});
+void DantaresRenderer::RotateModelMatrix(float angle_degrees,float x,float y,float z) {
+  renderer_.rotate_model_matrix(angle_degrees,Pos3f{x,y,z});
 }
 
 void DantaresRenderer::UpdateModelMatrix() {
@@ -39,28 +42,33 @@ void DantaresRenderer::PopModelMatrix() {
 }
 
 GLuint DantaresRenderer::GenerateQuadLists(int count) {
-  return renderer_.gen_quad_buffers(count);
+  return renderer_.gen_quad_commands(count);
 }
 
 void DantaresRenderer::DeleteQuadLists(GLuint id,int count) {
-  renderer_.delete_quad_buffers(id,count);
+  renderer_.delete_quad_commands(id,count);
 }
 
-void DantaresRenderer::CompileQuadList(GLuint id,int index,const QuadListData& data) {
-  renderer_.compile_quad_buffer(id,index,Renderer::QuadBufferData{
-    .tex_handle = data.TextureID,
-    .normal = Pos3f{data.Normal.X,data.Normal.Y,data.Normal.Z},
-    .vertices = {
-      Pos3f{data.Vertices[0].X,data.Vertices[0].Y,data.Vertices[0].Z},
-      Pos3f{data.Vertices[1].X,data.Vertices[1].Y,data.Vertices[1].Z},
-      Pos3f{data.Vertices[2].X,data.Vertices[2].Y,data.Vertices[2].Z},
-      Pos3f{data.Vertices[3].X,data.Vertices[3].Y,data.Vertices[3].Z},
-    },
-  });
+void DantaresRenderer::CompileQuadList(GLuint id,int index,const QuadListData& quad) {
+  QuadCommand cybel_quad{
+    .normal = Pos3f{quad.Normal.X,quad.Normal.Y,quad.Normal.Z},
+    .tex_handle = quad.TextureID,
+  };
+
+  assert(std::size(quad.Vertices) >= 4);
+  assert(std::size(cybel_quad.vertices) >= 4);
+
+  for(std::size_t i = 0; i < 4; ++i) {
+    const auto& v = quad.Vertices[i];
+
+    cybel_quad.vertices[i] = Pos3f{v.X,v.Y,v.Z};
+  }
+
+  renderer_.compile_quad_command(id,index,cybel_quad);
 }
 
 void DantaresRenderer::DrawQuadList(GLuint id,int index) {
-  renderer_.draw_quad_buffer(id,index);
+  renderer_.draw_quad_command(id,index);
 }
 
 } // namespace ekoscape
